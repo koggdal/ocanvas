@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>HTML5 Canvas Test</title>
+	
+	<link rel="stylesheet" type="text/css" href="reset.css" />
+	<link rel="stylesheet" type="text/css" href="experiments.css" />
+	<meta name="viewport" content="width=578" />
+	
+	<script src="http://code.jquery.com/jquery.min.js" type="text/javascript"></script>
+	<script type="text/javascript" src="ocanvas.js"></script>
+	<script type="text/javascript" src="experiments.js"></script>
+</head>
+<body>
+	<header>
+		<h1>HTML5 Canvas Test</h1>
+		<p>Create new shapes with the buttons below, and then click Start to animate them. You can also start the animation and then create shapes.</p>
+	</header>
+	<section>
+		<canvas id="canvas" width="578" height="400"></canvas>
+		<button type="button" id="start">Start</button>
+		<button type="button" id="reset">Reset</button>
+		<button type="button" id="rotate">Rotate 1 frame</button>
+		<input type="checkbox" id="follow_cursor" /><label for="follow_cursor">Follow cursor</label>
+		<fieldset id="fps">
+			<span>Calculated fps:</span> <span id="calculated_fps">0</span>
+			<input type="text" name="framerate" id="framerate" /> fps
+			<button id="update_framerate">Update</button>
+		</fieldset>
+		<br /><br />
+		New: 
+		<button type="button" id="newLine">Line</button>
+		<button type="button" id="newRectangle">Rectangle</button>
+		<button type="button" id="newPolygon">Polygon</button>
+		<button type="button" id="newEllipse">Ellipse</button>
+		<button type="button" id="newArc">Arc</button>
+		<button type="button" id="newPoint">Point</button>
+		<button type="button" id="newImage">Image</button>
+	</section>
+	<aside id="console"></aside>
+	<footer>
+		<p>&copy; 2010 Johannes Koggdal</p>
+	</footer>
+</body>
+</html>
