@@ -4,7 +4,7 @@
 	if (typeof Object.create !== "function") {
 		Object.create = function (o) {
 			function F() {}
-			F.prototype = (typeof o == "function") ? new o() : o;
+			F.prototype = (typeof o === "function") ? new o() : o;
 			return new F();
 		}
 	}
@@ -24,8 +24,90 @@
 		// Array containing all canvases created by oCanvas on the current page
 		canvasList: [],
 		
+		// Object containing all the registered modules
+		modules: {},
+		
 		// Define the core class
-		core: function () {},
+		core: function () {
+			
+			// Add the registered modules to the new instance of core
+			for (var m in oCanvas.modules) {
+				this[m] = new oCanvas.modules[m]();
+			}
+			
+			// Add properties and methods to the core object
+			var obj = oCanvas.extend({
+			
+				// Set up default settings
+				settings: {
+					fps: 30,
+					background: "transparent",
+					clearEachFrame: false,
+					drawEachFrame: true,
+					disableScrolling: false
+				},
+				
+				setup: function(options) {
+	
+					// Update the settings with the user specified settings
+					oCanvas.extend(obj.settings, options);
+					
+					// Set canvas to specified element
+					if (obj.settings.canvas.nodeName === "CANVAS") {
+						obj.canvasElement = obj.settings.canvas;
+					}
+					
+					// Set canvas to the element specified using a selector
+					else if (typeof obj.settings.canvas === "string") {
+						obj.canvasElement = document.querySelector(obj.settings.canvas);
+					}
+					
+					// Return false if no canvas was specified
+					else {
+						return false;
+					}
+					
+					// Get the canvas context and dimensions
+					obj.canvas = obj.canvasElement.getContext("2d");
+					obj.width = obj.canvasElement.width;
+					obj.height = obj.canvasElement.height;
+					
+					// Method for setting the function to be called for each frame
+					obj.setLoop = function(callback){
+						obj.settings.mainLoop = callback;
+					};
+					
+					// Initialize modules
+					//obj.scenes = Object.create(obj.scenesCanvas());
+					//obj.timeline.init();
+					//obj.mouse.init();
+					//obj.keyboard.init();
+					//obj.play = obj.timeline.start;
+					//obj.pause = obj.timeline.stop;
+					//obj.background.set(obj.settings.background);
+					
+					// Add plugins if specified
+					//if (obj.settings.plugins !== undefined)
+					//	oCanvas.utils.addPluginsToCanvas(obj.settings.plugins, obj.settings.canvasID);
+				}
+				
+			}, oCanvas.extend(this, oCanvas.core.prototype));
+			
+			// Set the core instance in all modules to enable access of core properties inside of modules
+			for (var m in oCanvas.modules) {
+				if (typeof this[m].setCore === "function") {
+					this[m].setCore(obj);
+				}
+			}
+			
+			// Return the new instance of core
+			return obj;
+		},
+		
+		// Method for registering a new module
+		registerModule: function (name, module) {
+			oCanvas.modules[name] = module;
+		},
 		
 		// Function for creating a new instance of oCanvas
 		newCanvas: function (func) {
@@ -43,55 +125,8 @@
 			return canvas;
 		}
 	};
-	
-	// Set up default settings
-	oCanvas.core.prototype.settings = {
-		fps: 30,
-		background: "transparent",
-		clearEachFrame: false,
-		drawEachFrame: true,
-		disableScrolling: false
-	};
-	
-	// Method for setting up the new canvas
-	oCanvas.core.prototype.setup = function(options) {
-		var core = this;
-	
-		// Update the settings with the user specified settings
-		core.extend(core.settings, options);
-		
-		// Set canvas to specified element
-		if (core.settings.canvas.nodeName === "CANVAS")
-			core.canvasElement = core.settings.canvas;
-		
-		// Set canvas to the element specified using a selector
-		else if (typeof core.settings.canvas === "string")
-			core.canvasElement = document.querySelector(core.settings.canvas);
-		
-		// Return false if no canvas was specified
-		else return false;
-		
-		// Get the canvas context and dimensions
-		core.canvas = core.canvasElement.getContext("2d");
-		core.width = core.canvasElement.width;
-		core.height = core.canvasElement.height;
-		
-		// Initialize modules
-		//core.scenes = Object.create(core.scenesCanvas());
-		//core.timeline.init();
-		//core.mouse.init();
-		//core.keyboard.init();
-		//core.play = core.timeline.start;
-		//core.pause = core.timeline.stop;
-		//core.background.set(core.settings.background);
-		
-		// Add plugins if specified
-		//if (core.settings.plugins !== undefined)
-		//	oCanvas.utils.addPluginsToCanvas(core.settings.plugins, core.settings.canvasID);
-	};
 
 	// Attach the oCanvas object to the window object for access outside of this file
 	window.oCanvas = oCanvas;
-	
 	
 })(window, document);
