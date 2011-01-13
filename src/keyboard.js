@@ -137,7 +137,7 @@
 			preventkeypress: function (e) {
 				var keyCode, modifiedKeys, code;
 				
-				if (this.core.mouse.canvasFocused === true) {
+				if (this.core.mouse && this.core.mouse.canvasFocused === true) {
 					keyCode = this.getKeyCode(e);
 					modifiedKeys = this.modifiedKeys;
 					

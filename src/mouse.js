@@ -144,7 +144,7 @@
 			mouseout: function(e){
 				
 				if (this.core.draw) {
-					var objects = this.core.draw.state.objects,
+					var objects = this.core.draw.objects,
 						i, events;
 					
 					// Loop through all drawn objects
