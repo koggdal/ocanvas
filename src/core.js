@@ -95,7 +95,7 @@
 					//obj.keyboard.init();
 					//obj.play = obj.timeline.start;
 					//obj.pause = obj.timeline.stop;
-					//obj.background.set(obj.settings.background);
+					obj.background.set(obj.settings.background);
 					
 					// Add plugins if specified
 					//if (obj.settings.plugins !== undefined)
