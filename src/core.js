@@ -27,6 +27,9 @@
 		// Object containing all the registered modules
 		modules: {},
 		
+		// Object containing all the registered init methods
+		inits: {},
+		
 		// Define the core class
 		core: function () {
 			
@@ -75,7 +78,15 @@
 					// Method for setting the function to be called for each frame
 					obj.setLoop = function(callback){
 						obj.settings.mainLoop = callback;
+						return obj.timeline ? obj.timeline : false;
 					};
+					
+					// Initialize added modules that have registered init methods
+					for (var name in oCanvas.inits) {
+						if (typeof obj[name][oCanvas.inits[name]] === "function") {
+							obj[name][oCanvas.inits[name]]();
+						}
+					}
 					
 					// Initialize modules
 					//obj.scenes = Object.create(obj.scenesCanvas());
@@ -107,6 +118,11 @@
 		// Method for registering a new module
 		registerModule: function (name, module) {
 			oCanvas.modules[name] = module;
+		},
+		
+		// Method for registering a new init method to be run on creation
+		registerInit: function (name, init) {
+			oCanvas.inits[name] = init;
 		},
 		
 		// Function for creating a new instance of oCanvas

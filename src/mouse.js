@@ -22,21 +22,22 @@
 			
 			// Method for initializing the module
 			init: function () {
-				var core = this.core,
+				var _this = this,
+					core = this.core,
 					canvasElement = core.canvasElement;
 				
 				// Define properties
-				this.x = core.width / 2;
-				this.y = core.height / 2;
+				this.x = 0;
+				this.y = 0;
 				this.buttonState = 'up';
 				this.canvasFocused = false;
 				this.canvasHovered = false;
 				
 				// Add event listeners to the canvas element
-				canvasElement.addEventListener('mousemove', this.mousemove, false);
-				canvasElement.addEventListener('click', this.click, false);
-				canvasElement.addEventListener('mousedown', this.mousedown, false);
-				canvasElement.addEventListener('mouseup', this.mouseup, false);
+				canvasElement.addEventListener('mousemove', function (e) { _this.mousemove.call(_this, e); }, false);
+				canvasElement.addEventListener('click', function (e) { _this.click.call(_this, e); }, false);
+				canvasElement.addEventListener('mousedown', function (e) { _this.mousedown.call(_this, e); }, false);
+				canvasElement.addEventListener('mouseup', function (e) { _this.mouseup.call(_this, e); }, false);
 				
 				if (core.settings.disableScrolling) {
 					// Add event listener to prevent scrolling on touch devices
@@ -44,9 +45,9 @@
 				}
 				
 				// Add event listeners to the canvas element (used for settings states and trigger mouseup events)
-				document.addEventListener('mouseup', this.docmouseup, false);
-				document.addEventListener('mouseover', this.docmouseover, false);
-				document.addEventListener('click', this.docclick, false);
+				document.addEventListener('mouseup', function (e) { _this.docmouseup.call(_this, e); }, false);
+				document.addEventListener('mouseover', function (e) { _this.docmouseover.call(_this, e); }, false);
+				document.addEventListener('click', function (e) { _this.docclick.call(_this, e); }, false);
 			},
 			
 			// Method for adding an event to the event list
@@ -63,13 +64,13 @@
 			updatePos: function (e) {
 				// Browsers supporting pageX/pageY
 				if (e.pageX && e.pageY) {
-					this.x = e.pageX - this.canvasElement.offsetLeft;
-					this.y = e.pageY - this.canvasElement.offsetTop;
+					this.x = e.pageX - this.core.canvasElement.offsetLeft;
+					this.y = e.pageY - this.core.canvasElement.offsetTop;
 				}
 				// Browsers not supporting pageX/pageY
 				else if (e.clientX && e.clientY) {
-					this.x = e.clientX + document.documentElement.scrollLeft - this.canvasElement.offsetLeft;
-					this.y = e.clientY + document.documentElement.scrollTop - this.canvasElement.offsetTop;
+					this.x = e.clientX + document.documentElement.scrollLeft - this.core.canvasElement.offsetLeft;
+					this.y = e.clientY + document.documentElement.scrollTop - this.core.canvasElement.offsetTop;
 				}
 			},
 			
@@ -82,7 +83,7 @@
 			
 			// Method for checking if the mouse pointer is inside the canvas
 			onCanvas: function (e) {
-				var pos = this.getPos(e);
+				var pos = e ? this.getPos(e) : {x:this.x, y:this.y};
 				
 				// Check boundaries => (left) && (right) && (top) && (bottom)
 				if ( (pos.x > 0) && (pos.x < this.core.width) && (pos.y > 0) && (pos.y < this.core.height) ) {
@@ -189,5 +190,6 @@
 
 	// Register the module
 	oCanvas.registerModule("mouse", mouse);
+	oCanvas.registerInit("mouse", "init");
 
 })(oCanvas, window, document);

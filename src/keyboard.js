@@ -27,12 +27,13 @@
 			
 			// Method for initializing the keyboard object
 			init: function () {
+				var _this = this;
 				this.running = false;
 				
 				// Add event listeners to the document
-				document.addEventListener("keydown", this.keydown, false);
-				document.addEventListener("keyup", this.keyup, false);
-				document.addEventListener("keypress", this.preventkeypress, false);
+				document.addEventListener("keydown", function (e) { _this.keydown.call(_this, e); }, false);
+				document.addEventListener("keyup", function (e) { _this.keyup.call(_this, e); }, false);
+				document.addEventListener("keypress", function (e) { _this.preventkeypress.call(_this, e); }, false);
 			},
 			
 			// Method for adding an event to the event list
@@ -154,5 +155,6 @@
 	
 	// Register the module
 	oCanvas.registerModule("keyboard", keyboard);
+	oCanvas.registerInit("keyboard", "init");
 
 })(oCanvas, window, document);
