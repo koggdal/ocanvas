@@ -14,6 +14,7 @@
 			eventList: {
 				mousemove: [],
 				mouseover: [],
+				mouseout: [],
 				click: [],
 				mousedown: [],
 				mouseup: [],
@@ -142,6 +143,7 @@
 			
 			// Method that triggers all mouseout events that are added (gets triggered by mouse::docmouseover
 			mouseout: function(e){
+				this.triggerEvents("mouseout", e);
 				
 				if (this.core.draw) {
 					var objects = this.core.draw.objects,
