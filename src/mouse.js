@@ -52,7 +52,8 @@
 			
 			// Method for adding an event to the event list
 			addEvent: function (type, obj) {
-				return this.eventList[type].push(obj.events[type].func) - 1;
+				var cb = (typeof obj === "function") ? obj : obj.events[type].func;
+				return this.eventList[type].push(cb) - 1;
 			},
 			
 			// Method for removing an event from the event list
