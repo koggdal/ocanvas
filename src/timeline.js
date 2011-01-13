@@ -28,8 +28,8 @@
 					//	this.core.clear();
 					//}
 					
-					// Trigger the user defined function mainLoop
-					this.core.settings.mainLoop();
+					// Trigger the user defined function mainLoop and set this to the current core instance
+					this.core.settings.mainLoop.call(this.core);
 					
 					// Redraw the canvas if specified
 					//if (this.core.settings.drawEachFrame === true) {
