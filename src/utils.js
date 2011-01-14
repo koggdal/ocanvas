@@ -1,5 +1,14 @@
 (function(oCanvas, window, document, undefined){
 
+	// Define Object.create if not available
+	if (typeof Object.create !== "function") {
+		Object.create = function (o) {
+			function F() {}
+			F.prototype = (typeof o === "function") ? new o() : o;
+			return new F();
+		}
+	}
+
 	// usage: log('inside coolFunc',this,arguments);
 	// http://paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
 	window.log = function () {

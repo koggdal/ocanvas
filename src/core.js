@@ -1,14 +1,5 @@
 (function(window, document, undefined){
 
-	// Define Object.create if not available
-	if (typeof Object.create !== "function") {
-		Object.create = function (o) {
-			function F() {}
-			F.prototype = (typeof o === "function") ? new o() : o;
-			return new F();
-		}
-	}
-
 	// Define the oCanvas object
 	var oCanvas = {
 	
@@ -35,7 +26,7 @@
 			
 			// Add the registered modules to the new instance of core
 			for (var m in oCanvas.modules) {
-				this[m] = new oCanvas.modules[m]();
+				this[m] = Object.create(oCanvas.modules[m]());
 			}
 			
 			// Add properties and methods to the core object
