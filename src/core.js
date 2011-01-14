@@ -41,7 +41,8 @@
 					disableScrolling: false
 				},
 				
-				setup: function(options) {
+				// Method for setting up the new object with custom settings
+				setup: function (options) {
 	
 					// Update the settings with the user specified settings
 					oCanvas.extend(obj.settings, options);
@@ -79,21 +80,42 @@
 						}
 					}
 					
-					// Initialize modules
-					//obj.scenes = Object.create(obj.scenesCanvas());
-					//obj.timeline.init();
-					//obj.mouse.init();
-					//obj.keyboard.init();
-					//obj.play = obj.timeline.start;
-					//obj.pause = obj.timeline.stop;
-					obj.background.set(obj.settings.background);
+					// Set background to the specified background
+					if (obj.background) {
+						obj.background.set(obj.settings.background);
+					}
 					
 					// Add plugins if specified
 					//if (obj.settings.plugins !== undefined)
 					//	oCanvas.utils.addPluginsToCanvas(obj.settings.plugins, obj.settings.canvasID);
-				}
+				},
 				
-			}, oCanvas.extend(this, oCanvas.core.prototype));
+				// Method for adding an object to the canvas
+				addChild: function (displayobj) {
+					displayobj.add();
+				},
+				
+				// Method for removing an object from the canvas
+				removeChild: function (displayobj) {
+					displayobj.remove();
+				},
+				
+				// Shorthand method for clearing the canvas
+				clear: function (keepBackground) {
+					obj.draw.clear(keepBackground);
+				},
+				
+				// Method for binding an event to the canvas
+				bind: function (type, handler) {
+					obj.events.bind(obj.canvasElement, type, handler);
+				},
+				
+				// Method for unbinding an event from the object
+				unbind: function (type, handler) {
+					obj.events.unbind(obj.canvasElement, type, handler);
+				},
+				
+			}, this);
 			
 			// Set the core instance in all modules to enable access of core properties inside of modules
 			for (var m in oCanvas.modules) {
