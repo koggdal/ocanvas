@@ -52,9 +52,9 @@
 			},
 			
 			// Method for loading a specific scene
-			load: function (name) {
+			load: function (name, unload) {
 				// Unload last scene if not done already
-				if (this.current !== "none") {
+				if (unload === true && this.current !== "none") {
 					this.unload(this.current);
 				}
 				this.current = name;
