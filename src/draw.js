@@ -15,16 +15,13 @@
 			drawn: [],
 			lastObjectID: 0,
 			
-			// Method for incrementing the last object ID and returning the new ID
-			nextObjectID: function () {
-				this.lastObjectID++;
-				return this.lastObjectID;
-			},
-			
 			// Method for adding a new object to the object list that will be drawn
 			add: function (obj) {
-				this.objects[obj.objectID - 1] = obj;
-				this.drawn[obj.objectID - 1] = false;
+				var id = ++this.lastObjectID;
+				this.objects[id - 1] = obj;
+				this.drawn[id - 1] = false;
+				
+				return id;
 			},
 			
 			// Method for removing an object from the object list
