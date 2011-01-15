@@ -53,7 +53,7 @@
 				for (i = 0; i < l; i++) {
 					obj = objects[i];
 					if (obj !== null) {
-						if (typeof obj.drawObject === "function") {
+						if (typeof obj.draw === "function") {
 						
 							// Update the object's properties if an update method is available
 							if (typeof obj.update === "function") {
@@ -61,14 +61,14 @@
 							}
 							
 							// Temporarily move the canvas origin and rotation
-							this.core.transform.transformCanvas(obj.x, obj.y, obj.rotation);
+							//this.core.transform.transformCanvas(obj.x, obj.y, obj.rotation);
 							
 							// Draw the object
-							obj.drawObject();
+							obj.draw();
 							this.drawn[i] = true;
 							
 							// Reset the origin and rotation
-							this.core.transform.transformCanvas(0, 0, 0);
+							//this.core.transform.transformCanvas(0, 0, 0);
 						}
 					}
 				}
