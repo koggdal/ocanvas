@@ -221,5 +221,20 @@
 	
 	// Second namespace where objects gets placed
 	oCanvas.registerModule("display", { wrapper: true });
+	
+	// Add method to oCanvas to enable display objects to be added
+	oCanvas.registerDisplayObject = function (name, obj) {
+		// Register the object as a submodule to display
+		oCanvas.registerModule("display."+name, {
+			// Method for getting the core instance
+			setCore: function (thecore) {
+				// Method that core.display.rectangle() will call
+				return function (settings) {
+					// Return a new rectangle object that inherits from displayObject
+					return oCanvas.extend(Object.create(thecore.displayObject), new obj(settings, thecore));
+				};
+			}
+		});
+	};
 
 })(oCanvas, window, document);
