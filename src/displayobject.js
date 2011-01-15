@@ -22,6 +22,10 @@
 				y: 0
 			},
 			rotation: 0,
+			fill: "#000000",
+			stroke: "",
+			strokeWidth: 0,
+			strokePosition: "outside",
 			drawn: false,
 			events: {},
 			
@@ -211,8 +215,11 @@
 			}
 		};
 	};
-
+	
 	// Register the module
 	oCanvas.registerModule("displayObject", displayObject);
+	
+	// Second namespace where objects gets placed
+	oCanvas.registerModule("display", { wrapper: true });
 
 })(oCanvas, window, document);

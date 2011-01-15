@@ -26,7 +26,11 @@
 			
 			// Add the registered modules to the new instance of core
 			for (var m in oCanvas.modules) {
-				this[m] = Object.create(oCanvas.modules[m]());
+				if (typeof oCanvas.modules[m] === "function") {
+					this[m] = Object.create(oCanvas.modules[m]());
+				} else {
+					this[m] = Object.create(oCanvas.modules[m]);
+				}
 			}
 			
 			// Add properties and methods to the core object
@@ -119,6 +123,20 @@
 			
 			// Set the core instance in all modules to enable access of core properties inside of modules
 			for (var m in oCanvas.modules) {
+			
+				// Add core access to modules in a wrapper module (like display objects that reside in the wrapper display)
+				if (this[m].wrapper === true) {
+					for (var wm in this[m]) {
+						if (typeof this[m][wm] === "object" && typeof this[m][wm].setCore === "function") {
+							this[m][wm] = this[m][wm].setCore(obj);
+						}
+						else if (typeof this[m][wm].setCore === "function") {
+							this[m][wm].setCore(obj);
+						}
+					}
+				}
+				
+				// Add core access to modules that reside directly in the core
 				if (typeof this[m].setCore === "function") {
 					this[m].setCore(obj);
 				}
@@ -130,7 +148,12 @@
 		
 		// Method for registering a new module
 		registerModule: function (name, module) {
-			oCanvas.modules[name] = module;
+			if (~name.indexOf(".")) {
+				var parts = name.split(".");
+				oCanvas.modules[parts[0]][parts[1]] = module;
+			} else {
+				oCanvas.modules[name] = module;
+			}
 		},
 		
 		// Method for registering a new init method to be run on creation
