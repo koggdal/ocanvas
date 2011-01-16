@@ -16,39 +16,53 @@
 
 			// Method for creating a new scene
 			create: function (name, loadMethod) {
-				this.scenes[name] = oCanvas.extend({ load: loadMethod }, Object.create(this.scenesBase));
+				this.scenes[name] = oCanvas.extend(Object.create(this.scenesBase()), {
+					name: name,
+					load: function () {
+						if (this.loaded) {
+							this.unload();
+						}
+						this.loaded = true;
+						loadMethod.call(this);
+					}
+				});
 			},
 			
 			// Object base that will be instantiated for each new scene
-			scenesBase: {
+			scenesBase: function () {
 			
-				// Container for all objects that are added to the scene
-				objects: [],
+				return {
+					name: "",
 				
-				// Method for adding objects to the scene
-				add: function (obj) {
-					return this.objects[this.objects.push(obj) - 1];
-				},
-				
-				// Method for unloading the scene (removes all added objects from the canvas)
-				unload: function () {
-					var objects = this.objects,
-						i;
+					// Container for all objects that are added to the scene
+					objects: [],
 					
-					// Loop through all added objects
-					for (i = objects.length; i--;) {
-						if (objects[i] !== null) {
-						
-							// Remove the object from canvas, object list and memory
-							objects[i].remove();
-							objects[i] = null;
-							delete objects[i];
+					loaded: false,
+					
+					// Method for adding objects to the scene
+					add: function (obj) {
+						this.objects.push(obj);
+						return obj;
+					},
+					
+					// Method for unloading the scene (removes all added objects from the canvas)
+					unload: function () {
+						var objects = this.objects,
+							i, l = objects.length;
+							
+						// Loop through all added objects
+						for (i = 0; i < l; i++) {
+							if (objects[i] !== undefined) {
+								// Remove the object from canvas
+								objects[i].remove();
+							}
 						}
+						
+						// Reset the object list
+						this.objects = [];
+						this.loaded = false;
 					}
-					
-					// Reset the object list
-					this.objects = [];
-				}
+				};
 			},
 			
 			// Method for loading a specific scene
@@ -58,7 +72,7 @@
 					this.unload(this.current);
 				}
 				this.current = name;
-				this.scenes[name].load.call(this.scenes[name]);
+				this.scenes[name].load();
 			},
 			
 			// Method for unloading a specific scene
