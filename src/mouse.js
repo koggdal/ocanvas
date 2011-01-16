@@ -150,16 +150,14 @@
 						i, events;
 					
 					// Loop through all drawn objects
-					for (i = objects.length; i--;) {
-						if (objects[i] !== null){
-							events = objects[i].events;
-							
-							// Trigger mouseout event on current object if mouse pointer is over the object
-							if (events.mouseontarget === true) {
-								events.mouseontarget = false;
-								events.mouseout.f(e);
-								objects[i].draw();
-							}
+					for (i in objects) {
+						events = objects[i].events;
+						
+						// Trigger mouseout event on current object if mouse pointer is over the object
+						if (events.mouseontarget === true) {
+							events.mouseontarget = false;
+							events.mouseout.f(e);
+							objects[i].draw();
 						}
 					}
 					

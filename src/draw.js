@@ -11,8 +11,8 @@
 			},
 
 			// Set properties
-			objects: [],
-			drawn: [],
+			objects: {},
+			drawn: {},
 			lastObjectID: 0,
 			
 			// Method for adding a new object to the object list that will be drawn
@@ -26,7 +26,9 @@
 			
 			// Method for removing an object from the object list
 			remove: function (id) {
-				this.objects[id - 1] = null;
+				delete this.objects[id - 1];
+				delete this.drawn[id - 1];
+				this.redraw();
 			},
 			
 			// Method for clearing the canvas from everything that has been drawn (bg can be kept)
@@ -41,18 +43,17 @@
 			},
 			
 			// Method for drawing all objects in the object list
-			redraw: function(triggerID){
+			redraw: function(){
 				var objects = this.objects,
-					l = objects.length,
 					i, obj;
 				
 				// Clear the canvas (keep the background)
 				this.clear();
 				
 				// Loop through all objects
-				for (i = 0; i < l; i++) {
+				for (i in objects) {
 					obj = objects[i];
-					if (obj !== null) {
+					if (obj !== undefined) {
 						if (typeof obj.draw === "function") {
 						
 							// Update the object's properties if an update method is available
