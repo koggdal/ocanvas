@@ -14,15 +14,28 @@
 			// Init method for loading the image resource
 			init: function () {
 				var _this = this,
+				
+					// Get source (settings.image can be either an HTML img element or a string with path to the image)
 					source = (this.image.nodeName === "IMG") ? "htmlImg" : "newImg";
+				
+				// Get image object (either create a copy of the current element, or a new image)
 				this.img = (source === "htmlImg") ? this.image.cloneNode(false) : new Image();
+				
+				// Temporarily append it to the canvas to be able to get dimensions
+				this.core.canvasElement.appendChild(this.img);
+				
+				// Get dimensions when the image is loaded. Also, remove the temp img from DOM
 				this.img.onload = function () {
 					_this.loaded = true;
 					_this.width = this.width;
 					_this.height = this.height;
+					_this.core.canvasElement.removeChild(this);
 				};
-				if (source === "newImg")
+				
+				// Set the path to the image if a string was passed in
+				if (source === "newImg") {
 					this.img.src = this.image;
+				}
 			},
 			
 			// Method that draws the image to the canvas once it's loaded
