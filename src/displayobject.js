@@ -2,6 +2,14 @@
 
 	// Define the class
 	var displayObject = function () {
+	
+		// Method for setting a stroke property. Updates both obj.stroke and obj.property
+		var setStrokeProperty = function (_this, property, value, objectProperty, thecore) {
+			var stroke = thecore.style.getStroke(_this.stroke);
+			stroke[property] = value;
+			_this._.stroke = thecore.style.getStroke(stroke, "string");
+			_this._[objectProperty] = value;
+		};
 		
 		// Return an object when instantiated
 		return {
@@ -22,12 +30,67 @@
 				y: 0
 			},
 			rotation: 0,
-			fill: "#000000",
-			stroke: "",
-			strokeWidth: 0,
-			strokePosition: "outside",
+			fill: "",
 			drawn: false,
 			events: {},
+			
+			_: {
+				stroke: "",
+				strokeColor: "",
+				strokeWeight: 0,
+				strokePosition: "outside"
+			},
+			
+			// Setter for stroke color
+			set strokeColor (color) {
+				setStrokeProperty(this, "color", color, "strokeColor", this.core);
+			},
+			
+			// Setter for stroke weight
+			set strokeWeight (weight) {
+				setStrokeProperty(this, "weight", weight, "strokeWeight", this.core);
+			},
+			
+			// Setter for stroke position
+			set strokePosition (pos) {
+				setStrokeProperty(this, "pos", pos, "strokePosition", this.core);
+			},
+			
+			// Setter for stroke
+			set stroke (value) {
+			
+				// Convert the value to a correct string if it is not a string
+				if (typeof value !== "string") {
+					value = this.core.style.getStroke(value, "string");
+				}
+				
+				// Get stroke object and set styles
+				var stroke = this.core.style.getStroke(value);
+				this._.strokeColor = stroke.color;
+				this._.strokeWeight = stroke.weight;
+				this._.strokePosition = stroke.pos;
+				this._.stroke = value;
+			},
+			
+			// Getter for stroke
+			get stroke () {
+				return this._.stroke;
+			},
+			
+			// Getter for stroke color
+			get strokeColor () {
+				return this._.strokeColor;
+			},
+			
+			// Getter for stroke weight
+			get strokeWeight () {
+				return this._.strokeWeight;
+			},
+			
+			// Getter for stroke position
+			get strokePosition () {
+				return this._.strokePosition;
+			},
 			
 			// Method for binding an event to the object
 			bind: function (type, handler) {
@@ -231,7 +294,7 @@
 				// Method that core.display.rectangle() will call
 				return function (settings) {
 					// Return a new rectangle object that inherits from displayObject
-					return oCanvas.extend(Object.create(thecore.displayObject), new obj(settings, thecore));
+					return oCanvas.extend(Object.create(displayObject), new obj(settings, thecore));
 				};
 			}
 		});
