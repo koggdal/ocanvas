@@ -10,6 +10,8 @@
 				this.core = thecore;
 			},
 
+			// Method for converting a stroke to either an object or a string
+			// Fixes errors if found
 			getStroke: function (value, return_type) {
 				return_type = (return_type === "string") ? "string" : "object";
 			
@@ -93,6 +95,88 @@
 				}
 				else if (return_type === "object") {
 					return stroke;
+				}
+			},
+			
+			// Method for converting a font to either a string or an object
+			getFont: function (value, return_type) {
+				return_type = (return_type === "string") ? "string" : "object";
+				
+				// Convert object to string with default values if unspecified
+				if (typeof value === "object" && return_type === "string") {
+					var val = value;
+					value = (typeof val.style === "string" ? val.style : "normal");
+					value += " " + (typeof val.variant === "string" ? val.variant : "normal");
+					value += " " + (typeof val.weight === "string" ? val.weight : "*normal");
+					value += " " + (typeof val.size === "number" ? val.size+"px" : "16px");
+					value += "/" + (typeof val.lineHeight === "number" ? val.lineHeight : 1.5);
+					value += " " + (typeof val.family === "string" ? val.family : "'Helvetica Neue', Arial, Helvetica, sans-serif");
+				}
+				
+				if (value.length > 0) {
+				
+					// Get font settings
+					var font = value.split(" "),
+						l = font.length,
+						i, value, splits, n, family = "",
+						styles = ["normal", "italic", "oblique"],
+						variants = ["normal", "small-caps"],
+						weights = ["normal", "bold", "bolder", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900"],
+						font_object = {};
+					
+					for (i = 0; i < l; i++) {
+						value = font[i];
+						
+						// Font style
+						if (~styles.indexOf(value) && !font_object.style) {
+							font_object.style = value;
+						} else
+						// Font variant
+						if (~variants.indexOf(value) && !font_object.variant) {
+							font_object.variant = value;
+						} else
+						// Font weight
+						if (~weights.indexOf(value) && !font_object.weight) {
+							font_object.weight = value;
+						} else
+	
+						if (~value.indexOf("/") && !font_object.size && !font_object.lineHeight) {
+							splits = value.split("/");
+							// Font size
+							if (!isNaN(parseInt(splits[0]))) {
+								font_object.size = parseInt(splits[0]);
+							}
+							// Line height
+							if (!isNaN(parseFloat(splits[1]))) {
+								font_object.lineHeight = parseFloat(splits[1]);
+							}
+						} else
+						
+						// Font family
+						if (isNaN(parseInt(value)) && !font_object.family) {
+							family = "";
+							for (n = i; n < l; n++) {
+								family += font[n] + (n === l-1 ? "" : " ")
+							}
+							font_object.family = family;
+						}
+					}
+				}
+
+				// Set default values if unspecified
+				font = font_object || {};
+				font.style = font.style ? font.style : "normal";
+				font.variant = font.variant ? font.variant : "normal";
+				font.weight = font.weight ? font.weight : "normal";
+				font.size = font.size ? font.size : 16;
+				font.lineHeight = font.lineHeight ? font.lineHeight : 1.5;
+				font.family = font.family ? font.family : "'Helvetica Neue', Arial, Helvetica, sans-serif";
+				
+				if (return_type === "string") {
+					return font.style + " " + font.variant + " " + font.weight + " " + font.size + "px/" + font.lineHeight + " " + font.family;
+				}
+				else if (return_type === "object") {
+					return font;
 				}
 			},
 			
