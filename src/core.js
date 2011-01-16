@@ -165,7 +165,7 @@
 		newCanvas: function (func) {
 		
 			// Create the new instance and put it in the canvas list
-			var canvas = Object.create(oCanvas.core),
+			var canvas = new oCanvas.core(),
 				canvasID = oCanvas.canvasList.push(canvas) - 1;
 			canvas.settings.canvasID = canvasID;
 			

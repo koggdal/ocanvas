@@ -300,7 +300,7 @@
 				return function (settings) {
 				
 					// Create a new rectangle object that inherits from displayObject
-					var retObj = oCanvas.extend(Object.create(displayObject), new obj(settings, thecore));
+					var retObj = oCanvas.extend(Object.create(displayObject()), new obj(settings, thecore));
 					
 					// Trigger an init method if specified
 					if (init !== undefined) {

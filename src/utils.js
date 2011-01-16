@@ -4,7 +4,7 @@
 	if (typeof Object.create !== "function") {
 		Object.create = function (o) {
 			function F() {}
-			F.prototype = (typeof o === "function") ? new o() : o;
+			F.prototype = o;
 			return new F();
 		}
 	}
