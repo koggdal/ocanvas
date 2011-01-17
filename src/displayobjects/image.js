@@ -16,7 +16,7 @@
 				var _this = this,
 				
 					// Get source (settings.image can be either an HTML img element or a string with path to the image)
-					source = (this.image.nodeName === "IMG") ? "htmlImg" : "newImg";
+					source = (this.image.nodeName.toLowerCase() === "img") ? "htmlImg" : "newImg";
 				
 				// Get image object (either create a copy of the current element, or a new image)
 				this.img = (source === "htmlImg") ? this.image.cloneNode(false) : new Image();
