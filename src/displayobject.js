@@ -33,6 +33,7 @@
 			fill: "",
 			drawn: false,
 			events: {},
+			children: [],
 			
 			_: {
 				stroke: "",
@@ -275,6 +276,28 @@
 				}
 				
 				return this;
+			},
+			
+			// Method for adding a child to the display object
+			// Children will transform accordingly when this display object transforms
+			addChild: function (childObj) {
+				// Return the index of the added object
+				return this.children.push(childObj) - 1;
+			},
+			
+			// Method for removing a child
+			removeChild: function (childObj) {
+				var index = this.children.indexOf(childObj);
+				if (~index) {
+					this.removeChildAt(index);
+				}
+			},
+			
+			// Method for removing a child at a specific index
+			removeChildAt: function (index) {
+				if (this.children[index] !== undefined) {
+					this.children.splice(index, 1);
+				}
 			}
 		};
 	};
