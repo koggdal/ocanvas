@@ -52,7 +52,7 @@
 					oCanvas.extend(obj.settings, options);
 					
 					// Set canvas to specified element
-					if (obj.settings.canvas.nodeName.toLowerCase() === "canvas") {
+					if (obj.settings.canvas.nodeName && obj.settings.canvas.nodeName.toLowerCase() === "canvas") {
 						obj.canvasElement = obj.settings.canvas;
 					}
 					
