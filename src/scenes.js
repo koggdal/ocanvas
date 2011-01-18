@@ -15,17 +15,11 @@
 			scenes: {},
 
 			// Method for creating a new scene
-			create: function (name, loadMethod) {
-				this.scenes[name] = oCanvas.extend(Object.create(this.scenesBase()), {
-					name: name,
-					load: function () {
-						if (this.loaded) {
-							this.unload();
-						}
-						this.loaded = true;
-						loadMethod.call(this);
-					}
-				});
+			create: function (name, init) {
+				this.scenes[name] = Object.create(this.scenesBase());
+				this.scenes[name].name = name;
+				
+				init.call(this.scenes[name]);
 			},
 			
 			// Object base that will be instantiated for each new scene
@@ -45,6 +39,26 @@
 						return obj;
 					},
 					
+					// Method for loading the scene's objects
+					load: function () {
+						if (this.loaded) {
+							return;
+						}
+						
+						var objects = this.objects,
+							i, l = objects.length;
+							
+						// Loop through all added objects
+						for (i = 0; i < l; i++) {
+							if (objects[i] !== undefined) {
+								objects[i].add();
+							}
+						}
+						
+						this.loaded = true;
+						
+					},
+					
 					// Method for unloading the scene (removes all added objects from the canvas)
 					unload: function () {
 						var objects = this.objects,
@@ -58,8 +72,6 @@
 							}
 						}
 						
-						// Reset the object list
-						this.objects = [];
 						this.loaded = false;
 					}
 				};
