@@ -91,7 +91,7 @@
 				}
 				
 				if (return_type === "string") {
-					return stroke.pos + " " + stroke.weight + " " + stroke.color;
+					return stroke.pos + " " + stroke.weight + "px " + stroke.color;
 				}
 				else if (return_type === "object") {
 					return stroke;
