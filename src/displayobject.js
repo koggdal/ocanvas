@@ -21,8 +21,6 @@
 			// Properties
 			id: 0,
 			type: "rectangular",
-			abs_x: 0,
-			abs_y: 0,
 			width: 0,
 			height: 0,
 			origin: {
@@ -38,6 +36,8 @@
 			_: {
 				x: 0,
 				y: 0,
+				abs_x: 0,
+				abs_y: 0,
 				stroke: "",
 				strokeColor: "",
 				strokeWeight: 0,
@@ -82,25 +82,25 @@
 			
 			set x (value) {
 				this._.x = value;
-				this.abs_x = value + ((this.parent !== undefined) ? this.parent.abs_x : 0);
+				this._.abs_x = value + ((this.parent !== undefined) ? this.parent.abs_x : 0);
 				
 				// Update children
 				var objects = this.children,
 					l = objects.length, i;
 				for (i = 0; i < l; i++) {
-					objects[i].abs_x = this.abs_x + objects[i].x;
+					objects[i]._.abs_x = this.abs_x + objects[i].x;
 					objects[i].x += 0;
 				}
 			},
 			set y (value) {
 				this._.y = value;
-				this.abs_y = value + ((this.parent !== undefined) ? this.parent.abs_y : 0);
+				this._.abs_y = value + ((this.parent !== undefined) ? this.parent.abs_y : 0);
 				
 				// Update children
 				var objects = this.children,
 					l = objects.length, i;
 				for (i = 0; i < l; i++) {
-					objects[i].abs_y = this.abs_y - objects[i].y;
+					objects[i]._.abs_y = this.abs_y - objects[i].y;
 					objects[i].y += 0;
 				}
 			},
@@ -109,6 +109,18 @@
 			},
 			get y () {
 				return this._.y;
+			},
+			set abs_x (value) {
+				return;
+			},
+			set abs_y (value) {
+				return;
+			},
+			get abs_x () {
+				return this._.abs_x;
+			},
+			get abs_y () {
+				return this._.abs_y;
 			},
 			
 			// Method for binding an event to the object
