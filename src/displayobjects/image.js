@@ -10,6 +10,9 @@
 			loaded: false,
 			loading: false,
 			firstDrawn: false,
+			tile: false,
+			tile_width: 0,
+			tile_height: 0,
 			
 			// Init method for loading the image resource
 			init: function () {
@@ -27,8 +30,10 @@
 				// Get dimensions when the image is loaded. Also, remove the temp img from DOM
 				this.img.onload = function () {
 					_this.loaded = true;
-					_this.width = this.width;
-					_this.height = this.height;
+					_this.width = (_this.width === 0) ? this.width : _this.width;
+					_this.height = (_this.height === 0) ? this.height : _this.height;
+					_this.tile_width = (_this.tile_width === 0) ? _this.width : _this.tile_width;
+					_this.tile_height = (_this.tile_height === 0) ? _this.height : _this.tile_height;
 					_this.core.canvasElement.removeChild(this);
 				};
 				
@@ -46,8 +51,26 @@
 				// If the image has finished loading, go on and draw
 				if (this.loaded) {
 				
-					// Draw the image to the canvas
-					canvas.drawImage(this.img, this.abs_x, this.abs_y, this.width, this.height);
+					if (this.tile) {
+					
+						var num_x = Math.ceil(this.width / this.tile_width),
+							num_y = Math.ceil(this.height / this.tile_height),
+							x, y;
+						
+						for (y = 0; y < num_y; y++) {
+							for (x = 0; x < num_x; x++) {
+								canvas.drawImage(this.img, this.abs_x + x * this.tile_width, this.abs_y + y * this.tile_height, this.tile_width, this.tile_height);
+							}
+						}
+						
+						
+						
+					} else {
+				
+						// Draw the image to the canvas
+						canvas.drawImage(this.img, this.abs_x, this.abs_y, this.width, this.height);
+						
+					}
 					
 					// Trigger callback
 					if (cb) {
