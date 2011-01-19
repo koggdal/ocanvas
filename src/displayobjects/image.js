@@ -13,6 +13,8 @@
 			tile: false,
 			tile_width: 0,
 			tile_height: 0,
+			tile_spacing_x: 0,
+			tile_spacing_y: 0,
 			
 			// Init method for loading the image resource
 			init: function () {
@@ -71,7 +73,7 @@
 						// Draw all the tiled images
 						for (y = 0; y < num_y; y++) {
 							for (x = 0; x < num_x; x++) {
-								canvas.drawImage(this.img, this.abs_x + x * this.tile_width, this.abs_y + y * this.tile_height, this.tile_width, this.tile_height);
+								canvas.drawImage(this.img, this.abs_x + x * (this.tile_width + this.tile_spacing_x), this.abs_y + y * (this.tile_height + this.tile_spacing_y), this.tile_width, this.tile_height);
 							}
 						}
 
