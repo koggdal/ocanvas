@@ -91,7 +91,7 @@
 			},
 			
 			// Method for drawing the object to the canvas
-			draw: function () {
+			draw: function (cb) {
 				var canvas = this.core.canvas;
 				
 				canvas.font = this.font;
@@ -102,19 +102,21 @@
 				if (this.strokeWeight > 0) {
 					canvas.lineWidth = this.strokeWeight;
 					canvas.strokeStyle = this.strokeColor;
-					canvas.strokeText(this.text, this.x, this.y);
+					canvas.strokeText(this.text, this.abs_x, this.abs_y);
 					canvas.stroke();
 				}
 				
 				// Draw the text normally if a fill color is specified
 				if (this.fill !== "") {
 					canvas.fillStyle = this.fill;
-					canvas.fillText(this.text, this.x, this.y);
+					canvas.fillText(this.text, this.abs_x, this.abs_y);
 					canvas.fill();
 				}
 				
 				
-				
+				if (cb) {
+					cb.call(this);
+				}
 				return this;
 			}
 			

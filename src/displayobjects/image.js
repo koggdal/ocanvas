@@ -39,7 +39,7 @@
 			},
 			
 			// Method that draws the image to the canvas once it's loaded
-			draw: function () {
+			draw: function (cb) {
 				var canvas = this.core.canvas,
 					_this = this;
 				
@@ -47,7 +47,12 @@
 				if (this.loaded) {
 				
 					// Draw the image to the canvas
-					canvas.drawImage(this.img, this.x, this.y, this.width, this.height);
+					canvas.drawImage(this.img, this.abs_x, this.abs_y, this.width, this.height);
+					
+					// Trigger callback
+					if (cb) {
+						cb.call(this);
+					}
 					
 					// Clear the timer if this is the first time it is drawn
 					if (this.firstDrawn === false) {
@@ -60,7 +65,7 @@
 				else {
 					clearTimeout(this.loadtimer);
 					this.loadtimer = setTimeout(function () {
-						_this.draw();
+						_this.draw(cb);
 					}, 100);
 				}
 				

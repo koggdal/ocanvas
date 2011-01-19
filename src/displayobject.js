@@ -21,8 +21,8 @@
 			// Properties
 			id: 0,
 			type: "rectangular",
-			x: 0,
-			y: 0,
+			abs_x: 0,
+			abs_y: 0,
 			width: 0,
 			height: 0,
 			origin: {
@@ -36,28 +36,23 @@
 			children: [],
 			
 			_: {
+				x: 0,
+				y: 0,
 				stroke: "",
 				strokeColor: "",
 				strokeWeight: 0,
 				strokePosition: "outside"
 			},
 			
-			// Setter for stroke color
 			set strokeColor (color) {
 				setStrokeProperty(this, "color", color, "strokeColor", this.core);
 			},
-			
-			// Setter for stroke weight
 			set strokeWeight (weight) {
 				setStrokeProperty(this, "weight", weight, "strokeWeight", this.core);
 			},
-			
-			// Setter for stroke position
 			set strokePosition (pos) {
 				setStrokeProperty(this, "pos", pos, "strokePosition", this.core);
 			},
-			
-			// Setter for stroke
 			set stroke (value) {
 			
 				// Convert the value to a correct string if it is not a string
@@ -72,25 +67,48 @@
 				this._.strokePosition = stroke.pos;
 				this._.stroke = value;
 			},
-			
-			// Getter for stroke
 			get stroke () {
 				return this._.stroke;
 			},
-			
-			// Getter for stroke color
 			get strokeColor () {
 				return this._.strokeColor;
 			},
-			
-			// Getter for stroke weight
 			get strokeWeight () {
 				return this._.strokeWeight;
 			},
-			
-			// Getter for stroke position
 			get strokePosition () {
 				return this._.strokePosition;
+			},
+			
+			set x (value) {
+				this._.x = value;
+				this.abs_x = value + ((this.parent !== undefined) ? this.parent.abs_x : 0);
+				
+				// Update children
+				var objects = this.children,
+					l = objects.length, i;
+				for (i = 0; i < l; i++) {
+					objects[i].abs_x = this.abs_x + objects[i].x;
+					objects[i].x += 0;
+				}
+			},
+			set y (value) {
+				this._.y = value;
+				this.abs_y = value + ((this.parent !== undefined) ? this.parent.abs_y : 0);
+				
+				// Update children
+				var objects = this.children,
+					l = objects.length, i;
+				for (i = 0; i < l; i++) {
+					objects[i].abs_y = this.abs_y - objects[i].y;
+					objects[i].y += 0;
+				}
+			},
+			get x () {
+				return this._.x;
+			},
+			get y () {
+				return this._.y;
 			},
 			
 			// Method for binding an event to the object
@@ -110,9 +128,20 @@
 			// Method for adding the object to the canvas
 			add: function () {
 				if (this.drawn === false) {
+				
+					// Add this object
 					this.id = this.core.draw.add(this);
-					this.draw();
-					this.drawn = true;
+					this.draw(function () {
+						
+						this.drawn = true;
+						
+						// Add children that have been added to this object
+						var objects = this.children,
+							l = objects.length, i;
+						for (i = 0; i < l; i++) {
+							objects[i].add();
+						}
+					});
 				}
 				
 				return this;
@@ -122,6 +151,13 @@
 			remove: function () {
 				this.core.draw.remove(this.id);
 				this.drawn = false;
+				
+				// Add children that have been added to this object
+				var objects = this.children,
+					l = objects.length, i;
+				for (i = 0; i < l; i++) {
+					objects[i].remove();
+				}
 				
 				return this;
 			},
@@ -281,8 +317,22 @@
 			// Method for adding a child to the display object
 			// Children will transform accordingly when this display object transforms
 			addChild: function (childObj) {
-				// Return the index of the added object
-				return this.children.push(childObj) - 1;
+				if (childObj.parent === undefined) {
+					var index = this.children.push(childObj) - 1;
+					if (this.drawn) {
+						childObj.add();
+					}
+					
+					// Update child
+					childObj.parent = this;
+					childObj.x += 0;
+					childObj.y += 0;
+					
+					return index;
+					
+				} else {
+					return false;
+				}
 			},
 			
 			// Method for removing a child
@@ -296,6 +346,7 @@
 			// Method for removing a child at a specific index
 			removeChildAt: function (index) {
 				if (this.children[index] !== undefined) {
+					this.children[index].parent = undefined;
 					this.children.splice(index, 1);
 				}
 			}

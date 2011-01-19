@@ -7,13 +7,13 @@
 		return oCanvas.extend({
 			core: thecore,
 			
-			draw: function () {
+			draw: function (cb) {
 				var canvas = this.core.canvas;
 				
 				/*
 				var origin = this.getOrigin(),
-					sX = (this.rotation > 0) ? -origin.x : this.x-origin.x,
-					sY = (this.rotation > 0) ? -origin.y : this.y-origin.y,
+					sX = (this.rotation > 0) ? -origin.x : this.abs_x-origin.x,
+					sY = (this.rotation > 0) ? -origin.y : this.abs_y-origin.y,
 					lW = this.lineWidth,
 					w = this.width,
 					h = this.height;
@@ -22,7 +22,7 @@
 				// Do fill if a color is specified
 				if (this.fill !== "") {
 					canvas.fillStyle = this.fill;
-					canvas.fillRect(this.x, this.y, this.width, this.height);
+					canvas.fillRect(this.abs_x, this.abs_y, this.width, this.height);
 					canvas.fill();
 				}
 				
@@ -35,23 +35,26 @@
 					
 					// Set stroke outside the box
 					if (this.strokePosition === "outside") {
-						canvas.strokeRect(this.x - this.strokeWeight/2, this.y - this.strokeWeight/2, this.width + this.strokeWeight, this.height + this.strokeWeight);
+						canvas.strokeRect(this.abs_x - this.strokeWeight/2, this.abs_y - this.strokeWeight/2, this.width + this.strokeWeight, this.height + this.strokeWeight);
 					}
 					
 					// Set stroke on the edge of the box (half of the stroke outside, half inside)
 					else if (this.strokePosition === "center") {
-						canvas.strokeRect(this.x, this.y, this.width, this.height);
+						canvas.strokeRect(this.abs_x, this.abs_y, this.width, this.height);
 					}
 					
 					// Set stroke on the inside of the box
 					else if (this.strokePosition === "inside") {
-						canvas.strokeRect(this.x + this.strokeWeight/2, this.y + this.strokeWeight/2, this.width - this.strokeWeight, this.height - this.strokeWeight);
+						canvas.strokeRect(this.abs_x + this.strokeWeight/2, this.abs_y + this.strokeWeight/2, this.width - this.strokeWeight, this.height - this.strokeWeight);
 					}
 					
 					// Draw stroke
 					canvas.stroke();
 				}
 				
+				if (cb) {
+					cb.call(this);
+				}
 				return this;
 			}
 			

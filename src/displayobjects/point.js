@@ -7,13 +7,16 @@
 		return oCanvas.extend({
 			core: thecore,
 			
-			draw: function () {
+			draw: function (cb) {
 				var canvas = this.core.canvas;
 				
 				// Do fill
 				canvas.fillStyle = this.fill;
-				canvas.fillRect(this.x, this.y, 1, 1);
+				canvas.fillRect(this.abs_x, this.abs_y, 1, 1);
 				
+				if (cb) {
+					cb.call(this);
+				}
 				return this;
 			}
 			
