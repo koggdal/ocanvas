@@ -26,6 +26,9 @@
 			
 			// Method for removing an object from the object list
 			remove: function (id) {
+				if (this.objects[id -1] === undefined) {
+					return;
+				}
 				this.objects[id -1].drawn = false;
 				delete this.objects[id - 1];
 				delete this.drawn[id - 1];
