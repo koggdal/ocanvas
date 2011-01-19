@@ -10,6 +10,8 @@
 			draw: function (cb) {
 				var canvas = this.core.canvas;
 				
+				canvas.beginPath();
+				
 				/*
 				var origin = this.getOrigin(),
 					sX = (this.rotation > 0) ? -origin.x : this.abs_x-origin.x,
@@ -51,6 +53,8 @@
 					// Draw stroke
 					canvas.stroke();
 				}
+				
+				canvas.closePath();
 				
 				if (cb) {
 					cb.call(this);

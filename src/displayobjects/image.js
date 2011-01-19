@@ -57,13 +57,27 @@
 							num_y = Math.ceil(this.height / this.tile_height),
 							x, y;
 						
+						canvas.save();
+						canvas.beginPath();
+						
+						// Create clipping path for the rectangle that the tiled images will be drawn inside
+						canvas.moveTo(this.abs_x, this.abs_y);
+						canvas.lineTo(this.abs_x + this.width, this.abs_y);
+						canvas.lineTo(this.abs_x + this.width, this.abs_y + this.height);
+						canvas.lineTo(this.abs_x, this.abs_y + this.height);
+						canvas.lineTo(this.abs_x, this.abs_y);
+						canvas.clip();
+						
+						// Draw all the tiled images
 						for (y = 0; y < num_y; y++) {
 							for (x = 0; x < num_x; x++) {
 								canvas.drawImage(this.img, this.abs_x + x * this.tile_width, this.abs_y + y * this.tile_height, this.tile_width, this.tile_height);
 							}
 						}
-						
-						
+
+						canvas.closePath();
+						canvas.restore();
+
 						
 					} else {
 				

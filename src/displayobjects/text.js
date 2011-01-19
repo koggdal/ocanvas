@@ -94,6 +94,8 @@
 			draw: function (cb) {
 				var canvas = this.core.canvas;
 				
+				canvas.beginPath();
+				
 				canvas.font = this.font;
 				canvas.textAlign = this.align;
 				canvas.textBaseline = this.baseline;
@@ -113,6 +115,7 @@
 					canvas.fill();
 				}
 				
+				canvas.closePath();
 				
 				if (cb) {
 					cb.call(this);

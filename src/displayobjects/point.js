@@ -11,8 +11,10 @@
 				var canvas = this.core.canvas;
 				
 				// Do fill
+				canvas.beginPath();
 				canvas.fillStyle = this.fill;
 				canvas.fillRect(this.abs_x, this.abs_y, 1, 1);
+				canvas.closePath();
 				
 				if (cb) {
 					cb.call(this);
