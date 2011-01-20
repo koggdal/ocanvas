@@ -7,6 +7,9 @@
 		return oCanvas.extend({
 			core: thecore,
 			
+			type: "point",
+			shapeType: "rectangular",
+			
 			draw: function (cb) {
 				var canvas = this.core.canvas;
 				

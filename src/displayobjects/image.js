@@ -7,6 +7,8 @@
 		return oCanvas.extend({
 			core: thecore,
 			
+			type: "image",
+			shapeType: "rectangular",
 			loaded: false,
 			loading: false,
 			firstDrawn: false,

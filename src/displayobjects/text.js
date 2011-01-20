@@ -15,6 +15,9 @@
 		return oCanvas.extend({
 			core: thecore,
 			
+			type: "text",
+			shapeType: "rectangular",
+			
 			// Default properties
 			text: "",
 			align: "start",

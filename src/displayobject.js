@@ -20,7 +20,8 @@
 
 			// Properties
 			id: 0,
-			type: "rectangular",
+			shapeType: "rectangular",
+			type: "",
 			width: 0,
 			height: 0,
 			origin: {
@@ -361,6 +362,39 @@
 					this.children[index].parent = undefined;
 					this.children.splice(index, 1);
 				}
+			},
+			
+			// Method for creating a clone of this object
+			clone: function (settings) {
+				settings = settings || {};
+				settings.drawn = false;
+				var newObj = this.core.display[this.type](),
+					this_filtered = {},
+					reject = ["core", "events", "children"],
+					loopObject, x;
+				
+				// Filter out the setter and getter methods, and also properties listed above
+				loopObject = function (obj, destination) {
+					for (x in obj) {
+						if (~reject.indexOf(x)) {
+							continue;
+						}
+						if (typeof obj[x] === "object") {
+							destination[x] = {};
+							loopObject(obj[x], destination[x]);
+							continue;
+						}
+						if (obj.__lookupGetter__(x) === undefined) {
+							destination[x] = obj[x];
+						}
+					}
+				}
+				loopObject(this, this_filtered);
+				
+				// Extend the new object with this object's properties and then apply the custom settings
+				newObj = oCanvas.extend(newObj, this_filtered, settings);
+				
+				return newObj;
 			}
 		};
 	};
