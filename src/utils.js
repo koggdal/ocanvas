@@ -55,12 +55,25 @@
 	};
 
 	// Extend an object with new properties and replace values for existing properties
-	oCanvas.extend = function (settings, options) {
-		for (var x in options) {
-			settings[x] = options[x];
+	oCanvas.extend = function () {
+	
+		// Get first two args
+		var args = Array.prototype.slice.call(arguments),
+			destination = args.splice(0, 1)[0],
+			current = args.splice(0, 1)[0],
+			x;
+		
+		// Add members from second object to the first
+		for (x in current) {
+			destination[x] = current[x];
 		}
 		
-		return settings;
+		// If there are more objects passed in, run once more, otherwise return the first object
+		if (args.length > 0) {
+			return oCanvas.extend.apply(this, [destination].concat(args));
+		} else {
+			return destination;
+		}
 	};
 
 })(oCanvas, window, document);
