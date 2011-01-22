@@ -10,7 +10,6 @@
 			type: "image",
 			shapeType: "rectangular",
 			loaded: false,
-			loading: false,
 			firstDrawn: false,
 			tile: false,
 			tile_width: 0,
