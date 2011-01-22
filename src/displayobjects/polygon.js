@@ -33,7 +33,7 @@
 				return this._.side;
 			},
 			
-			draw: function () {
+			draw: function (cb) {
 				var canvas = this.core.canvas;
 				
 				var firstPoint = { x: 0, y: 0 },
@@ -79,7 +79,9 @@
 				}
 				
 				
-				
+				if (cb) {
+					cb.call(this);
+				}
 				return this;
 			}
 			

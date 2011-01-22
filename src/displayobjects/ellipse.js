@@ -40,7 +40,7 @@
 				return this._.radius_y;
 			},
 			
-			draw: function () {
+			draw: function (cb) {
 				var canvas = this.core.canvas;
 				
 				canvas.beginPath();
@@ -77,6 +77,9 @@
 				
 				canvas.closePath();
 				
+				if (cb) {
+					cb.call(this);
+				}
 				return this;
 			}
 			

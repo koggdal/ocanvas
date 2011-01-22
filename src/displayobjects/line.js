@@ -34,7 +34,7 @@
 				return { x: this._.end_x, y: this._.end_y };
 			},
 			
-			draw: function () {
+			draw: function (cb) {
 				var canvas = this.core.canvas;
 				
 				canvas.lineWidth = this.strokeWeight;
@@ -45,6 +45,9 @@
 				canvas.stroke();
 				canvas.closePath();
 				
+				if (cb) {
+					cb.call(this);
+				}
 				return this;
 			}
 			
