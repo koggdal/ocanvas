@@ -162,7 +162,7 @@
 		},
 		
 		// Function for creating a new instance of oCanvas
-		newCanvas: function (func) {
+		newCanvas: function (settings) {
 		
 			// Create the new instance and put it in the canvas list
 			var canvas = new oCanvas.core(),
@@ -170,8 +170,9 @@
 			canvas.settings.canvasID = canvasID;
 			
 			// Trigger the callback if specified
-			if (typeof func === "function")
-				func(canvas);
+			if (typeof settings === "object") {
+				canvas.setup(settings);
+			}
 			
 			// Return the new instance
 			return canvas;
