@@ -26,7 +26,9 @@
 				
 					// Set color as background
 					this.bg = value;
-					this.redraw();
+					if (_this.core.timeline && !_this.core.timeline.running) {
+						this.redraw();
+					}
 					this.loaded = true;
 				}
 				
@@ -36,7 +38,9 @@
 					this.bg = new Image();
 					this.bg.onload = function () {
 						_this.loaded = true;
-						_this.redraw();
+						if (_this.core.timeline && !_this.core.timeline.running) {
+							_this.redraw();
+						}
 					};
 					this.bg.src = value;
 				}
