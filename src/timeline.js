@@ -24,17 +24,17 @@
 				if (typeof this.core.settings.mainLoop === "function") {
 				
 					// Clear the canvas if specified
-					//if (this.core.settings.clearEachFrame === true) {
-					//	this.core.clear();
-					//}
+					if (this.core.settings.clearEachFrame === true) {
+						this.core.draw.clear();
+					}
 					
 					// Trigger the user defined function mainLoop and set this to the current core instance
 					this.core.settings.mainLoop.call(this.core);
 					
 					// Redraw the canvas if specified
-					//if (this.core.settings.drawEachFrame === true) {
-					//	this.core.drawState.draw();
-					//}
+					if (this.core.settings.drawEachFrame === true) {
+						this.core.draw.redraw();
+					}
 					
 					// Increment the frame count
 					this.currentFrame++;
