@@ -133,6 +133,8 @@
 						else if (typeof this[m][wm].setCore === "function") {
 							this[m][wm].setCore(obj);
 						}
+						
+						this[m].core = obj;
 					}
 				}
 				

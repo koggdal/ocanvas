@@ -397,13 +397,59 @@
 				return newObj;
 			}
 		};
+	},
+	
+	// Method for registering a custom display object at run time
+	// It is only attached to the current core instance
+	register = function (name, properties, draw, init) {
+		var display = this,
+			core = this.core,
+			
+			// The object that will be instantiated
+			obj = function (settings, thecore) {
+			
+				// Return an object containing base properties, core access and a draw wrapper
+				// The object is extended with properties set on register, and settings set on instantiation
+				return oCanvas.extend({
+					core: thecore,
+					type: name,
+					shapeType: "rectangular",
+					
+					// Wrapper for the draw method. This enables the callback to work internally and gives the user
+					// access to the canvas context and the core
+					draw: function (cb) {
+						draw.call(this, core.canvas, core);
+						
+						if (cb) {
+							cb.call(this);
+						}
+						return this;
+					}
+				}, properties, settings);
+			};
+		
+		// Add the constructor function to core.display.name
+		this[name] = function (settings) {
+		
+			// Instantiate a new custom object with specified settings
+			var retObj = oCanvas.extend(Object.create(displayObject()), new obj(settings, core));
+			
+			// Run initialization method if provided
+			if (init !== undefined && typeof display[name][init] === "function") {
+				display[name][init]();
+			}
+			
+			// Return the new object
+			return retObj;
+		};
+		
 	};
 	
 	// Register the module
 	oCanvas.registerModule("displayObject", displayObject);
 	
 	// Second namespace where objects gets placed
-	oCanvas.registerModule("display", { wrapper: true });
+	oCanvas.registerModule("display", { wrapper: true, register: register });
 	
 	
 	
