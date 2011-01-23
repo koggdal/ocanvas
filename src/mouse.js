@@ -21,6 +21,8 @@
 				drag: []
 			},
 			
+			last_event: {},
+			
 			// Method for initializing the module
 			init: function () {
 				var _this = this,
@@ -63,33 +65,42 @@
 			},
 			
 			// Method for updating the mouse position relative to the canvas top left corner
-			updatePos: function (e) {
+			updatePos: function (e, update) {
+				var x, y;
+				
 				// Browsers supporting pageX/pageY
 				if (e.pageX && e.pageY) {
-					this.x = e.pageX - this.core.canvasElement.offsetLeft;
-					this.y = e.pageY - this.core.canvasElement.offsetTop;
+					x = e.pageX - this.core.canvasElement.offsetLeft;
+					y = e.pageY - this.core.canvasElement.offsetTop;
 				}
 				// Browsers not supporting pageX/pageY
 				else if (e.clientX && e.clientY) {
-					this.x = e.clientX + document.documentElement.scrollLeft - this.core.canvasElement.offsetLeft;
-					this.y = e.clientY + document.documentElement.scrollTop - this.core.canvasElement.offsetTop;
+					x = e.clientX + document.documentElement.scrollLeft - this.core.canvasElement.offsetLeft;
+					y = e.clientY + document.documentElement.scrollTop - this.core.canvasElement.offsetTop;
 				}
+				
+				if (update !== false) {
+					this.x = x;
+					this.y = y;
+				}
+				
+				return { x: x, y: y };
 			},
 			
 			// Method for getting the current mouse position relative to the canvas top left corner
-			getPos: function (e) {
-				this.updatePos(e);
-				
-				return {x:this.x, y:this.y};
+			getPos: function (e, update) {
+				return this.updatePos(e, update);
 			},
 			
 			// Method for checking if the mouse pointer is inside the canvas
 			onCanvas: function (e) {
-				var pos = e ? this.getPos(e) : {x:this.x, y:this.y};
+				e = e || this.last_event;
+				var pos = e ? this.getPos(e, false) : {x:this.x, y:this.y};
 				
 				// Check boundaries => (left) && (right) && (top) && (bottom)
 				if ( (pos.x > 0) && (pos.x < this.core.width) && (pos.y > 0) && (pos.y < this.core.height) ) {
 					this.canvasHovered = true;
+					this.updatePos(e);
 					return true;
 				} else {
 					this.canvasHovered = false;
@@ -113,7 +124,9 @@
 			// Method that triggers all mousemove events that are added
 			// Also handles parts of drag and drop
 			mousemove: function (e) {
+				this.last_event = e;
 				this.updatePos(e);
+				this.canvasHovered = true;
 				
 				this.triggerEvents("mousemove", e);
 				this.triggerEvents("mouseover", e);
@@ -123,6 +136,7 @@
 			// Method that triggers all click events that are added
 			click: function (e) {
 				this.canvasFocused = true;
+				this.last_event = e;
 				
 				this.triggerEvents("click", e);
 			},
@@ -130,6 +144,7 @@
 			// Method that triggers all mousedown events that are added
 			mousedown: function (e) {
 				this.canvasFocused = true;
+				this.last_event = e;
 				
 				this.triggerEvents("mousedown", e);
 				
@@ -138,10 +153,11 @@
 			
 			// Method that triggers all mouseup events that are added
 			mouseup: function (e) {
+				this.last_event = e;
 				this.triggerEvents("mouseup", e);
 			},
 			
-			// Method that triggers all mouseout events that are added (gets triggered by mouse::docmouseover
+			// Method that triggers all mouseout events that are added (gets triggered by mouse::docmouseover)
 			mouseout: function(e){
 				this.triggerEvents("mouseout", e);
 				
@@ -168,6 +184,7 @@
 			
 			// Method that triggers all mouseup events when pointer was pressed down on canvas and released outside
 			docmouseup: function (e) {
+				this.last_event = e;
 				if (this.buttonState === "down" && !this.onCanvas(e)) {
 					this.mouseup(e);
 				}
@@ -175,6 +192,7 @@
 			
 			// Method that triggers all mouseout events when pointer is outside the canvas
 			docmouseover: function (e) {
+				this.last_event = e;
 				if (!this.onCanvas(e)) {
 					this.mouseout(e);
 				}
@@ -182,6 +200,7 @@
 			
 			// Method that sets the focus state when pointer is pressed down outside the canvas
 			docclick: function (e) {
+				this.last_event = e;
 				if (!this.onCanvas(e)) {
 					this.canvasFocused = false;
 				}
