@@ -21,6 +21,21 @@
 			offset_x: 0,
 			offset_y: 0,
 			running: false,
+			active: true,
+			loop: true,
+			
+			_: {
+				autostart: true
+			},
+			
+			set autostart (value) {
+				this.active = value;
+				this._.autostart = value;
+			},
+			
+			get autostart () {
+				return this._.autostart;
+			},
 			
 			// Init method for loading the image resource
 			init: function () {
@@ -80,7 +95,7 @@
 				if (this.loaded) {
 				
 					// Draw current frame
-					if (this.frames.length > 0) {
+					if (this.frames.length > 0 && this.active) {
 					
 						// Get current frame
 						var frame = this.frames[this.currentFrame];
@@ -94,7 +109,11 @@
 							setTimeout(function () {
 							
 								// Increment the frame number only after the frame duration has passed
-								_this.currentFrame = (_this.currentFrame === _this.frames.length - 1) ? 0 : _this.currentFrame + 1;
+								if (_this.loop) {
+									_this.currentFrame = (_this.currentFrame === _this.frames.length - 1) ? 0 : _this.currentFrame + 1;
+								} else {
+									_this.currentFrame = (_this.currentFrame === _this.frames.length - 1) ? _this.currentFrame : _this.currentFrame + 1;
+								}
 								
 								// Redraw canvas if the timeline is not running
 								if (!_this.core.timeline.running) {
@@ -132,7 +151,15 @@
 				}
 				
 				return this;
-			}
+			},
+			
+			start: function () {
+				this.active = true;
+			},
+			
+			stop: function () {
+				this.active = false;
+			},
 			
 		}, settings);
 	};
