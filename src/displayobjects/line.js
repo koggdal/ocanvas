@@ -7,6 +7,9 @@
 		return oCanvas.extend({
 			core: thecore,
 			
+			type: "line",
+			shapeType: "rectangular",
+			
 			// Properties
 			_: {
 				start_x: 0,
