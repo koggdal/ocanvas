@@ -13,8 +13,8 @@
 			// List of all events that are added
 			eventList: {
 				mousemove: [],
-				mouseover: [],
-				mouseout: [],
+				mouseenter: [],
+				mouseleave: [],
 				click: [],
 				mousedown: [],
 				mouseup: [],
@@ -54,9 +54,8 @@
 			},
 			
 			// Method for adding an event to the event list
-			addEvent: function (type, obj) {
-				var cb = (typeof obj === "function") ? obj : obj.events[type].func;
-				return this.eventList[type].push(cb) - 1;
+			addEvent: function (type, handler) {
+				return this.eventList[type].push(handler) - 1;
 			},
 			
 			// Method for removing an event from the event list
@@ -109,14 +108,15 @@
 			},
 			
 			// Method for triggering all events of a specific type
-			triggerEvents: function (type, e) {
+			triggerEvents: function (type, e, force) {
+				force = force || false;
 				var events = this.eventList[type],
 					i, event;
 				
 				for (i = events.length; i--;) {
 					event = events[i];
 					if (typeof event === "function") {
-						event(e);
+						event(e, force);
 					}
 				}
 			},
@@ -129,7 +129,8 @@
 				this.canvasHovered = true;
 				
 				this.triggerEvents("mousemove", e);
-				this.triggerEvents("mouseover", e);
+				this.triggerEvents("mouseenter", e);
+				this.triggerEvents("mouseleave", e);
 				this.triggerEvents("drag", e);
 			},
 			
@@ -157,29 +158,9 @@
 				this.triggerEvents("mouseup", e);
 			},
 			
-			// Method that triggers all mouseout events that are added (gets triggered by mouse::docmouseover)
-			mouseout: function(e){
-				this.triggerEvents("mouseout", e);
-				
-				if (this.core.draw) {
-					var objects = this.core.draw.objects,
-						i, events;
-					
-					// Loop through all drawn objects
-					for (i in objects) {
-						events = objects[i].events;
-						
-						// Trigger mouseout event on current object if mouse pointer is over the object
-						if (events.mouseontarget === true) {
-							events.mouseontarget = false;
-							events.mouseout.f(e);
-							objects[i].draw();
-						}
-					}
-					
-					// Reset the cursor
-					this.core.canvasElement.style.cursor = 'default';
-				}
+			// Method that triggers all mouseleave events that are added (gets triggered by mouse::docmouseover)
+			mouseleave: function(e){
+				this.triggerEvents("mouseleave", e, true);
 			},
 			
 			// Method that triggers all mouseup events when pointer was pressed down on canvas and released outside
@@ -190,11 +171,11 @@
 				}
 			},
 			
-			// Method that triggers all mouseout events when pointer is outside the canvas
+			// Method that triggers all mouseleave events when pointer is outside the canvas
 			docmouseover: function (e) {
 				this.last_event = e;
 				if (!this.onCanvas(e)) {
-					this.mouseout(e);
+					this.mouseleave(e);
 				}
 			},
 			
