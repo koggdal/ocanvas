@@ -27,7 +27,7 @@
 					// Set color as background
 					this.bg = value;
 					if (_this.core.timeline && !_this.core.timeline.running) {
-						this.redraw();
+						this.core.draw.redraw();
 					}
 					this.loaded = true;
 				}
