@@ -8,7 +8,7 @@
 			core: thecore,
 			
 			type: "line",
-			shapeType: "rectangular",
+			shapeType: "radial",
 			
 			// Properties
 			_: {
