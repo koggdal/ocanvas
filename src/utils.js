@@ -61,11 +61,23 @@
 		var args = Array.prototype.slice.call(arguments),
 			destination = args.splice(0, 1)[0],
 			current = args.splice(0, 1)[0],
-			x;
+			x, getter, setter;
 		
 		// Add members from second object to the first
 		for (x in current) {
-			destination[x] = current[x];
+			getter = current.__lookupGetter__(x);
+			setter = current.__lookupSetter__(x);
+			
+			if (getter || setter) {
+				if (getter) {
+					destination.__defineGetter__(x, getter);
+				}
+				if (setter) {
+					destination.__defineSetter__(x, setter);
+				}
+			} else {
+				destination[x] = current[x];
+			}
 		}
 		
 		// If there are more objects passed in, run once more, otherwise return the first object
