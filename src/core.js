@@ -101,31 +101,37 @@
 				// Method for adding an object to the canvas
 				addChild: function (displayobj) {
 					displayobj.add();
+					return obj;
 				},
 				
 				// Method for removing an object from the canvas
 				removeChild: function (displayobj) {
 					displayobj.remove();
+					return obj;
 				},
 				
 				// Shorthand method for clearing the canvas
 				clear: function (keepBackground) {
 					obj.draw.clear(keepBackground);
+					return obj;
 				},
 				
 				// Shorthand method for redrawing the canvas
 				redraw: function () {
 					obj.draw.redraw();
+					return obj;
 				},
 				
 				// Method for binding an event to the canvas
 				bind: function (type, handler) {
 					obj.events.bind(obj.canvasElement, type, handler);
+					return obj;
 				},
 				
 				// Method for unbinding an event from the object
 				unbind: function (type, handler) {
 					obj.events.unbind(obj.canvasElement, type, handler);
+					return obj;
 				}
 				
 			}, this);
