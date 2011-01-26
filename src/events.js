@@ -27,6 +27,11 @@
 					// Add event handler
 					length = obj.events[type].push(function (e, forceLeave) {
 					
+						// Cancel event if object is not drawn to canvas
+						if (!obj.drawn) {
+							return;
+						}
+					
 						// If pointer is inside the object and we are not forced to trigger mouseleave
 						if (obj.isPointerInside() && !forceLeave) {
 						

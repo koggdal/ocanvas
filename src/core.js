@@ -68,6 +68,7 @@
 					
 					// Add properties that the events module needs to be able to add events directly to the canvas
 					obj.canvasElement.events = {};
+					obj.canvasElement.drawn = true;
 					obj.canvasElement.isPointerInside = function () { return true; };
 					
 					// Get the canvas context and dimensions
