@@ -66,6 +66,10 @@
 						return false;
 					}
 					
+					// Add properties that the events module needs to be able to add events directly to the canvas
+					obj.canvasElement.events = {};
+					obj.canvasElement.isPointerInside = function () { return true; };
+					
 					// Get the canvas context and dimensions
 					obj.canvas = obj.canvasElement.getContext("2d");
 					obj.width = obj.canvasElement.width;
@@ -109,6 +113,11 @@
 					obj.draw.clear(keepBackground);
 				},
 				
+				// Shorthand method for redrawing the canvas
+				redraw: function () {
+					obj.draw.redraw();
+				},
+				
 				// Method for binding an event to the canvas
 				bind: function (type, handler) {
 					obj.events.bind(obj.canvasElement, type, handler);
@@ -117,7 +126,7 @@
 				// Method for unbinding an event from the object
 				unbind: function (type, handler) {
 					obj.events.unbind(obj.canvasElement, type, handler);
-				},
+				}
 				
 			}, this);
 			

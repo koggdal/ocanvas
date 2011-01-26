@@ -395,6 +395,11 @@
 				newObj = oCanvas.extend(newObj, this_filtered, settings);
 				
 				return newObj;
+			},
+			
+			// Method for checking if the pointer is inside the object
+			isPointerInside: function () {
+				return this.core.tools.isPointerInside(this);
 			}
 		};
 	},

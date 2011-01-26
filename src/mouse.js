@@ -108,15 +108,15 @@
 			},
 			
 			// Method for triggering all events of a specific type
-			triggerEvents: function (type, e, force) {
-				force = force || false;
+			triggerEvents: function (type, e, forceLeave) {
+				forceLeave = forceLeave || false;
 				var events = this.eventList[type],
 					i, event;
 				
 				for (i = events.length; i--;) {
 					event = events[i];
 					if (typeof event === "function") {
-						event(e, force);
+						event(e, forceLeave);
 					}
 				}
 			},
