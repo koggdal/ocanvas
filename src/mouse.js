@@ -128,8 +128,8 @@
 				this.updatePos(e);
 				this.canvasHovered = true;
 				
-				this.triggerEvents("mousemove", e);
 				this.triggerEvents("mouseenter", e);
+				this.triggerEvents("mousemove", e);
 				this.triggerEvents("mouseleave", e);
 				this.triggerEvents("drag", e);
 			},
