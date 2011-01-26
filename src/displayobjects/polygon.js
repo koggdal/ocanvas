@@ -40,8 +40,8 @@
 				var canvas = this.core.canvas;
 				
 				var firstPoint = { x: 0, y: 0 },
-					x = this.x,
-					y = this.y,
+					x = this.abs_x,
+					y = this.abs_y,
 					sides = this.sides,
 					points = this._.points,
 					radius = this.radius,
