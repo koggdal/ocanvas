@@ -47,7 +47,7 @@
 				
 				// Draw a perfect circle with the arc method if both radii are the same
 				if (this.radius_x === this.radius_y) {
-					canvas.arc(this.x, this.y, this.radius_x, 0, Math.PI * 2, false);
+					canvas.arc(this.abs_x, this.abs_y, this.radius_x, 0, Math.PI * 2, false);
 				} else {
 					
 					// Calculate values for the ellipse
@@ -55,11 +55,11 @@
 						o = {x: this.radius_x * 2 * EllipseToBezierConstant, y: this.radius_y * 2 * EllipseToBezierConstant};
 					
 					// Draw the curves that will form the ellipse
-					canvas.moveTo(this.x - this.radius_x, this.y);
-					canvas.bezierCurveTo(this.x - this.radius_x, this.y - o.y, this.x - o.x, this.y - this.radius_y, this.x, this.y - this.radius_y);
-					canvas.bezierCurveTo(this.x + o.x, this.y - this.radius_y, this.x + this.radius_x, this.y - o.y, this.x + this.radius_x, this.y);
-					canvas.bezierCurveTo(this.x + this.radius_x, this.y + o.y, this.x + o.x, this.y + this.radius_y, this.x, this.y + this.radius_y);
-					canvas.bezierCurveTo(this.x - o.x, this.y + this.radius_y, this.x - this.radius_x, this.y + o.y, this.x - this.radius_x, this.y);
+					canvas.moveTo(this.abs_x - this.radius_x, this.abs_y);
+					canvas.bezierCurveTo(this.abs_x - this.radius_x, this.abs_y - o.y, this.abs_x - o.x, this.abs_y - this.radius_y, this.abs_x, this.abs_y - this.radius_y);
+					canvas.bezierCurveTo(this.abs_x + o.x, this.abs_y - this.radius_y, this.abs_x + this.radius_x, this.abs_y - o.y, this.abs_x + this.radius_x, this.abs_y);
+					canvas.bezierCurveTo(this.abs_x + this.radius_x, this.abs_y + o.y, this.abs_x + o.x, this.abs_y + this.radius_y, this.abs_x, this.abs_y + this.radius_y);
+					canvas.bezierCurveTo(this.abs_x - o.x, this.abs_y + this.radius_y, this.abs_x - this.radius_x, this.abs_y + o.y, this.abs_x - this.radius_x, this.abs_y);
 				}
 				
 				// Do fill
