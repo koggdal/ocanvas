@@ -95,7 +95,15 @@
 			
 			// Method for triggering the events when a key is pressed down
 			keydown: function (e) {
+			
+				// Cancel event if the key is already pressed down
+				// (some browsers repeat even keydown when held down)
+				if (this.keysDown[this.getKeyCode(e)] === true) {
+					return;
+				}
+				
 				var _this = this;
+				
 				this.triggerEvents("keydown", e);
 	
 				// Set the key states
