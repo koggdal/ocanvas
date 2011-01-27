@@ -51,8 +51,8 @@
 				return e.keyCode === 0 ? e.which : e.keyCode;
 			},
 			
-			// Method for checking if any keys are pressed down
-			anyKeysDown: function () {
+			// Method for getting how many keys are currently pressed down
+			numKeysDown: function () {
 				var active = 0,
 					keysDown = this.keysDown;
 				
@@ -63,7 +63,12 @@
 					}
 				}
 				
-				if (active > 0) {
+				return active;
+			},
+			
+			// Method for checking if any keys are pressed down
+			anyKeysDown: function () {
+				if (this.numKeysDown() > 0) {
 					return true;
 				} else {
 					return false;
@@ -96,6 +101,10 @@
 				// Set the key states
 				this.lastActiveKeyDown = this.getKeyCode(e);
 				this.keysDown[this.lastActiveKeyDown] = true;
+				
+				// Cancel the keypress timer
+				clearInterval(this.keyPressTimer);
+				this.keyPressRunning = false;
 				
 				// If there are keypress events attached and none are currently running
 				if (!this.keyPressRunning && this.eventList.keypress.length > 0) {
