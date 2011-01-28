@@ -40,7 +40,7 @@
 				settings: {
 					fps: 30,
 					background: "transparent",
-					clearEachFrame: false,
+					clearEachFrame: true,
 					drawEachFrame: true,
 					disableScrolling: false
 				},

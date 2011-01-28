@@ -52,7 +52,9 @@
 					i, obj;
 				
 				// Clear the canvas (keep the background)
-				this.clear();
+				if (this.core.settings.clearEachFrame) {
+					this.clear();
+				}
 				
 				// Loop through all objects
 				for (i in objects) {
