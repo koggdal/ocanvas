@@ -65,17 +65,18 @@
 			
 			// Method for updating the mouse position relative to the canvas top left corner
 			updatePos: function (e, update) {
-				var x, y;
-				
+				var x, y,
+					boundingRect = this.core.canvasElement.getBoundingClientRect();
+					
 				// Browsers supporting pageX/pageY
 				if (e.pageX && e.pageY) {
-					x = e.pageX - this.core.canvasElement.offsetLeft;
-					y = e.pageY - this.core.canvasElement.offsetTop;
+					x = e.pageX - document.documentElement.scrollLeft - Math.round(boundingRect.left);
+					y = e.pageY - document.documentElement.scrollTop - Math.round(boundingRect.top);
 				}
 				// Browsers not supporting pageX/pageY
 				else if (e.clientX && e.clientY) {
-					x = e.clientX + document.documentElement.scrollLeft - this.core.canvasElement.offsetLeft;
-					y = e.clientY + document.documentElement.scrollTop - this.core.canvasElement.offsetTop;
+					x = e.clientX + document.documentElement.scrollLeft - Math.round(boundingRect.left);
+					y = e.clientY + document.documentElement.scrollTop - Math.round(boundingRect.top);
 				}
 				
 				if (update !== false) {
