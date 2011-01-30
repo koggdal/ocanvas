@@ -394,12 +394,21 @@
 				// Extend the new object with this object's properties and then apply the custom settings
 				newObj = oCanvas.extend(newObj, this_filtered, settings);
 				
+				if (typeof newObj.init === "function") {
+					newObj.init();
+				}
+				
 				return newObj;
 			},
 			
 			// Method for checking if the pointer is inside the object
 			isPointerInside: function () {
 				return this.core.tools.isPointerInside(this);
+			},
+			
+			// Method for checking if the object is touching the specified object
+			hitTest: function (obj) {
+				return this.core.tools.hitTest(this, obj);
 			}
 		};
 	},
