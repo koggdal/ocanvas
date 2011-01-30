@@ -14,18 +14,18 @@
 			bind: function (obj, type, handler) {
 				var mouse_events = ["mousemove", "mouseenter", "mouseleave", "mousedown", "mouseup", "click", "drag"],
 					keyboard_events = ["keydown", "keyup", "keypress"],
-					length;
+					length, wrapper, index;
 				
 				// Mouse events
 				if (~mouse_events.indexOf(type)) {
 				
 					// Initialize the events object for specific event type
 					if (obj.events[type] === undefined) {
-						obj.events[type] = [];
+						obj.events[type] = {};
 					}
 					
-					// Add event handler
-					length = obj.events[type].push(function (e, forceLeave) {
+					// Create event wrapper
+					wrapper = function (e, forceLeave) {
 					
 						// Cancel event if object is not drawn to canvas
 						if (!obj.drawn) {
@@ -56,18 +56,38 @@
 							obj.events.mouseontarget = false;
 							handler.call(obj, e);
 						}
-					});
+					};
 					
 					// Add the handler to the event list in the mouse module
-					this.core.mouse.addEvent(type, obj.events[type][length - 1]);
+					index = this.core.mouse.addEvent(type, wrapper);
+					obj.events[type][index] = handler;
 					
 				} else
 				
 				// Keyboard events
 				if (~keyboard_events.indexOf(type)) {
 					if (obj.events[type] === undefined) {
-						obj.events[type] = [];
+						obj.events[type] = {};
 					}
+				}
+			},
+			
+			// Method for removing an event handler from an object
+			unbind: function (obj, type, handler) {
+				var i, l = obj.events[type].length,
+					index;
+					
+				// Find the index for the specified handler
+				for (i in obj.events[type]) {
+					if (obj.events[type][i] === handler) {
+						index = i;
+					}
+				}
+				
+				// If index was found, remove the handler
+				if (index !== undefined) {
+					delete obj.events[type][index];
+					this.core.mouse.removeEvent(type, index);
 				}
 			}
 		};
