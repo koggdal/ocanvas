@@ -20,7 +20,7 @@
 			
 			// Default properties
 			align: "start",
-			baseline: "alphabetic",
+			baseline: "top",
 			_: {
 				font: "normal normal normal 16px/1.5 'Helvetica Neue', Arial, Helvetica, sans-serif",
 				style: "_normal",
@@ -130,7 +130,7 @@
 			
 			// Method for setting width/height when something has changed
 			setDimensions: function () {
-				if (this.initialized) {
+				if (this._.initialized) {
 					var canvas = this.core.canvas,
 						metrics;
 					
