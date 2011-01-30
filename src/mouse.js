@@ -59,8 +59,8 @@
 			},
 			
 			// Method for removing an event from the event list
-			removeEvent: function (type, id) {
-				this.eventList[type].splice(id,1);
+			removeEvent: function (type, index) {
+				this.eventList[type].splice(index, 1);
 			},
 			
 			// Method for updating the mouse position relative to the canvas top left corner
@@ -80,11 +80,15 @@
 				}
 				
 				if (update !== false) {
-					this.x = x;
-					this.y = y;
+					if (x !== undefined) {
+						this.x = x;
+					}
+					if (y !== undefined) {
+						this.y = y;
+					}
 				}
 				
-				return { x: x, y: y };
+				return { x: this.x, y: this.y };
 			},
 			
 			// Method for getting the current mouse position relative to the canvas top left corner
