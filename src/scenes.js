@@ -39,6 +39,11 @@
 						return obj;
 					},
 					
+					// Method for removing an object from the scene
+					remove: function (index) {
+						this.objects.splice(index, 1);
+					},
+					
 					// Method for loading the scene's objects
 					load: function () {
 						if (this.loaded) {
