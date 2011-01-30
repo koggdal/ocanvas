@@ -127,7 +127,7 @@
 				// Rectangle
 				if (obj.shapeType === "rectangular") {
 					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x + (obj.width / 2), obj.abs_y + (obj.height / 2));
-					return ((pointer.x > obj.abs_x) && (pointer.x < obj.abs_y + obj.width) && (pointer.y > obj.abs_y) && (pointer.y < obj.abs_y + obj.height));
+					return ((pointer.x > obj.abs_x) && (pointer.x < obj.abs_x + obj.width) && (pointer.y > obj.abs_y) && (pointer.y < obj.abs_y + obj.height));
 				} else
 				
 				// Circle
