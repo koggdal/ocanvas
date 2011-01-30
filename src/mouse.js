@@ -190,6 +190,16 @@
 				if (!this.onCanvas(e)) {
 					this.canvasFocused = false;
 				}
+			},
+			
+			// Method for hiding the cursor
+			hide: function () {
+				this.core.canvasElement.style.cursor = "none";
+			},
+			
+			// Method for showing the cursor
+			show: function () {
+				this.core.canvasElement.style.cursor = "default";
 			}
 		};
 	};
