@@ -21,18 +21,18 @@
 			// Default properties
 			align: "start",
 			baseline: "top",
-			_: {
+			_: oCanvas.extend(Object.create(thecore.displayObject._), {
 				font: "normal normal normal 16px/1.5 'Helvetica Neue', Arial, Helvetica, sans-serif",
-				style: "_normal",
-				variant: "_normal",
-				weight: "_normal",
+				style: "normal",
+				variant: "normal",
+				weight: "normal",
 				size: 16,
 				lineHeight: 1.5,
 				family: "'Helvetica Neue', Arial, Helvetica, sans-serif",
 				text: "",
 				width: 0,
 				height: 0
-			},
+			}),
 			
 			// Setters for font properties
 			set font (value) {

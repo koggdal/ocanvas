@@ -107,9 +107,9 @@
 					var val = value;
 					value = (typeof val.style === "string" ? val.style : "normal");
 					value += " " + (typeof val.variant === "string" ? val.variant : "normal");
-					value += " " + (typeof val.weight === "string" ? val.weight : "*normal");
-					value += " " + (typeof val.size === "number" ? val.size+"px" : "16px");
-					value += "/" + (typeof val.lineHeight === "number" ? val.lineHeight : 1.5);
+					value += " " + (typeof val.weight === "string" ? val.weight : "normal");
+					value += " " + (typeof val.size === "number" ? (~~(val.size * 10 + 0.5) / 10)+"px" : "16px");
+					value += "/" + (typeof val.lineHeight === "number" ? (~~(val.lineHeight * 10 + 0.5) / 10) : 1.5);
 					value += " " + (typeof val.family === "string" ? val.family : "'Helvetica Neue', Arial, Helvetica, sans-serif");
 				}
 				
@@ -162,7 +162,7 @@
 						}
 					}
 				}
-
+				
 				// Set default values if unspecified
 				font = font_object || {};
 				font.style = font.style ? font.style : "normal";
