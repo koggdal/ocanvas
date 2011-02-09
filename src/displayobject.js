@@ -29,7 +29,6 @@
 				y: 0
 			},
 			rotation: 0,
-			fill: "",
 			drawn: false,
 			events: {},
 			children: [],
@@ -42,7 +41,8 @@
 				stroke: "",
 				strokeColor: "",
 				strokeWeight: 0,
-				strokePosition: "outside"
+				strokePosition: "outside",
+				fill: ""
 			},
 			
 			set strokeColor (color) {
@@ -79,6 +79,21 @@
 			},
 			get strokePosition () {
 				return this._.strokePosition;
+			},
+			
+			set fill (value) {
+				this._.fill = value;
+			},
+			get fill () {
+				if (~this._.fill.indexOf("gradient")) {
+					if (this.shapeType === "rectangular") {
+						return this.core.style.getGradient(this._.fill, this.abs_x, this.abs_y, this.width, this.height);
+					} else if (this.shapeType === "radial") {
+						return this.core.style.getGradient(this._.fill, this.abs_x - this.radius, this.abs_y - this.radius, this.radius * 2, this.radius * 2);
+					}
+				} else {
+					return this._.fill;
+				}
 			},
 			
 			set x (value) {
