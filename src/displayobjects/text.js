@@ -147,7 +147,8 @@
 			
 			// Method for drawing the object to the canvas
 			draw: function (cb) {
-				var canvas = this.core.canvas;
+				var canvas = this.core.canvas,
+					lines, i;
 				
 				canvas.beginPath();
 				
@@ -166,7 +167,12 @@
 				// Draw the text normally if a fill color is specified
 				if (this.fill !== "") {
 					canvas.fillStyle = this.fill;
-					canvas.fillText(this.text, this.abs_x, this.abs_y);
+					
+					// Draw the text with support for multiple lines
+					lines = this.text.split("\n");
+					for (i = 0; i < lines.length; i++) {
+						canvas.fillText(lines[i], this.abs_x, this.abs_y + (i * this.lineHeight * this.height));
+					}
 					canvas.fill();
 				}
 				
