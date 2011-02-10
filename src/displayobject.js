@@ -383,9 +383,9 @@
 			clone: function (settings) {
 				settings = settings || {};
 				settings.drawn = false;
-				var newObj = this.core.display[this.type](),
+				var newObj = this.core.display[this.type](settings),
 					this_filtered = {},
-					reject = ["core", "events", "children"],
+					reject = ["core", "events", "children", "parent", "img"],
 					loopObject, x;
 				
 				// Filter out the setter and getter methods, and also properties listed above
