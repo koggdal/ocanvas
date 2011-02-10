@@ -121,7 +121,7 @@
 			
 				// Get arguments of the linear-gradient function, while preserving color values like hsla() and such
 				args = /\((.*)\)/.exec(value)[1];
-				while (matchedColor = /((hsl|hsla|rgb|rgba)\(.*?\))/g.exec(args)) {
+				while (matchedColor = /((hsl|hsla|rgb|rgba)\(.*?\))/.exec(args)) {
 					colorIndex = parenColors.push(matchedColor[1]) - 1;
 					args = args.substring(0, matchedColor.index) + "###" + colorIndex + "###" + args.substring(matchedColor.index + matchedColor[1].length, args.length);
 				}
@@ -312,7 +312,7 @@
 				
 				// Get arguments of the radial-gradient function, while preserving color values like hsla() and such
 				args = /\((.*)\)/.exec(value)[1];
-				while (matchedColor = /((hsl|hsla|rgb|rgba)\(.*?\))/g.exec(args)) {
+				while (matchedColor = /((hsl|hsla|rgb|rgba)\(.*?\))/.exec(args)) {
 					colorIndex = parenColors.push(matchedColor[1]) - 1;
 					args = args.substring(0, matchedColor.index) + "###" + colorIndex + "###" + args.substring(matchedColor.index + matchedColor[1].length, args.length);
 				}
