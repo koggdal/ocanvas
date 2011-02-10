@@ -52,7 +52,7 @@
 					_this = this;
 				
 				// If the image has finished loading, go on and draw
-				if (this.loaded) {
+				if (this.loaded && this.img.width > 0 && this.img.height > 0) {
 				
 					if (this.tile) {
 					
