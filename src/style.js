@@ -169,7 +169,7 @@
 						eX = x + width;
 						eY = y + height / 2;
 					} else if (~pos[0].indexOf("deg")) {
-						var angle, a, beta, cornerDistance, endDistance, cornerX, cornerY, cY,
+						var alpha, a, beta, cornerDistance, endDistance, cornerX, cornerY, cY,
 							pi = Math.PI,
 							centerX = x + width / 2,
 							centerY = y + height / 2;
@@ -306,7 +306,7 @@
 					bg_position_sizes_x = { "left": x, "center": (x + width / 2), "right": (x + width) },
 					bg_position_sizes_y = { "top": y, "center": (y + height / 2), "bottom": (y + height) },
 					sizes = ["closest-side", "closest-corner", "farthest-side", "farthest-corner", "contain", "cover"],
-					args, i, l, matchedColor, colorIndex, parenColors = [],
+					args, i, l, matchedColor, colorIndex, parenColors = [], colorStops, s,
 					pos_arg, num_pos_args = 0, circles = [{x:undefined,y:undefined,r:0}, {x:undefined,y:undefined,r:undefined}], p, p_key,
 					size_arg, size, size_set = false;
 				
