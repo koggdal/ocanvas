@@ -9,15 +9,18 @@
 			setCore: function (thecore) {
 				this.core = thecore;
 			},
+			
+			types: {},
 
 			// Method for binding an event to a specific object
 			bind: function (obj, type, handler) {
-				var mouse_events = ["mousemove", "mouseenter", "mouseleave", "mousedown", "mouseup", "click", "drag"],
-					keyboard_events = ["keydown", "keyup", "keypress"],
-					length, wrapper, index;
+				var length, wrapper, index,
+					mouseTypes = this.types.mouse,
+					touchTypes = this.types.touch,
+					keyboardTypes = this.types.keyboard;
 				
 				// Mouse events
-				if (~mouse_events.indexOf(type)) {
+				if (~mouseTypes.indexOf(type)) {
 				
 					// Initialize the events object for specific event type
 					if (obj.events[type] === undefined) {
@@ -65,7 +68,7 @@
 				} else
 				
 				// Keyboard events
-				if (~keyboard_events.indexOf(type)) {
+				if (~keyboardTypes.indexOf(type)) {
 					if (obj.events[type] === undefined) {
 						obj.events[type] = {};
 					}

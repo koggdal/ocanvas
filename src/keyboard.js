@@ -30,6 +30,9 @@
 				var _this = this;
 				this.running = false;
 				
+				// Register event types
+				this.core.events.types.keyboard = ["keydown", "keyup", "keypress"];
+				
 				// Add event listeners to the document
 				document.addEventListener("keydown", function (e) { _this.keydown.call(_this, e); }, false);
 				document.addEventListener("keyup", function (e) { _this.keyup.call(_this, e); }, false);

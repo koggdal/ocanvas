@@ -29,6 +29,9 @@
 					core = this.core,
 					canvasElement = core.canvasElement;
 				
+				// Register event types
+				core.events.types.mouse = ["mousemove", "mouseenter", "mouseleave", "mousedown", "mouseup", "click"];
+				
 				// Define properties
 				this.x = 0;
 				this.y = 0;
@@ -41,11 +44,6 @@
 				canvasElement.addEventListener('click', function (e) { _this.click.call(_this, e); }, false);
 				canvasElement.addEventListener('mousedown', function (e) { _this.mousedown.call(_this, e); }, false);
 				canvasElement.addEventListener('mouseup', function (e) { _this.mouseup.call(_this, e); }, false);
-				
-				if (core.settings.disableScrolling) {
-					// Add event listener to prevent scrolling on touch devices
-					canvasElement.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
-				}
 				
 				// Add event listeners to the canvas element (used for settings states and trigger mouseup events)
 				document.addEventListener('mouseup', function (e) { _this.docmouseup.call(_this, e); }, false);
