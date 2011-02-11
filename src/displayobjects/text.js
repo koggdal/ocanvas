@@ -169,7 +169,7 @@
 					canvas.fillStyle = this.fill;
 					
 					// Draw the text with support for multiple lines
-					lines = this.text.split("\n");
+					lines = this.text.toString().split("\n");
 					for (i = 0; i < lines.length; i++) {
 						canvas.fillText(lines[i], this.abs_x, this.abs_y + (i * this.lineHeight * this.height));
 					}
