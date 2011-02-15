@@ -133,6 +133,11 @@
 				unbind: function (type, handler) {
 					obj.events.unbind(obj.canvasElement, type, handler);
 					return obj;
+				},
+					
+				// Method for triggering all events added to the object
+				trigger: function (types) {
+					obj.events.trigger(obj.canvasElement, types);
 				}
 				
 			}, this);

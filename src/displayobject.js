@@ -153,6 +153,11 @@
 				return this;
 			},
 			
+			// Method for triggering all events added to the object
+			trigger: function (types) {
+				this.core.events.trigger(this, types);
+			},
+			
 			// Method for adding the object to the canvas
 			add: function () {
 				if (this.drawn === false) {
@@ -417,8 +422,8 @@
 			},
 			
 			// Method for checking if the pointer is inside the object
-			isPointerInside: function () {
-				return this.core.tools.isPointerInside(this);
+			isPointerInside: function (pointer) {
+				return this.core.tools.isPointerInside(this, pointer);
 			},
 			
 			// Method for checking if the object is touching the specified object

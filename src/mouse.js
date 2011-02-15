@@ -27,10 +27,17 @@
 			init: function () {
 				var _this = this,
 					core = this.core,
-					canvasElement = core.canvasElement;
+					canvasElement = core.canvasElement,
+					types;
 				
-				// Register event types
-				core.events.types.mouse = ["mousemove", "mouseenter", "mouseleave", "mousedown", "mouseup", "click"];
+				// Register pointer
+				core.events.types.mouse = types = ["mousemove", "mouseenter", "mouseleave", "mousedown", "mouseup", "click"];
+				core.events.pointers.mouse = function (type, doAdd) {
+					if (~types.indexOf(type) && !("ontouchstart" in window || "createTouch" in document)) {
+						doAdd("mouse", "click");
+					}
+				};
+				core.pointer = this;
 				
 				// Define properties
 				this.x = 0;
@@ -38,10 +45,10 @@
 				this.buttonState = 'up';
 				this.canvasFocused = false;
 				this.canvasHovered = false;
+				this.cancel();
 				
 				// Add event listeners to the canvas element
 				canvasElement.addEventListener('mousemove', function (e) { _this.mousemove.call(_this, e); }, false);
-				canvasElement.addEventListener('click', function (e) { _this.click.call(_this, e); }, false);
 				canvasElement.addEventListener('mousedown', function (e) { _this.mousedown.call(_this, e); }, false);
 				canvasElement.addEventListener('mouseup', function (e) { _this.mouseup.call(_this, e); }, false);
 				
@@ -114,12 +121,25 @@
 			triggerEvents: function (type, e, forceLeave) {
 				forceLeave = forceLeave || false;
 				var events = this.eventList[type],
-					i, event;
+					i, event,
+					which = e.which,
+					
+					// Create a clone of the event object
+					eventObject = oCanvas.extend({}, e, {
+						exclude: ["type", "which"]
+					});
+					
+					// Add new properties to the event object
+					eventObject.x = this.x;
+					eventObject.y = this.y;
+					eventObject.which = which === 0 ? eventObject.keyCode : which;
+					eventObject.type = type;
 				
+				// Trigger all events associated with the type
 				for (i = events.length; i--;) {
 					event = events[i];
 					if (typeof event === "function") {
-						event(e, forceLeave);
+						event(eventObject, forceLeave);
 					}
 				}
 			},
@@ -137,18 +157,11 @@
 				this.triggerEvents("drag", e);
 			},
 			
-			// Method that triggers all click events that are added
-			click: function (e) {
-				this.canvasFocused = true;
-				this.last_event = e;
-				
-				this.triggerEvents("click", e);
-			},
-			
 			// Method that triggers all mousedown events that are added
 			mousedown: function (e) {
 				this.canvasFocused = true;
 				this.last_event = e;
+				this.start_pos = this.getPos(e);
 				
 				this.triggerEvents("mousedown", e);
 				
@@ -158,7 +171,11 @@
 			// Method that triggers all mouseup events that are added
 			mouseup: function (e) {
 				this.last_event = e;
+				
 				this.triggerEvents("mouseup", e);
+				this.triggerEvents("click", e);
+				
+				this.cancel();
 			},
 			
 			// Method that triggers all mouseleave events that are added (gets triggered by mouse::docmouseover)
@@ -188,6 +205,13 @@
 				if (!this.onCanvas(e)) {
 					this.canvasFocused = false;
 				}
+			},
+			
+			// Method that cancels the click event
+			// A click is triggered if both the start pos and end pos is within the object,
+			// so resetting the start_pos cancels the click
+			cancel: function () {
+				this.start_pos = {x:-10,y:-10};
 			},
 			
 			// Method for hiding the cursor

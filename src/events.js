@@ -11,88 +11,149 @@
 			},
 			
 			types: {},
+			pointers: {},
 
 			// Method for binding an event to a specific object
-			bind: function (obj, type, handler) {
-				var length, wrapper, index,
+			bind: function (obj, types, handler) {
+				var core = this.core,
+					length, wrapper, index,
 					mouseTypes = this.types.mouse,
 					touchTypes = this.types.touch,
-					keyboardTypes = this.types.keyboard;
+					keyboardTypes = this.types.keyboard,
+					types = types.split(" "),
+					t, type,
+					p;
 				
-				// Mouse events
-				if (~mouseTypes.indexOf(type)) {
+				for (t = 0; t < types.length; t++) {
 				
-					// Initialize the events object for specific event type
-					if (obj.events[type] === undefined) {
-						obj.events[type] = {};
-					}
+					type = types[t];
 					
-					// Create event wrapper
-					wrapper = function (e, forceLeave) {
-					
-						// Cancel event if object is not drawn to canvas
-						if (!obj.drawn) {
-							return;
-						}
-					
-						// If pointer is inside the object and we are not forced to trigger mouseleave
-						if (obj.isPointerInside() && !forceLeave) {
-						
-							// Only trigger mouse events that are supposed to be triggered inside the object
-							if (type !== "mouseleave") {
-							
-								// Only trigger mouseenter the first time event is triggered after pointer enters the object
-								if (type === "mouseenter" && obj.events.mouseontarget) {
-									return;
+					for (p in this.pointers) {
+						this.pointers[p](type, (function(type) {
+							return function (pointer, clickName) {
+								
+								// Initialize the events object for specific event type
+								if (obj.events[type] === undefined) {
+									obj.events[type] = {};
 								}
 								
-								// Set status and trigger callback
-								obj.events.mouseontarget = true;
-								handler.call(obj, e);
-							}
-						}
-						
-						// If pointer is not inside the object right now, but just was
-						else if (type === "mouseleave" && obj.events.mouseontarget) {
-						
-							// Reset status and trigger callback for mouseleave
-							obj.events.mouseontarget = false;
-							handler.call(obj, e);
-						}
-					};
-					
-					// Add the handler to the event list in the mouse module
-					index = this.core.mouse.addEvent(type, wrapper);
-					obj.events[type][index] = handler;
-					
-				} else
-				
-				// Keyboard events
-				if (~keyboardTypes.indexOf(type)) {
-					if (obj.events[type] === undefined) {
-						obj.events[type] = {};
+								// Create event wrapper
+								wrapper = function (e, forceLeave) {
+								
+									// Cancel event if object is not drawn to canvas
+									if (!obj.drawn) {
+										return;
+									}
+								
+									// If pointer is inside the object and we are not forced to trigger mouseleave
+									if (obj.isPointerInside() && !forceLeave) {
+									
+										// Only trigger mouse events that are supposed to be triggered inside the object
+										if (type !== pointer + "leave") {
+										
+											// Only trigger mouseenter the first time event is triggered after pointer enters the object
+											if (type === pointer + "enter" && obj.events[pointer + "ontarget"]) {
+												return;
+											}
+											
+											// Don't trigger click events if the pointer was pressed down outside the object
+											if (type === clickName && !obj.isPointerInside(core.pointer.start_pos)) {
+												return;
+											}
+											
+											// Set status and trigger callback
+											obj.events[pointer + "ontarget"] = true;
+											handler.call(obj, e);
+										}
+									}
+									
+									// If pointer is not inside the object right now, but just was
+									else if (type === pointer + "leave" && obj.events[pointer + "ontarget"]) {
+									
+										// Reset status and trigger callback for mouseleave
+										obj.events[pointer + "ontarget"] = false;
+										handler.call(obj, e);
+									}
+								};
+								
+								// Add the handler to the event list in the mouse module
+								index = core[pointer].addEvent(type, wrapper);
+								log(obj);
+								log(type);
+								log(index);
+								obj.events[type][index] = handler;
+							};
+						})(type));
 					}
 				}
 			},
 			
 			// Method for removing an event handler from an object
-			unbind: function (obj, type, handler) {
-				var i, l = obj.events[type].length,
-					index;
+			unbind: function (obj, types, handler) {
+				var t, type, x, pointer, i, index;
+				
+				types = types.split(" ");
+				
+				for (t = 0; t < types.length; t++) {
+				
+					type = types[t];
 					
-				// Find the index for the specified handler
-				for (i in obj.events[type]) {
-					if (obj.events[type][i] === handler) {
-						index = i;
+					// Ignore event type if the object doesn't have any events of that type
+					if (obj.events[type] === undefined) {
+						continue;
+					}
+					
+					// Find pointer type
+					for (x in this.types) {
+						if (~this.types[x].indexOf(type)) {
+							pointer = x;
+							break;
+						}
+					}
+					
+					// Find the index for the specified handler
+					for (i in obj.events[type]) {
+						if (obj.events[type][i] === handler) {
+							index = i;
+						}
+					}
+					
+					// If index was found, remove the handler
+					if (index !== undefined) {
+						delete obj.events[type][index];
+						this.core[pointer].removeEvent(type, index);
 					}
 				}
+			},
+			
+			
+			// Method for triggering events that has been added to an object
+			trigger: function (obj, types) {
+				var t, type, i;
 				
-				// If index was found, remove the handler
-				if (index !== undefined) {
-					delete obj.events[type][index];
-					this.core.mouse.removeEvent(type, index);
+				types = types.split(" ");
+				
+				// Loop through the specified event types
+				for (t = 0; t < types.length; t++) {
+					type = types[t];
+					
+					
+					// If the event type exists on the object
+					if (obj[type] !== undefined) {
+						
+						// Trigger all events of this type on this object
+						for (i = 0; i < obj[type].length; i++) {
+							obj[type][i].call(obj, this.core.pointer.last_event);
+						}
+					}
+					
+					// If the event type is a cancel event
+					else if (~type.indexOf("cancel")) {
+						this.core[type.replace("cancel","")].cancel();
+					}
 				}
 			}
+			
 		};
 	};
 
