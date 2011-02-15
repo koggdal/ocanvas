@@ -59,24 +59,40 @@
 	
 		// Get first two args
 		var args = Array.prototype.slice.call(arguments),
+			last = args[args.length - 1],
 			destination = args.splice(0, 1)[0],
 			current = args.splice(0, 1)[0],
-			x, getter, setter;
+			x, getter, setter, exclude = [];
 		
-		// Add members from second object to the first
-		for (x in current) {
-			getter = current.__lookupGetter__(x);
-			setter = current.__lookupSetter__(x);
+		// If the last object is an exclude object, get the properties
+		if (last.exclude && (JSON.stringify(last) === JSON.stringify({exclude:last.exclude}))) {
+			exclude = last.exclude;
+		}
+		
+		// Do the loop unless this object is an exclude object
+		if (current !== last || exclude.length === 0) {
 			
-			if (getter || setter) {
-				if (getter) {
-					destination.__defineGetter__(x, getter);
+			// Add members from second object to the first
+			for (x in current) {
+			
+				// Exclude specified properties
+				if (~exclude.indexOf(x)) {
+					continue;
 				}
-				if (setter) {
-					destination.__defineSetter__(x, setter);
+				
+				getter = current.__lookupGetter__(x);
+				setter = current.__lookupSetter__(x);
+				
+				if (getter || setter) {
+					if (getter) {
+						destination.__defineGetter__(x, getter);
+					}
+					if (setter) {
+						destination.__defineSetter__(x, setter);
+					}
+				} else {
+					destination[x] = current[x];
 				}
-			} else {
-				destination[x] = current[x];
 			}
 		}
 		
