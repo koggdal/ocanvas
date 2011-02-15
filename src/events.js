@@ -78,9 +78,6 @@
 								
 								// Add the handler to the event list in the mouse module
 								index = core[pointer].addEvent(type, wrapper);
-								log(obj);
-								log(type);
-								log(index);
 								obj.events[type][index] = handler;
 							};
 						})(type));
