@@ -149,8 +149,43 @@
 						this.core[type.replace("cancel","")].cancel();
 					}
 				}
-			}
+			},
 			
+			// Method for modifying the event object and fixing a few issues
+			modifyEventObject: function (event, type) {
+				var properties = "altKey ctrlKey metaKey shiftKey button charCode keyCode clientX clientY layerX layerY pageX pageY screenX screenY detail eventPhase isChar touches targetTouches changedTouches scale rotation".split(" "),
+					numProps = properties.length,
+					eventObject, i, property;
+				
+				// Fix specific properties and methods
+				eventObject = {
+					originalEvent: event,
+					type: type,
+					timeStamp: (new Date()).getTime(),
+					which: event.which === 0 ? event.keyCode : event.which,
+					
+					preventDefault: function () {
+						event.preventDefault();
+					},
+					
+					stopPropagation: function () {
+						event.stopPropagation();
+					}
+				};
+				
+				// Set selected original properties
+				for (i = 0; i < numProps; i++) {
+					property = properties[i];
+					if (event[property] !== undefined) {
+						eventObject[property] = event[property];
+					}
+				}
+				
+				// Fix original methods
+				eventObject.preventDefault
+				
+				return eventObject;
+			}
 		};
 	};
 

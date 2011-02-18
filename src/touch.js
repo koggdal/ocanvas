@@ -27,16 +27,17 @@
 				var _this = this,
 					core = this.core,
 					canvasElement = core.canvasElement,
-					types;
+					types,
+					isTouch = ("ontouchstart" in window || "createTouch" in document);
 				
 				// Register pointer
 				core.events.types.touch = types = ["touchstart", "touchend", "touchmove", "touchenter", "touchleave", "tap"];
 				core.events.pointers.touch = function (type, doAdd) {
-					if (~types.indexOf(type) && ("ontouchstart" in window || "createTouch" in document)) {
+					if (~types.indexOf(type) && isTouch) {
 						doAdd("touch", "tap");
 					}
 				};
-				if ("ontouchstart" in window || "createTouch" in document) {
+				if (isTouch) {
 					core.pointer = this;
 				}
 				
@@ -133,18 +134,12 @@
 				forceLeave = forceLeave || false;
 				var events = this.eventList[type],
 					i, event,
-					which = e.which,
-					
-					// Create a clone of the event object
-					eventObject = oCanvas.extend({}, e, {
-						exclude: ["type", "which"]
-					});
-					
-					// Add new properties to the event object
-					eventObject.x = this.x;
-					eventObject.y = this.y;
-					eventObject.which = 1;
-					eventObject.type = type;
+					eventObject = this.core.events.modifyEventObject(e, type);
+						
+				// Add new properties to the event object
+				eventObject.x = this.x;
+				eventObject.y = this.y;
+				eventObject.which = 0;
 				
 				// Trigger all events associated with the type
 				for (i = events.length; i--;) {

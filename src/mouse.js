@@ -122,18 +122,12 @@
 				forceLeave = forceLeave || false;
 				var events = this.eventList[type],
 					i, event,
-					which = e.which,
-					
-					// Create a clone of the event object
-					eventObject = oCanvas.extend({}, e, {
-						exclude: ["type", "which"]
-					});
-					
-					// Add new properties to the event object
-					eventObject.x = this.x;
-					eventObject.y = this.y;
-					eventObject.which = which === 0 ? eventObject.keyCode : which;
-					eventObject.type = type;
+					eventObject = this.core.events.modifyEventObject(e, type);
+						
+				// Add new properties to the event object
+				eventObject.x = this.x;
+				eventObject.y = this.y;
+				eventObject.which = eventObject.button;
 				
 				// Trigger all events associated with the type
 				for (i = events.length; i--;) {

@@ -80,17 +80,18 @@
 			
 			// Method for triggering all events of a specific type
 			triggerEvents: function (type, e) {
-				var key, i, event;
+				var key, i, event, eventObject;
 				
 				// If the mouse has set focus on the canvas
 				if (this.core.mouse && this.core.mouse.canvasFocused === true) {
 					key = this.eventList[type];
+					eventObject = this.core.events.modifyEventObject(e, type);
 					
 					// Loop through all events and trigger them
 					for (i = key.length; i--;) {
 						event = key[i];
 						if (typeof event === "function") {
-							event(e);
+							event(eventObject);
 						}
 					}
 				}
