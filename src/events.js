@@ -57,7 +57,7 @@
 											}
 											
 											// Don't trigger click events if the pointer was pressed down outside the object
-											if (type === clickName && !obj.isPointerInside(core.pointer.start_pos)) {
+											if (type === clickName && (core.pointer.start_pos.x < 0 || core.pointer.start_pos.y < 0 || !obj.isPointerInside(core.pointer.start_pos))) {
 												return;
 											}
 											
