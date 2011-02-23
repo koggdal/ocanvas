@@ -11,12 +11,15 @@
 			shapeType: "rectangular",
 			
 			draw: function (cb) {
-				var canvas = this.core.canvas;
+				var canvas = this.core.canvas,
+					origin = this.getOrigin(),
+					x = this.abs_x - origin.x,
+					y = this.abs_y - origin.y;
 				
 				// Do fill
 				canvas.beginPath();
 				canvas.fillStyle = this.fill;
-				canvas.fillRect(this.abs_x, this.abs_y, 1, 1);
+				canvas.fillRect(x, y, 1, 1);
 				canvas.closePath();
 				
 				if (cb) {

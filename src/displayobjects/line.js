@@ -104,13 +104,15 @@
 			},
 			
 			draw: function (cb) {
-				var canvas = this.core.canvas;
+				var canvas = this.core.canvas,
+					origin = this.getOrigin(),
+					translation = this.core.tools.translation;
 				
 				canvas.lineWidth = this.strokeWeight;
 				canvas.strokeStyle = this.strokeColor;
 				canvas.beginPath();
-				canvas.moveTo(this.start.x, this.start.y);
-				canvas.lineTo(this.end.x, this.end.y);
+				canvas.moveTo(this.start.x - translation.x - origin.x, this.start.y - translation.y - origin.y);
+				canvas.lineTo(this.end.x - translation.x - origin.x, this.end.y - translation.y - origin.y);
 				canvas.stroke();
 				canvas.closePath();
 				

@@ -88,8 +88,12 @@
 			},
 			
 			draw: function (cb) {
-				var canvas = this.core.canvas,
-					_this = this;
+				var _this = this,
+					canvas = this.core.canvas,
+					origin = this.getOrigin(),
+					x = this.abs_x - origin.x,
+					y = this.abs_y - origin.y,
+					frame;
 				
 				// If the image has finished loading, go on and draw
 				if (this.loaded) {
@@ -98,10 +102,10 @@
 					if (this.frames.length > 0 && this.active) {
 					
 						// Get current frame
-						var frame = this.frames[this.currentFrame];
+						frame = this.frames[this.currentFrame];
 						
 						// Draw the current sprite part
-						canvas.drawImage(this.img, frame.x, frame.y, this.width, this.height, this.abs_x, this.abs_y, this.width, this.height);
+						canvas.drawImage(this.img, frame.x, frame.y, this.width, this.height, x, y, this.width, this.height);
 						
 						// Set a redraw timer at the current frame duration if a timer is not already running
 						if (this.running === false) {

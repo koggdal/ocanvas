@@ -148,6 +148,9 @@
 			// Method for drawing the object to the canvas
 			draw: function (cb) {
 				var canvas = this.core.canvas,
+					origin = this.getOrigin(),
+					x = this.abs_x - origin.x,
+					y = this.abs_y - origin.y,
 					lines, i;
 				
 				canvas.beginPath();
@@ -160,7 +163,7 @@
 				if (this.strokeWeight > 0) {
 					canvas.lineWidth = this.strokeWeight;
 					canvas.strokeStyle = this.strokeColor;
-					canvas.strokeText(this.text, this.abs_x, this.abs_y);
+					canvas.strokeText(this.text, x, y);
 					canvas.stroke();
 				}
 				
@@ -171,7 +174,7 @@
 					// Draw the text with support for multiple lines
 					lines = this.text.toString().split("\n");
 					for (i = 0; i < lines.length; i++) {
-						canvas.fillText(lines[i], this.abs_x, this.abs_y + (i * this.lineHeight * this.height));
+						canvas.fillText(lines[i], x, y + (i * this.lineHeight * this.height));
 					}
 					canvas.fill();
 				}

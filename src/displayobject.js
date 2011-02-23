@@ -277,74 +277,50 @@
 				return this;
 			},
 			
-			// Method for getting the current origin coordinates
-			getOrigin: function () {
-				var oX, oY;
-				
-				// Get x position
-				if (this.origin.x === "center") {
-					oX = this.width / 2;
-				} else {
-					oX = this.origin.x;
-				}
-				
-				// Get y position
-				if (this.origin.y === "center") {
-					oY = this.height / 2;
-				} else {
-					oY = this.origin.y;
-				}
-				
-				// Return the coordinates
-				return {
-					x: oX,
-					y: oY
-				};
-			},
-			
-			setOrigin: function (x, y, global) {
-			
-				// Update x/y variables if assigned x/y are relative to the top left corner of the canvas
-				if (global === true) {
-					x -= this.x - this.origin.x;
-					y -= this.y - this.origin.y;
-				}
-				
-				// Get the old origin and Update the origin property
-				var oldOrigin = this.getOrigin();
+			// Method for setting the origin coordinates
+			// Accepts pixel values or the following keywords:
+			//     x: left | center | right
+			//     y: top | center | bottom
+			setOrigin: function (x, y) {
 				this.origin.x = x;
 				this.origin.y = y;
 				
-				// Get values of x/y if they are set to "center"
-				if (x === "center") {
-					x = this.width / 2;
-				}
-				if (y === "center") {
-					y = this.height / 2;
-				}
-				
-				if(x > 0 || y > 0){
-					var d = Math.sqrt(x*x+y*y),
-						angle = 90-Math.acos(y/d)*180/Math.PI+this.rotation,
-						changeX = Math.round(Math.cos(angle*Math.PI/180)*d),
-						changeY = Math.round(Math.sin(angle*Math.PI/180)*d),
-						oldSX = this.x-oldOrigin.x,
-						oldSY = this.y-oldOrigin.y;
-					
-					this.x = oldSX+changeX;
-					this.y = oldSY+changeY;
-				}else{
-					if(x < 0)
-						this.x -= oldOrigin.x - x;
-					else
-						this.x -= oldOrigin.x;
-					if(y < 0)
-						this.y -= oldOrigin.y - y;
-					else
-						this.y -= oldOrigin.y;
-				}
-				
 				return this;
+			},
+			
+			// Method for getting the current origin coordinates in pixels
+			getOrigin: function () {
+				var x, y,
+					origin = this.origin,
+					shapeType = this.shapeType;
+				
+				// Get X coordinate in pixels
+				if (origin.x === "center") {
+					x = (shapeType === "rectangular") ? this.width / 2 : 0;
+				} else if (origin.x === "right") {
+					x = (shapeType === "rectangular") ? this.width : this.radius;
+				} else if (origin.x === "left") {
+					x = (shapeType === "rectangular") ? 0 : -this.radius;
+				} else {
+					x = !isNaN(parseFloat(origin.x)) ? parseFloat(origin.x) : 0;
+				}
+				
+				// Get Y coordinate in pixels
+				if (origin.y === "center") {
+					y = (shapeType === "rectangular") ? this.height / 2 : 0;
+				} else if (origin.y === "bottom") {
+					y = (shapeType === "rectangular") ? this.height : this.radius;
+				} else if (origin.y === "top") {
+					y = (shapeType === "rectangular") ? 0 : -this.radius;
+				} else {
+					y = !isNaN(parseFloat(origin.y)) ? parseFloat(origin.y) : 0;
+				}
+				
+				// Return pixel coordinates
+				return {
+					x: x,
+					y: y
+				};
 			},
 			
 			// Method for adding a child to the display object

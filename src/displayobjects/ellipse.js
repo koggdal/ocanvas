@@ -41,25 +41,31 @@
 			},
 			
 			draw: function (cb) {
-				var canvas = this.core.canvas;
+				var canvas = this.core.canvas,
+					origin = this.getOrigin(),
+					x = this.abs_x - origin.x,
+					y = this.abs_y - origin.y;
 				
 				canvas.beginPath();
 				
 				// Draw a perfect circle with the arc method if both radii are the same
 				if (this.radius_x === this.radius_y) {
-					canvas.arc(this.abs_x, this.abs_y, this.radius_x, 0, Math.PI * 2, false);
-				} else {
+					canvas.arc(x, y, this.radius_x, 0, Math.PI * 2, false);
+				}
+				
+				// Draw an ellipse if the radii are not the same
+				else {
 					
 					// Calculate values for the ellipse
 					var EllipseToBezierConstant = 0.276142374915397,
 						o = {x: this.radius_x * 2 * EllipseToBezierConstant, y: this.radius_y * 2 * EllipseToBezierConstant};
 					
 					// Draw the curves that will form the ellipse
-					canvas.moveTo(this.abs_x - this.radius_x, this.abs_y);
-					canvas.bezierCurveTo(this.abs_x - this.radius_x, this.abs_y - o.y, this.abs_x - o.x, this.abs_y - this.radius_y, this.abs_x, this.abs_y - this.radius_y);
-					canvas.bezierCurveTo(this.abs_x + o.x, this.abs_y - this.radius_y, this.abs_x + this.radius_x, this.abs_y - o.y, this.abs_x + this.radius_x, this.abs_y);
-					canvas.bezierCurveTo(this.abs_x + this.radius_x, this.abs_y + o.y, this.abs_x + o.x, this.abs_y + this.radius_y, this.abs_x, this.abs_y + this.radius_y);
-					canvas.bezierCurveTo(this.abs_x - o.x, this.abs_y + this.radius_y, this.abs_x - this.radius_x, this.abs_y + o.y, this.abs_x - this.radius_x, this.abs_y);
+					canvas.moveTo(x - this.radius_x, y);
+					canvas.bezierCurveTo(x - this.radius_x, y - o.y, x - o.x, y - this.radius_y, x, y - this.radius_y);
+					canvas.bezierCurveTo(x + o.x, y - this.radius_y, x + this.radius_x, y - o.y, x + this.radius_x, y);
+					canvas.bezierCurveTo(x + this.radius_x, y + o.y, x + o.x, y + this.radius_y, x, y + this.radius_y);
+					canvas.bezierCurveTo(x - o.x, y + this.radius_y, x - this.radius_x, y + o.y, x - this.radius_x, y);
 				}
 				
 				// Do fill

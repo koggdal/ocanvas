@@ -15,19 +15,25 @@
 			direction: "clockwise",
 			
 			draw: function (cb) {
-				var canvas = this.core.canvas;
+				var canvas = this.core.canvas,
+					origin = this.getOrigin(),
+					x = this.abs_x - origin.x,
+					y = this.abs_y - origin.y;
 				
+				// Don't draw if the radius is 0 or less (won't be visible anyway)
 				if (this.radius > 0) {
 				
+					// Draw the arc
 					canvas.beginPath();
-					canvas.arc(this.abs_x, this.abs_y, this.radius, this.start * Math.PI / 180, this.end * Math.PI / 180, (this.direction === "anticlockwise"));
+					canvas.arc(x, y, this.radius, this.start * Math.PI / 180, this.end * Math.PI / 180, (this.direction === "anticlockwise"));
 					
-					
+					// Do fill
 					if (this.fill !== "") {
 						canvas.fillStyle = this.fill;
 						canvas.fill();
 					}
 					
+					// Do stroke
 					if (this.strokeWeight > 0) {
 						canvas.lineWidth = this.strokeWeight;
 						canvas.strokeStyle = this.strokeColor;

@@ -37,19 +37,19 @@
 			},
 			
 			draw: function (cb) {
-				var canvas = this.core.canvas;
-				
-				var firstPoint = { x: 0, y: 0 },
-					x = this.abs_x,
-					y = this.abs_y,
+				var canvas = this.core.canvas,
+					origin = this.getOrigin(),
+					x = this.abs_x - origin.x,
+					y = this.abs_y - origin.y,
+					firstPoint = { x: 0, y: 0 },
 					sides = this.sides,
 					points = this._.points,
 					radius = this.radius,
-					xPos, yPos;
+					xPos, yPos, i;
 				
 				canvas.beginPath();
 				
-				for (var i = 0; i <= sides; i++) {
+				for (i = 0; i <= sides; i++) {
 					xPos = x + radius * Math.cos(i * 2 * Math.PI / sides);
 					yPos = y + radius * Math.sin(i * 2 * Math.PI / sides);
 					

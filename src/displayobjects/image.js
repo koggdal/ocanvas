@@ -49,7 +49,10 @@
 			// Method that draws the image to the canvas once it's loaded
 			draw: function (cb) {
 				var canvas = this.core.canvas,
-					_this = this;
+					_this = this,
+					origin = this.getOrigin(),
+					x = this.abs_x - origin.x,
+					y = this.abs_y - origin.y;
 				
 				// If the image has finished loading, go on and draw
 				if (this.loaded && this.img.width > 0 && this.img.height > 0) {
@@ -58,23 +61,23 @@
 					
 						var num_x = Math.ceil(this.width / this.tile_width),
 							num_y = Math.ceil(this.height / this.tile_height),
-							x, y;
+							tile_x, tile_y;
 						
 						canvas.save();
 						canvas.beginPath();
 						
 						// Create clipping path for the rectangle that the tiled images will be drawn inside
-						canvas.moveTo(this.abs_x, this.abs_y);
-						canvas.lineTo(this.abs_x + this.width, this.abs_y);
-						canvas.lineTo(this.abs_x + this.width, this.abs_y + this.height);
-						canvas.lineTo(this.abs_x, this.abs_y + this.height);
-						canvas.lineTo(this.abs_x, this.abs_y);
+						canvas.moveTo(x, y);
+						canvas.lineTo(x + this.width, y);
+						canvas.lineTo(x + this.width, y + this.height);
+						canvas.lineTo(x, y + this.height);
+						canvas.lineTo(x, y);
 						canvas.clip();
 						
 						// Draw all the tiled images
-						for (y = 0; y < num_y; y++) {
-							for (x = 0; x < num_x; x++) {
-								canvas.drawImage(this.img, this.abs_x + x * (this.tile_width + this.tile_spacing_x), this.abs_y + y * (this.tile_height + this.tile_spacing_y), this.tile_width, this.tile_height);
+						for (tile_y = 0; tile_y < num_y; tile_y++) {
+							for (tile_x = 0; tile_x < num_x; tile_x++) {
+								canvas.drawImage(this.img, x + tile_x * (this.tile_width + this.tile_spacing_x), y + tile_y * (this.tile_height + this.tile_spacing_y), this.tile_width, this.tile_height);
 							}
 						}
 
@@ -85,7 +88,7 @@
 					} else {
 				
 						// Draw the image to the canvas
-						canvas.drawImage(this.img, this.abs_x, this.abs_y, this.width, this.height);
+						canvas.drawImage(this.img, x, y, this.width, this.height);
 						
 					}
 					
