@@ -68,8 +68,8 @@
 				this.eventList[type].splice(index, 1);
 			},
 			
-			// Method for updating the mouse position relative to the canvas top left corner
-			updatePos: function (e, update) {
+			// Method for getting the current mouse position relative to the canvas top left corner
+			getPos: function (e) {
 				var x, y,
 					boundingRect = this.core.canvasElement.getBoundingClientRect();
 					
@@ -84,26 +84,28 @@
 					y = e.clientY + document.documentElement.scrollTop - Math.round(boundingRect.top);
 				}
 				
-				if (update !== false) {
-					if (x !== undefined) {
-						this.x = x;
-					}
-					if (y !== undefined) {
-						this.y = y;
-					}
-				}
-				
-				return { x: this.x, y: this.y };
+				return { x: x, y: y };
 			},
 			
-			// Method for getting the current mouse position relative to the canvas top left corner
-			getPos: function (e, update) {
-				return this.updatePos(e, update);
+			// Method for updating the mouse position relative to the canvas top left corner
+			updatePos: function (e) {
+				var pos = this.getPos(e);
+				this.x = pos.x;
+				this.y = pos.y;
+				
+				return pos;
 			},
 			
 			// Method for checking if the mouse pointer is inside the canvas
-			onCanvas: function (e) {
+			onCanvas: function (e, fast) {
 				e = e || this.last_event;
+				
+				// Do fast checking against the event object's target
+				if (fast) {
+					return !(e.target.nodeName.toLowerCase() === "html" || e.target.nodeName.toLowerCase() === "body");
+				}
+				
+				// Get pointer position
 				var pos = e ? this.getPos(e, false) : {x:this.x, y:this.y};
 				
 				// Check boundaries => (left) && (right) && (top) && (bottom)
@@ -156,6 +158,7 @@
 				this.canvasFocused = true;
 				this.last_event = e;
 				this.start_pos = this.getPos(e);
+				this.buttonState = "down";
 				
 				this.triggerEvents("mousedown", e);
 				
@@ -165,6 +168,7 @@
 			// Method that triggers all mouseup events that are added
 			mouseup: function (e) {
 				this.last_event = e;
+				this.buttonState = "up";
 				
 				this.triggerEvents("mouseup", e);
 				this.triggerEvents("click", e);
@@ -172,31 +176,25 @@
 				this.cancel();
 			},
 			
-			// Method that triggers all mouseleave events that are added (gets triggered by mouse::docmouseover)
-			mouseleave: function(e){
-				this.triggerEvents("mouseleave", e, true);
-			},
-			
 			// Method that triggers all mouseup events when pointer was pressed down on canvas and released outside
 			docmouseup: function (e) {
 				this.last_event = e;
-				if (this.buttonState === "down" && !this.onCanvas(e)) {
+				if (this.buttonState === "down" && !this.onCanvas(e, true)) {
 					this.mouseup(e);
 				}
 			},
 			
 			// Method that triggers all mouseleave events when pointer is outside the canvas
 			docmouseover: function (e) {
-				this.last_event = e;
-				if (!this.onCanvas(e)) {
-					this.mouseleave(e);
+				if (!this.onCanvas(e, true)) {
+					this.triggerEvents("mouseleave", e, true);
 				}
 			},
 			
 			// Method that sets the focus state when pointer is pressed down outside the canvas
 			docclick: function (e) {
 				this.last_event = e;
-				if (!this.onCanvas(e)) {
+				if (!this.onCanvas(e, true)) {
 					this.canvasFocused = false;
 				}
 			},
