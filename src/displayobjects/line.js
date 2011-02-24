@@ -106,7 +106,7 @@
 			draw: function (cb) {
 				var canvas = this.core.canvas,
 					origin = this.getOrigin(),
-					translation = this.core.tools.translation;
+					translation = this.core.draw.translation;
 				
 				canvas.lineWidth = this.strokeWeight;
 				canvas.strokeStyle = this.strokeColor;

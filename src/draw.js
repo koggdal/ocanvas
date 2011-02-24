@@ -14,6 +14,7 @@
 			objects: {},
 			drawn: {},
 			lastObjectID: 0,
+			translation: { x: 0, y: 0 },
 			
 			// Method for adding a new object to the object list that will be drawn
 			add: function (obj) {
@@ -48,8 +49,9 @@
 			
 			// Method for drawing all objects in the object list
 			redraw: function(){
-				var objects = this.objects,
-					i, obj;
+				var canvas = this.core.canvas,
+					objects = this.objects,
+					i, obj, x, y;
 				
 				// Clear the canvas (keep the background)
 				if (this.core.settings.clearEachFrame) {
@@ -68,14 +70,37 @@
 							}
 							
 							// Temporarily move the canvas origin and rotation
-							//this.core.transform.transformCanvas(obj.x, obj.y, obj.rotation);
+							if (obj.rotation !== 0) {
+								canvas.save();
+								canvas.translate(obj.abs_x, obj.abs_y);
+								canvas.rotate(obj.rotation * Math.PI / 180);
+								
+								// Set the translated position to enable display objects to access it when drawn
+								this.translation = { x: obj.abs_x, y: obj.abs_y };
+								
+								// Automatically adjust the abs_x/abs_y for the object
+								// (objects not using those variables in the drawing process use the object created above)
+								x = obj.abs_x;
+								y = obj.abs_y;
+								obj._.abs_x = 0;
+								obj._.abs_y = 0;
+							}
 							
 							// Draw the object
 							obj.draw();
 							this.drawn[i] = true;
 							
 							// Reset the origin and rotation
-							//this.core.transform.transformCanvas(0, 0, 0);
+							if (obj.rotation !== 0) {
+							
+								// Reset the abs_x/abs_y values
+								obj._.abs_x = x;
+								obj._.abs_y = y;
+								
+								// Restore the old transformation
+								canvas.restore();
+								this.translation = { x: 0, y: 0 };
+							}
 						}
 					}
 				}
