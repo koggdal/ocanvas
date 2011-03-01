@@ -126,21 +126,21 @@
 			
 			// Method for triggering events that has been added to an object
 			trigger: function (obj, types) {
-				var t, type, i;
+				var t, type, event, events;
 				
 				types = types.split(" ");
 				
 				// Loop through the specified event types
 				for (t = 0; t < types.length; t++) {
 					type = types[t];
-					
+					events = obj.events[type];
 					
 					// If the event type exists on the object
-					if (obj[type] !== undefined) {
+					if (events !== undefined) {
 						
 						// Trigger all events of this type on this object
-						for (i = 0; i < obj[type].length; i++) {
-							obj[type][i].call(obj, this.core.pointer.last_event);
+						for (event in events) {
+							events[event].call(obj, this.core.pointer.last_event);
 						}
 					}
 					
