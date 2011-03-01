@@ -56,24 +56,27 @@
 						dY = Math.abs(obj.end.y - obj.abs_y),
 						D = Math.sqrt(dX * dX + dY * dY),
 						angle = Math.asin(dY / D) * 180 / Math.PI,
+						origin = obj.getOrigin(),
 						
 						// Transform the pointer position with the angle correction
 						pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, angle * -1, pointerObject);
 					
 					// Check if pointer is inside the line
 					// Pointer coordinates are transformed to be compared with a horizontal line
-					return (pointer.x > obj.abs_x - D && pointer.x < obj.abs_x + D && pointer.y > obj.abs_y - obj.strokeWeight / 2 && pointer.y < obj.abs_y + obj.strokeWeight / 2);
+					return ((pointer.x > obj.abs_x - D - origin.x) && (pointer.x < obj.abs_x + D - origin.x) && (pointer.y > obj.abs_y - obj.strokeWeight / 2 - origin.y) && (pointer.y < obj.abs_y + obj.strokeWeight / 2 - origin.y));
 				} else
 				
 				// Point
 				if (obj.type === "point") {
-					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject);
-					return (pointer.x === obj.abs_x && pointer.y === obj.abs_y);
+					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
+						origin = obj.getOrigin();
+					return ((pointer.x === obj.abs_x - origin.x) && (pointer.y === obj.abs_y - origin.y));
 				} else
 				
 				// Text
 				if (obj.type === "text") {
 					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x + (obj.width / 2), obj.abs_y + (obj.height / 2), 0, pointerObject),
+						origin = obj.getOrigin(),
 						left, right, top, bottom;
 					
 					// Find left and right positions based on the text alignment
@@ -120,36 +123,41 @@
 					}
 					bottom = top + obj.height;
 					
-					return ((pointer.x > left) && (pointer.x < right) && (pointer.y > top) && (pointer.y < bottom));
+					return ((pointer.x > left - origin.x) && (pointer.x < right - origin.x) && (pointer.y > top - origin.y) && (pointer.y < bottom - origin.y));
 				} else
 				
 				// Rectangle
 				if (obj.shapeType === "rectangular") {
-					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x + (obj.width / 2), obj.abs_y + (obj.height / 2), 0, pointerObject);
-					return ((pointer.x > obj.abs_x) && (pointer.x < obj.abs_x + obj.width) && (pointer.y > obj.abs_y) && (pointer.y < obj.abs_y + obj.height));
+					var origin = obj.getOrigin(),
+						pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject);
+					
+					return ((pointer.x > obj.abs_x - origin.x) && (pointer.x < obj.abs_x + obj.width - origin.x) && (pointer.y > obj.abs_y - origin.y) && (pointer.y < obj.abs_y + obj.height - origin.y));
 				} else
 				
 				// Circle
 				if (obj.type === "ellipse" && obj.radius_x === obj.radius_y) {
 					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
-						D = Math.sqrt(Math.pow(pointer.x - obj.abs_x, 2) + Math.pow(pointer.y - obj.abs_y, 2));
+						origin = obj.getOrigin(),
+						D = Math.sqrt(Math.pow(pointer.x - obj.abs_x - origin.x, 2) + Math.pow(pointer.y - obj.abs_y - origin.y, 2));
 					return (D < obj.radius_x);
 				} else
 				
 				// Ellipse
 				if (obj.type === "ellipse") {
 					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
+						origin = obj.getOrigin(),
 						a = obj.radius_x,
 						b = obj.radius_y;
-					pointer.x -= obj.abs_x;
-					pointer.y -= obj.abs_y;
+					pointer.x -= obj.abs_x + origin.x;
+					pointer.y -= obj.abs_y + origin.y;
 					
-					return ((pointer.x*pointer.x)/(a*a) + (pointer.y*pointer.y)/(b*b) < 1);
+					return ((pointer.x * pointer.x) / (a * a) + (pointer.y * pointer.y) / (b * b) < 1);
 				} else
 				
 				// Polygon
 				if (obj.type === "polygon") {
 					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
+						origin = obj.getOrigin(),
 						points = obj._.points,
 						length = points.length,
 						j = length-1,
@@ -158,7 +166,7 @@
 					
 					for (i = 0; i < length; i++) {
 						if ( ((points[i].y < pointer.y) && (points[j].y >= pointer.y)) || ((points[j].y < pointer.y) && (points[i].y >= pointer.y)) ) {
-							if(points[i].x+(pointer.y-points[i].y)/(points[j].y-points[i].y)*(points[j].x-points[i].x) < pointer.x) {
+							if (points[i].x + (pointer.y - points[i].y) / (points[j].y - points[i].y) * (points[j].x - points[i].x) < pointer.x) {
 								odd = !odd;
 							}
 						}
@@ -172,6 +180,7 @@
 				// Does not work correctly at the moment
 				if (obj.type === "arc") {
 					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, obj.start * -1, pointerObject),
+						origin = obj.getOrigin(),
 						D = Math.sqrt(Math.pow(pointer.x - obj.abs_x, 2) + Math.pow(pointer.y - obj.abs_y, 2)),
 						radius = obj.radius,
 						eP = {},
