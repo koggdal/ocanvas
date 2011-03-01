@@ -156,6 +156,8 @@
 			// Method for triggering all events added to the object
 			trigger: function (types) {
 				this.core.events.trigger(this, types);
+				
+				return this;
 			},
 			
 			// Method for adding the object to the canvas
@@ -198,6 +200,13 @@
 			// Method for drawing the shape
 			draw: function () {
 				
+			},
+			
+			// Method for redrawing the canvas
+			redraw: function () {
+				this.core.draw.redraw();
+				
+				return this;
 			},
 			
 			// Method for rotating the object
@@ -277,6 +286,19 @@
 				return this;
 			},
 			
+			// Method for animating any numeric property
+			animate: function () {
+				this.core.animation.animate(this, arguments);
+				
+				return this;
+			},
+			
+			stop: function () {
+				this.core.animation.stop(this.id);
+				
+				return this;
+			},
+			
 			// Method for setting the origin coordinates
 			// Accepts pixel values or the following keywords:
 			//     x: left | center | right
@@ -325,8 +347,12 @@
 			
 			// Method for adding a child to the display object
 			// Children will transform accordingly when this display object transforms
-			addChild: function (childObj) {
+			addChild: function (childObj, returnIndex) {
+			
+				// Check if the child object doesn't already have a parent
 				if (childObj.parent === undefined) {
+				
+					// Add the object as a child and add it to canvas if this object is drawn
 					var index = this.children.push(childObj) - 1;
 					if (this.drawn) {
 						childObj.add();
@@ -337,11 +363,15 @@
 					childObj.x += 0;
 					childObj.y += 0;
 					
-					return index;
-					
-				} else {
+					if (returnIndex) {
+						return index;
+					}
+				} else if (returnIndex) {
 					return false;
 				}
+				
+				// Return the object itself if user chose to not get the index in return
+				return this;
 			},
 			
 			// Method for removing a child
@@ -350,6 +380,8 @@
 				if (~index) {
 					this.removeChildAt(index);
 				}
+				
+				return this;
 			},
 			
 			// Method for removing a child at a specific index
@@ -358,6 +390,8 @@
 					this.children[index].parent = undefined;
 					this.children.splice(index, 1);
 				}
+				
+				return this;
 			},
 			
 			// Method for creating a clone of this object
