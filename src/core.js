@@ -21,9 +21,12 @@
 		// Object containing all the registered init methods
 		inits: {},
 		
+		// Object containing all the registered plugins
+		plugins: {},
+		
 		// Define the core class
 		core: function () {
-			
+
 			// Add the registered modules to the new instance of core
 			for (var m in oCanvas.modules) {
 				if (typeof oCanvas.modules[m] === "function") {
@@ -42,7 +45,8 @@
 					background: "transparent",
 					clearEachFrame: true,
 					drawEachFrame: true,
-					disableScrolling: false
+					disableScrolling: false,
+					plugins: []
 				},
 				
 				// Method for setting up the new object with custom settings
@@ -94,9 +98,15 @@
 						obj.background.set(obj.settings.background);
 					}
 					
-					// Add plugins if specified
-					//if (obj.settings.plugins !== undefined)
-					//	oCanvas.utils.addPluginsToCanvas(obj.settings.plugins, obj.settings.canvasID);
+					// Run plugins if any have been specified
+					if (obj.settings.plugins.length > 0) {
+						var plugins = obj.settings.plugins;
+						for (var i = 0, l = plugins.length; i < l; i++) {
+							if (typeof oCanvas.plugins[plugins[i]] === "function") {
+								oCanvas.plugins[plugins[i]].call(obj);
+							}
+						}
+					}
 				},
 				
 				// Method for adding an object to the canvas
@@ -182,6 +192,14 @@
 		// Method for registering a new init method to be run on creation
 		registerInit: function (name, init) {
 			oCanvas.inits[name] = init;
+		},
+		
+		// Method for registering a new plugin
+		// The plugin will not be run until a new core instance is being created,
+		// and the instance requests the plugin, thus allowing a plugin to change
+		// things in the library for just one instance
+		registerPlugin: function (name, plugin) {
+			oCanvas.plugins[name] = plugin;
 		},
 		
 		// Function for creating a new instance of oCanvas
