@@ -219,7 +219,6 @@
 	};
 
 	// Register the module
-	oCanvas.registerModule("mouse", mouse);
-	oCanvas.registerInit("mouse", "init");
+	oCanvas.registerModule("mouse", mouse, "init");
 
 })(oCanvas, window, document);

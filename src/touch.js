@@ -233,7 +233,6 @@
 	};
 
 	// Register the module
-	oCanvas.registerModule("touch", touch);
-	oCanvas.registerInit("touch", "init");
+	oCanvas.registerModule("touch", touch, "init");
 
 })(oCanvas, window, document);

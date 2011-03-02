@@ -141,11 +141,6 @@
 			}
 		},
 		
-		// Method for registering a new init method to be run on creation
-		registerInit: function (name, init) {
-			oCanvas.inits[name] = init;
-		},
-		
 		// Method for registering a new plugin
 		// The plugin will not be run until a new core instance is being created,
 		// and the instance requests the plugin, thus allowing a plugin to change

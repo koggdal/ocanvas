@@ -175,7 +175,6 @@
 	};
 	
 	// Register the module
-	oCanvas.registerModule("keyboard", keyboard);
-	oCanvas.registerInit("keyboard", "init");
+	oCanvas.registerModule("keyboard", keyboard, "init");
 
 })(oCanvas, window, document);
