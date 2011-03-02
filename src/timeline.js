@@ -12,6 +12,18 @@
 				this.core = thecore;
 			},
 			
+			init: function () {
+				var _this = this;
+				
+				// Method for setting the function to be called for each frame
+				this.core.setLoop = function (callback) {
+					_this.userLoop = callback;
+					
+					// Return the timeline object to enable methods like start() to be called directly
+					return _this;
+				};
+			},
+			
 			// Set default values when initalized
 			currentFrame: 1,
 			timeline: 0,
@@ -21,7 +33,7 @@
 			loop: function () {
 				
 				// If mainLoop has been defined
-				if (typeof this.core.settings.mainLoop === "function") {
+				if (typeof this.userLoop === "function") {
 				
 					// Clear the canvas if specified
 					if (this.core.settings.clearEachFrame === true) {
@@ -29,7 +41,7 @@
 					}
 					
 					// Trigger the user defined function mainLoop and set this to the current core instance
-					this.core.settings.mainLoop.call(this.core);
+					this.userLoop.call(this.core);
 					
 					// Redraw the canvas if specified
 					if (this.core.settings.drawEachFrame === true) {
@@ -87,6 +99,6 @@
 	};
 	
 	// Register the timeline module
-	oCanvas.registerModule("timeline", timeline);
+	oCanvas.registerModule("timeline", timeline, "init");
 	
 })(oCanvas, window, document);

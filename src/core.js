@@ -25,7 +25,7 @@
 		plugins: {},
 		
 		// Define the core class
-		core: function () {
+		core: function (options) {
 
 			// Add the registered modules to the new instance of core
 			for (var m in oCanvas.modules) {
@@ -36,121 +36,38 @@
 				}
 			}
 			
-			// Add properties and methods to the core object
-			var obj = oCanvas.extend({
+			// Set up default settings
+			this.settings = {
+				fps: 30,
+				background: "transparent",
+				clearEachFrame: true,
+				drawEachFrame: true,
+				disableScrolling: false,
+				plugins: []
+			};
+
+			// Update the settings with the user specified settings
+			oCanvas.extend(this.settings, options);
 			
-				// Set up default settings
-				settings: {
-					fps: 30,
-					background: "transparent",
-					clearEachFrame: true,
-					drawEachFrame: true,
-					disableScrolling: false,
-					plugins: []
-				},
-				
-				// Method for setting up the new object with custom settings
-				setup: function (options) {
-	
-					// Update the settings with the user specified settings
-					oCanvas.extend(obj.settings, options);
-					
-					// Set canvas to specified element
-					if (obj.settings.canvas.nodeName && obj.settings.canvas.nodeName.toLowerCase() === "canvas") {
-						obj.canvasElement = obj.settings.canvas;
-					}
-					
-					// Set canvas to the element specified using a selector
-					else if (typeof obj.settings.canvas === "string") {
-						obj.canvasElement = document.querySelector(obj.settings.canvas);
-					}
-					
-					// Return false if no canvas was specified
-					else {
-						return false;
-					}
-					
-					// Add properties that the events module needs to be able to add events directly to the canvas
-					obj.canvasElement.events = {};
-					obj.canvasElement.drawn = true;
-					obj.canvasElement.isPointerInside = function () { return true; };
-					
-					// Get the canvas context and dimensions
-					obj.canvas = obj.canvasElement.getContext("2d");
-					obj.width = obj.canvasElement.width;
-					obj.height = obj.canvasElement.height;
-					
-					// Method for setting the function to be called for each frame
-					obj.setLoop = function(callback){
-						obj.settings.mainLoop = callback;
-						return obj.timeline ? obj.timeline : false;
-					};
-					
-					// Initialize added modules that have registered init methods
-					for (var name in oCanvas.inits) {
-						if (typeof obj[name][oCanvas.inits[name]] === "function") {
-							obj[name][oCanvas.inits[name]]();
-						}
-					}
-					
-					// Set background to the specified background
-					if (obj.background) {
-						obj.background.set(obj.settings.background);
-					}
-					
-					// Run plugins if any have been specified
-					if (obj.settings.plugins.length > 0) {
-						var plugins = obj.settings.plugins;
-						for (var i = 0, l = plugins.length; i < l; i++) {
-							if (typeof oCanvas.plugins[plugins[i]] === "function") {
-								oCanvas.plugins[plugins[i]].call(obj);
-							}
-						}
-					}
-				},
-				
-				// Method for adding an object to the canvas
-				addChild: function (displayobj) {
-					displayobj.add();
-					return obj;
-				},
-				
-				// Method for removing an object from the canvas
-				removeChild: function (displayobj) {
-					displayobj.remove();
-					return obj;
-				},
-				
-				// Shorthand method for clearing the canvas
-				clear: function (keepBackground) {
-					obj.draw.clear(keepBackground);
-					return obj;
-				},
-				
-				// Shorthand method for redrawing the canvas
-				redraw: function () {
-					obj.draw.redraw();
-					return obj;
-				},
-				
-				// Method for binding an event to the canvas
-				bind: function (type, handler) {
-					obj.events.bind(obj.canvasElement, type, handler);
-					return obj;
-				},
-				
-				// Method for unbinding an event from the object
-				unbind: function (type, handler) {
-					obj.events.unbind(obj.canvasElement, type, handler);
-					return obj;
-				},
-					
-				// Method for triggering all events added to the object
-				trigger: function (types) {
-					obj.events.trigger(obj.canvasElement, types);
-				}
-				
-			}, this);
+			// Set canvas to specified element
+			if (this.settings.canvas.nodeName && this.settings.canvas.nodeName.toLowerCase() === "canvas") {
+				this.canvasElement = this.settings.canvas;
+			}
+			
+			// Set canvas to the element specified using a selector
+			else if (typeof this.settings.canvas === "string") {
+				this.canvasElement = document.querySelector(this.settings.canvas);
+			}
+			
+			// Return false if no canvas was specified
+			else {
+				return false;
+			}
+			
+			// Get the canvas context and dimensions
+			this.canvas = this.canvasElement.getContext("2d");
+			this.width = this.canvasElement.width;
+			this.height = this.canvasElement.height;
 			
 			// Set the core instance in all modules to enable access of core properties inside of modules
 			for (var m in oCanvas.modules) {
@@ -159,33 +76,68 @@
 				if (this[m].wrapper === true) {
 					for (var wm in this[m]) {
 						if (typeof this[m][wm] === "object" && typeof this[m][wm].setCore === "function") {
-							this[m][wm] = this[m][wm].setCore(obj);
+							this[m][wm] = this[m][wm].setCore(this);
 						}
 						else if (typeof this[m][wm].setCore === "function") {
-							this[m][wm].setCore(obj);
+							this[m][wm].setCore(this);
 						}
 						
-						this[m].core = obj;
+						this[m].core = this;
 					}
 				}
 				
 				// Add core access to modules that reside directly in the core
 				if (typeof this[m].setCore === "function") {
-					this[m].setCore(obj);
+					this[m].setCore(this);
 				}
 			}
 			
-			// Return the new instance of core
-			return obj;
+			// Initialize added modules that have registered init methods
+			for (var name in oCanvas.inits) {
+			
+				// Modules directly on the oCanvas object
+				if ((typeof oCanvas.inits[name] === "string") && (typeof this[name][oCanvas.inits[name]] === "function")) {
+					this[name][oCanvas.inits[name]]();
+				}
+				
+				// Modules that are parts of a wrapper module
+				else if (oCanvas.inits[name] === "object") {
+					for (var subname in oCanvas.inits[name]) {
+						if (typeof this[name][oCanvas.inits[name][subname]] === "function") {
+							this[name][oCanvas.inits[name][subname]]();
+						}
+					}
+				}
+			}
+			
+			// Run plugins if any have been specified
+			var plugins = this.settings.plugins;
+			if (plugins.length > 0) {
+				for (var i = 0, l = plugins.length; i < l; i++) {
+					if (typeof oCanvas.plugins[plugins[i]] === "function") {
+						oCanvas.plugins[plugins[i]].call(this);
+					}
+				}
+			}
 		},
 		
 		// Method for registering a new module
-		registerModule: function (name, module) {
+		registerModule: function (name, module, init) {
 			if (~name.indexOf(".")) {
 				var parts = name.split(".");
 				oCanvas.modules[parts[0]][parts[1]] = module;
+				
+				if (init !== undefined) {
+					if (!oCanvas.inits[parts[0]]) {
+						oCanvas.inits[parts[0]] = {};
+					}
+					oCanvas.inits[parts[0]][parts[1]] = init;
+				}
 			} else {
 				oCanvas.modules[name] = module;
+				if (init !== undefined) {
+					oCanvas.inits[name] = init;
+				}
 			}
 		},
 		
@@ -203,20 +155,64 @@
 		},
 		
 		// Function for creating a new instance of oCanvas
-		newCanvas: function (settings) {
+		create: function (settings) {
 		
-			// Create the new instance and put it in the canvas list
-			var canvas = new oCanvas.core(),
-				canvasID = oCanvas.canvasList.push(canvas) - 1;
-			canvas.settings.canvasID = canvasID;
+			// Create the new instance and return it
+			return new oCanvas.core(settings);
+		}
+	};
+	
+	
+	// Methods the core instances will have access to
+	oCanvas.core.prototype = {
+		
+		// Method for adding an object to the canvas
+		addChild: function (displayobj) {
+			displayobj.add();
 			
-			// Trigger the callback if specified
-			if (typeof settings === "object") {
-				canvas.setup(settings);
-			}
+			return this;
+		},
+		
+		// Method for removing an object from the canvas
+		removeChild: function (displayobj) {
+			displayobj.remove();
 			
-			// Return the new instance
-			return canvas;
+			return this;
+		},
+		
+		// Shorthand method for clearing the canvas
+		clear: function (keepBackground) {
+			this.draw.clear(keepBackground);
+			
+			return this;
+		},
+		
+		// Shorthand method for redrawing the canvas
+		redraw: function () {
+			this.draw.redraw();
+			
+			return this;
+		},
+		
+		// Method for binding an event to the canvas
+		bind: function (type, handler) {
+			this.events.bind(this.canvasElement, type, handler);
+			
+			return this;
+		},
+		
+		// Method for unbinding an event from the object
+		unbind: function (type, handler) {
+			this.events.unbind(this.canvasElement, type, handler);
+			
+			return this;
+		},
+			
+		// Method for triggering all events added to the object
+		trigger: function (types) {
+			this.events.trigger(this.canvasElement, types);
+			
+			return this;
 		}
 	};
 

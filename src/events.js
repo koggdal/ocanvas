@@ -12,6 +12,14 @@
 			
 			types: {},
 			pointers: {},
+			
+			init: function () {
+			
+				// Add properties that the this module needs to be able to add events directly to the canvas
+				this.core.canvasElement.events = {};
+				this.core.canvasElement.drawn = true;
+				this.core.canvasElement.isPointerInside = function () { return true; };
+			},
 
 			// Method for binding an event to a specific object
 			bind: function (obj, types, handler) {
@@ -190,6 +198,6 @@
 	};
 
 	// Register the module
-	oCanvas.registerModule("events", events);
+	oCanvas.registerModule("events", events, "init");
 
 })(oCanvas, window, document);

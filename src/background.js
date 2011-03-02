@@ -15,6 +15,10 @@
 			type: "transparent",
 			loaded: false,
 			
+			init: function () {
+				this.set(this.core.settings.background);
+			},
+			
 			// Method for setting the background
 			set: function (value) {
 				var _this = this;
@@ -99,6 +103,6 @@
 	};
 
 	// Register the module
-	oCanvas.registerModule("background", background);
+	oCanvas.registerModule("background", background, "init");
 
 })(oCanvas, window, document);
