@@ -23,48 +23,53 @@
 			set: function (value) {
 				var _this = this;
 				
-				// Get background type (transparent, color, gradient or image)
-				if (value === "transparent") {
-					this.type = "transparent";
-				} else if (~value.indexOf("gradient")) {
+				// Get background type (gradient, image, color or transparent)
+				if (~value.indexOf("gradient")) {
 					this.type = "gradient";
+				} else if (~value.indexOf("image")) {
+					this.type = "image";
 				} else if (this.core.style && this.core.style.isColor(value)) {
 					this.type = "color";
 				} else {
-					this.type = "image";
+					this.type = "transparent";
 				}
 				
+				// Handle the different background types
 				if (this.type === "color") {
 				
 					// Set color as background
 					this.bg = value;
-					if (_this.core.timeline && !_this.core.timeline.running) {
+					if (this.core.timeline && !this.core.timeline.running) {
 						this.core.draw.redraw();
 					}
 					this.loaded = true;
 				}
-				
 				else if (this.type === "gradient") {
 				
 					// Get gradient object and set it as background
 					this.bg = this.core.style ? this.core.style.getGradient(value, 0, 0, this.core.width, this.core.height) : "";
-					if (_this.core.timeline && !_this.core.timeline.running) {
+					if (this.core.timeline && !this.core.timeline.running) {
 						this.core.draw.redraw();
 					}
 					this.loaded = true;
 				}
-				
 				else if (this.type === "image") {
 				
+					// Parse image string
+					var matches = /image\((.*?)(,(\s|)(repeat|repeat-x|repeat-y|no-repeat)|)\)/.exec(value),
+						path = matches[1],
+						repeat = matches[4] || "repeat",
+						image = new Image();
+				
 					// Set image as background
-					this.bg = new Image();
-					this.bg.onload = function () {
+					image.src = path;
+					image.onload = function () {
+						_this.bg = _this.core.canvas.createPattern(this, repeat);
 						_this.loaded = true;
 						if (_this.core.timeline && !_this.core.timeline.running) {
-							_this.redraw();
+							_this.core.redraw();
 						}
 					};
-					this.bg.src = value;
 				}
 				
 				else {
@@ -75,7 +80,7 @@
 			},
 			
 			// Method for getting the background data
-			get: function(){
+			get: function () {
 				return {
 					type: this.type,
 					value: this.bg
@@ -83,20 +88,18 @@
 			},
 			
 			// Method for redrawing the background (replaces everything thas has been drawn)
-			redraw: function(){
+			redraw: function (trigger) {
 				var core = this.core;
 				
-				// Clear the canvas
-				core.canvas.clearRect(0, 0, core.width, core.height);
-				
-				if ((this.type === "color" || this.type === "gradient") && this.bg !== "") {
-					// Fill canvas with the background color
+				// Fill canvas with the background color if it's not transparent
+				if (this.type !== "transparent") {
 					core.canvas.fillStyle = this.bg;
 					core.canvas.fillRect(0, 0, core.width, core.height);
 				}
-				else if (this.type === "image") {
-					// Fill the canvas with the image (the image will be stretched)
-					core.canvas.drawImage(this.bg, 0, 0, core.width, core.height);
+				
+				// Only clear the canvas if no background is specified
+				else {
+					core.canvas.clearRect(0, 0, core.width, core.height);
 				}
 			}
 		};

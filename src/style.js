@@ -685,7 +685,11 @@
 			
 			// Method for checking if a value is a color or not
 			isColor: function (value) {
-				return true;
+				if (value[0] === "#" || value.substr(0, 4) === "rgb(" || value.substr(0, 5) === "rgba(" || value.substr(0, 4) === "hsl(" || value.substr(0, 5) === "hsla(") {
+					return true;
+				} else {
+					return false;
+				}
 			}
 		};
 	};
