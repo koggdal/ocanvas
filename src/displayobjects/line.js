@@ -98,7 +98,7 @@
 			},
 			
 			// Method for initializing the dimensions
-			init: function () {
+			init: function () {
 				this.initialized = true;
 				this.setPosition();
 			},

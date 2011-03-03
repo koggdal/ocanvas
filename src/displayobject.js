@@ -396,7 +396,7 @@
 			
 			// Method for creating a clone of this object
 			clone: function (settings) {
-				settings = settings || {};
+				settings = settings || {};
 				settings.drawn = false;
 				var newObj = this.core.display[this.type](settings),
 					this_filtered = {},
@@ -445,7 +445,7 @@
 	
 	// Method for registering a custom display object at run time
 	// It is only attached to the current core instance
-	register = function (name, properties, draw, init) {
+	register = function (name, properties, draw, init) {
 		var display = this,
 			core = this.core,
 			
