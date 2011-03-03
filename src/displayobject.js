@@ -82,10 +82,37 @@
 			},
 			
 			set fill (value) {
-				this._.fill = value;
+				if (~value.indexOf("image(")) {
+					var matches = /image\((.*?)(,(\s|)(repeat|repeat-x|repeat-y|no-repeat)|)\)/.exec(value),
+						path = matches[1],
+						repeat = matches[4] || "repeat",
+						image = new Image(),
+						_this = this;
+						
+					image.src = path;
+					this._.pattern_loading = true;
+					this._.pattern_redraw = false;
+					
+					image.onload = function () {
+						_this._.fill = _this.core.canvas.createPattern(this, repeat);
+						_this._.pattern_loading = false;
+						
+						if (_this._.pattern_redraw) {
+							_this._.pattern_redraw = false;
+							_this.redraw();
+						}
+					};
+				} else {
+					this._.fill = value;
+				}
 			},
 			get fill () {
-				if (~this._.fill.indexOf("gradient")) {
+				if (this._.pattern_loading) {
+					this._.pattern_redraw = true;
+					return "";
+				} else if (~this._.fill.toString().indexOf("CanvasPattern")) {
+					return this._.fill;
+				} else if (~this._.fill.indexOf("gradient")) {
 					if (this.shapeType === "rectangular") {
 						return this.core.style.getGradient(this._.fill, this.abs_x, this.abs_y, this.width, this.height);
 					} else if (this.shapeType === "radial") {
