@@ -1,0 +1,43 @@
+version = 0.5
+source_dir = ../src/
+output_full = ocanvas-{version}.js
+output_min = ocanvas-{version}.min.js
+
+head
+-----
+/*!
+ * oCanvas v{version}
+ * http://ocanvas.org/
+ *
+ * Copyright {year}, Johannes Koggdal
+ * Licensed under the MIT license
+ * http://ocanvas.org/license
+ */
+-----
+
+files
+-----
+core.js
+utils.js
+timeline.js
+keyboard.js
+mouse.js
+touch.js
+tools.js
+events.js
+draw.js
+background.js
+scenes.js
+style.js
+animation.js
+displayobject.js
+displayobjects/rectangle.js
+displayobjects/point.js
+displayobjects/image.js
+displayobjects/text.js
+displayobjects/arc.js
+displayobjects/ellipse.js
+displayobjects/polygon.js
+displayobjects/line.js
+displayobjects/sprite.js
+-----
