@@ -143,7 +143,7 @@
 					if (this.durations[arg]) {
 						return this.durations[arg];
 					} else {
-						return !isNaN(parseInt(arg)) ? parseInt(arg) : duration;
+						return !isNaN(parseInt(arg)) ? parseInt(arg) : this.durations[duration];
 					}
 				}
 				function parseEasing (arg, argNum) {
