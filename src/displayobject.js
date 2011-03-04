@@ -440,6 +440,77 @@
 				this.core.animation.animate(this, [{ opacity: args.splice(0, 1)[0] }].concat(args));
 			},
 			
+			// Method for making drag and drop easier
+			dragAndDrop: function (callbacks) {
+			
+				callbacks = (callbacks === undefined) ? {} : callbacks;
+			
+				// If false is passed as argument, remove all event handlers
+				if (callbacks === false && this.draggable === true) {
+					this.draggable = false;
+					
+					this.unbind("mousedown touchstart", this._.drag_start)
+					this.unbind("mouseup touchend", this._.drag_end);
+					this.core.unbind("mousemove touchmove", this._.drag_move);
+				}
+				
+				// Otherwise add event handlers, unless they have been added before
+				else if (!this.draggable) {
+				
+					this.draggable = true;
+					this.dragging = false;
+				
+					var _this = this,
+						offset = { x: 0, y: 0 };
+					
+					this._.drag_start = function (e) {
+						this.dragging = true;
+						
+						// Get the difference between pointer position and object position
+						offset.x = e.x - this.x;
+						offset.y = e.y - this.y;
+						
+						// Run user callback
+						if (typeof callbacks.start === "function") {
+							callbacks.start.call(this);
+						}
+					};
+					
+					this._.drag_end = function () {
+						this.dragging = false;
+						
+						// Run user callback
+						if (typeof callbacks.end === "function") {
+							callbacks.end.call(this);
+						}
+					};
+					
+					this._.drag_move = function (e) {
+						if (_this.dragging) {
+						
+							// Set new position for the object, using the offset
+							_this.x = e.x - offset.x;
+							_this.y = e.y - offset.y;
+							
+							// Redraw the canvas if the timeline is not running
+							if (!_this.core.timeline.running) {
+								_this.core.draw.redraw();
+							}
+							
+							// Run user callback
+							if (typeof callbacks.move === "function") {
+								callbacks.move.call(_this);
+							}
+						}
+					};
+					
+					// Bind event handlers
+					this.bind("mousedown touchstart", this._.drag_start)
+					this.bind("mouseup touchend", this._.drag_end);
+					this.core.bind("mousemove touchmove", this._.drag_move);
+				}
+			},
+			
 			// Method for setting the origin coordinates
 			// Accepts pixel values or the following keywords:
 			//     x: left | center | right
