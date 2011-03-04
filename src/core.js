@@ -2,11 +2,11 @@
 
 	// Define the oCanvas object
 	var oCanvas = {
-	
-		// Function for checking when the DOM is ready
-		DOMready: function (func) {
-			if (!document.body) {
-				return setTimeout("oCanvas.DOMready("+func+")", 10);
+		
+		// Function for checking when the DOM is ready for interaction
+		domReady: function (func) {
+			if (/in/.test(document.readyState)) {
+				setTimeout("oCanvas.domReady(" + func + ")", 10);
 			} else {
 				func();
 			}
