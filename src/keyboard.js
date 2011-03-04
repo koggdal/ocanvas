@@ -24,6 +24,7 @@
 			keyPressRunning: false,
 			modifiedKeys: {},
 			lastActiveKeyDown: false,
+			last_event: {},
 			
 			// Method for initializing the keyboard object
 			init: function () {
@@ -99,6 +100,7 @@
 			
 			// Method for triggering the events when a key is pressed down
 			keydown: function (e) {
+				this.last_event = e;
 			
 				// Cancel event if the key is already pressed down
 				// (some browsers repeat even keydown when held down)
@@ -132,6 +134,8 @@
 			
 			// Method for triggering the events when a key is released
 			keyup: function (e) {
+				this.last_event = e;
+				
 				this.triggerEvents("keyup", e);
 				
 				// Set the key states
@@ -151,6 +155,8 @@
 			// Method for triggering the events when a key is pressed
 			// The keydown method will trigger this method continuously until released
 			keypress: function (e) {
+				this.last_event = e;
+				
 				this.triggerEvents("keypress", e);
 			},
 			

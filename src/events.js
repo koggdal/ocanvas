@@ -25,9 +25,6 @@
 			bind: function (obj, types, handler) {
 				var core = this.core,
 					length, wrapper, index,
-					mouseTypes = this.types.mouse,
-					touchTypes = this.types.touch,
-					keyboardTypes = this.types.keyboard,
 					types = types.split(" "),
 					t, type,
 					p;
@@ -36,59 +33,78 @@
 				
 					type = types[t];
 					
-					for (p in this.pointers) {
-						this.pointers[p](type, (function(type) {
-							return function (pointer, clickName) {
-								
-								// Initialize the events object for specific event type
-								if (obj.events[type] === undefined) {
-									obj.events[type] = {};
-								}
-								
-								// Create event wrapper
-								wrapper = function (e, forceLeave) {
-								
-									// Cancel event if object is not drawn to canvas
-									if (!obj.drawn) {
-										return;
-									}
-								
-									// If pointer is inside the object and we are not forced to trigger mouseleave
-									if (obj.isPointerInside() && !forceLeave) {
+					// Handle keyboard events
+					if (this.types.keyboard && ~this.types.keyboard.indexOf(type)) {
+						
+						// Add the event
+						index = this.core.keyboard.addEvent(type, handler);
+						
+						// Initialize the events object for specific event type
+						if (obj.events[type] === undefined) {
+							obj.events[type] = {};
+						}
+						
+						// Add the handler to the object
+						obj.events[type][index] = handler;
+					}
+					
+					// Handle pointer events
+					else {
+						
+						for (p in this.pointers) {
+							this.pointers[p](type, (function(type) {
+								return function (pointer, clickName) {
 									
-										// Only trigger mouse events that are supposed to be triggered inside the object
-										if (type !== pointer + "leave") {
+									// Initialize the events object for specific event type
+									if (obj.events[type] === undefined) {
+										obj.events[type] = {};
+									}
+									
+									// Create event wrapper
+									wrapper = function (e, forceLeave) {
+									
+										// Cancel event if object is not drawn to canvas
+										if (!obj.drawn) {
+											return;
+										}
+									
+										// If pointer is inside the object and we are not forced to trigger mouseleave
+										if (obj.isPointerInside() && !forceLeave) {
 										
-											// Only trigger mouseenter the first time event is triggered after pointer enters the object
-											if (type === pointer + "enter" && obj.events[pointer + "ontarget"]) {
-												return;
-											}
+											// Only trigger mouse events that are supposed to be triggered inside the object
+											if (type !== pointer + "leave") {
 											
-											// Don't trigger click events if the pointer was pressed down outside the object
-											if (type === clickName && (core.pointer.start_pos.x < 0 || core.pointer.start_pos.y < 0 || !obj.isPointerInside(core.pointer.start_pos))) {
-												return;
+												// Only trigger mouseenter the first time event is triggered after pointer enters the object
+												if (type === pointer + "enter" && obj.events[pointer + "ontarget"]) {
+													return;
+												}
+												
+												// Don't trigger click events if the pointer was pressed down outside the object
+												if (type === clickName && (core.pointer.start_pos.x < 0 || core.pointer.start_pos.y < 0 || !obj.isPointerInside(core.pointer.start_pos))) {
+													return;
+												}
+												
+												// Set status and trigger callback
+												obj.events[pointer + "ontarget"] = true;
+												handler.call(obj, e);
 											}
-											
-											// Set status and trigger callback
-											obj.events[pointer + "ontarget"] = true;
+										}
+										
+										// If pointer is not inside the object right now, but just was
+										else if (type === pointer + "leave" && obj.events[pointer + "ontarget"]) {
+										
+											// Reset status and trigger callback for mouseleave
+											obj.events[pointer + "ontarget"] = false;
 											handler.call(obj, e);
 										}
-									}
+									};
 									
-									// If pointer is not inside the object right now, but just was
-									else if (type === pointer + "leave" && obj.events[pointer + "ontarget"]) {
-									
-										// Reset status and trigger callback for mouseleave
-										obj.events[pointer + "ontarget"] = false;
-										handler.call(obj, e);
-									}
+									// Add the handler to the event list in the mouse module
+									index = core[pointer].addEvent(type, wrapper);
+									obj.events[type][index] = handler;
 								};
-								
-								// Add the handler to the event list in the mouse module
-								index = core[pointer].addEvent(type, wrapper);
-								obj.events[type][index] = handler;
-							};
-						})(type));
+							})(type));
+						}
 					}
 				}
 			},
@@ -148,7 +164,11 @@
 						
 						// Trigger all events of this type on this object
 						for (event in events) {
-							events[event].call(obj, this.core.pointer.last_event);
+							if (~this.types.keyboard.indexOf(type)) {
+								events[event].call(obj, this.core.keyboard.last_event);
+							} else {
+								events[event].call(obj, this.core.pointer.last_event);
+							}
 						}
 					}
 					
