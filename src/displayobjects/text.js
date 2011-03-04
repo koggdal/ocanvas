@@ -21,7 +21,7 @@
 			// Default properties
 			align: "start",
 			baseline: "top",
-			_: oCanvas.extend(Object.create(thecore.displayObject._), {
+			_: oCanvas.extend({}, thecore.displayObject._, {
 				font: "normal normal normal 16px/1.5 'Helvetica Neue', Arial, Helvetica, sans-serif",
 				style: "normal",
 				variant: "normal",

@@ -11,7 +11,7 @@
 			shapeType: "radial",
 			
 			// Properties
-			_: {
+			_: oCanvas.extend({}, thecore.displayObject._, {
 				start_x: 0,
 				start_y: 0,
 				end_x: 0,
@@ -20,7 +20,7 @@
 				y: 0,
 				abs_x: 0,
 				abs_y: 0
-			},
+			}),
 			children: [],
 			
 			// Getters and setters

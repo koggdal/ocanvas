@@ -24,9 +24,9 @@
 			active: true,
 			loop: true,
 			
-			_: {
+			_: oCanvas.extend({}, thecore.displayObject._, {
 				autostart: true
-			},
+			}),
 			
 			set autostart (value) {
 				this.active = value;

@@ -10,10 +10,10 @@
 			type: "ellipse",
 			shapeType: "radial",
 			
-			_: {
+			_: oCanvas.extend({}, thecore.displayObject._, {
 				radius_x: 0,
 				radius_y: 0
-			},
+			}),
 			
 			set radius (value) {
 				this._.radius_x = value;

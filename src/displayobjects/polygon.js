@@ -12,11 +12,11 @@
 			
 			sides: 3,
 			
-			_: {
+			_: oCanvas.extend({}, thecore.displayObject._, {
 				radius: 0,
 				side: 0,
 				points: []
-			},
+			}),
 			
 			set radius (value) {
 				this._.radius = value;
