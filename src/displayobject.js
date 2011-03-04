@@ -415,10 +415,29 @@
 				return this;
 			},
 			
+			// Method for clearing the object's animation queue and stop the animations
 			stop: function () {
 				this.core.animation.stop(this.id);
 				
 				return this;
+			},
+			
+			// Method for changing the opacity property to 1 as an animation
+			fadeIn: function () {
+				var args = Array.prototype.slice.call(arguments);
+				this.core.animation.animate(this, [{ opacity: 1 }].concat(args));
+			},
+			
+			// Method for changing the opacity property to 0 as an animation
+			fadeOut: function () {
+				var args = Array.prototype.slice.call(arguments);
+				this.core.animation.animate(this, [{ opacity: 0 }].concat(args));
+			},
+			
+			// Method for changing the opacity property to a custom value as an animation
+			fadeTo: function () {
+				var args = Array.prototype.slice.call(arguments);
+				this.core.animation.animate(this, [{ opacity: args.splice(0, 1)[0] }].concat(args));
 			},
 			
 			// Method for setting the origin coordinates
