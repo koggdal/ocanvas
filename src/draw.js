@@ -69,38 +69,36 @@
 								obj.update();
 							}
 							
-							// Temporarily move the canvas origin and rotation
+							// Temporarily move the canvas origin
+							canvas.save();
+							canvas.translate(obj.abs_x, obj.abs_y);
+							
+							// Set the translated position to enable display objects to access it when drawn
+							this.translation = { x: obj.abs_x, y: obj.abs_y };
+							
+							// Automatically adjust the abs_x/abs_y for the object
+							// (objects not using those variables in the drawing process use the object created above)
+							x = obj.abs_x;
+							y = obj.abs_y;
+							obj._.abs_x = 0;
+							obj._.abs_y = 0;
+							
+							// Temporarily change the rotation
 							if (obj.rotation !== 0) {
-								canvas.save();
-								canvas.translate(obj.abs_x, obj.abs_y);
 								canvas.rotate(obj.rotation * Math.PI / 180);
-								
-								// Set the translated position to enable display objects to access it when drawn
-								this.translation = { x: obj.abs_x, y: obj.abs_y };
-								
-								// Automatically adjust the abs_x/abs_y for the object
-								// (objects not using those variables in the drawing process use the object created above)
-								x = obj.abs_x;
-								y = obj.abs_y;
-								obj._.abs_x = 0;
-								obj._.abs_y = 0;
 							}
 							
 							// Draw the object
 							obj.draw();
 							this.drawn[i] = true;
 							
-							// Reset the origin and rotation
-							if (obj.rotation !== 0) {
+							// Reset the abs_x/abs_y values
+							obj._.abs_x = x;
+							obj._.abs_y = y;
 							
-								// Reset the abs_x/abs_y values
-								obj._.abs_x = x;
-								obj._.abs_y = y;
-								
-								// Restore the old transformation
-								canvas.restore();
-								this.translation = { x: 0, y: 0 };
-							}
+							// Restore the old transformation
+							canvas.restore();
+							this.translation = { x: 0, y: 0 };
 						}
 					}
 				}
