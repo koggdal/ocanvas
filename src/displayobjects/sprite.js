@@ -13,8 +13,6 @@
 			loaded: false,
 			firstDrawn: false,
 			frames: [],
-			width: 0,
-			height: 0,
 			duration: 0,
 			currentFrame: 0,
 			generate: false,

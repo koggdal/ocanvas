@@ -22,8 +22,6 @@
 			id: 0,
 			shapeType: "rectangular",
 			type: "",
-			width: 0,
-			height: 0,
 			origin: {
 				x: 0,
 				y: 0
@@ -38,6 +36,8 @@
 				abs_x: 0,
 				abs_y: 0,
 				rotation: 0,
+				width: 0,
+				height: 0,
 				stroke: "",
 				strokeColor: "",
 				strokeWeight: 0,
@@ -178,6 +178,34 @@
 			},
 			get rotation () {
 				return this._.rotation;
+			},
+			set width (value) {
+				var old = this._.width;
+				this._.width = value;
+				
+				// Update children
+				var objects = this.children,
+					l = objects.length, i;
+				for (i = 0; i < l; i++) {
+					objects[i].width = objects[i].width - old + value;
+				}
+			},
+			get width () {
+				return this._.width;
+			},
+			set height (value) {
+				var old = this._.height;
+				this._.height = value;
+				
+				// Update children
+				var objects = this.children,
+					l = objects.length, i;
+				for (i = 0; i < l; i++) {
+					objects[i].height = objects[i].height - old + value;
+				}
+			},
+			get height () {
+				return this._.height;
 			},
 			
 			// Method for binding an event to the object
