@@ -88,6 +88,9 @@
 								canvas.rotate(obj.rotation * Math.PI / 180);
 							}
 							
+							// Set the alpha to match the object's opacity
+							canvas.globalAlpha = !isNaN(parseFloat(obj.opacity)) ? parseFloat(obj.opacity) : 1;
+							
 							// Set shadow properties if object has shadow
 							shadow = obj.shadow;
 							if (shadow.blur > 0) {

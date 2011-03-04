@@ -29,6 +29,7 @@
 			drawn: false,
 			events: {},
 			children: [],
+			opacity: 1,
 			
 			_: {
 				x: 0,
