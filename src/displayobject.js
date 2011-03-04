@@ -28,7 +28,6 @@
 				x: 0,
 				y: 0
 			},
-			rotation: 0,
 			drawn: false,
 			events: {},
 			children: [],
@@ -38,6 +37,7 @@
 				y: 0,
 				abs_x: 0,
 				abs_y: 0,
+				rotation: 0,
 				stroke: "",
 				strokeColor: "",
 				strokeWeight: 0,
@@ -164,6 +164,20 @@
 			},
 			get abs_y () {
 				return this._.abs_y;
+			},
+			set rotation (value) {
+				var old = this._.rotation;
+				this._.rotation = value;
+				
+				// Update children
+				var objects = this.children,
+					l = objects.length, i;
+				for (i = 0; i < l; i++) {
+					objects[i].rotation = objects[i].rotation - old + value;
+				}
+			},
+			get rotation () {
+				return this._.rotation;
 			},
 			
 			// Method for binding an event to the object
