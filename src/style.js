@@ -683,9 +683,38 @@
 				}
 			},
 			
+			// Method for converting a shadow to either an object or a string
+			getShadow: function (value, return_type) {
+				var shadow = {}, values;
+				
+				// Correct errors if any when an object is passed in
+				if (typeof value === "object") {
+					shadow.offsetX = !isNaN(parseFloat(value.offsetX)) ? parseFloat(value.offsetX) : 0;
+					shadow.offsetY = !isNaN(parseFloat(value.offsetY)) ? parseFloat(value.offsetY) : 0;
+					shadow.blur = !isNaN(parseFloat(value.blur)) ? parseFloat(value.blur) : 0;
+					shadow.color = this.isColor(value.color) ? value.color : "#000";
+				}
+				
+				// Parse the values if a string was passed in
+				else if (typeof value === "string") {
+					
+					var values = /^(.*?)\s(.*?)\s(.*?)\s(.*?)$/.exec(value);
+					shadow.offsetX = !isNaN(parseFloat(values[1])) ? parseFloat(values[1]) : 0;
+					shadow.offsetY = !isNaN(parseFloat(values[2])) ? parseFloat(values[2]) : 0;
+					shadow.blur = !isNaN(parseFloat(values[3])) ? parseFloat(values[3]) : 0;
+					shadow.color = this.isColor(values[4]) ? values[4] : "#000";
+				}
+				
+				if (return_type === "string") {
+					return shadow.offsetX + "px " + shadow.offsetY + "px " + shadow.blur + "px " + shadow.color;
+				} else {
+					return shadow;
+				}
+			},
+			
 			// Method for checking if a value is a color or not
 			isColor: function (value) {
-				if (value[0] === "#" || value.substr(0, 4) === "rgb(" || value.substr(0, 5) === "rgba(" || value.substr(0, 4) === "hsl(" || value.substr(0, 5) === "hsla(") {
+				if (typeof value === "string" && (value[0] === "#" || value.substr(0, 4) === "rgb(" || value.substr(0, 5) === "rgba(" || value.substr(0, 4) === "hsl(" || value.substr(0, 5) === "hsla(")) {
 					return true;
 				} else {
 					return false;

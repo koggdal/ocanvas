@@ -51,7 +51,7 @@
 			redraw: function(){
 				var canvas = this.core.canvas,
 					objects = this.objects,
-					i, obj, x, y;
+					i, obj, x, y, shadow;
 				
 				// Clear the canvas (keep the background)
 				if (this.core.settings.clearEachFrame) {
@@ -86,6 +86,15 @@
 							// Temporarily change the rotation
 							if (obj.rotation !== 0) {
 								canvas.rotate(obj.rotation * Math.PI / 180);
+							}
+							
+							// Set shadow properties if object has shadow
+							shadow = obj.shadow;
+							if (shadow.blur > 0) {
+								canvas.shadowOffsetX = shadow.offsetX;
+								canvas.shadowOffsetY = shadow.offsetY;
+								canvas.shadowBlur = shadow.blur;
+								canvas.shadowColor = shadow.color;
 							}
 							
 							// Draw the object

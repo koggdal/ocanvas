@@ -42,7 +42,13 @@
 				strokeColor: "",
 				strokeWeight: 0,
 				strokePosition: "outside",
-				fill: ""
+				fill: "",
+				shadow: {
+					offsetX: 0,
+					offsetY: 0,
+					blur: 0,
+					color: "transparent"
+				}
 			},
 			
 			set strokeColor (color) {
@@ -121,6 +127,52 @@
 				} else {
 					return this._.fill;
 				}
+			},
+			set shadow (value) {
+			
+				// Convert the value to a correct string if it is not a string
+				if (typeof value !== "string") {
+					value = this.core.style.getShadow(value, "string");
+				}
+				
+				// Get shadow object and set styles
+				var shadow = this.core.style.getShadow(value);
+				this._.shadow = shadow;
+			},
+			set shadowOffsetX (value) {
+				if (!isNaN(parseFloat(value))) {
+					this._.shadow.offsetX = parseFloat(value);
+				}
+			},
+			set shadowOffsetY (value) {
+				if (!isNaN(parseFloat(value))) {
+					this._.shadow.offsetY = parseFloat(value);
+				}
+			},
+			set shadowBlur (value) {
+				if (!isNaN(parseFloat(value))) {
+					this._.shadow.blur = parseFloat(value);
+				}
+			},
+			set shadowColor (value) {
+				if (this.core.style.isColor(value)) {
+					this._.shadow.color = value;
+				}
+			},
+			get shadow () {
+				return this._.shadow;
+			},
+			get shadowOffsetX () {
+				return this._.shadow.offsetX;
+			},
+			get shadowOffsetY () {
+				return this._.shadow.offsetY;
+			},
+			get shadowBlur () {
+				return this._.shadow.blur;
+			},
+			get shadowColor () {
+				return this._.shadow.color;
 			},
 			
 			set x (value) {
