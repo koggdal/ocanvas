@@ -19,7 +19,8 @@
 				x: 200,
 				y: 0,
 				abs_x: 0,
-				abs_y: 0
+				abs_y: 0,
+				cap: "butt"
 			}),
 			children: [],
 			
@@ -89,6 +90,14 @@
 				return this._.y;
 			},
 			
+			set cap (value) {
+				var possible_values = ["butt", "round", "square"];
+				this._.cap = ~possible_values.indexOf(value) ? value : "butt";
+			},
+			get cap () {
+				return this._.cap;
+			},
+			
 			// Method for setting x/y coordinates (which will set abs_x/abs_y as specified by displayObject)
 			setPosition: function () {
 				if (this.initialized) {
@@ -108,7 +117,9 @@
 					origin = this.getOrigin(),
 					translation = this.core.draw.translation;
 				
+				
 				canvas.lineWidth = this.strokeWeight;
+				canvas.lineCap = this.cap;
 				canvas.strokeStyle = this.strokeColor;
 				canvas.beginPath();
 				canvas.moveTo(this.start.x - translation.x - origin.x, this.start.y - translation.y - origin.y);
