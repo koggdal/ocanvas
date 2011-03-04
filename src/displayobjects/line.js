@@ -127,6 +127,9 @@
 				canvas.stroke();
 				canvas.closePath();
 				
+				// Reset the cap property for other objects
+				canvas.lineCap = "butt";
+				
 				if (cb) {
 					cb.call(this);
 				}
