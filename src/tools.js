@@ -138,7 +138,7 @@
 				if (obj.type === "ellipse" && obj.radius_x === obj.radius_y) {
 					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
 						origin = obj.getOrigin(),
-						D = Math.sqrt(Math.pow(pointer.x - obj.abs_x - origin.x, 2) + Math.pow(pointer.y - obj.abs_y - origin.y, 2));
+						D = Math.sqrt(Math.pow(pointer.x - obj.abs_x + origin.x, 2) + Math.pow(pointer.y - obj.abs_y + origin.y, 2));
 					return (D < obj.radius_x);
 				} else
 				
