@@ -43,6 +43,9 @@
 				strokeColor: "",
 				strokeWeight: 0,
 				strokePosition: "outside",
+				cap: "butt",
+				join: "miter",
+				miterLimit: 10,
 				fill: "",
 				shadow: {
 					offsetX: 0,
@@ -75,6 +78,17 @@
 				this._.strokePosition = stroke.pos;
 				this._.stroke = value;
 			},
+			set cap (value) {
+				var possible_values = ["butt", "round", "square"];
+				this._.cap = ~possible_values.indexOf(value) ? value : "butt";
+			},
+			set join (value) {
+				var possible_values = ["round", "bevel", "miter"];
+				this._.join = ~possible_values.indexOf(value) ? value : "miter";
+			},
+			set miterLimit (value) {
+				this._.miterLimit = !isNaN(parseFloat(value)) ? parseFloat(value) : 10;
+			},
 			get stroke () {
 				return this._.stroke;
 			},
@@ -86,6 +100,15 @@
 			},
 			get strokePosition () {
 				return this._.strokePosition;
+			},
+			get cap () {
+				return this._.cap;
+			},
+			get join () {
+				return this._.join;
+			},
+			get miterLimit () {
+				return this._.miterLimit;
 			},
 			
 			set fill (value) {
@@ -288,17 +311,17 @@
 				
 					// Add this object
 					this.id = this.core.draw.add(this);
-					this.draw(function () {
-						
-						this.drawn = true;
-						
-						// Add children that have been added to this object
-						var objects = this.children,
-							l = objects.length, i;
-						for (i = 0; i < l; i++) {
-							objects[i].add();
-						}
-					});
+					
+					// Redraw the canvas with the new object
+					this.core.redraw();
+					this.drawn = true;
+					
+					// Add children that have been added to this object
+					var objects = this.children,
+						l = objects.length, i;
+					for (i = 0; i < l; i++) {
+						objects[i].add();
+					}
 				}
 				
 				return this;

@@ -19,8 +19,7 @@
 				x: 200,
 				y: 0,
 				abs_x: 0,
-				abs_y: 0,
-				cap: "butt"
+				abs_y: 0
 			}),
 			children: [],
 			
@@ -90,14 +89,6 @@
 				return this._.y;
 			},
 			
-			set cap (value) {
-				var possible_values = ["butt", "round", "square"];
-				this._.cap = ~possible_values.indexOf(value) ? value : "butt";
-			},
-			get cap () {
-				return this._.cap;
-			},
-			
 			// Method for setting x/y coordinates (which will set abs_x/abs_y as specified by displayObject)
 			setPosition: function () {
 				if (this.initialized) {
@@ -119,16 +110,12 @@
 				
 				
 				canvas.lineWidth = this.strokeWeight;
-				canvas.lineCap = this.cap;
 				canvas.strokeStyle = this.strokeColor;
 				canvas.beginPath();
 				canvas.moveTo(this.start.x - translation.x - origin.x, this.start.y - translation.y - origin.y);
 				canvas.lineTo(this.end.x - translation.x - origin.x, this.end.y - translation.y - origin.y);
 				canvas.stroke();
 				canvas.closePath();
-				
-				// Reset the cap property for other objects
-				canvas.lineCap = "butt";
 				
 				if (cb) {
 					cb.call(this);

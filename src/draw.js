@@ -100,6 +100,11 @@
 								canvas.shadowColor = shadow.color;
 							}
 							
+							// Set stroke properties
+							canvas.lineCap = obj.cap;
+							canvas.lineJoin = obj.join;
+							canvas.miterLimit = obj.miterLimit;
+							
 							// Draw the object
 							obj.draw();
 							this.drawn[i] = true;
@@ -107,6 +112,11 @@
 							// Reset the abs_x/abs_y values
 							obj._.abs_x = x;
 							obj._.abs_y = y;
+							
+							// Reset stroke properties
+							canvas.lineCap = "butt";
+							canvas.lineJoin = "miter";
+							canvas.miterLimit = 10;
 							
 							// Restore the old transformation
 							canvas.restore();
