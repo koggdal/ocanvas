@@ -41,7 +41,7 @@
 					}
 					
 					// Trigger the user defined function mainLoop and set this to the current core instance
-					this.userLoop.call(this.core);
+					this.userLoop.call(this.core, this.core.canvas);
 					
 					// Redraw the canvas if specified
 					if (this.core.settings.drawEachFrame === true) {
