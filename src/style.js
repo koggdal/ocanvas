@@ -18,7 +18,7 @@
 				// Convert object to string with default values if unspecified
 				if (typeof value === "object" && return_type === "string") {
 					var val = value;
-					value = (typeof val.pos === "string") ? val.pos : "outside";
+					value = (typeof val.pos === "string") ? val.pos : "center";
 					value += " " + (typeof val.weight === "number" ? val.weight+"px" : "1px");
 					value += " " + (typeof val.color === "string" ? val.color : "#000000");
 				}
@@ -77,7 +77,7 @@
 					
 					// Set the stroke object
 					stroke = {
-						pos: "outside",
+						pos: "center",
 						weight: parseInt(stroke[0]),
 						color: stroke[1]
 					};

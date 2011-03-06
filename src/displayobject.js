@@ -42,7 +42,7 @@
 				stroke: "",
 				strokeColor: "",
 				strokeWeight: 0,
-				strokePosition: "outside",
+				strokePosition: "center",
 				cap: "butt",
 				join: "miter",
 				miterLimit: 10,
