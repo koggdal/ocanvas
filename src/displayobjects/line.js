@@ -103,7 +103,7 @@
 				this.setPosition();
 			},
 			
-			draw: function (cb) {
+			draw: function () {
 				var canvas = this.core.canvas,
 					origin = this.getOrigin(),
 					translation = this.core.draw.translation;
@@ -117,9 +117,6 @@
 				canvas.stroke();
 				canvas.closePath();
 				
-				if (cb) {
-					cb.call(this);
-				}
 				return this;
 			}
 			

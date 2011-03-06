@@ -696,12 +696,9 @@
 					
 					// Wrapper for the draw method. This enables the callback to work internally and gives the user
 					// access to the canvas context and the core
-					draw: function (cb) {
+					draw: function () {
 						draw.call(this, core.canvas, core);
-						
-						if (cb) {
-							cb.call(this);
-						}
+
 						return this;
 					}
 				}, properties, settings);

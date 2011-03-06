@@ -10,7 +10,7 @@
 			type: "point",
 			shapeType: "rectangular",
 			
-			draw: function (cb) {
+			draw: function () {
 				var canvas = this.core.canvas,
 					origin = this.getOrigin(),
 					x = this.abs_x - origin.x,
@@ -33,9 +33,6 @@
 				
 				canvas.closePath();
 				
-				if (cb) {
-					cb.call(this);
-				}
 				return this;
 			}
 			

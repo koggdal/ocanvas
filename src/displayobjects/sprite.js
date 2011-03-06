@@ -85,7 +85,7 @@
 				}
 			},
 			
-			draw: function (cb) {
+			draw: function () {
 				var _this = this,
 					canvas = this.core.canvas,
 					origin = this.getOrigin(),
@@ -132,11 +132,6 @@
 						}
 					}
 					
-					// Trigger callback
-					if (cb) {
-						cb.call(this);
-					}
-					
 					// Clear the timer if this is the first time it is drawn
 					if (this.firstDrawn === false) {
 						this.firstDrawn = true;
@@ -148,7 +143,7 @@
 				else {
 					clearTimeout(this.loadtimer);
 					this.loadtimer = setTimeout(function () {
-						_this.draw(cb);
+						_this.draw();
 					}, 100);
 				}
 				

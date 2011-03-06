@@ -14,7 +14,7 @@
 			end: 0,
 			direction: "clockwise",
 			
-			draw: function (cb) {
+			draw: function () {
 				var canvas = this.core.canvas,
 					origin = this.getOrigin(),
 					x = this.abs_x - origin.x,
@@ -44,9 +44,6 @@
 					
 				}
 				
-				if (cb) {
-					cb.call(this);
-				}
 				return this;
 			}
 			
