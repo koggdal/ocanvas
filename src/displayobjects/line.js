@@ -89,6 +89,40 @@
 				return this._.y;
 			},
 			
+			set length (value) {
+				var dX, dY, length, angle;
+				
+				// Find current length and angle
+				dX = Math.abs(this._.end_x - this._.start_x);
+				dY = Math.abs(this._.end_y - this._.start_y);
+				length = Math.sqrt(dX * dX + dY * dY);
+				angle = Math.asin(dX / length);
+				
+				// Calculate new values
+				dX = Math.sin(angle) * value;
+				dY = Math.cos(angle) * value;
+				this._.end_x = this._.start_x + dX;
+				this._.end_y = this._.start_y + dY;
+				this.x += 0;
+				this.y += 0;
+			},
+			get length () {
+				var dX, dY, length;
+				
+				dX = Math.abs(this._.end_x - this._.start_x);
+				dY = Math.abs(this._.end_y - this._.start_y);
+				length = Math.sqrt(dX * dX + dY * dY);
+				
+				return length;
+			},
+			
+			set radius (value) {
+				this.length = value * 2;
+			},
+			get radius () {
+				return this.length / 2;
+			},
+			
 			// Method for setting x/y coordinates (which will set abs_x/abs_y as specified by displayObject)
 			setPosition: function () {
 				if (this.initialized) {
