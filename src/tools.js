@@ -231,7 +231,7 @@
 								return false;
 							}
 						
-						} else if (angleRange === 180) {
+						} else if (angleRange === 180) {
 							
 							// Inside if pointer is below the origin
 							if (pointer.y >= obj.abs_y - origin.y && D <= obj.strokeWeight) {
