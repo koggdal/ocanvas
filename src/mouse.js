@@ -214,6 +214,16 @@
 			// Method for showing the cursor
 			show: function () {
 				this.core.canvasElement.style.cursor = "default";
+			},
+			
+			// Method for setting the mouse cursor icon
+			cursor: function (value) {
+				if (~value.indexOf("url(")) {
+					var m = /url\((.*?)\)(\s(.*?)\s(.*?)|)($|,.*?$)/.exec(value),
+						options = m[5] ? m[5] : "";
+					value = "url(" + m[1] + ") " + (m[3] ? m[3] : 0) + " " + (m[4] ? m[4] : 0) + (options !== "" ? options :  ", default");
+				}
+				this.core.canvasElement.style.cursor = value;
 			}
 		};
 	};
