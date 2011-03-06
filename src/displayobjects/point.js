@@ -16,10 +16,21 @@
 					x = this.abs_x - origin.x,
 					y = this.abs_y - origin.y;
 				
-				// Do fill
 				canvas.beginPath();
-				canvas.fillStyle = this.fill;
-				canvas.fillRect(x, y, 1, 1);
+				
+				// Do fill
+				if (this.fill !== "") {
+					canvas.fillStyle = this.fill;
+					canvas.fillRect(x, y, 1, 1);
+				}
+				
+				// Do stroke
+				if (this.strokeWeight > 0) {
+					canvas.strokeStyle = this.strokeColor;
+					canvas.lineWidth = this.strokeWeight;
+					canvas.strokeRect(x - this.strokeWeight / 2, y - this.strokeWeight / 2, this.strokeWeight + 1, this.strokeWeight + 1);
+				}
+				
 				canvas.closePath();
 				
 				if (cb) {
