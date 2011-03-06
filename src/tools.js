@@ -65,7 +65,7 @@
 					
 					// Check if pointer is inside the line
 					// Pointer coordinates are transformed to be compared with a horizontal line
-					return ((pointer.x > obj.abs_x - D - origin.x) && (pointer.x < obj.abs_x + D - origin.x) && (pointer.y > obj.abs_y - obj.strokeWeight / 2 - origin.y) && (pointer.y < obj.abs_y + obj.strokeWeight / 2 - origin.y));
+					return ((pointer.x > obj.abs_x - D - origin.x) && (pointer.x < obj.abs_x + D - origin.x) && (pointer.y > obj.abs_y - obj.strokeWidth / 2 - origin.y) && (pointer.y < obj.abs_y + obj.strokeWidth / 2 - origin.y));
 				} else
 				
 				// Point
@@ -73,7 +73,7 @@
 					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject);
 					
 					// Check hit area (includes stroke, so it has to check for all sides instead of just one point)
-					if ( (pointer.x >= obj.abs_x - origin.x - obj.strokeWeight) && (pointer.x <= obj.abs_x - origin.x + obj.strokeWeight) && (pointer.y >= obj.abs_y - origin.y - obj.strokeWeight) && (pointer.y <= obj.abs_y - origin.y + obj.strokeWeight)) {
+					if ( (pointer.x >= obj.abs_x - origin.x - obj.strokeWidth) && (pointer.x <= obj.abs_x - origin.x + obj.strokeWidth) && (pointer.y >= obj.abs_y - origin.y - obj.strokeWidth) && (pointer.y <= obj.abs_y - origin.y + obj.strokeWidth)) {
 						return true;
 					} else {
 						return false;
@@ -83,7 +83,7 @@
 				// Text
 				if (obj.type === "text") {
 					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
-						stroke = obj.strokeWeight / 2,
+						stroke = obj.strokeWidth / 2,
 						left, right, top, bottom;
 					
 					// Find left and right positions based on the text alignment
@@ -136,7 +136,7 @@
 				// Rectangle
 				if (obj.shapeType === "rectangular") {
 					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
-						stroke = (obj.strokePosition === "outside") ? obj.strokeWeight : ((obj.strokePosition === "center") ? obj.strokeWeight / 2 : 0);
+						stroke = (obj.strokePosition === "outside") ? obj.strokeWidth : ((obj.strokePosition === "center") ? obj.strokeWidth / 2 : 0);
 					
 					return ((pointer.x > obj.abs_x - origin.x - stroke) && (pointer.x < obj.abs_x + obj.width - origin.x + stroke) && (pointer.y > obj.abs_y - origin.y - stroke) && (pointer.y < obj.abs_y + obj.height - origin.y + stroke));
 				} else
@@ -145,14 +145,14 @@
 				if (obj.type === "ellipse" && obj.radius_x === obj.radius_y) {
 					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
 						D = Math.sqrt(Math.pow(pointer.x - obj.abs_x + origin.x, 2) + Math.pow(pointer.y - obj.abs_y + origin.y, 2));
-					return (D < obj.radius_x + obj.strokeWeight / 2);
+					return (D < obj.radius_x + obj.strokeWidth / 2);
 				} else
 				
 				// Ellipse
 				if (obj.type === "ellipse") {
 					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
-						a = obj.radius_x + obj.strokeWeight / 2,
-						b = obj.radius_y + obj.strokeWeight / 2;
+						a = obj.radius_x + obj.strokeWidth / 2,
+						b = obj.radius_y + obj.strokeWidth / 2;
 					pointer.x -= obj.abs_x + origin.x;
 					pointer.y -= obj.abs_y + origin.y;
 					
@@ -162,7 +162,7 @@
 				// Polygon
 				if (obj.type === "polygon") {
 					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
-						radius = obj.radius + obj.strokeWeight / 2,
+						radius = obj.radius + obj.strokeWidth / 2,
 						length = obj.sides,
 						j = length - 1,
 						odd = false,
@@ -205,13 +205,13 @@
 						a, y_, z, angle;
 					
 					// Cancel if the distance between pointer and origin is longer than the radius
-					if ((obj.strokeWeight === 0 && D > radius) || (obj.strokeWeight > 0 && D > radius + obj.strokeWeight / 2)) {
+					if ((obj.strokeWidth === 0 && D > radius) || (obj.strokeWidth > 0 && D > radius + obj.strokeWidth / 2)) {
 						return false;
 					}
 					
 					// If the arc is made like a pie chart piece
-					// (desired radius is set as stroke weight and actual radius is set to half that size)
-					if (radius === obj.strokeWeight / 2) {
+					// (desired radius is set as stroke width and actual radius is set to half that size)
+					if (radius === obj.strokeWidth / 2) {
 					
 						if (angleRange > 180) {
 						
@@ -223,7 +223,7 @@
 							pD = Math.sqrt(pX * pX + pY * pY),
 							pA = Math.acos(pX / pD) * 180 / Math.PI;
 							
-							if (pointer.y >= obj.abs_y - origin.y && D <= obj.strokeWeight) {
+							if (pointer.y >= obj.abs_y - origin.y && D <= obj.strokeWidth) {
 								return true;
 							} else if (pointer.y < obj.abs_y - origin.y && pointer.x < obj.abs_x - origin.x && pA <= (angleRange - 180)) {
 								return true;
@@ -234,7 +234,7 @@
 						} else if (angleRange === 180) {
 							
 							// Inside if pointer is below the origin
-							if (pointer.y >= obj.abs_y - origin.y && D <= obj.strokeWeight) {
+							if (pointer.y >= obj.abs_y - origin.y && D <= obj.strokeWidth) {
 								return true;
 							} else {
 								return false;
@@ -305,7 +305,7 @@
 								return true;
 							} else if (angle <= 0 && pointer.y <= obj.abs_y - origin.y && D <= radius) {
 								return true;
-							} else if (((obj.strokeWeight === 0 && D <= radius) || (obj.strokeWeight > 0 && D <= radius + obj.strokeWeight / 2)) && ((pointer.x <= p1.x && pointer.y <= obj.abs_y - origin.y) || (pointer.y >= obj.abs_y - origin.y)) ) {
+							} else if (((obj.strokeWidth === 0 && D <= radius) || (obj.strokeWidth > 0 && D <= radius + obj.strokeWidth / 2)) && ((pointer.x <= p1.x && pointer.y <= obj.abs_y - origin.y) || (pointer.y >= obj.abs_y - origin.y)) ) {
 								return true;
 							} else {
 								return false;
@@ -313,7 +313,7 @@
 						} else if (angleRange === 180) {
 						
 							// Inside if pointer is below the origin
-							if (pointer.y >= obj.abs_y - origin.y && ((obj.strokeWeight === 0 && D <= radius) || (obj.strokeWeight > 0 && D <= radius + obj.strokeWeight / 2))) {
+							if (pointer.y >= obj.abs_y - origin.y && ((obj.strokeWidth === 0 && D <= radius) || (obj.strokeWidth > 0 && D <= radius + obj.strokeWidth / 2))) {
 								return true;
 							} else {
 								return false;
@@ -327,16 +327,16 @@
 							var r, d;
 							
 							// Make it a bit more accurate when there is only a stroke
-							r = (obj.fill === "") ? radius - obj.strokeWeight / 2 : radius;
+							r = (obj.fill === "") ? radius - obj.strokeWidth / 2 : radius;
 							
 							// Calculate the distance from the origin to the y value of the end points
 							d = Math.cos(angleRange / 2 * Math.PI / 180) * r;
 							
 							// If there is only a stroke
-							if (obj.fill === "" && obj.strokeWeight > 0) {
+							if (obj.fill === "" && obj.strokeWidth > 0) {
 							
 								// It has to be lower than the end points, and between the edges of the stroke
-								if (pointer.y >= obj.abs_y - origin.y + d && D >= radius - obj.strokeWeight / 2 && D <= radius + obj.strokeWeight / 2) {
+								if (pointer.y >= obj.abs_y - origin.y + d && D >= radius - obj.strokeWidth / 2 && D <= radius + obj.strokeWidth / 2) {
 									return true;
 								} else {
 									return false;
@@ -347,10 +347,10 @@
 							else if (pointer.y >= obj.abs_y - origin.y + d) {
 							
 								// If there is also a stroke
-								if (obj.strokeWeight > 0) {
+								if (obj.strokeWidth > 0) {
 									
 									// If the distance from origin to pointer is less than to the outer edge of the stroke
-									if (D <= radius + obj.strokeWeight / 2) {
+									if (D <= radius + obj.strokeWidth / 2) {
 										return true;
 									} else {
 										return false;

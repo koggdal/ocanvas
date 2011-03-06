@@ -109,7 +109,7 @@
 					translation = this.core.draw.translation;
 				
 				
-				canvas.lineWidth = this.strokeWeight;
+				canvas.lineWidth = this.strokeWidth;
 				canvas.strokeStyle = this.strokeColor;
 				canvas.beginPath();
 				canvas.moveTo(this.start.x - translation.x - origin.x, this.start.y - translation.y - origin.y);

@@ -160,8 +160,8 @@
 				canvas.textBaseline = this.baseline;
 				
 				// Draw the text as a stroke if a stroke is specified
-				if (this.strokeWeight > 0) {
-					canvas.lineWidth = this.strokeWeight;
+				if (this.strokeWidth > 0) {
+					canvas.lineWidth = this.strokeWidth;
 					canvas.strokeStyle = this.strokeColor;
 					canvas.strokeText(this.text, x, y);
 					canvas.stroke();

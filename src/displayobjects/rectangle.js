@@ -25,16 +25,16 @@
 					canvas.fill();
 				}
 				
-				// Do color if stroke weight is specified
-				if (this.strokeWeight > 0) {
+				// Do color if stroke width is specified
+				if (this.strokeWidth > 0) {
 				
 					// Set styles
-					canvas.lineWidth = this.strokeWeight;
+					canvas.lineWidth = this.strokeWidth;
 					canvas.strokeStyle = this.strokeColor;
 					
 					// Set stroke outside the box
 					if (this.strokePosition === "outside") {
-						canvas.strokeRect(x - this.strokeWeight / 2 + 0.5, y - this.strokeWeight / 2 + 0.5, this.width + this.strokeWeight - 1, this.height + this.strokeWeight - 1);
+						canvas.strokeRect(x - this.strokeWidth / 2 + 0.5, y - this.strokeWidth / 2 + 0.5, this.width + this.strokeWidth - 1, this.height + this.strokeWidth - 1);
 					}
 					
 					// Set stroke on the edge of the box (half of the stroke outside, half inside)
@@ -44,7 +44,7 @@
 					
 					// Set stroke on the inside of the box
 					else if (this.strokePosition === "inside") {
-						canvas.strokeRect(x + this.strokeWeight / 2, y + this.strokeWeight / 2, this.width - this.strokeWeight, this.height - this.strokeWeight);
+						canvas.strokeRect(x + this.strokeWidth / 2, y + this.strokeWidth / 2, this.width - this.strokeWidth, this.height - this.strokeWidth);
 					}
 					
 					// Draw stroke

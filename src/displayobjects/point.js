@@ -25,10 +25,10 @@
 				}
 				
 				// Do stroke
-				if (this.strokeWeight > 0) {
+				if (this.strokeWidth > 0) {
 					canvas.strokeStyle = this.strokeColor;
-					canvas.lineWidth = this.strokeWeight;
-					canvas.strokeRect(x - this.strokeWeight / 2, y - this.strokeWeight / 2, this.strokeWeight + 1, this.strokeWeight + 1);
+					canvas.lineWidth = this.strokeWidth;
+					canvas.strokeRect(x - this.strokeWidth / 2, y - this.strokeWidth / 2, this.strokeWidth + 1, this.strokeWidth + 1);
 				}
 				
 				canvas.closePath();

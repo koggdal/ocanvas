@@ -34,8 +34,8 @@
 					}
 					
 					// Do stroke
-					if (this.strokeWeight > 0) {
-						canvas.lineWidth = this.strokeWeight;
+					if (this.strokeWidth > 0) {
+						canvas.lineWidth = this.strokeWidth;
 						canvas.strokeStyle = this.strokeColor;
 						canvas.stroke();
 					}

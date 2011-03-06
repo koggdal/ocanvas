@@ -41,7 +41,7 @@
 				height: 0,
 				stroke: "",
 				strokeColor: "",
-				strokeWeight: 0,
+				strokeWidth: 0,
 				strokePosition: "center",
 				cap: "butt",
 				join: "miter",
@@ -58,8 +58,8 @@
 			set strokeColor (color) {
 				setStrokeProperty(this, "color", color, "strokeColor", this.core);
 			},
-			set strokeWeight (weight) {
-				setStrokeProperty(this, "weight", weight, "strokeWeight", this.core);
+			set strokeWidth (width) {
+				setStrokeProperty(this, "width", width, "strokeWidth", this.core);
 			},
 			set strokePosition (pos) {
 				setStrokeProperty(this, "pos", pos, "strokePosition", this.core);
@@ -74,7 +74,7 @@
 				// Get stroke object and set styles
 				var stroke = this.core.style.getStroke(value);
 				this._.strokeColor = stroke.color;
-				this._.strokeWeight = stroke.weight;
+				this._.strokeWidth = stroke.width;
 				this._.strokePosition = stroke.pos;
 				this._.stroke = value;
 			},
@@ -95,8 +95,8 @@
 			get strokeColor () {
 				return this._.strokeColor;
 			},
-			get strokeWeight () {
-				return this._.strokeWeight;
+			get strokeWidth () {
+				return this._.strokeWidth;
 			},
 			get strokePosition () {
 				return this._.strokePosition;

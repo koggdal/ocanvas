@@ -19,7 +19,7 @@
 				if (typeof value === "object" && return_type === "string") {
 					var val = value;
 					value = (typeof val.pos === "string") ? val.pos : "center";
-					value += " " + (typeof val.weight === "number" ? val.weight+"px" : "1px");
+					value += " " + (typeof val.width === "number" ? val.width+"px" : "1px");
 					value += " " + (typeof val.color === "string" ? val.color : "#000000");
 				}
 			
@@ -27,7 +27,7 @@
 				var stroke = value.split(" "),
 					strokePositions = ["outside", "center", "inside"],
 					fixed_color = '', i, num_splits = stroke.length,
-					strokePos, weight, color, only_color;
+					strokePos, width, color, only_color;
 				
 				// If there are more than 2 splits
 				if (num_splits >= 3) {
@@ -66,19 +66,19 @@
 						// Set the stroke object with correct values
 						stroke = {
 							pos: stroke[0],
-							weight: parseInt(stroke[1]),
+							width: parseInt(stroke[1]),
 							color: stroke[2]
 						};
 					}
 				}
 				
-				// If there are only two splits ( [weight, color] )
+				// If there are only two splits ( [width, color] )
 				if (num_splits === 2) {
 					
 					// Set the stroke object
 					stroke = {
 						pos: "center",
-						weight: parseInt(stroke[0]),
+						width: parseInt(stroke[0]),
 						color: stroke[1]
 					};
 				}
@@ -86,12 +86,12 @@
 				// If stroke is still an array (empty stroke value was passed in)
 				if (stroke.length) {
 					stroke = {
-						weight: 0
+						width: 0
 					};
 				}
 				
 				if (return_type === "string") {
-					return stroke.pos + " " + stroke.weight + "px " + stroke.color;
+					return stroke.pos + " " + stroke.width + "px " + stroke.color;
 				}
 				else if (return_type === "object") {
 					return stroke;
