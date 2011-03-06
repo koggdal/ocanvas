@@ -73,7 +73,33 @@
 				
 				// Get stroke object and set styles
 				var stroke = this.core.style.getStroke(value);
-				this._.strokeColor = stroke.color;
+				
+				// Handle patterns
+				if (~stroke.color.indexOf("image(")) {
+					var matches = /image\((.*?)(,(\s|)(repeat|repeat-x|repeat-y|no-repeat)|)\)/.exec(stroke.color),
+						path = matches[1],
+						repeat = matches[4] || "repeat",
+						image = new Image(),
+						_this = this;
+						
+					image.src = path;
+					this._.strokepattern_loading = true;
+					this._.strokepattern_redraw = false;
+					
+					image.onload = function () {
+						_this._.strokeColor = _this.core.canvas.createPattern(this, repeat);
+						_this._.strokepattern_loading = false;
+						
+						if (_this._.strokepattern_redraw) {
+							_this._.strokepattern_redraw = false;
+							_this.redraw();
+						}
+					};
+				} else {
+					this._.strokeColor = stroke.color;
+				}
+				
+				// Set other stroke properties
 				this._.strokeWidth = stroke.width;
 				this._.strokePosition = stroke.pos;
 				this._.stroke = value;
@@ -93,7 +119,21 @@
 				return this._.stroke;
 			},
 			get strokeColor () {
-				return this._.strokeColor;
+				if (this._.strokepattern_loading) {
+					this._.strokepattern_redraw = true;
+					return "";
+				} else if (~this._.strokeColor.toString().indexOf("CanvasPattern")) {
+					return this._.strokeColor;
+				} else if (~this._.strokeColor.indexOf("gradient")) {
+					if (this.shapeType === "rectangular") {
+						return this.core.style.getGradient(this._.strokeColor, this.abs_x, this.abs_y, this.width, this.height);
+					} else if (this.shapeType === "radial") {
+						var radius = this.radius + this.strokeWidth / 2;
+						return this.core.style.getGradient(this._.strokeColor, this.abs_x - this.radius, this.abs_y - this.radius, radius * 2, radius * 2);
+					}
+				} else {
+					return this._.strokeColor;
+				}
 			},
 			get strokeWidth () {
 				return this._.strokeWidth;
