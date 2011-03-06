@@ -14,8 +14,7 @@
 			
 			_: oCanvas.extend({}, thecore.displayObject._, {
 				radius: 0,
-				side: 0,
-				points: []
+				side: 0
 			}),
 			
 			set radius (value) {
@@ -43,7 +42,6 @@
 					y = this.abs_y - origin.y,
 					firstPoint = { x: 0, y: 0 },
 					sides = this.sides,
-					points = this._.points,
 					radius = this.radius,
 					xPos, yPos, i;
 				
@@ -53,9 +51,6 @@
 					xPos = x + radius * Math.cos(i * 2 * Math.PI / sides);
 					yPos = y + radius * Math.sin(i * 2 * Math.PI / sides);
 					
-					if (points.length !== sides) {
-						points.push({ x: xPos, y: yPos });
-					}
 					if (i === 0) {
 						canvas.moveTo(xPos, yPos);
 						firstPoint = { x: xPos, y: yPos };
