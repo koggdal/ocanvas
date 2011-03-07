@@ -22,7 +22,6 @@
 				if (this.fill !== "") {
 					canvas.fillStyle = this.fill;
 					canvas.fillRect(x, y, this.width, this.height);
-					canvas.fill();
 				}
 				
 				// Do color if stroke width is specified
@@ -46,9 +45,6 @@
 					else if (this.strokePosition === "inside") {
 						canvas.strokeRect(x + this.strokeWidth / 2, y + this.strokeWidth / 2, this.width - this.strokeWidth, this.height - this.strokeWidth);
 					}
-					
-					// Draw stroke
-					canvas.stroke();
 				}
 				
 				canvas.closePath();
