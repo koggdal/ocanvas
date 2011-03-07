@@ -30,6 +30,7 @@
 			events: {},
 			children: [],
 			opacity: 1,
+			composition: "source-over",
 			scaling: {
 				x: 1,
 				y: 1

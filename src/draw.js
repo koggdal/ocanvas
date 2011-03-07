@@ -96,6 +96,9 @@
 							// Set the alpha to match the object's opacity
 							canvas.globalAlpha = !isNaN(parseFloat(obj.opacity)) ? parseFloat(obj.opacity) : 1;
 							
+							// Set the composition mode
+							canvas.globalCompositeOperation = obj.composition;
+							
 							// Set shadow properties if object has shadow
 							shadow = obj.shadow;
 							if (shadow.blur > 0) {
