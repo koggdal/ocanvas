@@ -7,8 +7,7 @@
 		var setStrokeProperty = function (_this, property, value, objectProperty, thecore) {
 			var stroke = thecore.style.getStroke(_this.stroke);
 			stroke[property] = value;
-			_this._.stroke = thecore.style.getStroke(stroke, "string");
-			_this._[objectProperty] = value;
+			_this.stroke = thecore.style.getStroke(stroke, "string");
 		};
 		
 		// Return an object when instantiated
@@ -131,7 +130,8 @@
 					return this._.strokeColor;
 				} else if (~this._.strokeColor.indexOf("gradient")) {
 					if (this.shapeType === "rectangular") {
-						return this.core.style.getGradient(this._.strokeColor, this.abs_x, this.abs_y, this.width, this.height);
+						var stroke = (this.strokePosition === "outside") ? this.strokeWidth : (this.strokePosition === "center" ? this.strokeWidth / 2 : 0);
+						return this.core.style.getGradient(this._.strokeColor, this.abs_x - stroke, this.abs_y - stroke, this.width + stroke * 2, this.height + stroke * 2);
 					} else if (this.shapeType === "radial") {
 						var radius = this.radius + this.strokeWidth / 2;
 						return this.core.style.getGradient(this._.strokeColor, this.abs_x - this.radius, this.abs_y - this.radius, radius * 2, radius * 2);
@@ -688,8 +688,8 @@
 				settings.drawn = false;
 				var newObj = this.core.display[this.type](settings),
 					this_filtered = {},
-					reject = ["core", "events", "children", "parent", "img"],
-					loopObject, x;
+					reject = ["core", "events", "children", "parent", "img", "fill", "strokeColor"],
+					loopObject, x, stroke;
 				
 				// Filter out the setter and getter methods, and also properties listed above
 				loopObject = function (obj, destination) {
@@ -708,6 +708,11 @@
 					}
 				}
 				loopObject(this, this_filtered);
+				
+				// Fix gradients and patterns
+				this_filtered.fill = this._.fill;
+				stroke = this.core.style.getStroke(this.stroke);
+				this_filtered.strokeColor = stroke.color;
 				
 				// Extend the new object with this object's properties and then apply the custom settings
 				newObj = oCanvas.extend(newObj, this_filtered, settings);
