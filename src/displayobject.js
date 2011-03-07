@@ -30,6 +30,10 @@
 			events: {},
 			children: [],
 			opacity: 1,
+			scaling: {
+				x: 1,
+				y: 1
+			},
 			
 			_: {
 				x: 0,
@@ -455,18 +459,26 @@
 			
 			// Method for scaling the object
 			scale: function (x, y) {
-				var scale = this.getArgs(x, y, 1, 1);
-				this.width *= scale.x;
-				this.height *= scale.y;
+				this.scaling = this.getArgs(x, y, 1, 1);
 				
 				return this;
 			},
 			
 			// Method for scaling to a specific size
 			scaleTo: function (width, height) {
-				var size = this.getArgs(width, height, this.width, this.height)
-				this.width = size.x;
-				this.height = size.y;
+				var currentWidth = (this.shapeType === "rectangular" ? this.width : this.radius),
+					currentHeight = (this.shapeType === "rectangular" ? this.height : this.radius),
+					size = this.getArgs(width, height, currentWidth, currentHeight);
+					
+				// Don't let the size be 0, because the native scale method doesn't support zero values
+				size.x = size.x <= 0 ? 1 : size.x;
+				size.y = size.y <= 0 ? 1 : size.y;
+				
+				// Set the scaling
+				this.scaling = {
+					x: size.x / currentWidth,
+					y: size.y / currentHeight
+				};
 				
 				return this;
 			},

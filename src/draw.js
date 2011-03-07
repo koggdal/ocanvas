@@ -83,6 +83,11 @@
 							obj._.abs_x = 0;
 							obj._.abs_y = 0;
 							
+							// Temporarily scale the canvas for this object
+							if (obj.scaling.x !== 1 || obj.scaling.y !== 1) {
+								canvas.scale(obj.scaling.x, obj.scaling.y);
+							}
+							
 							// Temporarily change the rotation
 							if (obj.rotation !== 0) {
 								canvas.rotate(obj.rotation * Math.PI / 180);
