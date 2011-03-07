@@ -85,7 +85,9 @@
 												}
 												
 												// Set status and trigger callback
-												obj.events[pointer + "ontarget"] = true;
+												if (type !== "touchend") {
+													obj.events[pointer + "ontarget"] = true;
+												}
 												handler.call(obj, e);
 											}
 										}

@@ -65,7 +65,7 @@
 				}
 				
 				// Add event listeners to the canvas element (used for setting states and trigger touchend events)
-				document.addEventListener('touchend', function (e) { _this.doctouchend.call(_this, e); }, true);
+				document.addEventListener('touchend', function (e) { _this.doctouchend.call(_this, e); }, false);
 				document.addEventListener('touchmove', function (e) { _this.doctouchmove.call(_this, e); }, true);
 				document.addEventListener('touchstart', function (e) { _this.doctouch.call(_this, e); }, true);
 			},
@@ -184,8 +184,8 @@
 					this.start_pos = this.updatePos(e);
 					this.touchState = "down";
 					
-					this.triggerEvents("touchstart", e);
 					this.triggerEvents("touchenter", e);
+					this.triggerEvents("touchstart", e);
 				}
 				return false;
 			},
@@ -195,6 +195,7 @@
 				this.last_event = e;
 				this.touchState = "up";
 				
+				this.triggerEvents("touchleave", e, true);
 				this.triggerEvents("touchend", e);
 				this.triggerEvents("tap", e);
 				
