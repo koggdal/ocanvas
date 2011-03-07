@@ -129,12 +129,13 @@
 				} else if (~this._.strokeColor.toString().indexOf("CanvasPattern")) {
 					return this._.strokeColor;
 				} else if (~this._.strokeColor.indexOf("gradient")) {
+					var origin = this.getOrigin();
 					if (this.shapeType === "rectangular") {
 						var stroke = (this.strokePosition === "outside") ? this.strokeWidth : (this.strokePosition === "center" ? this.strokeWidth / 2 : 0);
-						return this.core.style.getGradient(this._.strokeColor, this.abs_x - stroke, this.abs_y - stroke, this.width + stroke * 2, this.height + stroke * 2);
+						return this.core.style.getGradient(this._.strokeColor, this.abs_x - origin.x - stroke, this.abs_y - origin.y - stroke, this.width + stroke * 2, this.height + stroke * 2);
 					} else if (this.shapeType === "radial") {
 						var radius = this.radius + this.strokeWidth / 2;
-						return this.core.style.getGradient(this._.strokeColor, this.abs_x - this.radius, this.abs_y - this.radius, radius * 2, radius * 2);
+						return this.core.style.getGradient(this._.strokeColor, this.abs_x - origin.x - this.radius, this.abs_y - origin.y - this.radius, radius * 2, radius * 2);
 					}
 				} else {
 					return this._.strokeColor;
@@ -188,10 +189,11 @@
 				} else if (~this._.fill.toString().indexOf("CanvasPattern")) {
 					return this._.fill;
 				} else if (~this._.fill.indexOf("gradient")) {
+					var origin = this.getOrigin();
 					if (this.shapeType === "rectangular") {
-						return this.core.style.getGradient(this._.fill, this.abs_x, this.abs_y, this.width, this.height);
+						return this.core.style.getGradient(this._.fill, this.abs_x - origin.x, this.abs_y - origin.y, this.width, this.height);
 					} else if (this.shapeType === "radial") {
-						return this.core.style.getGradient(this._.fill, this.abs_x - this.radius, this.abs_y - this.radius, this.radius * 2, this.radius * 2);
+						return this.core.style.getGradient(this._.fill, this.abs_x - origin.x - this.radius, this.abs_y - origin.y - this.radius, this.radius * 2, this.radius * 2);
 					}
 				} else {
 					return this._.fill;
