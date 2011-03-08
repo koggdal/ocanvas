@@ -26,6 +26,10 @@
 		
 		// Define the core class
 		core: function (options) {
+		
+			// Add the canvas to the canvas list on the global object
+			this.id = oCanvas.canvasList.push(this) - 1;
+			
 
 			// Add the registered modules to the new instance of core
 			for (var m in oCanvas.modules) {
