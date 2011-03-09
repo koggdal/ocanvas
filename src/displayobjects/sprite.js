@@ -152,10 +152,14 @@
 			
 			start: function () {
 				this.active = true;
+				
+				return this;
 			},
 			
 			stop: function () {
 				this.active = false;
+				
+				return this;
 			},
 			
 		}, settings);
