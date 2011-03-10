@@ -38,12 +38,19 @@
 			
 			// Method for clearing the canvas from everything that has been drawn (bg can be kept)
 			clear: function (keepBackground) {
+				var objects = this.objects, i;
+				
 				if (keepBackground === undefined || keepBackground === true) {
 					// The background is just redrawn over the entire canvas to remove all image data
 					this.core.background.redraw();
 				} else {
 					// Clear all the image data on the canvas
 					this.core.canvas.clearRect(0, 0, this.core.width, this.core.height);
+				}
+				
+				// Set the drawn status of all objects
+				for (i in objects) {
+					objects[i].drawn = false;
 				}
 			},
 			
@@ -116,6 +123,7 @@
 							// Draw the object
 							obj.draw();
 							this.drawn[i] = true;
+							obj.drawn = true;
 							
 							// Reset the abs_x/abs_y values
 							obj._.abs_x = x;
