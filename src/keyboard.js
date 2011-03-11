@@ -101,6 +101,7 @@
 			// Method for triggering the events when a key is pressed down
 			keydown: function (e) {
 				this.last_event = e;
+				var _this = this;
 			
 				// Cancel event if the key is already pressed down
 				// (some browsers repeat even keydown when held down)
@@ -108,13 +109,12 @@
 					return;
 				}
 				
-				var _this = this;
-				
-				this.triggerEvents("keydown", e);
-	
 				// Set the key states
 				this.lastActiveKeyDown = this.getKeyCode(e);
 				this.keysDown[this.lastActiveKeyDown] = true;
+				
+				// Trigger event handlers
+				this.triggerEvents("keydown", e);
 				
 				// Cancel the keypress timer
 				clearInterval(this.keyPressTimer);
@@ -136,14 +136,15 @@
 			keyup: function (e) {
 				this.last_event = e;
 				
-				this.triggerEvents("keyup", e);
-				
 				// Set the key states
 				var keyCode = this.getKeyCode(e);
 				if (keyCode === this.lastActiveKeyDown) {
 					this.lastActiveKeyDown = false;
 				}
 				this.keysDown[keyCode] = false;
+				
+				// Trigger event handlers
+				this.triggerEvents("keyup", e);
 				
 				// If there are no more keys pressed down, cancel the keypress timer
 				if (!this.anyKeysDown()) {
