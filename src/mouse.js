@@ -57,6 +57,10 @@
 				document.addEventListener('mouseup', function (e) { _this.docmouseup.call(_this, e); }, false);
 				document.addEventListener('mouseover', function (e) { _this.docmouseover.call(_this, e); }, false);
 				document.addEventListener('click', function (e) { _this.docclick.call(_this, e); }, false);
+				if (parent !== window) {
+					// Add event listener for the parent document as well, if the canvas is within an iframe for example
+					parent.document.addEventListener('mouseover', function (e) { _this.docmouseover.call(_this, e); }, false);
+				}
 			},
 			
 			// Method for adding an event to the event list
@@ -75,12 +79,12 @@
 					boundingRect = this.core.canvasElement.getBoundingClientRect();
 					
 				// Browsers supporting pageX/pageY
-				if (e.pageX && e.pageY) {
+				if (e.pageX !== undefined && e.pageY !== undefined) {
 					x = e.pageX - document.documentElement.scrollLeft - Math.round(boundingRect.left);
 					y = e.pageY - document.documentElement.scrollTop - Math.round(boundingRect.top);
 				}
 				// Browsers not supporting pageX/pageY
-				else if (e.clientX && e.clientY) {
+				else if (e.clientX !== undefined && e.clientY !== undefined) {
 					x = e.clientX + document.documentElement.scrollLeft - Math.round(boundingRect.left);
 					y = e.clientY + document.documentElement.scrollTop - Math.round(boundingRect.top);
 				}
@@ -107,10 +111,10 @@
 				}
 				
 				// Get pointer position
-				var pos = e ? this.getPos(e, false) : {x:this.x, y:this.y};
+				var pos = e ? this.getPos(e) : {x:this.x, y:this.y};
 				
 				// Check boundaries => (left) && (right) && (top) && (bottom)
-				if ( (pos.x > 0) && (pos.x < this.core.width) && (pos.y > 0) && (pos.y < this.core.height) ) {
+				if ( (pos.x >= 0) && (pos.x <= this.core.width) && (pos.y >= 0) && (pos.y <= this.core.height) ) {
 					this.canvasHovered = true;
 					this.updatePos(e);
 					return true;
@@ -187,6 +191,7 @@
 			
 			// Method that triggers all mouseleave events when pointer is outside the canvas
 			docmouseover: function (e) {
+				this.last_event = e;
 				if (!this.onCanvas(e, true)) {
 					this.triggerEvents("mouseleave", e, true);
 				}
