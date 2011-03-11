@@ -79,6 +79,22 @@
 				}
 			},
 			
+			// Method for getting which keys are currently pressed down
+			getKeysDown: function () {
+				var keysDown = this.keysDown,
+					down = [],
+					x;
+				
+				// Go through all the keys that are currently pressed down
+				for (x in keysDown) {
+					if (keysDown[x] === true) {
+						down.push(x);
+					}
+				}
+				
+				return down;
+			},
+			
 			// Method for triggering all events of a specific type
 			triggerEvents: function (type, e) {
 				var key, i, event, eventObject;
@@ -141,7 +157,7 @@
 				if (keyCode === this.lastActiveKeyDown) {
 					this.lastActiveKeyDown = false;
 				}
-				this.keysDown[keyCode] = false;
+				delete this.keysDown[keyCode];
 				
 				// Trigger event handlers
 				this.triggerEvents("keyup", e);
