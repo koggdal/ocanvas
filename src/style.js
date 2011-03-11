@@ -655,6 +655,13 @@
 							}
 						} else
 						
+						if (!font_object.size && /\d+[a-z]{2}(?!\/)/.test(value)) {
+							// Font size
+							if (!isNaN(parseInt(value))) {
+								font_object.size = parseInt(value);
+							}
+						} else
+						
 						// Font family
 						if (isNaN(parseInt(value)) && !font_object.family) {
 							family = "";
@@ -672,7 +679,7 @@
 				font.variant = font.variant ? font.variant : "normal";
 				font.weight = font.weight ? font.weight : "normal";
 				font.size = font.size ? font.size : 16;
-				font.lineHeight = font.lineHeight ? font.lineHeight : 1.5;
+				font.lineHeight = font.lineHeight ? font.lineHeight : 1;
 				font.family = font.family ? font.family : "'Helvetica Neue', Arial, Helvetica, sans-serif";
 				
 				if (return_type === "string") {

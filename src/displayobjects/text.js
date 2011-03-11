@@ -22,13 +22,13 @@
 			align: "start",
 			baseline: "top",
 			_: oCanvas.extend({}, thecore.displayObject._, {
-				font: "normal normal normal 16px/1.5 'Helvetica Neue', Arial, Helvetica, sans-serif",
+				font: "normal normal normal 16px/1 sans-serif",
 				style: "normal",
 				variant: "normal",
 				weight: "normal",
 				size: 16,
-				lineHeight: 1.5,
-				family: "'Helvetica Neue', Arial, Helvetica, sans-serif",
+				lineHeight: 1,
+				family: "sans-serif",
 				text: "",
 				width: 0,
 				height: 0
