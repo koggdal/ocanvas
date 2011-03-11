@@ -22,6 +22,7 @@
 			},
 			
 			last_event: {},
+			cursorValue: "default",
 			
 			// Method for initializing the module
 			init: function () {
@@ -204,16 +205,22 @@
 			// so resetting the start_pos cancels the click
 			cancel: function () {
 				this.start_pos = {x:-10,y:-10};
+				
+				return this;
 			},
 			
 			// Method for hiding the cursor
 			hide: function () {
 				this.core.canvasElement.style.cursor = "none";
+				
+				return this;
 			},
 			
 			// Method for showing the cursor
 			show: function () {
-				this.core.canvasElement.style.cursor = "default";
+				this.core.canvasElement.style.cursor = this.cursorValue;
+				
+				return this;
 			},
 			
 			// Method for setting the mouse cursor icon
@@ -224,6 +231,9 @@
 					value = "url(" + m[1] + ") " + (m[3] ? m[3] : 0) + " " + (m[4] ? m[4] : 0) + (options !== "" ? options :  ", default");
 				}
 				this.core.canvasElement.style.cursor = value;
+				this.cursorValue = value;
+				
+				return this;
 			}
 		};
 	};
