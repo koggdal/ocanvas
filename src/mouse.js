@@ -53,10 +53,10 @@
 				canvasElement.addEventListener('mousedown', function (e) { _this.mousedown.call(_this, e); }, false);
 				canvasElement.addEventListener('mouseup', function (e) { _this.mouseup.call(_this, e); }, false);
 				
-				// Add event listeners to the canvas element (used for settings states and trigger mouseup events)
+				// Add event listeners to the canvas element (used for setting states and trigger mouseup events)
 				document.addEventListener('mouseup', function (e) { _this.docmouseup.call(_this, e); }, false);
 				document.addEventListener('mouseover', function (e) { _this.docmouseover.call(_this, e); }, false);
-				document.addEventListener('click', function (e) { _this.docclick.call(_this, e); }, false);
+				document.addEventListener('mousedown', function (e) { _this.docmousedown.call(_this, e); }, false);
 				if (parent !== window) {
 					// Add event listener for the parent document as well, if the canvas is within an iframe for example
 					parent.document.addEventListener('mouseover', function (e) { _this.docmouseover.call(_this, e); }, false);
@@ -102,13 +102,8 @@
 			},
 			
 			// Method for checking if the mouse pointer is inside the canvas
-			onCanvas: function (e, fast) {
+			onCanvas: function (e) {
 				e = e || this.last_event;
-				
-				// Do fast checking against the event object's target
-				if (fast) {
-					return !(e.target.nodeName.toLowerCase() === "html" || e.target.nodeName.toLowerCase() === "body");
-				}
 				
 				// Get pointer position
 				var pos = e ? this.getPos(e) : {x:this.x, y:this.y};
@@ -184,7 +179,7 @@
 			// Method that triggers all mouseup events when pointer was pressed down on canvas and released outside
 			docmouseup: function (e) {
 				this.last_event = e;
-				if (this.buttonState === "down" && !this.onCanvas(e, true)) {
+				if (this.buttonState === "down" && !this.onCanvas(e)) {
 					this.mouseup(e);
 				}
 			},
@@ -192,15 +187,15 @@
 			// Method that triggers all mouseleave events when pointer is outside the canvas
 			docmouseover: function (e) {
 				this.last_event = e;
-				if (!this.onCanvas(e, true)) {
+				if (!this.onCanvas(e)) {
 					this.triggerEvents("mouseleave", e, true);
 				}
 			},
 			
 			// Method that sets the focus state when pointer is pressed down outside the canvas
-			docclick: function (e) {
+			docmousedown: function (e) {
 				this.last_event = e;
-				if (!this.onCanvas(e, true)) {
+				if (!this.onCanvas(e)) {
 					this.canvasFocused = false;
 				}
 			},

@@ -118,14 +118,9 @@
 			},
 			
 			// Method for checking if the touch is inside the canvas
-			onCanvas: function (e, fast) {
+			onCanvas: function (e) {
 				var origEvent = e;
 				e = e || this.last_event;
-				
-				// Do fast checking against the event object's target
-				if (fast) {
-					return !(e.target.nodeName.toLowerCase() === "html" || e.target.nodeName.toLowerCase() === "body");
-				}
 				
 				// Get pointer position
 				var pos = e ? this.getPos(e) : {x:this.x, y:this.y};
@@ -180,7 +175,7 @@
 				this.canvasFocused = true;
 				this.last_event = e;
 				
-				if (this.onCanvas(e, true)) {
+				if (this.onCanvas(e)) {
 					this.start_pos = this.updatePos(e);
 					this.touchState = "down";
 					
@@ -218,7 +213,7 @@
 			
 			// Method that sets the focus state when touch is pressed down outside the canvas
 			doctouch: function (e) {
-				if (!this.onCanvas(e, true)) {
+				if (!this.onCanvas(e)) {
 					this.canvasFocused = false;
 				}
 			},
@@ -228,6 +223,8 @@
 			// so resetting the start_pos cancels the tap
 			cancel: function () {
 				this.start_pos = {x:-10,y:-10};
+				
+				return this;
 			}
 			
 		};
