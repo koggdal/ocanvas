@@ -6,11 +6,6 @@
 		// Return an object when instantiated; this allows the developer to do:
 		//     canvas.timeline.start();
 		return {
-		
-			// Method used by oCanvas to give this object access to the current instance of the core object
-			setCore: function (thecore) {
-				this.core = thecore;
-			},
 			
 			init: function () {
 				var _this = this;

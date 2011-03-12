@@ -107,9 +107,7 @@
 				}
 				
 				// Add core access to modules that reside directly in the core
-				if (typeof this[m].setCore === "function") {
-					this[m].setCore(this);
-				}
+				this[m].core = this;
 			}
 			
 			// Initialize added modules that have registered init methods

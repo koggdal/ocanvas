@@ -12,10 +12,6 @@
 		
 		// Return an object when instantiated
 		return {
-			// Method used by oCanvas to give this object access to the current instance of the core object
-			setCore: function (thecore) {
-				this.core = thecore;
-			},
 
 			// Properties
 			id: 0,

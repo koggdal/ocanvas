@@ -5,10 +5,6 @@
 		
 		// Return an object when instantiated
 		return {
-			// Method used by oCanvas to give this object access to the current instance of the core object
-			setCore: function (thecore) {
-				this.core = thecore;
-			},
 
 			// Method for converting a stroke to either an object or a string
 			// Fixes errors if found
