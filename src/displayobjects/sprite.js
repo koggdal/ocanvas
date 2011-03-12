@@ -8,7 +8,6 @@
 			core: thecore,
 			
 			// Set properties
-			type: "sprite",
 			shapeType: "rectangular",
 			loaded: false,
 			firstDrawn: false,

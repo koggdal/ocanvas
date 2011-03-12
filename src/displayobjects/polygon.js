@@ -7,7 +7,6 @@
 		return oCanvas.extend({
 			core: thecore,
 			
-			type: "polygon",
 			shapeType: "radial",
 			
 			sides: 3,

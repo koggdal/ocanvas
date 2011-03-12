@@ -803,6 +803,7 @@
 				
 					// Create a new rectangle object that inherits from displayObject
 					var retObj = oCanvas.extend(Object.create(displayObject()), new obj(settings, thecore));
+					retObj.type = name;
 					
 					// Trigger an init method if specified
 					if (init !== undefined) {

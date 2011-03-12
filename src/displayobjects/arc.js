@@ -7,7 +7,6 @@
 		return oCanvas.extend({
 			core: thecore,
 			
-			type: "arc",
 			shapeType: "radial",
 			radius: 0,
 			start: 0,

@@ -7,7 +7,6 @@
 		return oCanvas.extend({
 			core: thecore,
 			
-			type: "ellipse",
 			shapeType: "radial",
 			
 			_: oCanvas.extend({}, thecore.displayObject._, {
