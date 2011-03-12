@@ -119,7 +119,6 @@
 			
 			// Method for checking if the touch is inside the canvas
 			onCanvas: function (e) {
-				var origEvent = e;
 				e = e || this.last_event;
 				
 				// Get pointer position
