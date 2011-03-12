@@ -129,7 +129,21 @@
 				// Add new properties to the event object
 				eventObject.x = this.x;
 				eventObject.y = this.y;
-				eventObject.which = eventObject.button;
+				
+				// Fix the which property
+				// 0: No button pressed
+				// 1: Primary button (usually left)
+				// 2: Secondary button (usually right)
+				// 3: Middle (usually the wheel)
+				if (eventObject.button === 0 && ~"mousedown mouseup click".indexOf(type)) {
+					eventObject.which = 1;
+				} else if (eventObject.button === 2) {
+					eventObject.which = 2;
+				} else if (eventObject.button === 1) {
+					eventObject.which = 3;
+				} else {
+					eventObject.which = 0;
+				}
 				
 				// Trigger all events associated with the type
 				for (i = events.length; i--;) {
