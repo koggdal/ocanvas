@@ -69,9 +69,25 @@
 			}
 			
 			// Get the canvas context and dimensions
-			this.canvas = this.canvasElement.getContext("2d");
-			this.width = this.canvasElement.width;
-			this.height = this.canvasElement.height;
+			this.canvas = c = this.canvasElement.getContext("2d");
+			var width = this.canvasElement.width;
+			var height = this.canvasElement.height;
+			this.__defineSetter__("width", function (value) {
+				width = !isNaN(parseFloat(value)) ? parseFloat(value) : width;
+				this.canvasElement.width = width;
+				this.redraw();
+			});
+			this.__defineGetter__("width", function () {
+				return width;
+			});
+			this.__defineSetter__("height", function (value) {
+				height = !isNaN(parseFloat(value)) ? parseFloat(value) : height;
+				this.canvasElement.height = height;
+				this.redraw();
+			});
+			this.__defineGetter__("height", function () {
+				return height;
+			});
 			
 			// Set the core instance in all modules to enable access of core properties inside of modules
 			for (var m in oCanvas.modules) {
