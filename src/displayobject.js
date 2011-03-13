@@ -500,18 +500,24 @@
 			fadeIn: function () {
 				var args = Array.prototype.slice.call(arguments);
 				this.core.animation.animate(this, [{ opacity: 1 }].concat(args));
+				
+				return this;
 			},
 			
 			// Method for changing the opacity property to 0 as an animation
 			fadeOut: function () {
 				var args = Array.prototype.slice.call(arguments);
 				this.core.animation.animate(this, [{ opacity: 0 }].concat(args));
+				
+				return this;
 			},
 			
 			// Method for changing the opacity property to a custom value as an animation
 			fadeTo: function () {
 				var args = Array.prototype.slice.call(arguments);
 				this.core.animation.animate(this, [{ opacity: args.splice(0, 1)[0] }].concat(args));
+				
+				return this;
 			},
 			
 			// Method for making drag and drop easier
@@ -583,6 +589,8 @@
 					this.bind("mouseup touchend", this._.drag_end);
 					this.core.bind("mousemove touchmove", this._.drag_move);
 				}
+				
+				return this;
 			},
 			
 			// Method for setting the origin coordinates
