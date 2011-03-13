@@ -48,10 +48,12 @@
 				for (i in objects) {
 					objects[i].drawn = false;
 				}
+				
+				return this;
 			},
 			
 			// Method for drawing all objects in the object list
-			redraw: function(){
+			redraw: function () {
 				var canvas = this.core.canvas,
 					objects = this.objects,
 					i, obj, x, y, shadow;
@@ -136,6 +138,8 @@
 						}
 					}
 				}
+				
+				return this;
 			}
 		};
 	};
