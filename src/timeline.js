@@ -3,8 +3,7 @@
 	// Define the timeline class
 	var timeline = function () {
 	
-		// Return an object when instantiated; this allows the developer to do:
-		//     canvas.timeline.start();
+		// Return an object when instantiated
 		return {
 			
 			init: function () {
@@ -23,6 +22,18 @@
 			currentFrame: 1,
 			timeline: 0,
 			running: false,
+			
+			set fps (value) {
+				this.core.settings.fps = value;
+				
+				// Restart the timer if the timeline is running
+				if (this.running) {
+					this.start();
+				}
+			},
+			get fps () {
+				return this.core.settings.fps;
+			},
 			
 			// Method that will be called for each frame
 			loop: function () {
@@ -54,7 +65,7 @@
 				
 				// Reset the timer
 				clearInterval(timeline.timeline);
-				timeline.timeline = setInterval(function () { timeline.loop(); }, 1000 / timeline.core.settings.fps);
+				timeline.timeline = setInterval(function () { timeline.loop(); }, 1000 / timeline.fps);
 				timeline.running = true;
 				
 				return this;
@@ -68,25 +79,6 @@
 				this.running = false;
 				
 				return this;
-			},
-			
-			// Method that sets a new FPS to be used
-			setFPS: function (fps) {
-			
-				// Set the new FPS
-				this.core.settings.fps = fps;
-				
-				// Restart the timer if the timeline is running
-				if (this.running) {
-					this.start();
-				}
-				
-				return this;
-			},
-			
-			// Method that returns the current FPS
-			getFPS: function () {
-				return this.core.settings.fps;
 			}
 		};
 	};
