@@ -35,6 +35,11 @@
 					add: function (obj) {
 						this.objects.push(obj);
 						
+						// Add the object to canvas if the scene is loaded
+						if (this.loaded) {
+							obj.add();
+						}
+						
 						return this;
 					},
 					
@@ -43,6 +48,11 @@
 						var index = this.objects.indexOf(obj);
 						if (~index) {
 							this.objects.splice(index, 1);
+								
+							// Remove the object from canvas if the scene is loaded
+							if (this.loaded) {
+								obj.remove();
+							}
 						}
 						
 						return this;
