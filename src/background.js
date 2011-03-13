@@ -8,6 +8,7 @@
 
 			// Set properties
 			bg: "",
+			value: "",
 			type: "transparent",
 			loaded: false,
 			
@@ -18,6 +19,11 @@
 			// Method for setting the background
 			set: function (value) {
 				var _this = this;
+				if (typeof value !== "string") {
+					value = "";
+				}
+				
+				this.value = value;
 				
 				// Get background type (gradient, image, color or transparent)
 				if (~value.indexOf("gradient")) {
@@ -75,14 +81,6 @@
 				}
 				
 				return this;
-			},
-			
-			// Method for getting the background data
-			get: function () {
-				return {
-					type: this.type,
-					value: this.bg
-				};
 			},
 			
 			// Method for redrawing the background (replaces everything thas has been drawn)
