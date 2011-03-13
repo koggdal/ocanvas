@@ -84,7 +84,7 @@
 												if (type !== "touchend") {
 													obj.events[pointer + "ontarget"] = true;
 												}
-												handler.call(obj, e);
+												handler.call((obj.nodeName !== undefined ? core : obj), e);
 											}
 										}
 										
