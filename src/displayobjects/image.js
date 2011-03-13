@@ -55,7 +55,7 @@
 					y = this.abs_y - origin.y;
 				
 				// If the image has finished loading, go on and draw
-				if (this.loaded && this.img.width > 0 && this.img.height > 0) {
+				if (this.loaded && this.core.draw.objects[this.id - 1] !== undefined && this.img.width > 0 && this.img.height > 0) {
 				
 					if (this.tile) {
 					
