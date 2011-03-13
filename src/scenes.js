@@ -16,6 +16,8 @@
 				this.scenes[name].name = name;
 				
 				init.call(this.scenes[name]);
+				
+				return this.scenes[name];
 			},
 			
 			// Object base that will be instantiated for each new scene
@@ -58,6 +60,7 @@
 						
 						this.loaded = true;
 						
+						return this;
 					},
 					
 					// Method for unloading the scene (removes all added objects from the canvas)
@@ -74,6 +77,8 @@
 						}
 						
 						this.loaded = false;
+						
+						return this;
 					}
 				};
 			},
@@ -86,12 +91,16 @@
 				}
 				this.current = name;
 				this.scenes[name].load();
+				
+				return this;
 			},
 			
 			// Method for unloading a specific scene
 			unload: function (name) {
 				this.current = "none";
 				this.scenes[name].unload();
+				
+				return this;
 			}
 		};
 	};
