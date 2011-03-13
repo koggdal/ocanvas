@@ -73,6 +73,8 @@
 					this.redraw();
 					this.loaded = true;
 				}
+				
+				return this;
 			},
 			
 			// Method for getting the background data
