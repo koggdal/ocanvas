@@ -46,8 +46,6 @@
 					// Increment the frame count
 					this.currentFrame++;
 				}
-				
-				return this;
 			},
 		
 			// Method that starts the timeline
