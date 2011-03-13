@@ -34,7 +34,8 @@
 					// Method for adding objects to the scene
 					add: function (obj) {
 						this.objects.push(obj);
-						return obj;
+						
+						return this;
 					},
 					
 					// Method for removing an object from the scene
@@ -43,6 +44,8 @@
 						if (~index) {
 							this.objects.splice(index, 1);
 						}
+						
+						return this;
 					},
 					
 					// Method for loading the scene's objects
