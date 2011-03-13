@@ -725,11 +725,6 @@
 			// Method for checking if the pointer is inside the object
 			isPointerInside: function (pointer) {
 				return this.core.tools.isPointerInside(this, pointer);
-			},
-			
-			// Method for checking if the object is touching the specified object
-			hitTest: function (obj) {
-				return this.core.tools.hitTest(this, obj);
 			}
 		};
 	},
