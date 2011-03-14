@@ -15,20 +15,20 @@
 			// Method for adding a new object to the object list that will be drawn
 			add: function (obj) {
 				var id = ++this.lastObjectID;
-				this.objects[id - 1] = obj;
-				this.drawn[id - 1] = false;
+				this.objects[id] = obj;
+				this.drawn[id] = false;
 				
 				return id;
 			},
 			
 			// Method for removing an object from the object list
 			remove: function (id) {
-				if (this.objects[id -1] === undefined) {
+				if (this.objects[id] === undefined) {
 					return;
 				}
-				this.objects[id -1].drawn = false;
-				delete this.objects[id - 1];
-				delete this.drawn[id - 1];
+				this.objects[id].drawn = false;
+				delete this.objects[id];
+				delete this.drawn[id];
 				this.redraw();
 			},
 			
