@@ -693,6 +693,7 @@
 			// Method for removing a child at a specific index
 			removeChildAt: function (index) {
 				if (this.children[index] !== undefined) {
+					this.children[index].remove();
 					this.children[index].parent = undefined;
 					this.children.splice(index, 1);
 				}
