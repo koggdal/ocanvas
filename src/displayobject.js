@@ -656,16 +656,18 @@
 				// Check if the child object doesn't already have a parent
 				if (childObj.parent === undefined) {
 				
-					// Add the object as a child and add it to canvas if this object is drawn
+					// Add the object as a child
 					var index = this.children.push(childObj) - 1;
-					if (this.drawn) {
-						childObj.add();
-					}
 					
 					// Update child
 					childObj.parent = this;
 					childObj.x += 0;
 					childObj.y += 0;
+					
+					// Add it to canvas if this object is drawn
+					if (this.drawn) {
+						childObj.add();
+					}
 					
 					if (returnIndex) {
 						return index;
