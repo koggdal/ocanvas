@@ -554,6 +554,11 @@
 						if (typeof callbacks.start === "function") {
 							callbacks.start.call(this);
 						}
+						
+						// Redraw the canvas if the timeline is not running
+						if (!this.core.timeline.running) {
+							this.core.draw.redraw();
+						}
 					};
 					
 					this._.drag_end = function () {
@@ -562,6 +567,11 @@
 						// Run user callback
 						if (typeof callbacks.end === "function") {
 							callbacks.end.call(this);
+						}
+						
+						// Redraw the canvas if the timeline is not running
+						if (!this.core.timeline.running) {
+							this.core.draw.redraw();
 						}
 					};
 					
@@ -572,14 +582,14 @@
 							_this.x = e.x - offset.x;
 							_this.y = e.y - offset.y;
 							
-							// Redraw the canvas if the timeline is not running
-							if (!_this.core.timeline.running) {
-								_this.core.draw.redraw();
-							}
-							
 							// Run user callback
 							if (typeof callbacks.move === "function") {
 								callbacks.move.call(_this);
+							}
+							
+							// Redraw the canvas if the timeline is not running
+							if (!_this.core.timeline.running) {
+								_this.core.draw.redraw();
 							}
 						}
 					};
