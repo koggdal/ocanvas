@@ -791,6 +791,7 @@
 			return retObj;
 		};
 		
+		return display;
 	};
 	
 	// Register the module
