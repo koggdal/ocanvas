@@ -32,7 +32,7 @@
 					
 					// Set stroke outside the box
 					if (this.strokePosition === "outside") {
-						canvas.strokeRect(x - this.strokeWidth / 2 + 0.5, y - this.strokeWidth / 2 + 0.5, this.width + this.strokeWidth - 1, this.height + this.strokeWidth - 1);
+						canvas.strokeRect(x - this.strokeWidth / 2, y - this.strokeWidth / 2, this.width + this.strokeWidth, this.height + this.strokeWidth);
 					}
 					
 					// Set stroke on the edge of the box (half of the stroke outside, half inside)
