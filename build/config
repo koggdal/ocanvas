@@ -32,7 +32,6 @@ style.js
 animation.js
 displayobject.js
 displayobjects/rectangle.js
-displayobjects/point.js
 displayobjects/image.js
 displayobjects/text.js
 displayobjects/arc.js
