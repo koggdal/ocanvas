@@ -17,6 +17,7 @@
 			generate: false,
 			offset_x: 0,
 			offset_y: 0,
+			direction: "x",
 			running: false,
 			active: false,
 			loop: true,
