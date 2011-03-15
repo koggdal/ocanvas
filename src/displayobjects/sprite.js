@@ -157,6 +157,7 @@
 			
 			start: function () {
 				this.active = true;
+				this.core.redraw();
 				
 				return this;
 			},
