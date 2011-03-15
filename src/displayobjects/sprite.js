@@ -13,16 +13,16 @@
 			firstDrawn: false,
 			frames: [],
 			duration: 0,
-			currentFrame: 0,
+			frame: 1,
 			generate: false,
 			offset_x: 0,
 			offset_y: 0,
 			running: false,
-			active: true,
+			active: false,
 			loop: true,
 			
 			_: oCanvas.extend({}, thecore.displayObject._, {
-				autostart: true
+				autostart: false
 			}),
 			
 			set autostart (value) {
@@ -36,6 +36,9 @@
 			
 			// Init method for loading the image resource
 			init: function () {
+				if (this.image === undefined) {
+					return;
+				}
 				var _this = this,
 				
 					// Get source (settings.image can be either an HTML img element or a string with path to the image)
@@ -96,33 +99,33 @@
 				if (this.loaded) {
 				
 					// Draw current frame
-					if (this.frames.length > 0 && this.active) {
+					if (this.frames.length > 0) {
 					
 						// Get current frame
-						frame = this.frames[this.currentFrame];
+						frame = this.frames[this.frame - 1];
 						
 						// Draw the current sprite part
 						canvas.drawImage(this.img, frame.x, frame.y, this.width, this.height, x, y, this.width, this.height);
 						
 						// Set a redraw timer at the current frame duration if a timer is not already running
-						if (this.running === false) {
+						if (this.running === false && this.active) {
 						
 							setTimeout(function () {
 							
 								// Increment the frame number only after the frame duration has passed
 								if (_this.loop) {
-									_this.currentFrame = (_this.currentFrame === _this.frames.length - 1) ? 0 : _this.currentFrame + 1;
+									_this.frame = (_this.frame === _this.frames.length) ? 1 : _this.frame + 1;
 								} else {
-									_this.currentFrame = (_this.currentFrame === _this.frames.length - 1) ? _this.currentFrame : _this.currentFrame + 1;
+									_this.frame = (_this.frame === _this.frames.length) ? _this.frame : _this.frame + 1;
 								}
+								
+								// Set timer status
+								_this.running = false;
 								
 								// Redraw canvas if the timeline is not running
 								if (!_this.core.timeline.running) {
 									_this.core.draw.redraw();
 								}
-								
-								// Set timer status
-								_this.running = false;
 								
 							}, frame.d);
 							
