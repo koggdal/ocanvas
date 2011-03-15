@@ -103,9 +103,11 @@
 					
 						// Get current frame
 						frame = this.frames[this.frame - 1];
+						frame_width = (frame.w !== undefined) ? frame.w : this.width;
+						frame_height = (frame.h !== undefined) ? frame.h : this.height;
 						
 						// Draw the current sprite part
-						canvas.drawImage(this.img, frame.x, frame.y, this.width, this.height, x, y, this.width, this.height);
+						canvas.drawImage(this.img, frame.x, frame.y, frame_width, frame_height, x, y, frame_width, frame_height);
 						
 						// Set a redraw timer at the current frame duration if a timer is not already running
 						if (this.running === false && this.active) {
