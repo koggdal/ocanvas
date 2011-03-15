@@ -717,7 +717,7 @@
 							continue;
 						}
 						if (typeof obj[x] === "object") {
-							destination[x] = {};
+							destination[x] = (obj[x].constructor === Array) ? [] : {};
 							loopObject(obj[x], destination[x]);
 							continue;
 						}
