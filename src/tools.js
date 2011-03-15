@@ -64,18 +64,6 @@
 					return ((pointer.x > obj.abs_x - D - origin.x) && (pointer.x < obj.abs_x + D - origin.x) && (pointer.y > obj.abs_y - obj.strokeWidth / 2 - origin.y) && (pointer.y < obj.abs_y + obj.strokeWidth / 2 - origin.y));
 				} else
 				
-				// Point
-				if (obj.type === "point") {
-					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject);
-					
-					// Check hit area (includes stroke, so it has to check for all sides instead of just one point)
-					if ( (pointer.x >= obj.abs_x - origin.x - obj.strokeWidth) && (pointer.x <= obj.abs_x - origin.x + obj.strokeWidth) && (pointer.y >= obj.abs_y - origin.y - obj.strokeWidth) && (pointer.y <= obj.abs_y - origin.y + obj.strokeWidth)) {
-						return true;
-					} else {
-						return false;
-					}
-				} else
-				
 				// Text
 				if (obj.type === "text") {
 					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
