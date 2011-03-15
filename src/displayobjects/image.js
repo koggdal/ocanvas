@@ -52,15 +52,20 @@
 					_this = this,
 					origin = this.getOrigin(),
 					x = this.abs_x - origin.x,
-					y = this.abs_y - origin.y;
+					y = this.abs_y - origin.y,
+					width, height;
 				
 				// If the image has finished loading, go on and draw
-				if (this.loaded && this.core.draw.objects[this.id - 1] !== undefined && this.img.width > 0 && this.img.height > 0) {
+				if (this.loaded && this.core.draw.objects[this.id] !== undefined && this.img.width > 0 && this.img.height > 0) {
+					
+				
+					width = (this.width === 0) ? this.img.width : this.width;
+					height = (this.height === 0) ? this.img.height : this.height;
 				
 					if (this.tile) {
 					
-						var num_x = Math.ceil(this.width / this.tile_width),
-							num_y = Math.ceil(this.height / this.tile_height),
+						var num_x = Math.ceil(width / this.tile_width),
+							num_y = Math.ceil(height / this.tile_height),
 							tile_x, tile_y;
 						
 						canvas.save();
@@ -68,9 +73,9 @@
 						
 						// Create clipping path for the rectangle that the tiled images will be drawn inside
 						canvas.moveTo(x, y);
-						canvas.lineTo(x + this.width, y);
-						canvas.lineTo(x + this.width, y + this.height);
-						canvas.lineTo(x, y + this.height);
+						canvas.lineTo(x + width, y);
+						canvas.lineTo(x + width, y + height);
+						canvas.lineTo(x, y + height);
 						canvas.lineTo(x, y);
 						canvas.clip();
 						
@@ -88,7 +93,7 @@
 					} else {
 				
 						// Draw the image to the canvas
-						canvas.drawImage(this.img, x, y, this.width, this.height);
+						canvas.drawImage(this.img, x, y, width, height);
 						
 					}
 					
