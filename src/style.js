@@ -609,7 +609,7 @@
 					value += " " + (typeof val.weight === "string" ? val.weight : "normal");
 					value += " " + (typeof val.size === "number" ? (~~(val.size * 10 + 0.5) / 10)+"px" : "16px");
 					value += "/" + (typeof val.lineHeight === "number" ? (~~(val.lineHeight * 10 + 0.5) / 10) : 1.5);
-					value += " " + (typeof val.family === "string" ? val.family : "'Helvetica Neue', Arial, Helvetica, sans-serif");
+					value += " " + (typeof val.family === "string" ? val.family : "sans-serif");
 				}
 				
 				if (value.length > 0) {
@@ -676,7 +676,7 @@
 				font.weight = font.weight ? font.weight : "normal";
 				font.size = font.size ? font.size : 16;
 				font.lineHeight = font.lineHeight ? font.lineHeight : 1;
-				font.family = font.family ? font.family : "'Helvetica Neue', Arial, Helvetica, sans-serif";
+				font.family = font.family ? font.family : "sans-serif";
 				
 				if (return_type === "string") {
 					return font.style + " " + font.variant + " " + font.weight + " " + font.size + "px/" + font.lineHeight + " " + font.family;
