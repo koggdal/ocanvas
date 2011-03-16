@@ -26,10 +26,8 @@
 			children: [],
 			opacity: 1,
 			composition: "source-over",
-			scaling: {
-				x: 1,
-				y: 1
-			},
+			scalingX: 1,
+			scalingY: 1,
 			
 			_: {
 				x: 0,
@@ -458,7 +456,9 @@
 			
 			// Method for scaling the object
 			scale: function (x, y) {
-				this.scaling = this.getArgs(x, y, 1, 1);
+				var scaling = this.getArgs(x, y, 1, 1);
+				this.scalingX = scaling.x;
+				this.scalingY = scaling.y;
 				
 				return this;
 			},
@@ -474,10 +474,8 @@
 				size.y = size.y <= 0 ? 1 : size.y;
 				
 				// Set the scaling
-				this.scaling = {
-					x: size.x / currentWidth,
-					y: size.y / currentHeight
-				};
+				this.scalingX = size.x / currentWidth;
+				this.scalingX = size.y / currentHeight;
 				
 				return this;
 			},

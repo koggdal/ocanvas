@@ -90,8 +90,8 @@
 							obj._.abs_y = 0;
 							
 							// Temporarily scale the canvas for this object
-							if (obj.scaling.x !== 1 || obj.scaling.y !== 1) {
-								canvas.scale(obj.scaling.x, obj.scaling.y);
+							if (obj.scalingY !== 1 || obj.scalingY !== 1) {
+								canvas.scale(obj.scalingY, obj.scalingY);
 							}
 							
 							// Temporarily change the rotation
