@@ -93,7 +93,7 @@
 			animate: function (obj, args, runFromQueue, id) {
 				args = Array.prototype.slice.call(args);
 				runFromQueue = runFromQueue || false;
-				id = id || false;
+				id = id || false;
 				
 				// Abort if the first argument is not an object
 				if (args[0].constructor !== Object) {
