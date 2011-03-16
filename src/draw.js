@@ -53,13 +53,14 @@
 			},
 			
 			// Method for drawing all objects in the object list
-			redraw: function () {
+			redraw: function (forceClear) {
+				forceClear = forceClear || false;
 				var canvas = this.core.canvas,
 					objects = this.objects,
 					i, obj, x, y, shadow;
 				
 				// Clear the canvas (keep the background)
-				if (this.core.settings.clearEachFrame) {
+				if (this.core.settings.clearEachFrame || forceClear) {
 					this.clear();
 				}
 				

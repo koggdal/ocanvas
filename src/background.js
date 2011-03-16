@@ -42,7 +42,7 @@
 					// Set color as background
 					this.bg = value;
 					if (this.core.timeline && !this.core.timeline.running) {
-						this.core.draw.redraw();
+						this.core.draw.redraw(true);
 					}
 					this.loaded = true;
 				}
@@ -51,7 +51,7 @@
 					// Get gradient object and set it as background
 					this.bg = this.core.style ? this.core.style.getGradient(value, 0, 0, this.core.width, this.core.height) : "";
 					if (this.core.timeline && !this.core.timeline.running) {
-						this.core.draw.redraw();
+						this.core.draw.redraw(true);
 					}
 					this.loaded = true;
 				}
@@ -69,14 +69,14 @@
 						_this.bg = _this.core.canvas.createPattern(this, repeat);
 						_this.loaded = true;
 						if (_this.core.timeline && !_this.core.timeline.running) {
-							_this.core.redraw();
+							_this.core.redraw(true);
 						}
 					};
 				}
 				
 				else {
 					// Background type is transparent, redraw the background (clears the canvas)
-					this.redraw();
+					this.redraw(true);
 					this.loaded = true;
 				}
 				

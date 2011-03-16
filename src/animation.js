@@ -19,7 +19,7 @@
 			
 			queue: {
 				activeAnimations: {},
-				timer: 0
+				lastID: 0
 			},
 			
 			easing: {
@@ -90,9 +90,10 @@
 				}
 			},
 			
-			animate: function (obj, args, runFromQueue) {
+			animate: function (obj, args, runFromQueue, id) {
 				args = Array.prototype.slice.call(args);
 				runFromQueue = runFromQueue || false;
+				id = id || false;
 				
 				// Abort if the first argument is not an object
 				if (args[0].constructor !== Object) {
@@ -119,19 +120,25 @@
 				// If this block is run, execution will be aborted at the end of the block
 				// and run animate() again with the first inactive animation in the queue
 				if (runFromQueue !== true) {
-					objQueue.push(function () { _this.animate(obj, args, true); });
+					objQueue.push({
+						id: ++queue.lastID,
+						start: function () {
+							_this.animate(obj, args, true, this.id);
+						}
+					});
 					
 					// Start the first animation in the queue if no animations are active on the object
 					// If there is an active the next animation in the queue will be fired
 					// when that animation is completed
-					if (queue.activeAnimations[obj.id] !== true) {
-						objQueue[0]();
+					if (!queue.activeAnimations[obj.id]) {
+						queue.activeAnimations[obj.id] = objQueue[0].id;
+						objQueue[0].start();
 						objQueue.splice(0, 1);
-						queue.activeAnimations[obj.id] = true;
 						return;
 					}
 					return;
 				}
+				
 				
 				
 				// Helper functions to be used further down
@@ -196,11 +203,8 @@
 				}
 				
 				// Set the timer that will run the actual animation frames
-				queue.timer = setInterval(function () {
+				(function timer () {
 					var property, endValue, startValue, change, newValue;
-					
-					// Clear the canvas before each frame
-					_this.core.draw.clear();
 					
 					// Set the new time value
 					currentTime += 1000 / _this.core.settings.fps;
@@ -226,13 +230,14 @@
 					}
 					
 					// Draw the frame if there is time left
-					if (currentTime < duration) {
-						_this.core.draw.redraw();
+					if (currentTime < duration && queue.activeAnimations[obj.id] === id) {
+						_this.core.draw.redraw(true);
+						
+						setTimeout(timer, 1000 / _this.core.settings.fps);
 					}
 					
 					// Abort the animation if the end time has been reached 
-					else {
-						clearInterval(queue.timer);
+					else if (queue.activeAnimations[obj.id] === id) {
 						
 						// Set the values to the end values
 						for (property in properties) {
@@ -240,7 +245,7 @@
 						}
 						
 						// Redraw the canvas
-						_this.core.draw.redraw();
+						_this.core.draw.redraw(true);
 						
 						// Set animation status
 						queue.activeAnimations[obj.id] = false;
@@ -250,14 +255,13 @@
 						
 						// Trigger the next animation in the queue if there is any
 						if (objQueue[0] !== undefined) {
-							objQueue[0]();
-							queue.activeAnimations[obj.id] = true;
+							queue.activeAnimations[obj.id] = objQueue[0].id;
+							objQueue[0].start();
 							objQueue.splice(0, 1);
 							return;
 						}
 					}
-					
-				}, 1000 / _this.core.settings.fps);
+				})();
 			},
 			
 			// Method that stops all running animations on an object
@@ -267,12 +271,11 @@
 				if (this.queue[objectID] !== undefined) {
 				
 					// Stop the animation and remove the queue
-					clearInterval(this.queue.timer);
 					this.queue.activeAnimations[objectID] = false;
 					delete this.queue[objectID];
 					
 					// Redraw the canvas with the latest updates
-					this.core.draw.redraw();
+					this.core.draw.redraw(true);
 				}
 			}
 			
