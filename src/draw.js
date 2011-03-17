@@ -57,7 +57,7 @@
 				forceClear = forceClear || false;
 				var canvas = this.core.canvas,
 					objects = this.objects,
-					i, obj, x, y, shadow;
+					i, obj, object, x, y, objectChain, lastX, lastY, n, l, parent, shadow;
 				
 				// Clear the canvas (keep the background)
 				if (this.core.settings.clearEachFrame || forceClear) {
@@ -75,28 +75,51 @@
 								obj.update();
 							}
 							
-							// Temporarily move the canvas origin
+							// Temporarily move the canvas origin and take children's positions into account, so they will rotate around the parent
 							canvas.save();
-							canvas.translate(obj.abs_x, obj.abs_y);
 							
-							// Set the translated position to enable display objects to access it when drawn
-							this.translation = { x: obj.abs_x, y: obj.abs_y };
+							// Create an array of all the parents to this object
+							objectChain = [];
+							objectChain.push(obj);
+							parent = obj.parent;
+							while (parent) {
+								objectChain.push(parent);
+								parent = parent.parent;
+							}
+							// Reverse the array so the current object comes first, and then its parent and so forth
+							objectChain.reverse();
+							
+							// Loop through all objects in the parent chain
+							lastX = 0; lastY = 0;
+							for (n = 0, l = objectChain.length; n < l; n++) {
+								object = objectChain[n];
+							
+								// Translate the canvas matrix to the position of the object
+								canvas.translate(object.abs_x - lastX, object.abs_y - lastY);
+								
+								// If the object has a rotation, rotate the canvas matrix
+								if (object.rotation !== 0) {
+									canvas.rotate(object.rotation * Math.PI / 180);
+								}
+								
+								// Save the current translation so that the next iteration can subtract that
+								lastX = object.abs_x;
+								lastY = object.abs_y;
+							}
+							
+							// Save the translation so that display objects can access this if they need
+							this.translation = { x: lastX, y: lastY };
 							
 							// Automatically adjust the abs_x/abs_y for the object
-							// (objects not using those variables in the drawing process use the object created above)
+							// (objects not using these variables in the drawing process use the object created above)
 							x = obj.abs_x;
 							y = obj.abs_y;
 							obj._.abs_x = 0;
 							obj._.abs_y = 0;
 							
 							// Temporarily scale the canvas for this object
-							if (obj.scalingY !== 1 || obj.scalingY !== 1) {
-								canvas.scale(obj.scalingY, obj.scalingY);
-							}
-							
-							// Temporarily change the rotation
-							if (obj.rotation !== 0) {
-								canvas.rotate(obj.rotation * Math.PI / 180);
+							if (obj.scalingX !== 1 || obj.scalingY !== 1) {
+								canvas.scale(obj.scalingX, obj.scalingY);
 							}
 							
 							// Set the alpha to match the object's opacity

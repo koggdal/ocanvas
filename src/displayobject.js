@@ -25,6 +25,7 @@
 			events: {},
 			children: [],
 			opacity: 1,
+			rotation: 0,
 			composition: "source-over",
 			scalingX: 1,
 			scalingY: 1,
@@ -281,20 +282,6 @@
 			},
 			get abs_y () {
 				return this._.abs_y;
-			},
-			set rotation (value) {
-				var old = this._.rotation;
-				this._.rotation = value;
-				
-				// Update children
-				var objects = this.children,
-					l = objects.length, i;
-				for (i = 0; i < l; i++) {
-					objects[i].rotation = objects[i].rotation - old + value;
-				}
-			},
-			get rotation () {
-				return this._.rotation;
 			},
 			set width (value) {
 				var old = this._.width;
