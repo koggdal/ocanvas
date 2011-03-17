@@ -32,8 +32,22 @@
 				// Get dimensions when the image is loaded. Also, remove the temp img from DOM
 				this.img.onload = function () {
 					_this.loaded = true;
-					_this.width = (_this.width === 0) ? this.width : _this.width;
-					_this.height = (_this.height === 0) ? this.height : _this.height;
+					
+					// Set dimensions proportionally (if only one is specified, calculate the other)
+					if (_this.width !== 0) {
+						if (_this.height === 0) {
+							_this.height = _this.width / (this.width / this.height);
+						}
+					} else {
+						_this.width = this.width;
+					}
+					if (_this.height !== 0) {
+						if (_this.width === 0) {
+							_this.width = _this.height / (this.height / this.width);
+						}
+					} else {
+						_this.height = this.height;
+					}
 					_this.tile_width = (_this.tile_width === 0) ? _this.width : _this.tile_width;
 					_this.tile_height = (_this.tile_height === 0) ? _this.height : _this.tile_height;
 					_this.core.canvasElement.removeChild(this);
