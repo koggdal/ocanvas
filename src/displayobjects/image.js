@@ -111,6 +111,13 @@
 						
 					}
 					
+					// Do color if stroke width is specified
+					if (this.strokeWidth > 0) {
+						canvas.lineWidth = this.strokeWidth;
+						canvas.strokeStyle = this.strokeColor;
+						canvas.strokeRect(x, y, width, height);
+					}
+					
 					// Clear the timer if this is the first time it is drawn
 					if (this.firstDrawn === false) {
 						this.firstDrawn = true;
