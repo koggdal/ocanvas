@@ -515,7 +515,7 @@
 					this.draggable = false;
 					
 					this.unbind("mousedown touchstart", this._.drag_start)
-					this.unbind("mouseup touchend", this._.drag_end);
+					this.core.unbind("mouseup touchend", this._.drag_end);
 					this.core.unbind("mousemove touchmove", this._.drag_move);
 				}
 				
@@ -547,16 +547,16 @@
 					};
 					
 					this._.drag_end = function () {
-						this.dragging = false;
+						_this.dragging = false;
 						
 						// Run user callback
 						if (typeof callbacks.end === "function") {
-							callbacks.end.call(this);
+							callbacks.end.call(_this);
 						}
 						
 						// Redraw the canvas if the timeline is not running
-						if (!this.core.timeline.running) {
-							this.core.draw.redraw();
+						if (!_this.core.timeline.running) {
+							_this.core.draw.redraw();
 						}
 					};
 					
@@ -581,7 +581,7 @@
 					
 					// Bind event handlers
 					this.bind("mousedown touchstart", this._.drag_start)
-					this.bind("mouseup touchend", this._.drag_end);
+					this.core.bind("mouseup touchend", this._.drag_end);
 					this.core.bind("mousemove touchmove", this._.drag_move);
 				}
 				
