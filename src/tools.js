@@ -7,9 +7,56 @@
 		return {
 			
 			// Method for transforming the pointer position to the current object's transformation
-			transformPointerPosition : function (rotation, cX, cY, extraAngle, pointer) {
+			transformPointerPosition: function (obj, cX, cY, extraAngle, pointer) {
 				extraAngle = extraAngle || 0;
 				pointer = pointer || this.core.pointer;
+				
+				// All calls that come from isPointerInside() will pass the display object as its first argument
+				// This method will then do multiple transforms for each object in the parent chain to get the correct result
+				if (typeof obj === "object") {
+					var parent = obj.parent,
+						objectChain = [],
+						last, object, pos = { x: 0, y: 0 }, origin;
+					
+					// Get all objects in the parent chain, including this one
+					objectChain.push(obj);
+					while (parent) {
+						objectChain.push(parent);
+						parent = parent.parent;
+					}
+					
+					// Reverse the array so the top level parent comes first, and ends with the current object
+					objectChain.reverse();
+					
+					// Loop through all objects in the parent chain
+					last = pointer;
+					for (n = 0, l = objectChain.length; n < l; n++) {
+						object = objectChain[n];
+						
+						// If the object has a rotation, get the transformed mouse position for that rotation
+						pos = this.transformPointerPosition(object.rotation, object.abs_x, object.abs_y, 0, last);
+						
+						// Save the current position so that the next iteration can use that as the pointer
+						last = pos;
+					}
+					
+					// Rotate an extra angle if specified
+					if (extraAngle !== 0) {
+						origin = obj.getOrigin();
+						pos = this.transformPointerPosition(extraAngle * -1, cX, cY, 0, last);
+					}
+					
+					// Return the correct position after all transforms
+					return {
+						x: pos.x,
+						y: pos.y
+					};
+				}
+				
+				// If the first argument is not an object, it is the rotation passed in above
+				else {
+					var rotation = obj;
+				}
 				
 				var topright = (pointer.x >= cX && pointer.y <= cY),
 					bottomright = (pointer.x >= cX && pointer.y >= cY),
@@ -57,7 +104,7 @@
 						angle = Math.asin(dY / D) * 180 / Math.PI,
 						
 						// Transform the pointer position with the angle correction
-						pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, angle * -1, pointerObject);
+						pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, angle * -1, pointerObject);
 					
 					// Check if pointer is inside the line
 					// Pointer coordinates are transformed to be compared with a horizontal line
@@ -66,7 +113,7 @@
 				
 				// Text
 				if (obj.type === "text") {
-					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
+					var pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, 0, pointerObject),
 						stroke = obj.strokeWidth / 2,
 						left, right, top, bottom;
 					
@@ -119,7 +166,7 @@
 				
 				// Rectangle
 				if (obj.shapeType === "rectangular") {
-					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
+					var pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, 0, pointerObject),
 						stroke = (obj.strokePosition === "outside") ? obj.strokeWidth : ((obj.strokePosition === "center") ? obj.strokeWidth / 2 : 0);
 					
 					return ((pointer.x > obj.abs_x - origin.x - stroke) && (pointer.x < obj.abs_x + obj.width - origin.x + stroke) && (pointer.y > obj.abs_y - origin.y - stroke) && (pointer.y < obj.abs_y + obj.height - origin.y + stroke));
@@ -127,14 +174,14 @@
 				
 				// Circle
 				if (obj.type === "ellipse" && obj.radius_x === obj.radius_y) {
-					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
+					var pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, 0, pointerObject),
 						D = Math.sqrt(Math.pow(pointer.x - obj.abs_x + origin.x, 2) + Math.pow(pointer.y - obj.abs_y + origin.y, 2));
 					return (D < obj.radius_x + obj.strokeWidth / 2);
 				} else
 				
 				// Ellipse
 				if (obj.type === "ellipse") {
-					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
+					var pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, 0, pointerObject),
 						a = obj.radius_x + obj.strokeWidth / 2,
 						b = obj.radius_y + obj.strokeWidth / 2;
 					pointer.x -= obj.abs_x + origin.x;
@@ -145,7 +192,7 @@
 				
 				// Polygon
 				if (obj.type === "polygon") {
-					var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
+					var pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, 0, pointerObject),
 						radius = obj.radius + obj.strokeWidth / 2,
 						length = obj.sides,
 						j = length - 1,
@@ -181,7 +228,7 @@
 				if (obj.type === "arc") {
 					var angleRange = (obj.direction === "clockwise") ? obj.end - obj.start : Math.abs(obj.end - obj.start),
 						extraAngle = (obj.direction === "clockwise" ? obj.start * -1 : obj.end * -1),
-						pointer = this.transformPointerPosition(obj.rotation, obj.abs_x - origin.x, obj.abs_y - origin.y, extraAngle, pointerObject),
+						pointer = this.transformPointerPosition(obj, obj.abs_x - origin.x, obj.abs_y - origin.y, extraAngle, pointerObject),
 						D = Math.sqrt(Math.pow(pointer.x - obj.abs_x + origin.x, 2) + Math.pow(pointer.y - obj.abs_y + origin.y, 2)),
 						radius = obj.radius,
 						eP = {},
@@ -228,7 +275,7 @@
 							
 							// Rotate the pointer position so that the angle is aligned in the bottom like a U
 							extraAngle = (90 - angleRange / 2 - (obj.direction === "clockwise" ? obj.start : obj.end));
-							pointer = this.transformPointerPosition(obj.rotation, obj.abs_x - origin.x, obj.abs_y - origin.y, extraAngle, pointerObject);
+							pointer = this.transformPointerPosition(obj, obj.abs_x - origin.x, obj.abs_y - origin.y, extraAngle, pointerObject);
 							
 							var d, pX, pY, pD, pA;
 							
@@ -306,7 +353,7 @@
 						
 							// Rotate the pointer position so that the angle is aligned in the bottom like a U
 							extraAngle = (90 - angleRange / 2 - (obj.direction === "clockwise" ? obj.start : obj.end));
-							pointer = this.transformPointerPosition(obj.rotation, obj.abs_x - origin.x, obj.abs_y - origin.y, extraAngle, pointerObject);
+							pointer = this.transformPointerPosition(obj, obj.abs_x - origin.x, obj.abs_y - origin.y, extraAngle, pointerObject);
 							
 							var r, d;
 							
@@ -360,7 +407,7 @@
 					var radius = obj.radius ? obj.radius : 0;
 					
 					if (radius > 0) {
-						var pointer = this.transformPointerPosition(obj.rotation, obj.abs_x, obj.abs_y, 0, pointerObject),
+						var pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, 0, pointerObject),
 							origin = obj.getOrigin(),
 							D = Math.sqrt(Math.pow(pointer.x - obj.abs_x + origin.x, 2) + Math.pow(pointer.y - obj.abs_y + origin.y, 2));
 							
