@@ -86,7 +86,7 @@
 								objectChain.push(parent);
 								parent = parent.parent;
 							}
-							// Reverse the array so the current object comes first, and then its parent and so forth
+							// Reverse the array so the top level parent comes first, and ends with the current object
 							objectChain.reverse();
 							
 							// Loop through all objects in the parent chain
