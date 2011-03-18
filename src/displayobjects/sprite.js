@@ -110,6 +110,13 @@
 						// Draw the current sprite part
 						canvas.drawImage(this.img, frame.x, frame.y, frame_width, frame_height, x, y, frame_width, frame_height);
 						
+						// Do stroke if stroke width is specified
+						if (this.strokeWidth > 0) {
+							canvas.lineWidth = this.strokeWidth;
+							canvas.strokeStyle = this.strokeColor;
+							canvas.strokeRect(x, y, frame_width, frame_height);
+						}
+						
 						// Set a redraw timer at the current frame duration if a timer is not already running
 						if (this.running === false && this.active) {
 						
