@@ -17,7 +17,7 @@
 			// Define properties
 			keysDown: {},
 			keyPressTimers: {},
-			modifiedKeys: {},
+			modifiedKeys: [],
 			lastActiveKeyDown: false,
 			last_event: {},
 			
@@ -32,7 +32,7 @@
 				// Add event listeners to the document
 				document.addEventListener("keydown", function (e) { _this.keydown.call(_this, e); }, false);
 				document.addEventListener("keyup", function (e) { _this.keyup.call(_this, e); }, false);
-				document.addEventListener("keypress", function (e) { _this.preventkeypress.call(_this, e); }, false);
+				document.addEventListener("keypress", function (e) { _this.preventDefault.call(_this, e); }, false);
 			},
 			
 			// Method for adding an event to the event list
@@ -121,6 +121,9 @@
 					return;
 				}
 				
+				// Prevent default for keys that have been added to the prevent list
+				this.preventDefault(e);
+				
 				// Set the key states
 				this.lastActiveKeyDown = this.getKeyCode(e);
 				this.keysDown[this.lastActiveKeyDown] = true;
@@ -134,14 +137,14 @@
 					// Set the timer to trigger keypress events continuously until released
 					this.keyPressTimers[keyCode] = setInterval(function () { _this.keypress(e); }, 1000 / this.core.settings.fps);
 				}
-				
-				// Prevent the default behavior of the assigned keys
-				this.preventkeypress(e);
 			},
 			
 			// Method for triggering the events when a key is released
 			keyup: function (e) {
 				this.last_event = e;
+				
+				// Prevent default for keys that have been added to the prevent list
+				this.preventDefault(e);
 				
 				// Set the key states
 				var keyCode = this.getKeyCode(e);
@@ -171,18 +174,41 @@
 				this.triggerEvents("keypress", e);
 			},
 			
-			// Method for preventing the default behavior of the assigned keys
-			preventkeypress: function (e) {
-				var keyCode, modifiedKeys, code;
+			// Method for adding keys that will have the default actions prevented
+			addPreventDefaultFor: function (keys) {
 				
+				// Fix the keys array
+				keys = (typeof keys === "number") ? [keys] : ((keys.constructor === Array) ? keys : []);
+				
+				// Add the keys
+				for (var i = 0; i < keys.length; i++) {
+					this.modifiedKeys.push(keys[i]);
+				}
+			},
+			
+			// Method for removing keys that will no longer have the default actions prevented
+			removePreventDefaultFor: function (keys) {
+				
+				// Fix the keys array
+				keys = (typeof keys === "number") ? [keys] : ((keys.constructor === Array) ? keys : []);
+				
+				// Remove the keys
+				var i, index;
+				for (i = 0; i < keys.length; i++) {
+					index = this.modifiedKeys.indexOf(keys[i]);
+					if (~index) {
+						this.modifiedKeys.splice(index, 1);
+					}
+				}
+			},
+			
+			// Method for preventing the default behavior of the assigned keys
+			preventDefault: function (e) {
 				if (this.core.mouse && this.core.mouse.canvasFocused === true) {
-					keyCode = this.getKeyCode(e);
-					modifiedKeys = this.modifiedKeys;
+					var keyCode = this.getKeyCode(e);
 					
-					for (code in modifiedKeys) {
-						if (keyCode === code && modifiedKeys[code] !== false) {
-							e.preventDefault();
-						}
+					if (~this.modifiedKeys.indexOf(keyCode)) {
+						e.preventDefault();
 					}
 				}
 			},
