@@ -16,8 +16,7 @@
 			
 			// Define properties
 			keysDown: {},
-			keyPressTimer: 0,
-			keyPressRunning: false,
+			keyPressTimers: {},
 			modifiedKeys: {},
 			lastActiveKeyDown: false,
 			last_event: {},
@@ -113,7 +112,8 @@
 			// Method for triggering the events when a key is pressed down
 			keydown: function (e) {
 				this.last_event = e;
-				var _this = this;
+				var _this = this,
+					keyCode = this.getKeyCode(e);
 			
 				// Cancel event if the key is already pressed down
 				// (some browsers repeat even keydown when held down)
@@ -128,16 +128,11 @@
 				// Trigger event handlers
 				this.triggerEvents("keydown", e);
 				
-				// Cancel the keypress timer
-				clearInterval(this.keyPressTimer);
-				this.keyPressRunning = false;
+				// If there are keypress events attached
+				if (this.eventList.keypress.length > 0) {
 				
-				// If there are keypress events attached and none are currently running
-				if (!this.keyPressRunning && this.eventList.keypress.length > 0) {
-				
-					// Set the timer to trigger keypress events continuosly until released
-					this.keyPressTimer = setInterval(function () { _this.keypress(e); }, 1000 / this.core.settings.fps);
-					this.keyPressRunning = true;
+					// Set the timer to trigger keypress events continuously until released
+					this.keyPressTimers[keyCode] = setInterval(function () { _this.keypress(e); }, 1000 / this.core.settings.fps);
 				}
 				
 				// Prevent the default behavior of the assigned keys
@@ -158,10 +153,13 @@
 				// Trigger event handlers
 				this.triggerEvents("keyup", e);
 				
-				// If there are no more keys pressed down, cancel the keypress timer
+				// If there are no more keys pressed down, cancel the keypress timers
 				if (!this.anyKeysDown()) {
-					clearInterval(this.keyPressTimer);
-					this.keyPressRunning = false;
+					for (var keyCode in this.keyPressTimers) {
+						clearInterval(this.keyPressTimers[keyCode]);
+					}
+				} else {
+					clearInterval(this.keyPressTimers[keyCode]);
 				}
 			},
 			
