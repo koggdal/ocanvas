@@ -311,6 +311,22 @@
 			get height () {
 				return this._.height;
 			},
+			set zIndex (value) {
+
+				// Get new z index based on keywords
+				if (value === "front") {
+					value = this.core.draw.objects.length - 1;
+				}
+				if (value === "back") {
+					value = 0;
+				}
+
+				// Change the z order
+				this.core.draw.changeZorder(this.zIndex, value);
+			},
+			get zIndex () {
+				return this.core.draw.objects.indexOf(this);
+			},
 			
 			// Method for binding an event to the object
 			bind: function (type, handler) {
@@ -338,7 +354,7 @@
 				if (this.drawn === false) {
 				
 					// Add this object
-					this.id = this.core.draw.add(this);
+					this.core.draw.add(this);
 					
 					// Redraw the canvas with the new object
 					this.core.redraw();
@@ -357,7 +373,7 @@
 			
 			// Method for removing the object from the canvas
 			remove: function () {
-				this.core.draw.remove(this.id);
+				this.core.draw.remove(this);
 				this.drawn = false;
 				
 				// Add children that have been added to this object
@@ -584,7 +600,7 @@
 					this.core.bind("mouseup touchend", this._.drag_end);
 					this.core.bind("mousemove touchmove", this._.drag_move);
 				}
-				
+							
 				return this;
 			},
 			
@@ -796,12 +812,13 @@
 			// Method for getting the core instance
 			setCore: function (thecore) {
 			
-				// Method that core.display.rectangle() will call
+				// Method that core.display.objectname will refer to
 				return function (settings) {
 				
-					// Create a new rectangle object that inherits from displayObject
+					// Create a new object that inherits from displayObject
 					var retObj = oCanvas.extend(Object.create(displayObject()), new obj(settings, thecore));
 					retObj.type = name;
+					retObj.id = ++thecore.lastObjectID;
 					
 					// Trigger an init method if specified
 					if (init !== undefined) {

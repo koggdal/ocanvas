@@ -30,7 +30,9 @@
 			// Add the canvas to the canvas list on the global object
 			this.id = oCanvas.canvasList.push(this) - 1;
 			
-
+			// A number which is used to give new objects an ID
+			this.lastObjectID = 0;
+			
 			// Add the registered modules to the new instance of core
 			for (var m in oCanvas.modules) {
 				if (typeof oCanvas.modules[m] === "function") {

@@ -7,34 +7,90 @@
 		return {
 
 			// Set properties
-			objects: {},
-			drawn: {},
-			lastObjectID: 0,
+			objects: [],
 			translation: { x: 0, y: 0 },
 			
 			// Method for adding a new object to the object list that will be drawn
 			add: function (obj) {
-				var id = ++this.lastObjectID;
-				this.objects[id] = obj;
-				this.drawn[id] = false;
-				
-				return id;
+				return this.objects.push(obj) - 1;
 			},
 			
 			// Method for removing an object from the object list
-			remove: function (id) {
-				if (this.objects[id] === undefined) {
+			remove: function (obj) {
+				var index;
+
+				// Get the index if the argument is not a number
+				if (typeof obj !== "number") {
+					index = this.objects.indexOf(obj);
+				} else {
+					index = obj;
+				}
+
+				// Abort if the object wasn't found
+				if (this.objects[index] === undefined) {
 					return;
 				}
-				this.objects[id].drawn = false;
-				delete this.objects[id];
-				delete this.drawn[id];
+
+				// Set drawn status and remove it from canvas and the object stack
+				this.objects[index].drawn = false;
+				
+				// Remove it from the object stack,
+				//   which will also reset the z index for all objects
+				this.objects.splice(index, 1);
+
+				// Redraw the canvas to make it disappear
 				this.redraw();
+			},
+
+			changeZorder: function (index1, index2) {
+				var objects = this.objects,
+					obj1 = objects[index1],
+					obj2 = objects[index2],
+					before, middle, after, newArray;
+
+				// Cancel the change if the first object doesn't exist
+				if (obj1 === undefined) {
+					return;
+				}
+
+				// Cancel the change if the indexes are the same
+				if (index1 === index2) {
+					return;
+				}
+
+				// If the new index is larger than the last index, make it the last
+				if (index2 > objects.length -1) {
+					index2 = objects.length -1;
+				}
+
+				// If the new index is smaller than the first, make it the first
+				if (index2 < 0) {
+					index2 = 0;
+				}
+
+				// Change the order of the objects
+				if (index2 > index1) {
+					before = objects.slice(0, index1);
+					after = objects.slice(index2 + 1, objects.length);
+					middle = objects.slice(index1, index2 + 1);
+					middle.shift();
+					middle.push(obj1);
+				} else {
+					before = objects.slice(0, index2);
+					after = objects.slice(index1 + 1, objects.length);
+					middle = objects.slice(index2, index1 + 1);
+					middle.pop();
+					middle.unshift(obj1);
+				}
+
+				// Update the array with the new values
+				this.objects = before.concat(middle).concat(after);
 			},
 			
 			// Method for clearing the canvas from everything that has been drawn (bg can be kept)
 			clear: function (keepBackground) {
-				var objects = this.objects, i;
+				var objects = this.objects,
+					l = objects.length, i;
 				
 				if (keepBackground === undefined || keepBackground === true) {
 					// The background is just redrawn over the entire canvas to remove all image data
@@ -45,7 +101,7 @@
 				}
 				
 				// Set the drawn status of all objects
-				for (i in objects) {
+				for (i = 0; i < l; i++) {
 					objects[i].drawn = false;
 				}
 				
@@ -57,6 +113,7 @@
 				forceClear = forceClear || false;
 				var canvas = this.core.canvas,
 					objects = this.objects,
+					num = objects.length,
 					i, obj, object, x, y, objectChain, lastX, lastY, n, l, parent, shadow;
 				
 				// Clear the canvas (keep the background)
@@ -65,7 +122,7 @@
 				}
 				
 				// Loop through all objects
-				for (i in objects) {
+				for (i = 0; i < num; i++) {
 					obj = objects[i];
 					if (obj !== undefined) {
 						if (typeof obj.draw === "function") {
@@ -144,7 +201,6 @@
 							
 							// Draw the object
 							obj.draw();
-							this.drawn[i] = true;
 							obj.drawn = true;
 							
 							// Reset the abs_x/abs_y values
