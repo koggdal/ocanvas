@@ -84,7 +84,11 @@
 												if (type !== "touchend") {
 													obj.events[pointer + "ontarget"] = true;
 												}
-												handler.call((obj.nodeName !== undefined ? core : obj), e);
+												return {
+													handler: handler,
+													obj: (obj.nodeName !== undefined ? core : obj),
+													eventObject: e
+												};
 											}
 										}
 										
@@ -93,7 +97,13 @@
 										
 											// Reset status and trigger callback for mouseleave
 											obj.events[pointer + "ontarget"] = false;
-											handler.call(obj, e);
+
+											// Add the handler to a list of handlers that will be triggered
+											return {
+												handler: handler,
+												obj: obj,
+												eventObject: e
+											};
 										}
 									};
 									
@@ -176,6 +186,61 @@
 					}
 				}
 			},
+
+			// Method for triggering the handlers for a pointer event,
+			//  but only for the front object if multiple objects exist in the pointer position
+			triggerPointerHandlers: function (events, eventObject, forceLeave) {
+				var event, i, n, ret,
+					l = events.length,
+					largestZindex = -1,
+					handlers = [],
+					coreHandlers = [],
+					topObjectHandlers = [],
+					handler;
+
+				// Collect all user handlers that belongs to this event type and mouse position
+				for (i = 0; i < l; i++) {
+					event = events[i];
+
+					// Trigger the internal event handler that will check if the pointer is inside the object
+					if (typeof event === "function") {
+						ret = event(eventObject, forceLeave);
+
+						// If the pointer is inside the object, add the handler to a list
+						if (ret !== undefined) {
+							handlers.push(ret);
+						}
+					}
+				}
+
+				// Find which of the objects that is the front object
+				for (n = 0; n < handlers.length; n++) {
+					if (handlers[n].obj === this.core) {
+						coreHandlers.push(handlers[n]);
+					} else if (handlers[n].obj.zIndex > largestZindex) {
+						largestZindex = handlers[n].obj.zIndex;
+						topObjectHandlers = [handlers[n]];
+					} else if (handlers[n].obj.zIndex === largestZindex) {
+						topObjectHandlers.push(handlers[n]);
+					}
+				}
+
+				// If there was an object found
+				if (topObjectHandlers.length > 0) {
+
+					// Trigger all handlers added to the object
+					for (n = 0; n < topObjectHandlers.length; n++) {
+						handler = topObjectHandlers[n];
+						handler.handler.call(handler.obj, handler.eventObject);
+					}
+				}
+				
+				// Trigger the handlers added to the core instance
+				for (n = 0; n < coreHandlers.length; n++) {
+					handler = coreHandlers[n];
+					handler.handler.call(handler.obj, handler.eventObject);
+				}
+			},
 			
 			// Method for modifying the event object and fixing a few issues
 			modifyEventObject: function (event, type) {
@@ -206,10 +271,7 @@
 						eventObject[property] = event[property];
 					}
 				}
-				
-				// Fix original methods
-				eventObject.preventDefault
-				
+
 				return eventObject;
 			}
 		};

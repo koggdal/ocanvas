@@ -134,22 +134,17 @@
 			// Method for triggering all events of a specific type
 			triggerEvents: function (type, e, forceLeave) {
 				forceLeave = forceLeave || false;
-				var events = this.eventList[type],
-					i, event,
-					eventObject = this.core.events.modifyEventObject(e, type);
+
+				// Get a modified event object
+				var eventObject = this.core.events.modifyEventObject(e, type);
 						
 				// Add new properties to the event object
 				eventObject.x = this.x;
 				eventObject.y = this.y;
 				eventObject.which = 0;
 				
-				// Trigger all events associated with the type
-				for (i = events.length; i--;) {
-					event = events[i];
-					if (typeof event === "function") {
-						event(eventObject, forceLeave);
-					}
-				}
+				// Trigger event handlers, but only on the front object
+				this.core.events.triggerPointerHandlers(this.eventList[type], eventObject, forceLeave);
 			},
 			
 			// Method that triggers all touchmove events that are added
