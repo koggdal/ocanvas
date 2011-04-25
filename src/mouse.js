@@ -71,17 +71,19 @@
 			// Method for getting the current mouse position relative to the canvas top left corner
 			getPos: function (e) {
 				var x, y,
-					boundingRect = this.core.canvasElement.getBoundingClientRect();
+					boundingRect = this.core.canvasElement.getBoundingClientRect(),
+					scrollX = window.scrollX || document.documentElement.scrollLeft,
+					scrollY = window.scrollY || document.documentElement.scrollTop;
 					
 				// Browsers supporting pageX/pageY
 				if (e.pageX !== undefined && e.pageY !== undefined) {
-					x = e.pageX - document.documentElement.scrollLeft - Math.round(boundingRect.left);
-					y = e.pageY - document.documentElement.scrollTop - Math.round(boundingRect.top);
+					x = e.pageX - scrollX - Math.round(boundingRect.left);
+					y = e.pageY - scrollY - Math.round(boundingRect.top);
 				}
 				// Browsers not supporting pageX/pageY
 				else if (e.clientX !== undefined && e.clientY !== undefined) {
-					x = e.clientX + document.documentElement.scrollLeft - Math.round(boundingRect.left);
-					y = e.clientY + document.documentElement.scrollTop - Math.round(boundingRect.top);
+					x = e.clientX + scrollX - Math.round(boundingRect.left);
+					y = e.clientY + scrollY - Math.round(boundingRect.top);
 				}
 				
 				return { x: x, y: y };
