@@ -522,12 +522,12 @@
 			},
 			
 			// Method for making drag and drop easier
-			dragAndDrop: function (callbacks) {
+			dragAndDrop: function (options) {
 			
-				callbacks = (callbacks === undefined) ? {} : callbacks;
+				options = (options === undefined) ? {} : options;
 			
 				// If false is passed as argument, remove all event handlers
-				if (callbacks === false && this.draggable === true) {
+				if (options === false && this.draggable === true) {
 					this.draggable = false;
 					
 					this.unbind("mousedown touchstart", this._.drag_start)
@@ -550,10 +550,15 @@
 						// Get the difference between pointer position and object position
 						offset.x = e.x - this.x;
 						offset.y = e.y - this.y;
+
+						// Change Z index if specified
+						if (options.changeZindex === true) {
+							this.zIndex = "front";
+						}
 						
 						// Run user callback
-						if (typeof callbacks.start === "function") {
-							callbacks.start.call(this);
+						if (typeof options.start === "function") {
+							options.start.call(this);
 						}
 						
 						// Redraw the canvas if the timeline is not running
@@ -563,16 +568,18 @@
 					};
 					
 					this._.drag_end = function () {
-						_this.dragging = false;
-						
-						// Run user callback
-						if (typeof callbacks.end === "function") {
-							callbacks.end.call(_this);
-						}
-						
-						// Redraw the canvas if the timeline is not running
-						if (!_this.core.timeline.running) {
-							_this.core.draw.redraw();
+						if (_this.dragging) {
+							_this.dragging = false;
+							
+							// Run user callback
+							if (typeof options.end === "function") {
+								options.end.call(_this);
+							}
+							
+							// Redraw the canvas if the timeline is not running
+							if (!_this.core.timeline.running) {
+								_this.core.draw.redraw();
+							}
 						}
 					};
 					
@@ -584,8 +591,8 @@
 							_this.y = e.y - offset.y;
 							
 							// Run user callback
-							if (typeof callbacks.move === "function") {
-								callbacks.move.call(_this);
+							if (typeof options.move === "function") {
+								options.move.call(_this);
 							}
 							
 							// Redraw the canvas if the timeline is not running
@@ -600,7 +607,7 @@
 					this.core.bind("mouseup touchend", this._.drag_end);
 					this.core.bind("mousemove touchmove", this._.drag_move);
 				}
-							
+				
 				return this;
 			},
 			
