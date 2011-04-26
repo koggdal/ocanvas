@@ -7,9 +7,9 @@
 		return {
 			
 			durations: {
-				short: 500,
+				'short': 500,
 				normal: 1000,
-				long: 2000
+				'long': 2000
 			},
 
 			defaults: {
