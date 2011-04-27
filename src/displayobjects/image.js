@@ -70,7 +70,7 @@
 					width, height;
 				
 				// If the image has finished loading, go on and draw
-				if (this.loaded && this.core.draw.objects[this.id] !== undefined && this.img.width > 0 && this.img.height > 0) {
+				if (this.loaded && this.core.draw.objects[this.zIndex] !== undefined && this.img.width > 0 && this.img.height > 0) {
 					
 				
 					width = (this.width === 0) ? this.img.width : this.width;
