@@ -83,7 +83,7 @@
 				// Go through all the keys that are currently pressed down
 				for (x in keysDown) {
 					if (keysDown[x] === true) {
-						down.push(x);
+						down.push(parseInt(x));
 					}
 				}
 				
