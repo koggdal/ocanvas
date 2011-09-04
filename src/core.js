@@ -71,7 +71,7 @@
 			}
 			
 			// Get the canvas context and dimensions
-			this.canvas = c = this.canvasElement.getContext("2d");
+			this.canvas = this.canvasElement.getContext("2d");
 			var width = this.canvasElement.width;
 			var height = this.canvasElement.height;
 			this.__defineSetter__("width", function (value) {
