@@ -36,7 +36,7 @@
 						
 						// Loop through all the splits and concatenate the split color values
 						for (i = (only_color ? 0 : 1); i < num_splits; i++) {
-							fixed_color += stroke[i];
+							fixed_color += stroke[i] + (i === num_splits - 1 ? " " : "");
 						}
 						
 						// Set the fixed stroke array
@@ -54,7 +54,7 @@
 						// Fix color value
 						if (num_splits > 3) {
 							for (i = 2; i < num_splits; i++) {
-								fixed_color += stroke[i];
+								fixed_color += stroke[i] + (i === num_splits - 1 ? " " : "");
 							}
 							stroke = [stroke[0], stroke[1], fixed_color];
 						}
@@ -419,7 +419,7 @@
 				}
 				
 				// Check for pixel or percentage value
-				if (~args[num_pos_args].indexOf("px") || ~args[num_pos_args].indexOf("%")) {
+				if (/\d+(%|px)\s/.test(args[num_pos_args])) {
 					size = parseFloat(args[num_pos_args]);
 					size_set = true;
 					if (isNaN(size)) {
