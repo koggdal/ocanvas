@@ -291,7 +291,9 @@
 				var objects = this.children,
 					l = objects.length, i;
 				for (i = 0; i < l; i++) {
-					objects[i].width = objects[i].width - old + value;
+					if (objects[i].type !== "image") {
+						objects[i].width = objects[i].width - old + value;
+					}
 				}
 			},
 			get width () {
@@ -305,7 +307,9 @@
 				var objects = this.children,
 					l = objects.length, i;
 				for (i = 0; i < l; i++) {
-					objects[i].height = objects[i].height - old + value;
+					if (objects[i].type !== "image") {
+						objects[i].height = objects[i].height - old + value;
+					}
 				}
 			},
 			get height () {
@@ -323,6 +327,13 @@
 
 				// Change the z order
 				this.core.draw.changeZorder(this.zIndex, value);
+	
+				// Update children
+				var objects = this.children,
+					l = objects.length, i;
+				for (i = 0; i < l; i++) {
+					objects[i].zIndex = value + i + 1;
+				}
 			},
 			get zIndex () {
 				return this.core.draw.objects.indexOf(this);
@@ -716,7 +727,7 @@
 				var newObj = this.core.display[this.type](settings),
 					this_filtered = {},
 					reject = ["core", "events", "children", "parent", "img", "fill", "strokeColor"],
-					loopObject, x, stroke;
+					loopObject, x, stroke, i, children, child, dX, dY;
 				
 				// Filter out the setter and getter methods, and also properties listed above
 				loopObject = function (obj, destination) {
@@ -746,6 +757,24 @@
 				
 				if (typeof newObj.init === "function") {
 					newObj.init();
+				}
+				
+				// Add children to the new clone
+				children = this.children;
+				if (children.length > 0) {
+					for (i = 0; i < children.length; i++) {
+						child = children[i].clone();
+						newObj.children.push(child);
+						child.parent = newObj;
+						if (settings.x) {
+							dX = Math.abs(children[i].abs_x - this.x);
+							child.x = dX;
+						}
+						if (settings.y) {
+							dY = Math.abs(children[i].abs_y - this.y);
+							child.y = dY;
+						}
+					}
 				}
 				
 				return newObj;
