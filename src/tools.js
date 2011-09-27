@@ -147,15 +147,15 @@
 					
 					// Find the top and bottom positions based on the text baseline
 					if (obj.baseline === "top") {
-						top = obj.abs_y;
+						top = obj.abs_y + obj.height * 0.05;
 					} else if (obj.baseline === "hanging") {
-						top = obj.abs_y - obj.height * 0.19;
+						top = obj.abs_y - obj.height * 0.12;
 					} else if (obj.baseline === "middle") {
-						top = obj.abs_y - obj.height * 0.5;
+						top = obj.abs_y - obj.height * 0.47;
 					} else if (obj.baseline === "alphabetic") {
-						top = obj.abs_y - obj.height * 0.79;
+						top = obj.abs_y - obj.height * 0.78;
 					} else if (obj.baseline === "ideographic") {
-						top = obj.abs_y - obj.height * 0.84;
+						top = obj.abs_y - obj.height * 0.83;
 					} else if (obj.baseline === "bottom") {
 						top = obj.abs_y - obj.height;
 					}
