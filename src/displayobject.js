@@ -509,6 +509,13 @@
 				
 				return this;
 			},
+
+			// Method for clearing the animation queue and setting all final values
+			finish: function () {
+				this.core.animation.finish(this.id);
+
+				return this;
+			},
 			
 			// Method for changing the opacity property to 1 as an animation
 			fadeIn: function () {

@@ -7,9 +7,9 @@
 		return {
 			
 			durations: {
-				short: 500,
-				normal: 1000,
-				long: 2000
+				"short": 500,
+				"normal": 1000,
+				"long": 2000
 			},
 
 			defaults: {
@@ -19,6 +19,7 @@
 			
 			queue: {
 				activeAnimations: {},
+				timers: {},
 				lastID: 0
 			},
 			
@@ -114,7 +115,13 @@
 					objQueue = queue[obj.id],
 					property, runMore,
 					startValues = {},
-					currentTime = 0;
+					currentTime = 0,
+					timers = this.queue.timers;
+
+				// Create the timer if it doesn't exist
+				if (timers[obj.id] === undefined) {
+					timers[obj.id] = 0;
+				}
 				
 				// Add the animation to the queue if this call comes from a display object
 				// If this block is run, execution will be aborted at the end of the block
@@ -208,6 +215,7 @@
 					
 					// Set the new time value
 					currentTime += 1000 / _this.core.settings.fps;
+					timers[obj.id] = currentTime;
 					
 					// Loop through all properties and set them to the new calculated value
 					for (property in properties) {
@@ -230,8 +238,10 @@
 					}
 					
 					// Draw the frame if there is time left
-					if (currentTime < duration && queue.activeAnimations[obj.id] === id) {
-						_this.core.draw.redraw(true);
+					if (timers[obj.id] < duration && queue.activeAnimations[obj.id] === id) {
+						if (!_this.core.timeline.running) {
+							_this.core.draw.redraw(true);
+						}
 						
 						setTimeout(timer, 1000 / _this.core.settings.fps);
 					}
@@ -245,7 +255,9 @@
 						}
 						
 						// Redraw the canvas
-						_this.core.draw.redraw(true);
+						if (!_this.core.timeline.running) {
+							_this.core.draw.redraw(true);
+						}
 						
 						// Set animation status
 						queue.activeAnimations[obj.id] = false;
@@ -275,8 +287,15 @@
 					delete this.queue[objectID];
 					
 					// Redraw the canvas with the latest updates
-					this.core.draw.redraw(true);
+					if (!this.core.timeline.running) {
+						this.core.draw.redraw(true);
+					}
 				}
+			},
+
+			// Method that stops all animations and sets all final values
+			finish: function (objectID) {
+				this.queue.timers[objectID] = Infinity;
 			}
 			
 		};
