@@ -130,6 +130,8 @@
 						return this.core.style.getGradient(this._.strokeColor, this.abs_x - origin.x - stroke, this.abs_y - origin.y - stroke, this.width + stroke * 2, this.height + stroke * 2);
 					} else if (this.shapeType === "radial") {
 						var radius = this.radius + this.strokeWidth / 2;
+						origin.x += this.radius;
+						origin.y += this.radius;
 						return this.core.style.getGradient(this._.strokeColor, this.abs_x - origin.x - this.radius, this.abs_y - origin.y - this.radius, radius * 2, radius * 2);
 					}
 				} else {
