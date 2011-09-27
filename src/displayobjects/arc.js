@@ -20,7 +20,7 @@
 					y = this.abs_y - origin.y;
 				
 				// Don't draw if the radius is 0 or less (won't be visible anyway)
-				if (this.radius > 0) {
+				if (this.radius > 0 && this.start !== this.end) {
 				
 					// Draw the arc
 					canvas.beginPath();
