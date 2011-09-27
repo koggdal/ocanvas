@@ -182,8 +182,8 @@
 	oCanvas.core.prototype = {
 		
 		// Method for adding an object to the canvas
-		addChild: function (displayobj) {
-			displayobj.add();
+		addChild: function (displayobj, redraw) {
+			displayobj.add(redraw);
 			
 			return this;
 		},

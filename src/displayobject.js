@@ -363,21 +363,26 @@
 			},
 			
 			// Method for adding the object to the canvas
-			add: function () {
+			add: function (redraw) {
 				if (this.drawn === false) {
+
+					// Redraw by default, but leave it to the user to decide
+					redraw = redraw !== undefined ? redraw : true;
 				
 					// Add this object
 					this.core.draw.add(this);
+					this.drawn = true;
 					
 					// Redraw the canvas with the new object
-					this.core.redraw();
-					this.drawn = true;
+					if (redraw) {
+						this.core.redraw();
+					}
 					
 					// Add children that have been added to this object
 					var objects = this.children,
 						l = objects.length, i;
 					for (i = 0; i < l; i++) {
-						objects[i].add();
+						objects[i].add(redraw);
 					}
 				}
 				
