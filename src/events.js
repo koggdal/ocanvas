@@ -8,6 +8,7 @@
 			
 			types: {},
 			pointers: {},
+			enabled: true,
 			
 			init: function () {
 			

@@ -94,6 +94,11 @@
 			triggerEvents: function (type, e) {
 				var key, i, event, eventObject;
 				
+				// Abort if events are disabled
+				if (!this.core.events.enabled) {
+					return;
+				}
+				
 				// If the mouse has set focus on the canvas
 				if (this.core.mouse && this.core.mouse.canvasFocused === true) {
 					key = this.eventList[type];

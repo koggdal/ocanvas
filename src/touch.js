@@ -135,6 +135,11 @@
 			triggerEvents: function (type, e, forceLeave) {
 				forceLeave = forceLeave || false;
 
+				// Abort if events are disabled
+				if (!this.core.events.enabled) {
+					return;
+				}
+
 				// Get a modified event object
 				var eventObject = this.core.events.modifyEventObject(e, type);
 						
