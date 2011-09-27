@@ -19,9 +19,15 @@
 			// Init method for loading the image resource
 			init: function () {
 				var _this = this,
+					source;
+
+				// Abort initialization of the image if there is no image specified
+				if (this.image === undefined) {
+					return;
+				}
 				
-					// Get source (settings.image can be either an HTML img element or a string with path to the image)
-					source = (this.image.nodeName && this.image.nodeName.toLowerCase() === "img") ? "htmlImg" : "newImg";
+				// Get source (settings.image can be either an HTML img element or a string with path to the image)
+				source = (this.image.nodeName && this.image.nodeName.toLowerCase() === "img") ? "htmlImg" : "newImg";
 				
 				// Get image object (either create a copy of the current element, or a new image)
 				this.img = (source === "htmlImg") ? this.image.cloneNode(false) : new Image();
