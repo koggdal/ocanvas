@@ -159,6 +159,11 @@
 									canvas.rotate(object.rotation * Math.PI / 180);
 								}
 								
+								// Scale the canvas for this object
+								if (object.scalingX !== 1 || object.scalingY !== 1) {
+									canvas.scale(object.scalingX, object.scalingY);
+								}								
+								
 								// Save the current translation so that the next iteration can subtract that
 								lastX = object.abs_x;
 								lastY = object.abs_y;
@@ -173,11 +178,6 @@
 							y = obj.abs_y;
 							obj._.abs_x = 0;
 							obj._.abs_y = 0;
-							
-							// Temporarily scale the canvas for this object
-							if (obj.scalingX !== 1 || obj.scalingY !== 1) {
-								canvas.scale(obj.scalingX, obj.scalingY);
-							}
 							
 							// Set the alpha to match the object's opacity
 							canvas.globalAlpha = !isNaN(parseFloat(obj.opacity)) ? parseFloat(obj.opacity) : 1;
