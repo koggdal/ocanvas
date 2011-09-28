@@ -82,7 +82,9 @@
 				// If stroke is still an array (empty stroke value was passed in)
 				if (stroke.length) {
 					stroke = {
-						width: 0
+						pos: "center",
+						width: 0,
+						color: ""
 					};
 				}
 				
