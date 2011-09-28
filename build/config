@@ -12,6 +12,8 @@ head
  * Copyright {year}, Johannes Koggdal
  * Licensed under the MIT license
  * http://ocanvas.org/license
+ *
+ * Including Xccessors by Eli Grey
  */
 -----
 
@@ -39,4 +41,9 @@ displayobjects/ellipse.js
 displayobjects/polygon.js
 displayobjects/line.js
 displayobjects/sprite.js
+-----
+
+foot
+-----
+xccessors.js
 -----

@@ -74,23 +74,31 @@
 			this.canvas = this.canvasElement.getContext("2d");
 			var width = this.canvasElement.width;
 			var height = this.canvasElement.height;
-			this.__defineSetter__("width", function (value) {
-				width = !isNaN(parseFloat(value)) ? parseFloat(value) : width;
-				this.canvasElement.width = width;
-				this.redraw();
+			Object.defineProperty(this, 'width', {
+				enumerable: true,
+				configurable: true,
+				set: function (value) {
+					width = !isNaN(parseFloat(value)) ? parseFloat(value) : width;
+					this.canvasElement.width = width;
+					this.redraw();
+				},
+				get: function () {
+					return width;
+				}
 			});
-			this.__defineGetter__("width", function () {
-				return width;
+			Object.defineProperty(this, 'height', {
+				enumerable: true,
+				configurable: true,
+				set: function (value) {
+					height = !isNaN(parseFloat(value)) ? parseFloat(value) : height;
+					this.canvasElement.height = height;
+					this.redraw();
+				},
+				get: function () {
+					return height;
+				}
 			});
-			this.__defineSetter__("height", function (value) {
-				height = !isNaN(parseFloat(value)) ? parseFloat(value) : height;
-				this.canvasElement.height = height;
-				this.redraw();
-			});
-			this.__defineGetter__("height", function () {
-				return height;
-			});
-			
+		
 			// Set the core instance in all modules to enable access of core properties inside of modules
 			for (var m in oCanvas.modules) {
 			

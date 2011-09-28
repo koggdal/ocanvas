@@ -741,7 +741,7 @@
 				var newObj = this.core.display[this.type](settings),
 					this_filtered = {},
 					reject = ["core", "events", "children", "parent", "img", "fill", "strokeColor"],
-					loopObject, x, stroke, i, children, child, dX, dY;
+					loopObject, x, stroke, i, children, child, dX, dY, descriptor;
 				
 				// Filter out the setter and getter methods, and also properties listed above
 				loopObject = function (obj, destination) {
@@ -754,7 +754,8 @@
 							loopObject(obj[x], destination[x]);
 							continue;
 						}
-						if (obj.__lookupGetter__(x) === undefined) {
+						descriptor = Object.getOwnPropertyDescriptor(obj, x);
+						if (descriptor && descriptor.get === undefined) {
 							destination[x] = obj[x];
 						}
 					}

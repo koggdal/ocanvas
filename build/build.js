@@ -7,7 +7,7 @@ var fs = require("fs"),
 	// Set the config filename
 	configfile = "config",
 	
-	config, version, source_dir, output_full, output_min, head, filenames, i,
+	config, version, source_dir, output_full, output_min, head, filenames, foot, i,
 	ast, minified_source,
 	
 	files = [],
@@ -26,10 +26,12 @@ output_full = /^output_full = (.*)$/m.exec(config)[1].replace("{version}", versi
 output_min = /^output_min = (.*)$/m.exec(config)[1].replace("{version}", version),
 head = /head\s-----\s([\s\S]*?)-----\s/g.exec(config)[1].replace("{version}", version).replace("{year}", (new Date()).getFullYear()),
 filenames = /files\s-----\s([\s\S]*?)\s-----/g.exec(config)[1].split(/\s/);
+foot = /foot\s-----\s([\s\S]*?)\s-----/g.exec(config)[1].split(/\s/);
 numFiles = filenames.length;
+filenames = filenames.concat(foot);
 
 // Get all the source files
-for (i = 0; i < numFiles; i++) {
+for (i = 0; i < filenames.length; i++) {
 	console.log("Reading file: " + filenames[i]);
 	
 	// Add current file
@@ -64,6 +66,13 @@ for (i = 0; i < numFiles; i++) {
 	if (i === numFiles - 1) {
 		source += "\n})(window, document);";
 	}
+}
+
+// Loop through all foot files
+for (i = numFiles; i < numFiles + foot.length; i++) {
+
+	// Append the file to the full source
+	source += "\n" + files[i].content;
 }
 
 // Save source to output file

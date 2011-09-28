@@ -30,7 +30,8 @@
 			last = args[args.length - 1],
 			destination = args.splice(0, 1)[0],
 			current = args.splice(0, 1)[0],
-			x, getter, setter, exclude = [];
+			x, exclude = [],
+			descriptor;
 		
 		// If the last object is an exclude object, get the properties
 		if (last.exclude && (JSON.stringify(last) === JSON.stringify({exclude:last.exclude}))) {
@@ -48,16 +49,10 @@
 					continue;
 				}
 				
-				getter = current.__lookupGetter__(x);
-				setter = current.__lookupSetter__(x);
+				descriptor = Object.getOwnPropertyDescriptor(current, x);
 				
-				if (getter || setter) {
-					if (getter) {
-						destination.__defineGetter__(x, getter);
-					}
-					if (setter) {
-						destination.__defineSetter__(x, setter);
-					}
+				if (descriptor.get || descriptor.set) {
+					Object.defineProperty(destination, x, descriptor);
 				} else {
 					destination[x] = current[x];
 				}
