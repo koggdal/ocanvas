@@ -72,10 +72,10 @@
 			getPos: function (e) {
 				var x, y,
 					boundingRect = this.core.canvasElement.getBoundingClientRect(),
-					node = document.documentElement || document.body.parentNode,
+					node = document.documentElement || document.body.parentNode,
 					scrollElem = (node && (typeof node.ScrollTop === "number") ? node : document.body),
-					scrollX = window.scrollX !== undefined ? window.scrollX : (window.pageXOffset !== undefined ? window.pageXOffset : scrollElem.ScrollLeft),
-					scrollY = window.scrollY !== undefined ? window.scrollY : (window.pageYOffset !== undefined ? window.pageYOffset : scrollElem.ScrollTop);
+					scrollX = window.scrollX !== undefined ? window.scrollX : (window.pageXOffset !== undefined ? window.pageXOffset : scrollElem.ScrollLeft),
+					scrollY = window.scrollY !== undefined ? window.scrollY : (window.pageYOffset !== undefined ? window.pageYOffset : scrollElem.ScrollTop);
 					
 				// Browsers supporting pageX/pageY
 				if (e.pageX !== undefined && e.pageY !== undefined) {
