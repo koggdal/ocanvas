@@ -15,6 +15,7 @@
 			duration: 0,
 			frame: 1,
 			generate: false,
+			numFrames: 0,
 			offset_x: 0,
 			offset_y: 0,
 			direction: "x",
@@ -60,13 +61,19 @@
 					
 					// If automatic generation is specified
 					if (_this.generate) {
+						var dir, length_full, length_cropped, num_frames, i;
 					
 						// Get frame data
-						var dir = _this.direction,
-							length_full = (dir === "y") ? _this.full_height : _this.full_width,
-							length_cropped = (dir === "y") ? _this.height : _this.width,
-							num_frames = length_full / length_cropped,
-							i;
+						dir = _this.direction;
+						length_full = (dir === "y") ? _this.full_height : _this.full_width;
+						length_cropped = (dir === "y") ? _this.height : _this.width;
+
+						if (_this.numFrames > 0) {
+							num_frames = _this.numFrames;
+						} else {
+							num_frames = length_full / length_cropped;
+							_this.numFrames = num_frames;
+						}
 						
 						// Create frames based on the specified width, height, direction, offset and duration
 						_this.frames = [];
@@ -103,6 +110,9 @@
 					if (this.frames.length > 0) {
 					
 						// Get current frame
+						if (this.frame > this.frames.length) {
+							return this;
+						}
 						frame = this.frames[this.frame - 1];
 						frame_width = (frame.w !== undefined) ? frame.w : this.width;
 						frame_height = (frame.h !== undefined) ? frame.h : this.height;
