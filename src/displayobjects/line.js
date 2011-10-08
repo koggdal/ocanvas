@@ -24,20 +24,30 @@
 			
 			// Getters and setters
 			set start (values) {
-				this._.start_x = values.x + (this.parent !== undefined ? this.parent._.abs_x : 0);
-				this._.start_y = values.y + (this.parent !== undefined ? this.parent._.abs_y : 0);
+				this._.start_x = values.x + (this.parent ? this.parent._.abs_x : 0);
+				this._.start_y = values.y + (this.parent ? this.parent._.abs_y : 0);
 				this.setPosition();
 			},
 			set end (values) {
-				this._.end_x = values.x + (this.parent !== undefined ? this.parent._.abs_x : 0);
-				this._.end_y = values.y + (this.parent !== undefined ? this.parent._.abs_y : 0);
+				this._.end_x = values.x + (this.parent ? this.parent._.abs_x : 0);
+				this._.end_y = values.y + (this.parent ? this.parent._.abs_y : 0);
 				this.setPosition();
 			},
 			get start () {
-				return { x: this._.start_x, y: this._.start_y };
+				var offset = { x: 0, y: 0 };
+				if (this.parent) {
+					offset.x = this.parent._.abs_x;
+					offset.y = this.parent._.abs_y;
+				}
+				return { x: this._.start_x - offset.x, y: this._.start_y - offset.y };
 			},
 			get end () {
-				return { x: this._.end_x, y: this._.end_y };
+				var offset = { x: 0, y: 0 };
+				if (this.parent) {
+					offset.x = this.parent._.abs_x;
+					offset.y = this.parent._.abs_y;
+				}
+				return { x: this._.end_x - offset.x, y: this._.end_y - offset.y };
 			},
 			
 			// Overwrite the setters that displayObject provides, to enable start/end coordinates to affect the position
@@ -136,7 +146,7 @@
 			setPosition: function () {
 				if (this.initialized) {
 					var offset = { x: 0, y: 0 };
-					if (this.parent !== undefined) {
+					if (this.parent) {
 						offset.x = this.parent._.abs_x;
 						offset.y = this.parent._.abs_y;
 					}
@@ -160,8 +170,8 @@
 				canvas.lineWidth = this.strokeWidth;
 				canvas.strokeStyle = this.strokeColor;
 				canvas.beginPath();
-				canvas.moveTo(this.start.x - translation.x - origin.x, this.start.y - translation.y - origin.y);
-				canvas.lineTo(this.end.x - translation.x - origin.x, this.end.y - translation.y - origin.y);
+				canvas.moveTo(this._.start_x - translation.x - origin.x, this._.start_y - translation.y - origin.y);
+				canvas.lineTo(this._.end_x - translation.x - origin.x, this._.end_y - translation.y - origin.y);
 				canvas.stroke();
 				canvas.closePath();
 				
