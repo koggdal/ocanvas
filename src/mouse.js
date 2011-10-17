@@ -8,12 +8,12 @@
 			
 			// List of all events that are added
 			eventList: {
-				mousemove: [],
-				mouseenter: [],
-				mouseleave: [],
-				click: [],
-				mousedown: [],
-				mouseup: []
+				mousemove: { last: -1, length: 0 },
+				mouseenter: { last: -1, length: 0 },
+				mouseleave: { last: -1, length: 0 },
+				click: { last: -1, length: 0 },
+				mousedown: { last: -1, length: 0 },
+				mouseup: { last: -1, length: 0 }
 			},
 			
 			last_event: {},
@@ -60,12 +60,17 @@
 			
 			// Method for adding an event to the event list
 			addEvent: function (type, handler) {
-				return this.eventList[type].push(handler) - 1;
+				this.eventList[type].last++;
+				this.eventList[type].length++;
+				var index = this.eventList[type].last;
+				this.eventList[type][index] = handler;
+				return index;
 			},
 			
 			// Method for removing an event from the event list
 			removeEvent: function (type, index) {
-				this.eventList[type].splice(index, 1);
+				delete this.eventList[type][index];
+				this.eventList[type].length--;
 			},
 			
 			// Method for getting the current mouse position relative to the canvas top left corner

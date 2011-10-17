@@ -145,6 +145,7 @@
 					for (i in obj.events[type]) {
 						if (obj.events[type][i] === handler) {
 							index = i;
+							break;
 						}
 					}
 					
@@ -200,7 +201,7 @@
 					handler;
 
 				// Collect all user handlers that belongs to this event type and mouse position
-				for (i = 0; i < l; i++) {
+				for (i in events) {
 					event = events[i];
 
 					// Trigger the internal event handler that will check if the pointer is inside the object

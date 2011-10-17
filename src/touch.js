@@ -8,12 +8,12 @@
 			
 			// List of all events that are added
 			eventList: {
-				touchstart: [],
-				touchend: [],
-				touchmove: [],
-				touchenter: [],
-				touchleave: [],
-				tap: []
+				touchstart: { last: -1, length: 0 },
+				touchend: { last: -1, length: 0 },
+				touchmove: { last: -1, length: 0 },
+				touchenter: { last: -1, length: 0 },
+				touchleave: { last: -1, length: 0 },
+				tap: { last: -1, length: 0 }
 			},
 			
 			last_event: {},
@@ -68,12 +68,17 @@
 			
 			// Method for adding an event to the event list
 			addEvent: function (type, handler) {
-				return this.eventList[type].push(handler) - 1;
+				this.eventList[type].last++;
+				this.eventList[type].length++;
+				var index = this.eventList[type].last;
+				this.eventList[type][index] = handler;
+				return index;
 			},
 			
 			// Method for removing an event from the event list
 			removeEvent: function (type, index) {
-				this.eventList[type].splice(index, 1);
+				delete this.eventList[type][index];
+				this.eventList[type].length--;
 			},
 			
 			// Method for getting the current touch position relative to the canvas top left corner

@@ -8,10 +8,9 @@
 			
 			// List of all events that are added
 			eventList: {
-				keydown: [],
-				keyup: [],
-				keypress: [],
-				running: []
+				keydown: { last: -1, length: 0 },
+				keyup: { last: -1, length: 0 },
+				keypress: { last: -1, length: 0 }
 			},
 			
 			// Define properties
@@ -36,13 +35,18 @@
 			},
 			
 			// Method for adding an event to the event list
-			addEvent: function (type, func) {
-				return this.eventList[type].push(func) - 1;
+			addEvent: function (type, handler) {
+				this.eventList[type].last++;
+				this.eventList[type].length++;
+				var index = this.eventList[type].last;
+				this.eventList[type][index] = handler;
+				return index;
 			},
 			
 			// Method for removing an event from the event list
-			removeEvent: function (type, id) {
-				this.eventList[type].splice(id,1);
+			removeEvent: function (type, index) {
+				delete this.eventList[type][index];
+				this.eventList[type].length--;
 			},
 			
 			// Method for getting the key code from current event
@@ -92,7 +96,7 @@
 			
 			// Method for triggering all events of a specific type
 			triggerEvents: function (type, e) {
-				var key, i, event, eventObject;
+				var events, i, event, eventObject;
 				
 				// Abort if events are disabled
 				if (!this.core.events.enabled) {
@@ -101,12 +105,12 @@
 				
 				// If the mouse has set focus on the canvas
 				if (this.core.mouse && this.core.mouse.canvasFocused === true) {
-					key = this.eventList[type];
+					events = this.eventList[type];
 					eventObject = this.core.events.modifyEventObject(e, type);
 					
 					// Loop through all events and trigger them
-					for (i = key.length; i--;) {
-						event = key[i];
+					for (i in events) {
+						event = events[i];
 						if (typeof event === "function") {
 							event(eventObject);
 						}
