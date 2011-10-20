@@ -38,6 +38,8 @@
 				rotation: 0,
 				width: 0,
 				height: 0,
+				scaledWidth: 0,
+				scaledHeight: 0,
 				stroke: "",
 				strokeColor: "",
 				strokeWidth: 0,
@@ -310,6 +312,12 @@
 			},
 			get height () {
 				return this._.height;
+			},
+			get scaledWidth () {
+				return this._.width * this.scalingX;
+			},
+			get scaledHeight () {
+				return this._.height * this.scalingY;
 			},
 			
 			// Method for binding an event to the object
