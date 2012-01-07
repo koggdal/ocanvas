@@ -16,7 +16,8 @@
 				if (typeof obj === "object") {
 					var parent = obj.parent,
 						objectChain = [],
-						last, object, pos = { x: 0, y: 0 }, origin;
+						pos = { x: 0, y: 0 },
+						last, object, n, l, origin;
 					
 					// Get all objects in the parent chain, including this one
 					objectChain.push(obj);
@@ -115,53 +116,62 @@
 				if (obj.type === "text") {
 					var pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, 0, pointerObject),
 						stroke = obj.strokeWidth / 2,
-						left, right, top, bottom;
-					
-					// Find left and right positions based on the text alignment
-					if (obj.align === "left") {
-						left = obj.abs_x;
-						right = obj.abs_x + obj.width;
-					} else if (obj.align === "center") {
-						left = obj.abs_x - obj.width / 2;
-						right = obj.abs_x + obj.width / 2;
-					} else if (obj.align === "right") {
-						left = obj.abs_x - obj.width;
-						right = obj.abs_x;
-					} else if (obj.align === "start") {
-						if (this.core.canvasElement.dir === "rtl") {
-							left = obj.abs_x - obj.width;
-							right = obj.abs_x;
-						} else {
+						lines = obj._.lines,
+						numLines = lines.length,
+						lineHeight = obj.size * obj.lineHeight,
+						baselines, i, left, right, top, bottom, isInside;
+
+					baselines = {
+						"top":         obj.size *  0.05,
+						"hanging":     obj.size * -0.12,
+						"middle":      obj.size * -0.47,
+						"alphabetic":  obj.size * -0.78,
+						"ideographic": obj.size * -0.83,
+						"bottom":      obj.size * -1.00
+					};
+
+					for (i = 0; i < numLines; i++) {
+
+						// Find left and right positions based on the text alignment
+						if (obj.align === "left") {
 							left = obj.abs_x;
-							right = obj.abs_x + obj.width;
+							right = obj.abs_x + lines[i].width;
+						} else if (obj.align === "center") {
+							left = obj.abs_x - lines[i].width / 2;
+							right = obj.abs_x + lines[i].width / 2;
+						} else if (obj.align === "right") {
+							left = obj.abs_x - lines[i].width;
+							right = obj.abs_x;
+						} else if (obj.align === "start") {
+							if (this.core.canvasElement.dir === "rtl") {
+								left = obj.abs_x - lines[i].width;
+								right = obj.abs_x;
+							} else {
+								left = obj.abs_x;
+								right = obj.abs_x + lines[i].width;
+							}
+						} else if (obj.align === "end") {
+							if (this.core.canvasElement.dir === "rtl") {
+								left = obj.abs_x;
+								right = obj.abs_x + lines[i].width;
+							} else {
+								left = obj.abs_x - lines[i].width;
+								right = obj.abs_x;
+							}
 						}
-					} else if (obj.align === "end") {
-						if (this.core.canvasElement.dir === "rtl") {
-							left = obj.abs_x;
-							right = obj.abs_x + obj.width;
-						} else {
-							left = obj.abs_x - obj.width;
-							right = obj.abs_x;
+
+						// Find the top and bottom positions based on the text baseline
+						top = obj.abs_y + (lineHeight * i) + baselines[obj.baseline];
+						bottom = top + lineHeight;
+
+						isInside = ((pointer.x > left - origin.x - stroke) && (pointer.x < right - origin.x + stroke) && (pointer.y > top - origin.y - stroke) && (pointer.y < bottom - origin.y + stroke));
+
+						if (isInside) {
+							return true;
 						}
 					}
 					
-					// Find the top and bottom positions based on the text baseline
-					if (obj.baseline === "top") {
-						top = obj.abs_y + obj.height * 0.05;
-					} else if (obj.baseline === "hanging") {
-						top = obj.abs_y - obj.height * 0.12;
-					} else if (obj.baseline === "middle") {
-						top = obj.abs_y - obj.height * 0.47;
-					} else if (obj.baseline === "alphabetic") {
-						top = obj.abs_y - obj.height * 0.78;
-					} else if (obj.baseline === "ideographic") {
-						top = obj.abs_y - obj.height * 0.83;
-					} else if (obj.baseline === "bottom") {
-						top = obj.abs_y - obj.height;
-					}
-					bottom = top + obj.height;
-					
-					return ((pointer.x > left - origin.x - stroke) && (pointer.x < right - origin.x + stroke) && (pointer.y > top - origin.y - stroke) && (pointer.y < bottom - origin.y + stroke));
+					return false;
 				} else
 				
 				// Rectangle

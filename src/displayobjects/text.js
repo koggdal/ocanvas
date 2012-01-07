@@ -30,7 +30,8 @@
 				family: "sans-serif",
 				text: "",
 				width: 0,
-				height: 0
+				height: 0,
+				lines: []
 			}),
 			
 			// Setters for font properties
@@ -139,17 +140,35 @@
 			// Method for setting width/height when something has changed
 			setDimensions: function () {
 				if (this._.initialized) {
-					var canvas = this.core.canvas,
-						metrics;
+					var canvas, textLines, numLines, width, height, i, metrics, lines;
+
+					canvas = this.core.canvas;
 					
-					// Measure the text
+					// Set the text settings
 					canvas.fillStyle = this.fill;
 					canvas.font = this.font;
-					metrics = canvas.measureText(this.text);
+					textLines = this.text.toString().split("\n");
+					numLines = textLines.length;
+					width = 0;
+					height = 0;
+					lines = [];
 					
-					// Set new dimensions
-					this._.width = metrics.width;
-					this._.height = this.size;
+					// Get the dimensions of all lines
+					for (i = 0; i < numLines; i++) {
+						metrics = canvas.measureText(textLines[i]);
+						width = (metrics.width > width) ? metrics.width : width;
+						height += this.size * this.lineHeight;
+						lines.push({
+							text: textLines[i],
+							width: metrics.width,
+							height: this.size * this.lineHeight
+						});
+					}
+
+					// Set the dimensions
+					this._.width = width;
+					this._.height = height;
+					this._.lines = lines;
 				}
 			},
 
@@ -175,24 +194,16 @@
 			},
 			
 			getBaselineOffset: function () {
-				var baseline = this.baseline,
-					offset;
-				
-				if (baseline === "top") {
-					offset = this.height * 0.82;
-				} else if (baseline === "hanging") {
-					offset = this.height * 0.65;
-				} else if (baseline === "middle") {
-					offset = this.height * 0.31;
-				} else if (baseline === "alphabetic") {
-					offset = 0;
-				} else if (baseline === "ideographic") {
-					offset = this.height * -0.05;
-				} else if (baseline === "bottom") {
-					offset = this.height * -0.22;
-				}
-				
-				return offset;
+				var baselines = {
+					"top":         this.size *  0.82,
+					"hanging":     this.size *  0.65,
+					"middle":      this.size *  0.31,
+					"alphabetic":  0,
+					"ideographic": this.size * -0.05,
+					"bottom":      this.size * -0.22
+				};
+
+				return baselines[this.baseline] || 0;
 			},
 			
 			// Method for drawing the object to the canvas
@@ -202,7 +213,8 @@
 					baselineOffset = this.getBaselineOffset(),
 					x = this.abs_x - origin.x,
 					y = this.abs_y - origin.y + baselineOffset,
-					lines, i;
+					lines = this._.lines,
+					i, numLines;
 				
 				canvas.beginPath();
 				
@@ -216,9 +228,8 @@
 					canvas.strokeStyle = this.strokeColor;
 
 					// Draw the text with support for multiple lines
-					lines = this.text.toString().split("\n");
-					for (i = 0; i < lines.length; i++) {
-						canvas.strokeText(lines[i], x, y + (i * this.lineHeight * this.height));
+					for (i = 0, numLines = lines.length; i < numLines; i++) {
+						canvas.strokeText(lines[i].text, x, y + (i * lines[i].height));
 					}
 				}
 				
@@ -227,9 +238,8 @@
 					canvas.fillStyle = this.fill;
 					
 					// Draw the text with support for multiple lines
-					lines = this.text.toString().split("\n");
-					for (i = 0; i < lines.length; i++) {
-						canvas.fillText(lines[i], x, y + (i * this.lineHeight * this.height));
+					for (i = 0, numLines = lines.length; i < numLines; i++) {
+						canvas.fillText(lines[i].text, x, y + (i * lines[i].height));
 					}
 				}
 				
