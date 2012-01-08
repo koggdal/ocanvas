@@ -12,6 +12,7 @@
 				mouseenter: { last: -1, length: 0 },
 				mouseleave: { last: -1, length: 0 },
 				click: { last: -1, length: 0 },
+				dblclick: { last: -1, length: 0 },
 				mousedown: { last: -1, length: 0 },
 				mouseup: { last: -1, length: 0 }
 			},
@@ -27,7 +28,7 @@
 					types;
 				
 				// Register pointer
-				core.events.types.mouse = types = ["mousemove", "mouseenter", "mouseleave", "mousedown", "mouseup", "click"];
+				core.events.types.mouse = types = ["mousemove", "mouseenter", "mouseleave", "mousedown", "mouseup", "click", "dblclick"];
 				core.events.pointers.mouse = function (type, doAdd) {
 					if (~types.indexOf(type) && !("ontouchstart" in window || "createTouch" in document)) {
 						doAdd("mouse", "click");
@@ -47,8 +48,9 @@
 				canvasElement.addEventListener('mousemove', function (e) { _this.mousemove.call(_this, e); }, false);
 				canvasElement.addEventListener('mousedown', function (e) { _this.mousedown.call(_this, e); }, false);
 				canvasElement.addEventListener('mouseup', function (e) { _this.mouseup.call(_this, e); }, false);
+				canvasElement.addEventListener('dblclick', function (e) { _this.dblclick.call(_this, e); }, false);
 				
-				// Add event listeners to the canvas element (used for setting states and trigger mouseup events)
+				// Add event listeners to the document (used for setting states and trigger mouseup events)
 				document.addEventListener('mouseup', function (e) { _this.docmouseup.call(_this, e); }, false);
 				document.addEventListener('mouseover', function (e) { _this.docmouseover.call(_this, e); }, false);
 				document.addEventListener('mousedown', function (e) { _this.docmousedown.call(_this, e); }, false);
@@ -144,7 +146,7 @@
 				// 1: Primary button (usually left)
 				// 2: Secondary button (usually right)
 				// 3: Middle (usually the wheel)
-				if (eventObject.button === 0 && ~"mousedown mouseup click".indexOf(type)) {
+				if (eventObject.button === 0 && ~"mousedown mouseup click dblclick".indexOf(type)) {
 					eventObject.which = 1;
 				} else if (eventObject.button === 2) {
 					eventObject.which = 2;
@@ -190,6 +192,14 @@
 				this.triggerEvents("click", e);
 				
 				this.cancel();
+			},
+
+			// Method that triggers all dblclick events that are added
+			dblclick: function (e) {
+				this.last_event = e;
+				this.buttonState = "up";
+
+				this.triggerEvents("dblclick", e);
 			},
 			
 			// Method that triggers all mouseup events when pointer was pressed down on canvas and released outside
