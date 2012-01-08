@@ -173,13 +173,19 @@
 			},
 			
 			start: function () {
+				this.startAnimation();
+
+				return this;
+			},
+
+			startAnimation: function () {
 				this.active = true;
 				this.core.redraw();
 				
 				return this;
 			},
 			
-			stop: function () {
+			stopAnimation: function () {
 				this.active = false;
 				
 				return this;
