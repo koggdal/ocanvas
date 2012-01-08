@@ -192,13 +192,22 @@
 			// Method for triggering the handlers for a pointer event,
 			//  but only for the front object if multiple objects exist in the pointer position
 			triggerPointerHandlers: function (events, eventObject, forceLeave) {
-				var event, i, n, ret,
-					l = events.length,
-					largestZindex = -1,
-					handlers = [],
-					coreHandlers = [],
-					topObjectHandlers = [],
-					handler;
+				var i, objects, numObjects, frontObject, event,
+					ret, handlers, coreHandlers, n, handler;
+
+				handlers = [];
+				coreHandlers = [];
+				objects = this.core.draw.objects;
+				numObjects = objects.length;
+
+				// Get the front object for the current pointer position
+				for (i = 0; i < numObjects; i++) {
+					if (objects[i].isPointerInside()) {
+						if (!frontObject || objects[i].zIndex > frontObject.zIndex) {
+							frontObject = objects[i];
+						}
+					}
+				}
 
 				// Collect all user handlers that belongs to this event type and mouse position
 				for (i in events) {
@@ -208,35 +217,21 @@
 					if (typeof event === "function") {
 						ret = event(eventObject, forceLeave);
 
-						// If the pointer is inside the object, add the handler to a list
-						if (ret !== undefined) {
+						// If the pointer is inside the object (or the canvas area), add the handler to a list
+						if (ret !== undefined && ret.obj === frontObject) {
 							handlers.push(ret);
+						} else if (ret !== undefined && ret.obj === this.core) {
+							coreHandlers.push(ret);
 						}
 					}
 				}
-
-				// Find which of the objects that is the front object
-				for (n = 0; n < handlers.length; n++) {
-					if (handlers[n].obj === this.core) {
-						coreHandlers.push(handlers[n]);
-					} else if (handlers[n].obj.zIndex > largestZindex) {
-						largestZindex = handlers[n].obj.zIndex;
-						topObjectHandlers = [handlers[n]];
-					} else if (handlers[n].obj.zIndex === largestZindex) {
-						topObjectHandlers.push(handlers[n]);
-					}
-				}
-
-				// If there was an object found
-				if (topObjectHandlers.length > 0) {
-
-					// Trigger all handlers added to the object
-					for (n = 0; n < topObjectHandlers.length; n++) {
-						handler = topObjectHandlers[n];
-						handler.handler.call(handler.obj, handler.eventObject);
-					}
-				}
 				
+				// Trigger the handlers added to the object
+				for (n = 0; n < handlers.length; n++) {
+					handler = handlers[n];
+					handler.handler.call(handler.obj, handler.eventObject);
+				}
+
 				// Trigger the handlers added to the core instance
 				for (n = 0; n < coreHandlers.length; n++) {
 					handler = coreHandlers[n];
