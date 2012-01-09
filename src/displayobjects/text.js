@@ -192,6 +192,18 @@
 					core.redraw();
 				}, 1000);
 			},
+
+			getAlignOffset: function () {
+				var aligns = {
+					"start":  this.core.canvasElement.dir === "rtl" ? - this.width : 0,
+					"end":    this.core.canvasElement.dir === "rtl" ? 0 : - this.width,
+					"left":   0,
+					"center": - this.width / 2,
+					"right":  - this.width
+				};
+
+				return aligns[this.align] || 0;
+			},
 			
 			getBaselineOffset: function () {
 				var baselines = {
@@ -208,14 +220,18 @@
 			
 			// Method for drawing the object to the canvas
 			draw: function () {
-				var canvas = this.core.canvas,
-					origin = this.getOrigin(),
-					baselineOffset = this.getBaselineOffset(),
-					lineHeightOffset = (this.baseline !== "top") ? (this.size * (this.lineHeight - 1)) / 2 : 0,
-					x = this.abs_x - origin.x,
-					y = this.abs_y - origin.y + baselineOffset - lineHeightOffset,
-					lines = this._.lines,
-					i, numLines;
+				var canvas, lines, alignOffset, baselineOffset, lineHeightOffset, origin, x, y, i, numLines;
+
+				canvas = this.core.canvas;
+				lines = this._.lines;
+
+				alignOffset = this.getAlignOffset();
+				baselineOffset = this.getBaselineOffset();
+				lineHeightOffset = (this.baseline !== "top") ? (this.size * (this.lineHeight - 1)) / 2 : 0;
+
+				origin = this.getOrigin();
+				x = this.abs_x - origin.x - alignOffset;
+				y = this.abs_y - origin.y + baselineOffset - lineHeightOffset;
 				
 				canvas.beginPath();
 				
