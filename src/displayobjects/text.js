@@ -229,7 +229,7 @@
 
 					// Draw the text with support for multiple lines
 					for (i = 0, numLines = lines.length; i < numLines; i++) {
-						canvas.strokeText(lines[i].text, x, y + (i * lines[i].height));
+						canvas.strokeText(lines[i].text, x, y + (i * lines[i].height) + (lines[i].height - this.size) / 2);
 					}
 				}
 				
@@ -239,7 +239,7 @@
 					
 					// Draw the text with support for multiple lines
 					for (i = 0, numLines = lines.length; i < numLines; i++) {
-						canvas.fillText(lines[i].text, x, y + (i * lines[i].height));
+						canvas.fillText(lines[i].text, x, y + (i * lines[i].height) + (lines[i].height - this.size) / 2);
 					}
 				}
 				
