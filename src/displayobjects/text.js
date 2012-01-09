@@ -211,8 +211,9 @@
 				var canvas = this.core.canvas,
 					origin = this.getOrigin(),
 					baselineOffset = this.getBaselineOffset(),
+					lineHeightOffset = (this.baseline !== "top") ? (this.size * (this.lineHeight - 1)) / 2 : 0,
 					x = this.abs_x - origin.x,
-					y = this.abs_y - origin.y + baselineOffset,
+					y = this.abs_y - origin.y + baselineOffset - lineHeightOffset,
 					lines = this._.lines,
 					i, numLines;
 				
