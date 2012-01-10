@@ -192,8 +192,8 @@
 			// Method for triggering the handlers for a pointer event,
 			//  but only for the front object if multiple objects exist in the pointer position
 			triggerPointerHandlers: function (events, eventObject, forceLeave) {
-				var i, objects, numObjects, frontObject, event,
-					ret, handlers, coreHandlers, n, handler;
+				var handlers, coreHandlers, objects, numObjects, i,
+				    frontObject, event, ret, isLeaveEvent, n, handler;
 
 				handlers = [];
 				coreHandlers = [];
@@ -216,11 +216,12 @@
 					// Trigger the internal event handler that will check if the pointer is inside the object
 					if (typeof event === "function") {
 						ret = event(eventObject, forceLeave);
+						isLeaveEvent = eventObject.type === "mouseleave" || eventObject.type === "touchleave";
 
 						// If the pointer is inside the object (or the canvas area), add the handler to a list
-						if (ret !== undefined && ret.obj === frontObject) {
+						if (ret !== undefined && (ret.obj === frontObject || isLeaveEvent)) {
 							handlers.push(ret);
-						} else if (ret !== undefined && ret.obj === this.core) {
+						} else if (ret !== undefined && (ret.obj === this.core || isLeaveEvent)) {
 							coreHandlers.push(ret);
 						}
 					}
