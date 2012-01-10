@@ -202,7 +202,7 @@
 					"right":  - this.width
 				};
 
-				return aligns[this.align] || 0;
+				return aligns[this.align] || 0;
 			},
 			
 			getBaselineOffset: function () {

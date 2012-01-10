@@ -216,12 +216,12 @@
 					// Trigger the internal event handler that will check if the pointer is inside the object
 					if (typeof event === "function") {
 						ret = event(eventObject, forceLeave);
-						isLeaveEvent = eventObject.type === "mouseleave" || eventObject.type === "touchleave";
+						isLeaveEvent = eventObject.type === "mouseleave" || eventObject.type === "touchleave";
 
 						// If the pointer is inside the object (or the canvas area), add the handler to a list
 						if (ret !== undefined && (ret.obj === frontObject || isLeaveEvent)) {
 							handlers.push(ret);
-						} else if (ret !== undefined && (ret.obj === this.core || isLeaveEvent)) {
+						} else if (ret !== undefined && (ret.obj === this.core || isLeaveEvent)) {
 							coreHandlers.push(ret);
 						}
 					}
