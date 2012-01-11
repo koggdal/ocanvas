@@ -119,7 +119,9 @@
 						lines = obj._.lines,
 						numLines = lines.length,
 						lineHeight = obj.size * obj.lineHeight,
-						baselines, i, left, right, top, bottom, isInside;
+						align = obj.align,
+						rtl = this.core.canvasElement.dir === "rtl",
+						baselines, i, aligns, left, right, top, bottom, isInside;
 
 					baselines = {
 						"top":         obj.size *  0.05,
@@ -132,37 +134,22 @@
 
 					for (i = 0; i < numLines; i++) {
 
-						// Find left and right positions based on the text alignment
-						if (obj.align === "left") {
-							left = obj.abs_x;
-							right = obj.abs_x + lines[i].width;
-						} else if (obj.align === "center") {
-							left = obj.abs_x - lines[i].width / 2;
-							right = obj.abs_x + lines[i].width / 2;
-						} else if (obj.align === "right") {
-							left = obj.abs_x - lines[i].width;
-							right = obj.abs_x;
-						} else if (obj.align === "start") {
-							if (this.core.canvasElement.dir === "rtl") {
-								left = obj.abs_x - lines[i].width;
-								right = obj.abs_x;
-							} else {
-								left = obj.abs_x;
-								right = obj.abs_x + lines[i].width;
-							}
-						} else if (obj.align === "end") {
-							if (this.core.canvasElement.dir === "rtl") {
-								left = obj.abs_x;
-								right = obj.abs_x + lines[i].width;
-							} else {
-								left = obj.abs_x - lines[i].width;
-								right = obj.abs_x;
-							}
-						}
+						// Calculate the different positions for different aligns
+						aligns = {
+							"start":  rtl ? (obj.width - lines[i].width) : 0,
+							"left":   0,
+							"center": (obj.width - lines[i].width) / 2,
+							"end":    rtl ? 0 : (obj.width - lines[i].width),
+							"right":  (obj.width - lines[i].width)
+						};
+
+						// Find the left and right edges
+						left = obj.abs_x + aligns[align];
+						right = left + lines[i].width;
 
 						// Find the top and bottom positions based on the text baseline
 						top = obj.abs_y + (lineHeight * i) + baselines[obj.baseline];
-						bottom = top + lineHeight;
+						bottom = top + lineHeight + (numLines > 0 && i < numLines - 1 ? 1 : 0);
 
 						isInside = ((pointer.x > left - origin.x - stroke) && (pointer.x < right - origin.x + stroke) && (pointer.y > top - origin.y - stroke) && (pointer.y < bottom - origin.y + stroke));
 
