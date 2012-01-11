@@ -567,7 +567,9 @@
 					this.dragging = false;
 				
 					var _this = this,
-						offset = { x: 0, y: 0 };
+						offset = { x: 0, y: 0 },
+						startPos = { x: 0, y: 0 },
+						start = { x: 0, y: 0 };
 					
 					this._.drag_start = function (e) {
 						this.dragging = true;
@@ -575,6 +577,9 @@
 						// Get the difference between pointer position and object position
 						offset.x = e.x - this.x;
 						offset.y = e.y - this.y;
+						startPos.x = this.x;
+						startPos.y = this.y;
+						start = _this.core.tools.transformPointerPosition(_this, _this.abs_x, _this.abs_y, _this.rotation);
 
 						// Change Z index if specified
 						if (options.changeZindex === true) {
@@ -611,9 +616,10 @@
 					this._.drag_move = function (e) {
 						if (_this.dragging) {
 						
-							// Set new position for the object, using the offset
-							_this.x = e.x - offset.x;
-							_this.y = e.y - offset.y;
+							var end = _this.core.tools.transformPointerPosition(_this, _this.abs_x, _this.abs_y, _this.rotation);
+
+							_this.x = startPos.x + end.x - start.x;
+							_this.y = startPos.y + end.y - start.y;
 							
 							// Run user callback
 							if (typeof options.move === "function") {
