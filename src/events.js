@@ -242,7 +242,7 @@
 			
 			// Method for modifying the event object and fixing a few issues
 			modifyEventObject: function (event, type) {
-				var properties = "altKey ctrlKey metaKey shiftKey button charCode keyCode clientX clientY layerX layerY pageX pageY screenX screenY detail eventPhase isChar touches targetTouches changedTouches scale rotation".split(" "),
+				var properties = "altKey ctrlKey metaKey shiftKey button charCode keyCode clientX clientY pageX pageY screenX screenY detail eventPhase isChar touches targetTouches changedTouches scale rotation".split(" "),
 					numProps = properties.length,
 					eventObject, i, property;
 				
