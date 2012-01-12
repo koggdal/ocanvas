@@ -44,7 +44,7 @@
 					// Rotate an extra angle if specified
 					if (extraAngle !== 0) {
 						origin = obj.getOrigin();
-						pos = this.transformPointerPosition(extraAngle * -1, cX, cY, 0, last);
+						pos = this.transformPointerPosition(extraAngle * -1, cX - origin.x, cY - origin.y, 0, last);
 					}
 					
 					// Return the correct position after all transforms
@@ -105,7 +105,7 @@
 						angle = Math.asin(dY / D) * 180 / Math.PI,
 						
 						// Transform the pointer position with the angle correction
-						pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, angle * -1, pointerObject);
+						pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, angle, pointerObject);
 					
 					// Check if pointer is inside the line
 					// Pointer coordinates are transformed to be compared with a horizontal line
@@ -223,9 +223,10 @@
 				// Arc
 				// Filled arcs, stroked arcs, stroked arcs that look like pie chart pieces
 				if (obj.type === "arc") {
-					var angleRange = (obj.direction === "clockwise") ? obj.end - obj.start : Math.abs(obj.end - obj.start),
+					var angleDiff = obj.end - obj.start,
+						angleRange = (obj.direction === "clockwise") ? (angleDiff < 0 ? 360 : 0) + angleDiff % 360 : Math.abs(angleDiff),
 						extraAngle = (obj.direction === "clockwise" ? obj.start * -1 : obj.end * -1),
-						pointer = this.transformPointerPosition(obj, obj.abs_x - origin.x, obj.abs_y - origin.y, extraAngle, pointerObject),
+						pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, extraAngle, pointerObject),
 						D = Math.sqrt(Math.pow(pointer.x - obj.abs_x + origin.x, 2) + Math.pow(pointer.y - obj.abs_y + origin.y, 2)),
 						radius = obj.radius,
 						eP = {},
@@ -272,7 +273,7 @@
 							
 							// Rotate the pointer position so that the angle is aligned in the bottom like a U
 							extraAngle = (90 - angleRange / 2 - (obj.direction === "clockwise" ? obj.start : obj.end));
-							pointer = this.transformPointerPosition(obj, obj.abs_x - origin.x, obj.abs_y - origin.y, extraAngle, pointerObject);
+							pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, extraAngle, pointerObject);
 							
 							var d, pX, pY, pD, pA;
 							
@@ -327,7 +328,10 @@
 							} else {
 								angle = -1000000;
 							}
-							
+
+							if ((obj.fill === "" || obj.fill === "transparent") && (obj.strokeWidth > 0) && (D < radius - obj.strokeWidth / 2)) {
+								return false;
+							}
 							
 							if (angle <= 0 && pointer.x >= p1.x && pointer.y > eP.y && pointer.y < obj.abs_y - origin.y) {
 								return true;
@@ -350,7 +354,7 @@
 						
 							// Rotate the pointer position so that the angle is aligned in the bottom like a U
 							extraAngle = (90 - angleRange / 2 - (obj.direction === "clockwise" ? obj.start : obj.end));
-							pointer = this.transformPointerPosition(obj, obj.abs_x - origin.x, obj.abs_y - origin.y, extraAngle, pointerObject);
+							pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, extraAngle, pointerObject);
 							
 							var r, d;
 							
