@@ -102,7 +102,10 @@
 					var dX = Math.abs(obj.end.x - obj.abs_x),
 						dY = Math.abs(obj.end.y - obj.abs_y),
 						D = Math.sqrt(dX * dX + dY * dY),
-						angle = Math.asin(dY / D) * 180 / Math.PI,
+						s = obj.start,
+						e = obj.end,
+						factor = (s.x < e.x && s.y < e.y) || (s.x > e.x && s.y > e.y) ? -1 : 1,
+						angle = Math.asin(dY / D) * (180 / Math.PI) * factor,
 						
 						// Transform the pointer position with the angle correction
 						pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, angle, pointerObject);
