@@ -342,22 +342,22 @@
 			},
 			
 			// Method for binding an event to the object
-			bind: function (type, handler) {
-				this.core.events.bind(this, type, handler);
+			bind: function (types, handler) {
+				this.core.events.bind(this, types.split(" "), handler);
 				
 				return this;
 			},
 			
 			// Method for unbinding an event from the object
-			unbind: function (type, handler) {
-				this.core.events.unbind(this, type, handler);
+			unbind: function (types, handler) {
+				this.core.events.unbind(this, types.split(" "), handler);
 				
 				return this;
 			},
 			
 			// Method for triggering all events added to the object
 			trigger: function (types) {
-				this.core.events.trigger(this, types);
+				this.core.events.triggerHandlers(this, types.split(" "));
 				
 				return this;
 			},

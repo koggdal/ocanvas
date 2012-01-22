@@ -220,22 +220,22 @@
 		},
 		
 		// Method for binding an event to the canvas
-		bind: function (type, handler) {
-			this.events.bind(this.canvasElement, type, handler);
+		bind: function (types, handler) {
+			this.events.bind(this.canvasElement, types.split(" "), handler);
 			
 			return this;
 		},
 		
 		// Method for unbinding an event from the object
-		unbind: function (type, handler) {
-			this.events.unbind(this.canvasElement, type, handler);
+		unbind: function (types, handler) {
+			this.events.unbind(this.canvasElement, types.split(" "), handler);
 			
 			return this;
 		},
 			
 		// Method for triggering all events added to the object
 		trigger: function (types) {
-			this.events.trigger(this.canvasElement, types);
+			this.events.trigger(this.canvasElement, types.split(" "));
 			
 			return this;
 		}

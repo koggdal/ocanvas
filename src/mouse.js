@@ -5,77 +5,140 @@
 		
 		// Return an object when instantiated
 		return {
-			
-			// List of all events that are added
-			eventList: {
-				mousemove: { last: -1, length: 0 },
-				mouseenter: { last: -1, length: 0 },
-				mouseleave: { last: -1, length: 0 },
-				click: { last: -1, length: 0 },
-				dblclick: { last: -1, length: 0 },
-				mousedown: { last: -1, length: 0 },
-				mouseup: { last: -1, length: 0 }
-			},
-			
-			last_event: {},
+
+			x: 0,
+			y: 0,
+			buttonState: "up",
+			canvasFocused: false,
+			canvasHovered: false,
 			cursorValue: "default",
-			
-			// Method for initializing the module
+
 			init: function () {
-				var _this = this,
-					core = this.core,
-					canvasElement = core.canvasElement,
-					types;
-				
-				// Register pointer
-				core.events.types.mouse = types = ["mousemove", "mouseenter", "mouseleave", "mousedown", "mouseup", "click", "dblclick"];
-				core.events.pointers.mouse = function (type, doAdd) {
-					if (~types.indexOf(type) && !("ontouchstart" in window || "createTouch" in document)) {
-						doAdd("mouse", "click");
-					}
+
+				this.core.events.addEventTypes("mouse", {
+					move: "mousemove",
+					enter: "mouseenter",
+					leave: "mouseleave",
+					down: "mousedown",
+					up: "mouseup",
+					singleClick: "click",
+					doubleClick: "dblclick"
+				});
+
+				this.types = {
+					"mousemove": "move",
+					"mousedown": "down",
+					"mouseup": "up",
+					"dblclick": "doubleClick"
 				};
-				core.pointer = this;
+
+				this.core.pointer = this;
+
+				// Only bind events for mouse if touch is not available
+				//  This is to enable developers to bind to both touch and mouse,
+				//  but still only trigger handlers once (for the right input device)
+				if (!this.core.touch || !this.core.touch.isTouch) {
+					this.bindHandlers();
+				}
+			},
+
+			bindHandlers: function () {
+				var self, canvasElement, type;
 				
-				// Define properties
-				this.x = 0;
-				this.y = 0;
-				this.buttonState = 'up';
-				this.canvasFocused = false;
-				this.canvasHovered = false;
-				this.cancel();
-				
-				// Add event listeners to the canvas element
-				canvasElement.addEventListener('mousemove', function (e) { _this.mousemove.call(_this, e); }, false);
-				canvasElement.addEventListener('mousedown', function (e) { _this.mousedown.call(_this, e); }, false);
-				canvasElement.addEventListener('mouseup', function (e) { _this.mouseup.call(_this, e); }, false);
-				canvasElement.addEventListener('dblclick', function (e) { _this.dblclick.call(_this, e); }, false);
-				
-				// Add event listeners to the document (used for setting states and trigger mouseup events)
-				document.addEventListener('mouseup', function (e) { _this.docmouseup.call(_this, e); }, false);
-				document.addEventListener('mouseover', function (e) { _this.docmouseover.call(_this, e); }, false);
-				document.addEventListener('mousedown', function (e) { _this.docmousedown.call(_this, e); }, false);
-				if (parent !== window) {
-					// Add event listener for the parent document as well, if the canvas is within an iframe for example
-					parent.document.addEventListener('mouseover', function (e) { _this.docmouseover.call(_this, e); }, false);
+				self = this;
+				canvasElement = this.core.canvasElement;
+
+				for (type in this.types) {
+
+					// Add event listeners to the canvas element
+					canvasElement.addEventListener(type, function (e) {
+						self.canvasHandler(e);
+					}, false);
+
+					// Add event listeners to the document (used for setting states and trigger mouseup events)
+					if (type === "mousemove") {
+						type = "mouseover";
+					}
+					document.addEventListener(type, function (e) {
+						self.docHandler(e);
+					}, false);
+
+					if (window.parent !== window) {
+						window.parent.document.addEventListener(type, function (e) {
+							self.docHandler(e);
+						}, false);
+					}
+				}
+			},
+
+			canvasHandler: function (e, fromDoc) {
+				var events, onCanvas, type, frontObject;
+
+				events = this.core.events;
+				onCanvas = this.onCanvas(e);
+
+				// Trigger only mouseup events if pointer is outside the canvas
+				if (e.type === "mouseup" && !onCanvas && !this.canvasUpEventTriggered) {
+					events.triggerPointerEvent(this.types["mouseup"], events.frontObject, "mouse", e);
+					events.triggerPointerEvent(this.types["mouseup"], this.core.canvasElement, "mouse", e);
+					this.canvasUpEventTriggered = true;
+					return;
+				}
+
+				// Abort the handler if the pointer started inside the canvas and is now outside
+				if (!fromDoc && !onCanvas) {
+					return;
+				}
+
+				type = (fromDoc && e.type === "mouseover") ? "mousemove" : e.type;
+
+				if (!fromDoc) {
+					this.canvasHovered = true;
+					this.canvasLeaveEventTriggered = false;
+				} else {
+					this.updatePos(e);
+				}
+
+				if (type === "mousedown") {
+					this.canvasUpEventTriggered = false;
+					this.canvasFocused = true;
+					this.buttonState = "down";
+				}
+				if (type === "mouseup") {
+					this.buttonState = "up";
+				}
+
+				// Get the front object for pointer position, among all added objects
+				frontObject = (fromDoc || !onCanvas) ? undefined : events.getFrontObject("mouse");
+
+				// Trigger events
+				events.triggerPointerEvent(this.types[type], frontObject, "mouse", e);
+			},
+
+			docHandler: function (e) {
+				var onCanvas = this.onCanvas(e);
+
+				if (!onCanvas) {
+
+					if (!this.canvasLeaveEventTriggered) {
+						if (e.type === "mouseover") {
+							this.canvasHandler(e, true);
+						}
+
+					} else {
+						if (e.type === "mouseup") {
+							if (this.buttonState === "down") {
+								this.canvasHandler(e, true);
+							}
+						}
+						if (e.type === "mousedown") {
+							this.canvasFocused = false;
+						}
+					}
+
 				}
 			},
 			
-			// Method for adding an event to the event list
-			addEvent: function (type, handler) {
-				this.eventList[type].last++;
-				this.eventList[type].length++;
-				var index = this.eventList[type].last;
-				this.eventList[type][index] = handler;
-				return index;
-			},
-			
-			// Method for removing an event from the event list
-			removeEvent: function (type, index) {
-				delete this.eventList[type][index];
-				this.eventList[type].length--;
-			},
-			
-			// Method for getting the current mouse position relative to the canvas top left corner
 			getPos: function (e) {
 				var x, y,
 					boundingRect = this.core.canvasElement.getBoundingClientRect(),
@@ -97,22 +160,18 @@
 				
 				return { x: x, y: y };
 			},
-			
-			// Method for updating the mouse position relative to the canvas top left corner
+
 			updatePos: function (e) {
 				var pos = this.getPos(e);
 				this.x = pos.x;
 				this.y = pos.y;
-				
-				return pos;
 			},
 			
-			// Method for checking if the mouse pointer is inside the canvas
 			onCanvas: function (e) {
-				e = e || this.last_event;
+				e = e || (this.core.events.lastPointerEventObject && this.core.events.lastPointerEventObject.originalEvent);
 				
 				// Get pointer position
-				var pos = e ? this.getPos(e) : {x:this.x, y:this.y};
+				var pos = e ? this.getPos(e) : { x: this.x, y: this.y };
 				
 				// Check boundaries => (left) && (right) && (top) && (bottom)
 				if ( (pos.x >= 0) && (pos.x <= this.core.width) && (pos.y >= 0) && (pos.y <= this.core.height) ) {
@@ -124,132 +183,19 @@
 					return false;
 				}
 			},
-			
-			// Method for triggering all events of a specific type
-			triggerEvents: function (type, e, forceLeave) {
-				forceLeave = forceLeave || false;
 
-				// Abort if events are disabled
-				if (!this.core.events.enabled) {
-					return;
-				}
-
-				// Get a modified event object
-				var eventObject = this.core.events.modifyEventObject(e, type);
-						
-				// Add new properties to the event object
-				eventObject.x = this.x;
-				eventObject.y = this.y;
-				
-				// Fix the which property
-				// 0: No button pressed
-				// 1: Primary button (usually left)
-				// 2: Secondary button (usually right)
-				// 3: Middle (usually the wheel)
-				if (eventObject.button === 0 && ~"mousedown mouseup click dblclick".indexOf(type)) {
-					eventObject.which = 1;
-				} else if (eventObject.button === 2) {
-					eventObject.which = 2;
-				} else if (eventObject.button === 1) {
-					eventObject.which = 3;
-				} else {
-					eventObject.which = 0;
-				}
-
-				// Trigger event handlers, but only on the front object
-				this.core.events.triggerPointerHandlers(this.eventList[type], eventObject, forceLeave);
-			},
-			
-			// Method that triggers all mousemove events that are added
-			mousemove: function (e) {
-				this.last_event = e;
-				this.updatePos(e);
-				this.canvasHovered = true;
-				
-				this.triggerEvents("mouseenter", e);
-				this.triggerEvents("mousemove", e);
-				this.triggerEvents("mouseleave", e);
-			},
-			
-			// Method that triggers all mousedown events that are added
-			mousedown: function (e) {
-				this.canvasFocused = true;
-				this.last_event = e;
-				this.start_pos = this.getPos(e);
-				this.buttonState = "down";
-				
-				this.triggerEvents("mousedown", e);
-				
-				return false;
-			},
-			
-			// Method that triggers all mouseup events that are added
-			mouseup: function (e) {
-				this.last_event = e;
-				this.buttonState = "up";
-				
-				this.triggerEvents("mouseup", e);
-				this.triggerEvents("click", e);
-				
-				this.cancel();
-			},
-
-			// Method that triggers all dblclick events that are added
-			dblclick: function (e) {
-				this.last_event = e;
-				this.buttonState = "up";
-
-				this.triggerEvents("dblclick", e);
-			},
-			
-			// Method that triggers all mouseup events when pointer was pressed down on canvas and released outside
-			docmouseup: function (e) {
-				this.last_event = e;
-				if (this.buttonState === "down" && !this.onCanvas(e)) {
-					this.mouseup(e);
-				}
-			},
-			
-			// Method that triggers all mouseleave events when pointer is outside the canvas
-			docmouseover: function (e) {
-				this.last_event = e;
-				if (!this.onCanvas(e)) {
-					this.triggerEvents("mouseleave", e, true);
-				}
-			},
-			
-			// Method that sets the focus state when pointer is pressed down outside the canvas
-			docmousedown: function (e) {
-				this.last_event = e;
-				if (!this.onCanvas(e)) {
-					this.canvasFocused = false;
-				}
-			},
-			
-			// Method that cancels the click event
-			// A click is triggered if both the start pos and end pos is within the object,
-			// so resetting the start_pos cancels the click
 			cancel: function () {
-				this.start_pos = {x:-10,y:-10};
-				
-				return this;
+				this.cancelClick = true;
 			},
-			
-			// Method for hiding the cursor
+
 			hide: function () {
 				this.core.canvasElement.style.cursor = "none";
-				
-				return this;
 			},
-			
-			// Method for showing the cursor
+
 			show: function () {
 				this.core.canvasElement.style.cursor = this.cursorValue;
-				
-				return this;
 			},
-			
-			// Method for setting the mouse cursor icon
+
 			cursor: function (value) {
 				if (~value.indexOf("url(")) {
 					var m = /url\((.*?)\)(\s(.*?)\s(.*?)|)($|,.*?$)/.exec(value),
@@ -258,9 +204,8 @@
 				}
 				this.core.canvasElement.style.cursor = value;
 				this.cursorValue = value;
-				
-				return this;
 			}
+
 		};
 	};
 

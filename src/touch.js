@@ -1,39 +1,42 @@
 (function(oCanvas, window, document, undefined){
-	
+
 	// Define the class
 	var touch = function () {
 		
 		// Return an object when instantiated
 		return {
-			
-			// List of all events that are added
-			eventList: {
-				touchstart: { last: -1, length: 0 },
-				touchend: { last: -1, length: 0 },
-				touchmove: { last: -1, length: 0 },
-				touchenter: { last: -1, length: 0 },
-				touchleave: { last: -1, length: 0 },
-				tap: { last: -1, length: 0 }
-			},
-			
-			last_event: {},
-			
-			// Method for initializing the module
+
+			x: 0,
+			y: 0,
+			touchState: "up",
+			canvasFocused: false,
+			canvasHovered: false,
+			isTouch: ("ontouchstart" in window || "createTouch" in document),
+			dblTapInterval: 500,
+
 			init: function () {
-				var _this = this,
-					core = this.core,
-					canvasElement = core.canvasElement,
-					types,
-					isTouch = ("ontouchstart" in window || "createTouch" in document);
-				
-				// Register pointer
-				core.events.types.touch = types = ["touchstart", "touchend", "touchmove", "touchenter", "touchleave", "tap"];
-				core.events.pointers.touch = function (type, doAdd) {
-					if (~types.indexOf(type) && isTouch) {
-						doAdd("touch", "tap");
-					}
+				var core, canvasElement;
+
+				core = this.core;
+				canvasElement = core.canvasElement;
+
+				core.events.addEventTypes("touch", {
+					move: "touchmove",
+					enter: "touchenter",
+					leave: "touchleave",
+					down: "touchstart",
+					up: "touchend",
+					singleClick: "tap",
+					doubleClick: "dbltap"
+				});
+
+				this.types = {
+					"touchmove": "move",
+					"touchstart": "down",
+					"touchend": "up"
 				};
-				if (isTouch) {
+
+				if (this.isTouch) {
 					core.pointer = this;
 					
 					// Set iOS specific settings to prevent selection of the canvas element
@@ -41,56 +44,151 @@
 					canvasElement.style.WebkitTouchCallout = "none";
 					canvasElement.style.WebkitTapHighlightColor = "rgba(0,0,0,0)";
 				}
+
+				this.bindHandlers();
+			},
+
+			bindHandlers: function () {
+				var self, canvasElement, type;
 				
-				// Define properties
-				this.x = -1;
-				this.y = -1;
-				this.touchState = 'up';
-				this.canvasFocused = false;
-				this.canvasHovered = false;
-				this.cancel();
-				
-				// Add event listeners to the canvas element
-				canvasElement.addEventListener('touchmove', function (e) { _this.touchmove.call(_this, e); }, false);
-				canvasElement.addEventListener('touchstart', function (e) { _this.touchstart.call(_this, e); }, false);
-				canvasElement.addEventListener('touchend', function (e) { _this.touchend.call(_this, e); }, false);
-				
-				if (core.settings.disableScrolling) {
-					// Add event listener to prevent scrolling on touch devices
-					canvasElement.addEventListener('touchmove', function (e) { _this.doctouchmove.call(_this, e); e.preventDefault(); }, false);
+				self = this;
+				canvasElement = this.core.canvasElement;
+
+				for (type in this.types) {
+
+					// Add event listeners to the canvas element
+					canvasElement.addEventListener(type, function (e) {
+						self.canvasHandler(e);
+					}, false);
+
+					// Add event listeners to the document (used for setting states and trigger mouseup events)
+					document.addEventListener(type, function (e) {
+						self.docHandler(e);
+					}, false);
+
+					if (window.parent !== window) {
+						window.parent.document.addEventListener(type, function (e) {
+							self.docHandler(e);
+						}, false);
+					}
 				}
-				
-				// Add event listeners to the canvas element (used for setting states and trigger touchend events)
-				document.addEventListener('touchend', function (e) { _this.doctouchend.call(_this, e); }, false);
-				document.addEventListener('touchmove', function (e) { _this.doctouchmove.call(_this, e); }, true);
-				document.addEventListener('touchstart', function (e) { _this.doctouch.call(_this, e); }, true);
+
+				// Add event listener to prevent scrolling on touch devices
+				if (this.core.settings.disableScrolling) {
+					canvasElement.addEventListener("touchmove", function (e) {
+						e.preventDefault();
+					}, false);
+				}
+			},
+
+			canvasHandler: function (e, fromDoc) {
+				var events, onCanvas, frontObject, now, sameObj, interval;
+
+				events = this.core.events;
+				onCanvas = this.onCanvas(e);
+
+				// Trigger only touchend events if pointer is outside the canvas
+				if (e.type === "touchend" && !onCanvas && !this.canvasUpEventTriggered) {
+					events.triggerPointerEvent(this.types["touchend"], events.frontObject, "touch", e);
+					events.triggerPointerEvent(this.types["touchend"], this.core.canvasElement, "touch", e);
+					this.canvasUpEventTriggered = true;
+					return;
+				}
+
+				// Abort the handler if the pointer started inside the canvas and is now outside
+				if (!fromDoc && !onCanvas) {
+					return;
+				}
+
+				if (!fromDoc) {
+					this.canvasHovered = true;
+					this.canvasLeaveEventTriggered = false;
+				} else {
+					this.updatePos(e);
+				}
+
+				if (e.type === "touchstart") {
+					this.canvasUpEventTriggered = false;
+					this.canvasFocused = true;
+					this.touchState = "down";
+				}
+				if (e.type === "touchend") {
+					this.touchState = "up";
+				}
+
+				// Get the front object for pointer position, among all added objects
+				frontObject = (fromDoc || !onCanvas) ? undefined : events.getFrontObject("touch");
+
+				// Trigger events
+				events.triggerPointerEvent(this.types[e.type], frontObject, "touch", e);
+
+				// Log timestamps for events, to enable double taps
+				if (e.type === "touchstart") {
+					now = (new Date()).getTime();
+
+					if (!this.dblTapStart || now - this.dblTapStart.timestamp > this.dblTapInterval) {
+						this.dblTapStart = {
+							timestamp: now,
+							obj: frontObject,
+							count: 1
+						};
+					} else {
+						this.dblTapStart.count++;
+					}
+				}
+				if (e.type === "touchend" && this.dblTapStart.count === 2) {
+					now = (new Date()).getTime();
+					sameObj = frontObject === this.dblTapStart.obj;
+					interval = now - this.dblTapStart.timestamp;
+
+					// If the second touchend event is on the same object as the first touchstart,
+					//  and the time interval between the events is small enough,
+					//  then trigger a double tap event
+					if (sameObj && interval < this.dblTapInterval) {
+						events.triggerPointerEvent("doubleClick", frontObject, "touch", e);
+					}
+
+					delete this.dblTapStart;
+				}
+			},
+
+			docHandler: function (e) {
+				var onCanvas = this.onCanvas(e);
+
+				if (!onCanvas) {
+
+					if (!this.canvasLeaveEventTriggered) {
+						if (e.type === "touchmove") {
+							this.canvasHandler(e, true);
+							this.canvasLeaveEventTriggered = true;
+							this.canvasEnterEventTriggered = false;
+						}
+
+					} else {
+						if (e.type === "touchend") {
+							if (this.touchState === "down") {
+								this.canvasHandler(e, true);
+							}
+						}
+						if (e.type === "touchstart") {
+							this.canvasFocused = false;
+						}
+					}
+
+				}
 			},
 			
-			// Method for adding an event to the event list
-			addEvent: function (type, handler) {
-				this.eventList[type].last++;
-				this.eventList[type].length++;
-				var index = this.eventList[type].last;
-				this.eventList[type][index] = handler;
-				return index;
-			},
-			
-			// Method for removing an event from the event list
-			removeEvent: function (type, index) {
-				delete this.eventList[type][index];
-				this.eventList[type].length--;
-			},
-			
-			// Method for getting the current touch position relative to the canvas top left corner
 			getPos: function (e) {
-				var x, y;
+				var x, y, boundingRect, touches, numTouches;
+
+				touches = e.changedTouches;
 				
-				if (e.touches !== undefined) {
-					var boundingRect = this.core.canvasElement.getBoundingClientRect(),
-						l = e.touches.length;
+				if (touches !== undefined) {
+					boundingRect = this.core.canvasElement.getBoundingClientRect();
+					numTouches = touches.length;
 	
-					if (e.touches.length > 0) {
-						e = e.touches[0];
+					if (touches.length > 0) {
+						e = touches[0];
 							
 						// Browsers supporting pageX/pageY
 						if (e.pageX && e.pageY) {
@@ -108,22 +206,18 @@
 				
 				return { x: x, y: y };
 			},
-			
-			// Method for updating the touch position relative to the canvas top left corner
+
 			updatePos: function (e) {
 				var pos = this.getPos(e);
 				this.x = pos.x;
 				this.y = pos.y;
-				
-				return pos;
 			},
 			
-			// Method for checking if the touch is inside the canvas
 			onCanvas: function (e) {
-				e = e || this.last_event;
+				e = e || (this.core.events.lastPointerEventObject && this.core.events.lastPointerEventObject.originalEvent);
 				
 				// Get pointer position
-				var pos = e ? this.getPos(e) : {x:this.x, y:this.y};
+				var pos = e ? this.getPos(e) : { x: this.x, y: this.y };
 				
 				// Check boundaries => (left) && (right) && (top) && (bottom)
 				if ( (pos.x >= 0) && (pos.x <= this.core.width) && (pos.y >= 0) && (pos.y <= this.core.height) ) {
@@ -135,98 +229,11 @@
 					return false;
 				}
 			},
-			
-			// Method for triggering all events of a specific type
-			triggerEvents: function (type, e, forceLeave) {
-				forceLeave = forceLeave || false;
 
-				// Abort if events are disabled
-				if (!this.core.events.enabled) {
-					return;
-				}
-
-				// Get a modified event object
-				var eventObject = this.core.events.modifyEventObject(e, type);
-						
-				// Add new properties to the event object
-				eventObject.x = this.x;
-				eventObject.y = this.y;
-				eventObject.which = 0;
-				
-				// Trigger event handlers, but only on the front object
-				this.core.events.triggerPointerHandlers(this.eventList[type], eventObject, forceLeave);
-			},
-			
-			// Method that triggers all touchmove events that are added
-			touchmove: function (e) {
-				this.last_event = e;
-				
-				if (this.onCanvas(e)) {
-					this.canvasHovered = true;
-					
-					this.triggerEvents("touchenter", e);
-					this.triggerEvents("touchmove", e);
-					this.triggerEvents("touchleave", e);
-				}
-			},
-			
-			// Method that triggers all touchstart events that are added
-			touchstart: function (e) {
-				this.canvasFocused = true;
-				this.last_event = e;
-				
-				if (this.onCanvas(e)) {
-					this.start_pos = this.updatePos(e);
-					this.touchState = "down";
-					
-					this.triggerEvents("touchenter", e);
-					this.triggerEvents("touchstart", e);
-				}
-				return false;
-			},
-			
-			// Method that triggers all touchend events that are added
-			touchend: function (e) {
-				this.last_event = e;
-				this.touchState = "up";
-				
-				this.triggerEvents("touchleave", e, true);
-				this.triggerEvents("touchend", e);
-				this.triggerEvents("tap", e);
-				
-				this.cancel();
-			},
-			
-			// Method that triggers all touchend events when touch was pressed down on canvas and released outside
-			doctouchend: function (e) {
-				if (this.touchState === "down" && !this.onCanvas(e)) {
-					this.touchend(e);
-				}
-			},
-			
-			// Method that triggers all touchleave events when touch is outside the canvas
-			doctouchmove: function (e) {
-				if (this.canvasHovered && !this.onCanvas(e)) {
-					this.triggerEvents("touchleave", e, true);
-				}
-			},
-			
-			// Method that sets the focus state when touch is pressed down outside the canvas
-			doctouch: function (e) {
-				if (!this.onCanvas(e)) {
-					this.canvasFocused = false;
-				}
-			},
-			
-			// Method that cancels the tap event
-			// A tap is triggered if both the start pos and end pos is within the object,
-			// so resetting the start_pos cancels the tap
 			cancel: function () {
-				this.start_pos = {x:-10,y:-10};
-				
-				return this;
+				this.cancelClick = true;
 			}
-			
+
 		};
 	};
 
