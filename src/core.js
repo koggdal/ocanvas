@@ -6,7 +6,9 @@
 		// Function for checking when the DOM is ready for interaction
 		domReady: function (func) {
 			if (/in/.test(document.readyState)) {
-				setTimeout("oCanvas.domReady(" + func + ")", 10);
+				setTimeout(function() {
+					oCanvas.domReady( func );
+				}, 10);
 			} else {
 				func();
 			}
