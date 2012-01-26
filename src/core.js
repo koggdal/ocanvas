@@ -235,7 +235,7 @@
 			
 		// Method for triggering all events added to the object
 		trigger: function (types) {
-			this.events.trigger(this.canvasElement, types.split(" "));
+			this.events.triggerHandlers(this.canvasElement, types.split(" "));
 			
 			return this;
 		}
