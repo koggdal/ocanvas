@@ -102,7 +102,6 @@
 
 				if (!fromDoc) {
 					this.canvasHovered = true;
-					this.canvasLeaveEventTriggered = false;
 				} else {
 					this.updatePos(e);
 				}
@@ -120,7 +119,14 @@
 				frontObject = (fromDoc || !onCanvas) ? undefined : events.getFrontObject("touch");
 
 				// Trigger events
-				events.triggerPointerEvent(this.types[e.type], frontObject, "touch", e);
+				if (fromDoc && events.frontObject) {
+					events.triggerChain(events.getParentChain(events.frontObject, true, true), ["touchleave"]);
+					events.frontObject = null;
+				} else if (fromDoc) {
+					events.triggerHandlers(this.core.canvasElement, ["touchleave"]);
+				} else {
+					events.triggerPointerEvent(this.types[e.type], frontObject, "touch", e);
+				}
 
 				// Log timestamps for events, to enable double taps
 				if (e.type === "touchstart") {
@@ -157,11 +163,9 @@
 
 				if (!onCanvas) {
 
-					if (!this.canvasLeaveEventTriggered) {
+					if (this.core.canvasElement.events.hasEntered) {
 						if (e.type === "touchmove") {
 							this.canvasHandler(e, true);
-							this.canvasLeaveEventTriggered = true;
-							this.canvasEnterEventTriggered = false;
 						}
 
 					} else {

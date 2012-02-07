@@ -78,6 +78,16 @@
 					return;
 				}
 
+				var canvas, eventTypes, enterEvent, leaveEvent, typeEvent,
+				    clickEvent, parentChain, chain, sharedParent, i, l;
+
+				canvas = this.core.canvasElement;
+				eventTypes = this.eventTypes[pointerName];
+				enterEvent = eventTypes.enter;
+				leaveEvent = eventTypes.leave;
+				typeEvent = eventTypes[type];
+				clickEvent = eventTypes.singleClick;
+
 				// Get a fixed event object
 				this.lastPointerEventObject = this.fixEventObject(e, pointerName);
 
@@ -90,33 +100,46 @@
 						// Is there a current front object?
 						if (this.frontObject) {
 
-							// Trigger all leave handlers for the current front object
-							this.triggerHandlers(this.frontObject, this.eventTypes[pointerName].leave);
+							// Is the current front object not in the parent chain for this object?
+							parentChain = this.getParentChain(frontObject);
+							if (!~parentChain.indexOf(this.frontObject)) {
+								this.triggerHandlers(this.frontObject, leaveEvent);
+
+								// Is this object not in the parent chain for the current front object?
+								parentChain = this.getParentChain(this.frontObject);
+								if (!~parentChain.indexOf(frontObject)) {
+									this.triggerChain(parentChain, leaveEvent);
+								} else {
+
+									// This object is in the parent chain, so we construct a new chain
+									//   for all parents in between and trigger leave events for this chain
+									chain = [];
+									for (i = 0, l = parentChain.length; i < l; i++) {
+										if (parentChain[i] === frontObject) {
+											break;
+										}
+										chain.push(parentChain[i]);
+									}
+									this.triggerChain(chain, leaveEvent);
+								}
+							}
 						}
 
-						// Set this object as new front object and trigger all enter handlers for it
+						// Set this object as new front object
 						this.frontObject = frontObject;
-						this.triggerHandlers(frontObject, this.eventTypes[pointerName].enter);
-					}
 
-					// Trigger all handlers for the event that actually happened
-					this.triggerHandlers(frontObject, this.eventTypes[pointerName][type]);
+						// Has the pointer not entered the parent of this object?
+						if (!(frontObject.parent || canvas).events.hasEntered) {
 
-					// If the pointer is pressed down, save which the front object is
-					if (type === "down") {
-						this.lastDownObject = frontObject;
-					}
-
-					// If the pointer is released, trigger click handlers if the front object is
-					//  the same as the object the pointer was pressed down on
-					if (type === "up") {
-						if (this.core[pointerName].cancelClick) {
-							this.core[pointerName].cancelClick = false;
-
-						} else if (frontObject === this.lastDownObject) {
-							this.triggerHandlers(frontObject, this.eventTypes[pointerName].singleClick);
+							// Trigger all enter handlers for all parents that the pointer hasn't entered (out to in)
+							parentChain = this.findNonEnteredParentChain(frontObject);
+							this.triggerChain(parentChain, enterEvent);
 						}
-						this.lastDownObject = {};
+
+						// Has the pointer not entered this object?
+						if (!frontObject.events.hasEntered) {
+							this.triggerHandlers(frontObject, enterEvent);
+						}
 					}
 
 				} else {
@@ -124,46 +147,162 @@
 					// Is there a current front object?
 					if (this.frontObject) {
 
-						// Trigger all leave handlers for the current front object and reset the front object
-						this.triggerHandlers(this.frontObject, this.eventTypes[pointerName].leave);
+						// Get the parent chain for the object and add the current object to the beginning
+						chain = this.getParentChain(this.frontObject, false, true);
+
+						// Trigger all leave handlers for current front object and parent chain
+						this.triggerChain(chain, leaveEvent);
+
 						this.frontObject = null;
+
+					} else {
+
+						// Trigger all enter handlers for the canvas if it hasn't been entered
+						if (!canvas.events.hasEntered) {
+							this.triggerHandlers(canvas, enterEvent);
+						}
 					}
+
+					frontObject = this.core.canvasElement;
 				}
 
-				// Trigger canvas leave handlers if the canvas is not hovered
-				if (!this.core[pointerName].canvasHovered) {
-					this.triggerHandlers(this.core.canvasElement, this.eventTypes[pointerName].leave);
-					this.core[pointerName].canvasLeaveEventTriggered = true;
-					this.core[pointerName].canvasEnterEventTriggered = false;
+				// Save which object the pointer was last pressed down on
+				if (type === "down") {
+					this.lastDownObject = frontObject;
 				}
 
-				// Trigger canvas enter handlers if the canvas is hovered and no enter event has been triggered
-				else if (!this.core[pointerName].canvasEnterEventTriggered) {
-					this.triggerHandlers(this.core.canvasElement, this.eventTypes[pointerName].enter);
-					this.core[pointerName].canvasEnterEventTriggered = true;
+				// Trigger all handlers of the current type, for the object and its parent chain, including canvas
+				//   This will also respect stopPropagation(), since the event will not be an enter or leave event
+				chain = this.getParentChain(frontObject, true, true);
+				this.triggerChain(chain, typeEvent);
+
+				// If this is an up event, we might also want to trigger click events
+				if (type === "up") {
+
+					// Is this object the last object the pointer was pressed down on?
+					if (frontObject === this.lastDownObject) {
+
+						// Trigger all click handlers for the object and its parent chain, including canvas
+						this.triggerChain(chain, clickEvent);
+
+					} else {
+
+						// Get the shared parent for this object and the last object the pointer was pressed down
+						sharedParent = this.getSharedParent(frontObject, this.lastDownObject);
+						if (sharedParent) {
+
+							// Trigger all click handlers for the shared parent and its parent chain, incl canvas
+							chain = this.getParentChain(sharedParent, true, true);
+							this.triggerChain(chain, clickEvent);
+						}
+					}
+
+					this.lastDownObject = null;
+				}
+			},
+
+			getSharedParent: function (obj1, obj2) {
+				var obj1Chain, canvas, obj2Parent;
+
+				obj1Chain = this.getParentChain(obj1, true, true);
+
+				canvas = this.core.canvasElement;
+				obj2Parent = obj2;
+
+				while (obj2Parent) {
+					if (~obj1Chain.indexOf(obj2Parent)) {
+						break;
+					}
+					obj2Parent = obj2Parent.parent || (obj2Parent !== canvas ? canvas : undefined);
 				}
 
-				// Trigger canvas handlers for the specified type if the canvas is hovered
-				if (this.core[pointerName].canvasHovered) {
-					this.triggerHandlers(this.core.canvasElement, this.eventTypes[pointerName][type]);
+				return obj2Parent;
+			},
+
+			findNonEnteredParentChain: function (obj) {
+				var chain, canvas, parent;
+
+				chain = [];
+				canvas = this.core.canvasElement;
+				parent = obj.parent;
+
+				while (parent) {
+					if (parent.events.hasEntered) {
+						break;
+					}
+					chain.push(parent);
+					parent = parent.parent;
+				}
+
+				if (!parent && !canvas.events.hasEntered) {
+					chain.push(canvas);
+				}
+
+				return chain.reverse();
+			},
+
+			getParentChain: function (obj, includeCanvas, includeObj) {
+				var chain, parent;
+				chain = [];
+
+				if (includeObj) {
+					chain.push(obj);
+				}
+
+				parent = obj.parent;
+				while (parent) {
+					chain.push(parent);
+					parent = parent.parent;
+				}
+
+				if (includeCanvas && obj !== this.core.canvasElement) {
+					chain.push(this.core.canvasElement);
+				}
+
+				return chain;
+			},
+
+			triggerChain: function (chain, types) {
+				var i, l, continuePropagation;
+				for (i = 0, l = chain.length; i < l; i++) {
+					continuePropagation = this.triggerHandlers(chain[i], types);
+					if (!continuePropagation) {
+						break;
+					}
 				}
 			},
 
 			triggerHandlers: function (obj, types) {
-				var i, handlers, numHandlers, n, e;
+				var i, handlers, isEnter, isLeave, numHandlers, n, e;
 
 				for (i = 0; i < types.length; i++) {
 					handlers = obj.events[types[i]];
+					isEnter = !!~types[i].indexOf("enter");
+					isLeave = !!~types[i].indexOf("leave");
 					e = ~types[i].indexOf("key") ? this.lastKeyboardEventObject : this.lastPointerEventObject;
 					e.type = types[i];
+					e.bubbles = (isEnter || isLeave) ? false : true;
+
+					if (isEnter && !obj.events.hasEntered) {
+						obj.events.hasEntered = true;
+					} else if (isLeave && obj.events.hasEntered) {
+						obj.events.hasEntered = false;
+					}
 
 					if (handlers) {
 						numHandlers = handlers.length;
 						for (n = 0; n < numHandlers; n++) {
 							handlers[n].call(obj, e);
 						}
+
+						if (e.stoppingPropagation) {
+							e.stoppingPropagation = false;
+							return false;
+						}
 					}
 				}
+
+				return true;
 			},
 
 			fixEventObject: function (e, inputName) {
@@ -182,6 +321,9 @@
 					},
 					
 					stopPropagation: function () {
+						if (this.bubbles) {
+							this.stoppingPropagation = true;
+						}
 						e.stopPropagation();
 					}
 				};

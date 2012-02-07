@@ -94,7 +94,6 @@
 
 				if (!fromDoc) {
 					this.canvasHovered = true;
-					this.canvasLeaveEventTriggered = false;
 				} else {
 					this.updatePos(e);
 				}
@@ -112,7 +111,14 @@
 				frontObject = (fromDoc || !onCanvas) ? undefined : events.getFrontObject("mouse");
 
 				// Trigger events
-				events.triggerPointerEvent(this.types[type], frontObject, "mouse", e);
+				if (fromDoc && events.frontObject) {
+					events.triggerChain(events.getParentChain(events.frontObject, true, true), ["mouseleave"]);
+					events.frontObject = null;
+				} else if (fromDoc) {
+					events.triggerHandlers(this.core.canvasElement, ["mouseleave"]);
+				} else {
+					events.triggerPointerEvent(this.types[type], frontObject, "mouse", e);
+				}
 			},
 
 			docHandler: function (e) {
@@ -120,7 +126,7 @@
 
 				if (!onCanvas) {
 
-					if (!this.canvasLeaveEventTriggered) {
+					if (this.core.canvasElement.events.hasEntered) {
 						if (e.type === "mouseover") {
 							this.canvasHandler(e, true);
 						}
