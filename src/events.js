@@ -46,7 +46,7 @@
 					else {
 						index = handlers.indexOf(handler);
 						if (~index) {
-							delete handlers[index];
+							handlers.splice(index, 1);
 						}
 					}
 				}
