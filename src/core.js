@@ -3,15 +3,6 @@
 	// Define the oCanvas object
 	var oCanvas = {
 		
-		// Function for checking when the DOM is ready for interaction
-		domReady: function (func) {
-			if (/in/.test(document.readyState)) {
-				setTimeout("oCanvas.domReady(" + func + ")", 10);
-			} else {
-				func();
-			}
-		},
-		
 		// Array containing all canvases created by oCanvas on the current page
 		canvasList: [],
 		
@@ -184,7 +175,57 @@
 		
 			// Create the new instance and return it
 			return new oCanvas.core(settings);
+		},
+
+		// Function for checking when the DOM is ready for interaction
+		domReady: function (func) {
+			func = func || function () {};
+
+			this.domReadyHandlers.push(func);
+
+			if (this.isDomReadyListening) {
+				return false;
+			}
+
+			if (this.isDomReady) {
+				oCanvas.triggerDomReadyHandlers();
+				return true;
+			}
+
+			var checkState = function (e) {
+				if (document.readyState === "complete" || (e && e.type === "DOMContentLoaded")) {
+					oCanvas.isDomReadyListening = false;
+					oCanvas.isDomReady = true;
+					oCanvas.triggerDomReadyHandlers();
+					document.removeEventListener("readystatechange", checkState, false);
+					document.removeEventListener("DOMContentLoaded", checkState, false);
+				}
+			};
+
+			if (checkState()) {
+				return true;
+			} else if (!this.isDomReadyListening) {
+				oCanvas.isDomReadyListening = true;
+				document.addEventListener("readystatechange", checkState, false);
+				document.addEventListener("DOMContentLoaded", checkState, false);
+				return false;
+			}
+		},
+		isDomReady: false,
+		isDomReadyListening: false,
+		domReadyHandlers: [],
+		triggerDomReadyHandlers: function () {
+			var handlers, i, l, handler;
+			handlers = this.domReadyHandlers;
+			for (i = 0, l = handlers.length; i < l; i++) {
+				handler = handlers[i];
+				if (handler) {
+					delete handlers[i];
+					handler();
+				}
+			}
 		}
+
 	};
 	
 	
@@ -243,5 +284,7 @@
 
 	// Attach the oCanvas object to the window object for access outside of this file
 	window.oCanvas = oCanvas;
+
+	oCanvas.domReady();
 	
 })(window, document);
