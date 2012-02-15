@@ -29,6 +29,7 @@
 			composition: "source-over",
 			scalingX: 1,
 			scalingY: 1,
+			pointerEvents: true,
 			
 			_: {
 				x: 0,

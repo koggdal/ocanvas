@@ -62,7 +62,7 @@
 				// Get the front object for the current pointer position
 				for (i = numObjects; i--;) {
 					obj = objects[i];
-					if (obj.isPointerInside(pointer)) {
+					if (obj.pointerEvents && obj.isPointerInside(pointer)) {
 						frontObject = obj;
 						break;
 					}
