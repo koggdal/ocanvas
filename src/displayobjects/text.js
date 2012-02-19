@@ -73,12 +73,10 @@
 			},
 			set size (size) {
 				setFontProperty(this, "size", size, "size", this.core);
-				this.initWebFont();
 				this.setDimensions();
 			},
 			set lineHeight (lineHeight) {
 				setFontProperty(this, "lineHeight", lineHeight, "lineHeight", this.core);
-				this.initWebFont();
 				this.setDimensions();
 			},
 			set family (family) {
@@ -88,7 +86,6 @@
 			},
 			set text (text) {
 				this._.text = text;
-				this.initWebFont();
 				this.setDimensions();
 			},
 			set width (value) {
@@ -180,7 +177,7 @@
 				
 				// Create a dummy element and set the current font
 				dummy = document.createElement("span");
-				dummy.style.font = "0px " + this.family;
+				dummy.style.font = this.style + " " + this.variant + " " + this.weight + " 0px " + this.family;
 
 				// Append it to the DOM. This will trigger the web font to be used and available to the canvas
 				document.body.appendChild(dummy);
