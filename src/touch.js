@@ -102,8 +102,6 @@
 
 				if (!fromDoc) {
 					this.canvasHovered = true;
-				} else {
-					this.updatePos(e);
 				}
 
 				if (e.type === "touchstart") {
