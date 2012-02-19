@@ -233,7 +233,7 @@
 			},
 
 			cancel: function () {
-				this.cancelClick = true;
+				this.core.events.lastDownObject = null;
 			}
 
 		};
