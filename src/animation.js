@@ -129,6 +129,9 @@
 				if (runFromQueue !== true) {
 					objQueue.push({
 						id: ++queue.lastID,
+						obj: obj,
+						properties: properties,
+						callback: callback,
 						start: function () {
 							_this.animate(obj, args, true, this.id);
 						}
@@ -140,7 +143,6 @@
 					if (!queue.activeAnimations[obj.id]) {
 						queue.activeAnimations[obj.id] = objQueue[0].id;
 						objQueue[0].start();
-						objQueue.splice(0, 1);
 						return;
 					}
 					return;
@@ -203,6 +205,7 @@
 				callback = parseCallback.call(this, args[1]);
 				callback = parseCallback.call(this, args[2]);
 				callback = parseCallback.call(this, args[3]);
+				objQueue[0].callback = callback;
 				
 				// Get start values from the object
 				for (property in properties) {
@@ -266,10 +269,10 @@
 						callback.call(obj);
 						
 						// Trigger the next animation in the queue if there is any
+						objQueue.shift();
 						if (objQueue[0] !== undefined) {
 							queue.activeAnimations[obj.id] = objQueue[0].id;
 							objQueue[0].start();
-							objQueue.splice(0, 1);
 							return;
 						}
 					}
@@ -295,7 +298,31 @@
 
 			// Method that stops all animations and sets all final values
 			finish: function (objectID) {
-				this.queue.timers[objectID] = Infinity;
+				var queue, obj, properties, property;
+				queue = this.queue[objectID];
+
+				if (!queue || queue.length === 0) {
+					return;
+				}
+
+				obj = queue[0].obj;
+				properties = queue[0].properties;
+				callback = queue[0].callback;
+
+				this.stop(objectID);
+
+				// Set the values to the end values
+				for (property in properties) {
+					obj[property] = properties[property];
+				}
+
+				// Redraw the canvas with the latest updates
+				if (!this.core.timeline.running) {
+					this.core.draw.redraw(true);
+				}
+
+				// Trigger the callback
+				callback.call(obj);
 			}
 			
 		};
