@@ -152,7 +152,7 @@
 				// Go through all the keys that are currently pressed down
 				for (keyCode in keysDown) {
 					if (keysDown[keyCode] === true) {
-						currentlyDown.push(parseInt(keycode, 10));
+						currentlyDown.push(parseInt(keyCode, 10));
 					}
 				}
 
