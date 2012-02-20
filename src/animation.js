@@ -94,7 +94,7 @@
 			animate: function (obj, args, runFromQueue, id) {
 				args = Array.prototype.slice.call(args);
 				runFromQueue = runFromQueue || false;
-				id = id || false;
+				id = id === undefined ? false : id;
 				
 				// Abort if the first argument is not an object
 				if (args[0].constructor !== Object) {
@@ -103,32 +103,47 @@
 				
 				// Add new item to the queue if it doesn't exist for this object
 				if (!this.queue[obj.id]) {
-					this.queue[obj.id] = [];
+					this.queue[obj.id] = [[]];
 				}
-				
+
 				var _this = this,
 					properties = args[0],
 					duration = this.defaults.duration,
 					easing = this.easing[this.defaults.easing],
+					newQueue = false,
 					callback = function () {},
 					queue = this.queue,
-					objQueue = queue[obj.id],
+					objQueues = queue[obj.id],
+					objQueue = objQueues[0],
+					objQueueIndex = 0,
 					property, runMore,
 					startValues = {},
 					currentTime = 0,
 					timers = this.queue.timers;
 
+				// Create the active container for the object
+				if (!queue.activeAnimations[obj.id]) {
+					queue.activeAnimations[obj.id] = [];
+				}
+
 				// Create the timer if it doesn't exist
 				if (timers[obj.id] === undefined) {
-					timers[obj.id] = 0;
+					timers[obj.id] = [0];
 				}
 				
 				// Add the animation to the queue if this call comes from a display object
 				// If this block is run, execution will be aborted at the end of the block
 				// and run animate() again with the first inactive animation in the queue
 				if (runFromQueue !== true) {
+					newQueue = parseNewQueue.call(this, args[3], false);
+					newQueue = parseNewQueue.call(this, args[1], newQueue);
+					if (newQueue) {
+						objQueueIndex = objQueues.push([]) - 1;
+						objQueue = objQueues[objQueueIndex];
+						timers[obj.id][objQueueIndex] = 0;
+					}
 					objQueue.push({
-						id: ++queue.lastID,
+						id: objQueueIndex,
 						obj: obj,
 						properties: properties,
 						callback: callback,
@@ -140,12 +155,15 @@
 					// Start the first animation in the queue if no animations are active on the object
 					// If there is an active the next animation in the queue will be fired
 					// when that animation is completed
-					if (!queue.activeAnimations[obj.id]) {
-						queue.activeAnimations[obj.id] = objQueue[0].id;
+					if (!~queue.activeAnimations[obj.id].indexOf(objQueueIndex)) {
+						queue.activeAnimations[obj.id].push(objQueueIndex);
 						objQueue[0].start();
 						return;
 					}
 					return;
+				} else {
+					objQueueIndex = id;
+					objQueue = objQueues[objQueueIndex];
 				}
 				
 				
@@ -196,6 +214,9 @@
 				function parseCallback (arg) {
 					return (typeof arg === "function") ? arg : callback;
 				}
+				function parseNewQueue (arg, val) {
+					return (typeof arg === "boolean") ? arg : val;
+				}
 				
 				
 				// Get arguments and correct different syntax alternatives
@@ -205,6 +226,7 @@
 				callback = parseCallback.call(this, args[1]);
 				callback = parseCallback.call(this, args[2]);
 				callback = parseCallback.call(this, args[3]);
+				callback = parseCallback.call(this, args[4]);
 				objQueue[0].callback = callback;
 				
 				// Get start values from the object
@@ -218,7 +240,7 @@
 					
 					// Set the new time value
 					currentTime += 1000 / _this.core.settings.fps;
-					timers[obj.id] = currentTime;
+					timers[obj.id][objQueueIndex] = currentTime;
 					
 					// Loop through all properties and set them to the new calculated value
 					for (property in properties) {
@@ -241,7 +263,7 @@
 					}
 					
 					// Draw the frame if there is time left
-					if (timers[obj.id] < duration && queue.activeAnimations[obj.id] === id) {
+					if (timers[obj.id][objQueueIndex] < duration && ~queue.activeAnimations[obj.id].indexOf(objQueueIndex)) {
 						if (!_this.core.timeline.running) {
 							_this.core.draw.redraw(true);
 						}
@@ -250,7 +272,7 @@
 					}
 					
 					// Abort the animation if the end time has been reached 
-					else if (queue.activeAnimations[obj.id] === id) {
+					else if (~queue.activeAnimations[obj.id].indexOf(objQueueIndex)) {
 						
 						// Set the values to the end values
 						for (property in properties) {
@@ -263,18 +285,17 @@
 						}
 						
 						// Set animation status
-						queue.activeAnimations[obj.id] = false;
-						
-						// Trigger the callback
-						callback.call(obj);
+						queue.activeAnimations[obj.id].splice(queue.activeAnimations[obj.id].indexOf(objQueueIndex), 1);
 						
 						// Trigger the next animation in the queue if there is any
 						objQueue.shift();
 						if (objQueue[0] !== undefined) {
-							queue.activeAnimations[obj.id] = objQueue[0].id;
+							queue.activeAnimations[obj.id].push(objQueue[0].id);
 							objQueue[0].start();
-							return;
 						}
+
+						// Trigger the callback
+						callback.call(obj);
 					}
 				})();
 			},
@@ -286,7 +307,7 @@
 				if (this.queue[objectID] !== undefined) {
 				
 					// Stop the animation and remove the queue
-					this.queue.activeAnimations[objectID] = false;
+					this.queue.activeAnimations[objectID] = [];
 					delete this.queue[objectID];
 					
 					// Redraw the canvas with the latest updates
