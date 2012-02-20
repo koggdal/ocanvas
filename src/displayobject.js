@@ -776,6 +776,7 @@
 				
 				// Extend the new object with this object's properties and then apply the custom settings
 				newObj = oCanvas.extend(newObj, this_filtered, settings);
+				newObj.id = ++this.core.lastObjectID;
 				
 				if (typeof newObj.init === "function") {
 					newObj.init();
