@@ -15,7 +15,7 @@ Then navigate to the build directory by running:
 Finally run the build command:
 `node build.js`
 
-You will now have two source files in the build directory: ocanvas-x.x.js and ocanvas-x.x.min.js
+You will now have two source files in the build directory: ocanvas-x.x.x.js and ocanvas-x.x.x.min.js
 
 ## Documentation
 All the documentation can be found at the website, <http://ocanvas.org/>
