@@ -287,33 +287,13 @@
 				return this._.abs_y;
 			},
 			set width (value) {
-				var old = this._.width;
 				this._.width = value;
-				
-				// Update children
-				var objects = this.children,
-					l = objects.length, i;
-				for (i = 0; i < l; i++) {
-					if (objects[i].type !== "image") {
-						objects[i].width = objects[i].width - old + value;
-					}
-				}
 			},
 			get width () {
 				return this._.width;
 			},
 			set height (value) {
-				var old = this._.height;
 				this._.height = value;
-				
-				// Update children
-				var objects = this.children,
-					l = objects.length, i;
-				for (i = 0; i < l; i++) {
-					if (objects[i].type !== "image") {
-						objects[i].height = objects[i].height - old + value;
-					}
-				}
 			},
 			get height () {
 				return this._.height;
