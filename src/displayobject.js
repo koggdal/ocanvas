@@ -769,7 +769,7 @@
 				settings.drawn = false;
 				var newObj = this.core.display[this.type](settings),
 					this_filtered = {},
-					reject = ["core", "events", "children", "parent", "img", "fill", "strokeColor"],
+					reject = ["core", "events", "children", "parent", "img", "fill", "strokeColor", "added"],
 					loopObject, x, stroke, i, children, child, dX, dY, descriptor;
 				
 				// Filter out the setter and getter methods, and also properties listed above
