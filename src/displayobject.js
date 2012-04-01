@@ -316,7 +316,7 @@
 				this.core.draw.changeZorder(this.parent, this.zIndex, value);
 			},
 			get zIndex () {
-				return this.parent.children.indexOf(this);
+				return this.parent && this.parent.children.indexOf(this);
 			},
 			get drawn () {
 				return this.core.draw.isCleared ? false : this._.drawn;
