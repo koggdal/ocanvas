@@ -577,6 +577,12 @@
 						start = { x: 0, y: 0 };
 					
 					this._.drag_start = function (e) {
+
+						// Stop bubbling if specified
+						if (options.bubble === false) {
+							e.stopPropagation();
+						}
+
 						this.dragging = true;
 						
 						// Get the difference between pointer position and object position
@@ -602,8 +608,14 @@
 						}
 					};
 					
-					this._.drag_end = function () {
+					this._.drag_end = function (e) {
 						if (_this.dragging) {
+
+							// Stop bubbling if specified
+							if (options.bubble === false) {
+								e.stopPropagation();
+							}
+
 							_this.dragging = false;
 							
 							// Run user callback
@@ -620,6 +632,11 @@
 					
 					this._.drag_move = function (e) {
 						if (_this.dragging) {
+
+							// Stop bubbling if specified
+							if (options.bubble === false) {
+								e.stopPropagation();
+							}
 						
 							var end = _this.core.tools.transformPointerPosition(_this, _this.abs_x, _this.abs_y, _this.rotation);
 
