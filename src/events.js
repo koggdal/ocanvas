@@ -52,23 +52,42 @@
 				}
 			},
 
-			getFrontObject: function (pointerName) {
-				var objects, numObjects, pointer, i, obj, frontObject;
+			findFrontObject: function (objects, pointer) {
+				var i, obj, result;
 
-				objects = this.core.draw.objects;
-				numObjects = objects.length;
-				pointer = this.core[pointerName];
+				// No object can be found if there are no objects
+				if (objects.length === 0) {
+					return false;
+				}
 
-				// Get the front object for the current pointer position
-				for (i = numObjects; i--;) {
+				// Go through each object, starting from the end.
+				//  For each object, it will loop through that object's children recursively.
+				//  That way we start with the front object for the root level (added to core)
+				//  and dig through to the deepest child. If the pointer is inside that object,
+				//  we break out of all loops and return that object to the original caller.
+				//  If the pointer was not inside that object, we will go back out one step
+				//  at a time and check the pointer against each object. If no object was
+				//  detected and we reach the core child again, we will take the next core
+				//  child and iterate through that child chain.
+				for (i = objects.length; i--;) {
 					obj = objects[i];
-					if (obj.pointerEvents && obj.isPointerInside(pointer)) {
-						frontObject = obj;
+					result = this.findFrontObject(obj.children, pointer);
+					if (result === false) {
+						if (obj.pointerEvents && obj.isPointerInside(pointer)) {
+							result = obj;
+							break;
+						}
+					} else {
 						break;
 					}
 				}
 
-				return frontObject;
+				// This function will return an object if the pointer is inside it, or false otherwise
+				return result;
+			},
+
+			getFrontObject: function (pointerName) {
+				return this.findFrontObject(this.core.children, this.core[pointerName]) || undefined;
 			},
 
 			triggerPointerEvent: function (type, frontObject, pointerName, e) {

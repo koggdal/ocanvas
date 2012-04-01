@@ -21,7 +21,7 @@
 					
 					// Get all objects in the parent chain, including this one
 					objectChain.push(obj);
-					while (parent) {
+					while (parent && parent !== this.core) {
 						objectChain.push(parent);
 						parent = parent.parent;
 					}

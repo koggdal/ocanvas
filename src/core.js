@@ -23,6 +23,9 @@
 			
 			// A number which is used to give new objects an ID
 			this.lastObjectID = 0;
+
+			// Initialize a list of all objects added directly to the canvas
+			this.children = [];
 			
 			// Add the registered modules to the new instance of core
 			for (var m in oCanvas.modules) {

@@ -21,9 +21,9 @@
 				x: 0,
 				y: 0
 			},
-			drawn: false,
 			events: {},
 			children: [],
+			added: false,
 			opacity: 1,
 			rotation: 0,
 			composition: "source-over",
@@ -39,6 +39,7 @@
 				rotation: 0,
 				width: 0,
 				height: 0,
+				drawn: false,
 				stroke: "",
 				strokeColor: "",
 				strokeWidth: 0,
@@ -246,7 +247,7 @@
 			
 			set x (value) {
 				this._.x = value;
-				this._.abs_x = value + ((this.parent !== undefined) ? this.parent.abs_x : 0);
+				this._.abs_x = value + ((this.parent !== undefined && this.parent !== this.core) ? this.parent.abs_x : 0);
 				
 				// Update children
 				var objects = this.children,
@@ -258,7 +259,7 @@
 			},
 			set y (value) {
 				this._.y = value;
-				this._.abs_y = value + ((this.parent !== undefined) ? this.parent.abs_y : 0);
+				this._.abs_y = value + ((this.parent !== undefined && this.parent !== this.core) ? this.parent.abs_y : 0);
 				
 				// Update children
 				var objects = this.children,
@@ -299,27 +300,29 @@
 				return this._.height;
 			},
 			set zIndex (value) {
+				if (!this.parent) {
+					return;
+				}
 
 				// Get new z index based on keywords
 				if (value === "front") {
-					value = this.core.draw.objects.length - 1;
+					value = this.parent.children.length - 1;
 				}
 				if (value === "back") {
 					value = 0;
 				}
 
 				// Change the z order
-				this.core.draw.changeZorder(this.zIndex, value);
-	
-				// Update children
-				var objects = this.children,
-					l = objects.length, i;
-				for (i = 0; i < l; i++) {
-					objects[i].zIndex = value + i + 1;
-				}
+				this.core.draw.changeZorder(this.parent, this.zIndex, value);
 			},
 			get zIndex () {
-				return this.core.draw.objects.indexOf(this);
+				return this.parent.children.indexOf(this);
+			},
+			get drawn () {
+				return this.core.draw.isCleared ? false : this._.drawn;
+			},
+			set drawn (value) {
+				this._.drawn = !!value;
 			},
 			
 			// Method for binding an event to the object
@@ -345,25 +348,22 @@
 			
 			// Method for adding the object to the canvas
 			add: function (redraw) {
-				if (this.drawn === false) {
+				if (!this.added) {
 
 					// Redraw by default, but leave it to the user to decide
 					redraw = redraw !== undefined ? redraw : true;
 				
 					// Add this object
-					this.core.draw.add(this);
-					this.drawn = true;
+					this.core.children.push(this);
+					this.added = true;
+					this.parent = this.core;
+
+					// Add it to a global list of all objects. Deprecated list, will be removed soon.
+					this.core.draw.objects.push(this);
 					
 					// Redraw the canvas with the new object
 					if (redraw) {
-						this.core.redraw();
-					}
-					
-					// Add children that have been added to this object
-					var objects = this.children,
-						l = objects.length, i;
-					for (i = 0; i < l; i++) {
-						objects[i].add(redraw);
+						this.core.draw.redraw();
 					}
 				}
 				
@@ -371,15 +371,39 @@
 			},
 			
 			// Method for removing the object from the canvas
-			remove: function () {
-				this.core.draw.remove(this);
-				this.drawn = false;
-				
-				// Add children that have been added to this object
-				var objects = this.children,
-					l = objects.length, i;
-				for (i = 0; i < l; i++) {
-					objects[i].remove();
+			remove: function (redraw) {
+
+				// Redraw by default, but leave it to the user to decide
+				redraw = redraw !== undefined ? redraw : true;
+
+				// Get the index for this object within the parent's child list
+				var index = this.parent.children.indexOf(this);
+				if (~index) {
+					this.parent.children.splice(index, 1);
+					this.parent = undefined;
+					this.added = false;
+					this.drawn = false;
+
+					// Remove it from a global list of all objects. Deprecated list, will be removed soon.
+					var index2 = this.core.draw.objects.indexOf(this);
+					if (~index2) {
+						this.core.draw.objects.splice(i, 1);
+					}
+
+					// Set draw state for children of this object
+					var objects = this.children;
+					for (var i = 0, l = objects.length; i < l; i++) {
+						objects[i].drawn = false;
+						index2 = this.core.draw.objects.indexOf(objects[i]);
+						if (~index2) {
+							this.core.draw.objects.splice(index2, 1);
+						}
+					}
+
+					// Redraw the canvas to actually remove the object
+					if (redraw) {
+						this.core.draw.redraw();
+					}
 				}
 				
 				return this;
@@ -683,10 +707,13 @@
 					childObj.parent = this;
 					childObj.x += 0;
 					childObj.y += 0;
+
+					// Add it to a global list of all objects. Deprecated list, will be removed soon.
+					this.core.draw.objects.push(childObj);
 					
-					// Add it to canvas if this object is drawn
+					// Redraw the canvas if this object is drawn, to show the new child object
 					if (this.drawn) {
-						childObj.add();
+						this.core.draw.redraw();
 					}
 					
 					if (returnIndex) {
@@ -714,8 +741,6 @@
 			removeChildAt: function (index) {
 				if (this.children[index] !== undefined) {
 					this.children[index].remove();
-					this.children[index].parent = undefined;
-					this.children.splice(index, 1);
 				}
 				
 				return this;
