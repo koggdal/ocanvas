@@ -37,6 +37,11 @@
 				for (i = 0; i < types.length; i++) {
 					handlers = obj.events[types[i]];
 
+					// If no handlers have been added, none can be removed
+					if (handlers === undefined) {
+						continue;
+					}
+
 					// Remove all handlers if no specific handler is passed in
 					if (handler === undefined) {
 						delete obj.events[types[i]];
