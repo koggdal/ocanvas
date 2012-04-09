@@ -20,7 +20,7 @@
 			},
 
 			docHandler: function (e) {
-				var keyCode, events, canvasElement;
+				var keyCode, events, canvasElement, eventObject;
 				events = this.core.events;
 				canvasElement = this.core.canvasElement;
 
@@ -54,7 +54,8 @@
 				}
 
 				// Get a fixed event object
-				events.lastKeyboardEventObject = events.fixEventObject(e, "keyboard");
+				eventObject = events.fixEventObject(e, "keyboard");
+				events.lastKeyboardEventObject = eventObject;
 
 				// Trigger events
 				events.triggerHandlers(canvasElement, [e.type]);
@@ -62,7 +63,7 @@
 				// Set the timer to trigger keypress events continuously until released
 				if (e.type === "keydown") {
 					this.keyPressTimers[keyCode] = setInterval(function () {
-						events.triggerHandlers(canvasElement, ["keypress"]);
+						events.triggerHandlers(canvasElement, ["keypress"], eventObject);
 					}, 1000 / this.core.settings.fps);
 				}
 
