@@ -227,7 +227,7 @@
 				// Filled arcs, stroked arcs, stroked arcs that look like pie chart pieces
 				if (obj.type === "arc") {
 					var angleDiff = obj.end - obj.start,
-						angleRange = (obj.direction === "clockwise") ? (angleDiff < 0 ? 360 : 0) + angleDiff % 360 : Math.abs(angleDiff),
+						angleRange = (obj.direction === "clockwise") ? (angleDiff < 0 ? 360 : 0) + (angleDiff % 360 ? angleDiff % 360 : (angleDiff > 0 ? 360 : 0)) : Math.abs(angleDiff),
 						extraAngle = (obj.direction === "clockwise" ? obj.start * -1 : obj.end * -1),
 						pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, extraAngle, pointerObject),
 						D = Math.sqrt(Math.pow(pointer.x - obj.abs_x + origin.x, 2) + Math.pow(pointer.y - obj.abs_y + origin.y, 2)),
