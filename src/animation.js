@@ -90,7 +90,7 @@
 					return y;
 				}
 			},
-			
+
 			animate: function (obj, args, runFromQueue, id) {
 				args = Array.prototype.slice.call(args);
 				runFromQueue = runFromQueue || false;
@@ -267,12 +267,12 @@
 						if (!_this.core.timeline.running) {
 							_this.core.draw.redraw(true);
 						}
-						
-						setTimeout(timer, 1000 / _this.core.settings.fps);
+						objQueue[0].timer = setTimeout(timer, 1000 / _this.core.settings.fps);
 					}
 					
 					// Abort the animation if the end time has been reached 
 					else if (~queue.activeAnimations[obj.id].indexOf(objQueueIndex)) {
+						clearTimeout(objQueue[0].timer);
 						
 						// Set the values to the end values
 						for (property in properties) {
@@ -307,6 +307,9 @@
 				if (this.queue[objectID] !== undefined) {
 				
 					// Stop the animation and remove the queue
+					if (this.queue[objectID][0][0]) {
+						clearTimeout(this.queue[objectID][0][0].timer);
+					}
 					this.queue.activeAnimations[objectID] = [];
 					delete this.queue[objectID];
 					
@@ -319,16 +322,17 @@
 
 			// Method that stops all animations and sets all final values
 			finish: function (objectID) {
-				var queue, obj, properties, property;
+				var queue, obj, properties, callback, property;
 				queue = this.queue[objectID];
 
-				if (!queue || queue.length === 0) {
+				if (!queue || queue[0].length === 0) {
 					return;
 				}
 
-				obj = queue[0].obj;
-				properties = queue[0].properties;
-				callback = queue[0].callback;
+				queue = queue[0][0];
+				obj = queue.obj;
+				properties = queue.properties;
+				callback = queue.callback;
 
 				this.stop(objectID);
 
