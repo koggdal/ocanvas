@@ -17,6 +17,7 @@
 		
 		// Define the core class
 		core: function (options) {
+			this.isCore = true;
 		
 			// Add the canvas to the canvas list on the global object
 			this.id = oCanvas.canvasList.push(this) - 1;

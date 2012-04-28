@@ -24,18 +24,18 @@
 			
 			// Getters and setters
 			set start (values) {
-				this._.start_x = values.x + (this.parent ? this.parent._.abs_x : 0);
-				this._.start_y = values.y + (this.parent ? this.parent._.abs_y : 0);
+				this._.start_x = values.x + (this.parent && !this.parent.isCore ? this.parent._.abs_x : 0);
+				this._.start_y = values.y + (this.parent && !this.parent.isCore ? this.parent._.abs_y : 0);
 				this.setPosition();
 			},
 			set end (values) {
-				this._.end_x = values.x + (this.parent ? this.parent._.abs_x : 0);
-				this._.end_y = values.y + (this.parent ? this.parent._.abs_y : 0);
+				this._.end_x = values.x + (this.parent && !this.parent.isCore ? this.parent._.abs_x : 0);
+				this._.end_y = values.y + (this.parent && !this.parent.isCore ? this.parent._.abs_y : 0);
 				this.setPosition();
 			},
 			get start () {
 				var offset = { x: 0, y: 0 };
-				if (this.parent) {
+				if (this.parent && !this.parent.isCore) {
 					offset.x = this.parent._.abs_x;
 					offset.y = this.parent._.abs_y;
 				}
@@ -43,7 +43,7 @@
 			},
 			get end () {
 				var offset = { x: 0, y: 0 };
-				if (this.parent) {
+				if (this.parent && !this.parent.isCore) {
 					offset.x = this.parent._.abs_x;
 					offset.y = this.parent._.abs_y;
 				}
@@ -58,7 +58,7 @@
 				diff = this._.end_x - this._.start_x;
 
 				// Get parent offset
-				offsetX = this.parent ? this.parent._.abs_x : 0;
+				offsetX = this.parent && !this.parent.isCore ? this.parent._.abs_x : 0;
 				
 				// Assign new x positions for the object
 				this._.x = value;
@@ -83,7 +83,7 @@
 				diff = this._.end_y - this._.start_y,
 				
 				// Get parent offset
-				offsetY = this.parent ? this.parent._.abs_y : 0;
+				offsetY = this.parent && !this.parent.isCore ? this.parent._.abs_y : 0;
 				
 				// Assign new y positions for the object
 				this._.y = value;
@@ -146,7 +146,7 @@
 			setPosition: function () {
 				if (this.initialized) {
 					var offset = { x: 0, y: 0 };
-					if (this.parent) {
+					if (this.parent && !this.parent.isCore) {
 						offset.x = this.parent._.abs_x;
 						offset.y = this.parent._.abs_y;
 					}
