@@ -376,6 +376,11 @@
 				// Redraw by default, but leave it to the user to decide
 				redraw = redraw !== undefined ? redraw : true;
 
+				// Abort if the object is not added to a parent object
+				if (!this.parent) {
+					return this;
+				}
+
 				// Get the index for this object within the parent's child list
 				var index = this.parent.children.indexOf(this);
 				if (~index) {
