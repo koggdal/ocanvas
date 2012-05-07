@@ -376,9 +376,9 @@
 						0: 1,
 						2: 2,
 						1: 3,
-						default: 0
+						"default": 0
 					};
-					eventObject.which = buttonConversion[eventObject.button] || buttonConversion.default;
+					eventObject.which = buttonConversion[eventObject.button] || buttonConversion["default"];
 				}
 
 				// Fix the which property for touch events
