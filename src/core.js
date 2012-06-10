@@ -34,7 +34,7 @@
 			// Add the registered modules to the new instance of core
 			for (var m in oCanvas.modules) {
 				if (typeof oCanvas.modules[m] === "function") {
-					this[m] = Object.create(oCanvas.modules[m]());
+					this[m] = oCanvas.modules[m]();
 				} else {
 					this[m] = Object.create(oCanvas.modules[m]);
 				}
@@ -75,7 +75,7 @@
 			this.canvas = this.canvasElement.getContext("2d");
 			var width = this.canvasElement.width;
 			var height = this.canvasElement.height;
-			Object.defineProperty(this, 'width', {
+			Object.defineProperty(this, "width", {
 				enumerable: true,
 				configurable: true,
 				set: function (value) {
@@ -88,7 +88,7 @@
 					return width;
 				}
 			});
-			Object.defineProperty(this, 'height', {
+			Object.defineProperty(this, "height", {
 				enumerable: true,
 				configurable: true,
 				set: function (value) {

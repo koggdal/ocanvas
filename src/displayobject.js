@@ -30,6 +30,7 @@
 			scalingX: 1,
 			scalingY: 1,
 			pointerEvents: true,
+			animationQueues: {},
 			
 			_: {
 				x: 0,
@@ -520,14 +521,14 @@
 			
 			// Method for clearing the object's animation queue and stop the animations
 			stop: function () {
-				this.core.animation.stop(this.id);
+				this.core.animation.stop(this);
 				
 				return this;
 			},
 
 			// Method for clearing the animation queue and setting all final values
 			finish: function () {
-				this.core.animation.finish(this.id);
+				this.core.animation.finish(this);
 
 				return this;
 			},
@@ -905,6 +906,7 @@
 					var retObj = oCanvas.extend(Object.create(displayObject()), new obj(settings, thecore));
 					retObj.type = name;
 					retObj.id = ++thecore.lastObjectID;
+					thecore.animation.queues.create(retObj, "default");
 					
 					// Trigger an init method if specified
 					if (init !== undefined) {
