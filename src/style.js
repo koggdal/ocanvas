@@ -580,6 +580,7 @@
 						
 						// Set the next position if it's not the first one
 						else {
+							color_pos = color_pos || 0;
 							color_pos = color_pos + ((100 - color_pos) / (l - i));
 						}
 					}
