@@ -49,6 +49,12 @@
 				}
 				return { x: this._.end_x - offset.x, y: this._.end_y - offset.y };
 			},
+			get abs_start () {
+				return { x: this._.start_x, y: this._.start_y };
+			},
+			get abs_end () {
+				return { x: this._.end_x, y: this._.end_y };
+			},
 			
 			// Overwrite the setters that displayObject provides, to enable start/end coordinates to affect the position
 			set x (value) {
