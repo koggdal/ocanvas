@@ -36,15 +36,15 @@
 				}
 
 				keyCode = this.getKeyCode(e);
+
+				// Prevent default for keys that have been added to the prevent list
+				this.preventDefault(e);
 			
 				// Cancel event if the key is already pressed down
 				// (some browsers repeat even keydown when held down)
 				if (e.type === "keydown" && this.keysDown[keyCode] === true) {
 					return;
 				}
-
-				// Prevent default for keys that have been added to the prevent list
-				this.preventDefault(e);
 
 				// Set the key states when pressed down
 				if (e.type === "keydown") {
