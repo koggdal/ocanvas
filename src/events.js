@@ -316,7 +316,9 @@
 					if (handlers) {
 						numHandlers = handlers.length;
 						for (n = 0; n < numHandlers; n++) {
-							handlers[n].call(obj, e);
+							if (handlers[n] !== undefined) {
+								handlers[n].call(obj, e);
+							}
 						}
 
 						if (e.stoppingPropagation) {
