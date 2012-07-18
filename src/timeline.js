@@ -4,7 +4,7 @@
 	var timeline = function () {
 	
 		// Return an object when instantiated
-		return {
+		var module = {
 			
 			init: function () {
 				var _this = this;
@@ -18,7 +18,7 @@
 				};
 			},
 			
-			// Set default values when initalized
+			// Set default values when initialized
 			currentFrame: 1,
 			timeline: 0,
 			running: false,
@@ -37,50 +37,64 @@
 			
 			// Method that will be called for each frame
 			loop: function () {
-				
-				// If mainLoop has been defined
-				if (typeof this.userLoop === "function") {
-				
-					// Clear the canvas if specified
-					if (this.core.settings.clearEachFrame === true) {
-						this.core.draw.clear();
-					}
-					
-					// Trigger the user defined function mainLoop and set this to the current core instance
-					this.userLoop.call(this.core, this.core.canvas);
-					
-					// Redraw the canvas if specified
-					if (this.core.settings.drawEachFrame === true) {
-						this.core.draw.redraw();
-					}
-					
-					// Increment the frame count
-					this.currentFrame++;
+				if (!this.running) {
+					return;
 				}
+
+				// Set up a timer to respect the chosen fps,
+				// but use RAF to decide when the next call should be made.
+				setTimeout(function () {
+					module.timeline = requestAnimationFrame(module.loopBound);
+
+					var core = module.core;
+				
+					// If mainLoop has been defined
+					if (typeof module.userLoop === "function") {
+
+						// Clear the canvas if specified
+						if (core.settings.clearEachFrame === true) {
+							core.draw.clear();
+						}
+
+						// Trigger the user defined function mainLoop and set this to the current core instance
+						module.userLoop.call(core, core.canvas);
+
+						// Redraw the canvas if specified
+						if (core.settings.drawEachFrame === true) {
+							core.draw.redraw();
+						}
+
+						// Increment the frame count
+						module.currentFrame++;
+					}
+
+				}, 1000 / module.fps);
+			},
+
+			// A wrapper function for the loop to bind this keyword
+			loopBound: function () {
+				module.loop();
 			},
 		
 			// Method that starts the timeline
 			start: function () {
-				var timeline = this;
-				
-				// Reset the timer
-				clearInterval(timeline.timeline);
-				timeline.timeline = setInterval(function () { timeline.loop(); }, 1000 / timeline.fps);
-				timeline.running = true;
+				cancelAnimationFrame(module.timeline);
+				module.running = true;
+				module.loop();
 				
 				return this;
 			},
 			
 			// Method that stops the timeline
 			stop: function () {
-			
-				// Remove the timer
-				clearInterval(this.timeline);
 				this.running = false;
+				cancelAnimationFrame(module.timeline);
 				
 				return this;
 			}
 		};
+
+		return module;
 	};
 	
 	// Register the timeline module
