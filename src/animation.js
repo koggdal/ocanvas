@@ -48,6 +48,11 @@
 						options.easing = this.easing[this.defaults.easing];
 					}
 
+					// Parse duration
+					if (typeof options.duration === "string") {
+						options.duration = (options.duration in module.durations) ? module.durations[options.duration] : module.durations[module.defaults.duration];
+					}
+
 				// Or parse old deprecated syntax
 				} else {
 					props = args.shift();
