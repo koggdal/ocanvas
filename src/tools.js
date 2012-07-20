@@ -99,8 +99,8 @@
 				if (obj.type === "line") {
 				
 					// Get angle difference relative to if it had been horizontal
-					var dX = Math.abs(obj.end.x - obj.abs_x),
-						dY = Math.abs(obj.end.y - obj.abs_y),
+					var dX = Math.abs(obj._.end_x - obj.abs_x),
+						dY = Math.abs(obj._.end_y - obj.abs_y),
 						D = Math.sqrt(dX * dX + dY * dY),
 						s = obj.start,
 						e = obj.end,
