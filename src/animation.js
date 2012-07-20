@@ -15,7 +15,7 @@
 
 			defaults: {
 				duration: "normal",
-				easing: "ease-in-out"
+				easing: "ease-in-out" // Deprecated value, will be replaced by "ease-in-out-cubic"
 			},
 
 			animate: function (obj, args) {
@@ -38,6 +38,7 @@
 
 					// Parse the easing option
 					if (typeof options.easing === "string") {
+						// The cubic-bezier() syntax is now deprecated (though it was never really public)
 						if (~options.easing.indexOf("cubic-bezier")) {
 							options.easing = this.getCustomCubicBezier(options.easing) || this.easing[this.defaults.easing];
 						} else {
@@ -47,7 +48,7 @@
 						options.easing = this.easing[this.defaults.easing];
 					}
 
-				// Or parse old syntax
+				// Or parse old deprecated syntax
 				} else {
 					props = args.shift();
 					options = this.getAnimateArguments(args);
@@ -114,7 +115,13 @@
 				}
 
 				// Calculate the property position based on the easing function
-				propertyPosition = animation.options.easing.call(this.easing, position);
+				if (animation.options.easing.length === 1) {
+					// Deprecated syntax
+					propertyPosition = animation.options.easing.call(this.easing, position);
+				} else {
+					// New syntax
+					propertyPosition = animation.options.easing.call(this.easing, timeDiff, 0, 1, animation.options.duration);
+				}
 
 				// Set new values for all properties
 				startValues = animation.startValues;
@@ -352,24 +359,204 @@
 				}
 			},
 
+			// Easing functions take at least four arguments:
+			// t: Current time
+			// b: Start value
+			// c: Change in value from start to end
+			// d: Total duration of the animation
+			// Some easing functions also take some optional arguments:
+			// a: Amplitude
+			// p: Period
+			// s: Overshoot amount
+			//
+			// They return the new value. In oCanvas, 0 is passed in
+			// as start value and 1 as change in value. This will
+			// generate a factor that can be used on multiple property
+			// values, and the easing function will only need to be
+			// called once per frame, instead of once per property per frame.
+			// The additional arguments are not passed though, which will
+			// make them take the default values in those functions.
+			//
+			// The equations are created by Robert Penner.
+			// (c) 2003 Robert Penner, all rights reserved.
+			// The work is subject to the terms in http://www.robertpenner.com/easing_terms_of_use.html.
 			easing: {
 
+				// Deprecated
 				"ease-in": function (time) {
 					return this.cubicBezier(0.42, 0, 1, 1, time);
 				},
 
+				// Deprecated
 				"ease-out": function (time) {
 					return this.cubicBezier(0, 0, 0.58, 1, time);
 				},
 
+				// Deprecated
 				"ease-in-out": function (time) {
 					return this.cubicBezier(0.42, 0, 0.58, 1, time);
 				},
 
+				// Deprecated syntax, will adopt the t, b, c, d syntax as the rest
 				"linear": function (time) {
 					return time;
 				},
 
+				"ease-in-quad": function (t, b, c, d) {
+					return c*(t/=d)*t + b;
+				},
+
+				"ease-out-quad": function (t, b, c, d) {
+					return -c *(t/=d)*(t-2) + b;
+				},
+
+				"ease-in-out-quad": function (t, b, c, d) {
+					if ((t/=d/2) < 1) return c/2*t*t + b;
+					return -c/2 * ((--t)*(t-2) - 1) + b;
+				},
+
+				"ease-in-cubic": function (t, b, c, d) {
+					return c*(t/=d)*t*t + b;
+				},
+
+				"ease-out-cubic": function (t, b, c, d) {
+					return c*((t=t/d-1)*t*t + 1) + b;
+				},
+
+				"ease-in-out-cubic": function (t, b, c, d) {
+					if ((t/=d/2) < 1) return c/2*t*t*t + b;
+					return c/2*((t-=2)*t*t + 2) + b;
+				},
+
+				"ease-in-quart": function (t, b, c, d) {
+					return c*(t/=d)*t*t*t + b;
+				},
+
+				"ease-out-quart": function (t, b, c, d) {
+					return -c * ((t=t/d-1)*t*t*t - 1) + b;
+				},
+
+				"ease-in-out-quart": function (t, b, c, d) {
+					if ((t/=d/2) < 1) return c/2*t*t*t*t + b;
+					return -c/2 * ((t-=2)*t*t*t - 2) + b;
+				},
+
+				"ease-in-quint": function (t, b, c, d) {
+					return c*(t/=d)*t*t*t*t + b;
+				},
+
+				"ease-out-quint": function (t, b, c, d) {
+					return c*((t=t/d-1)*t*t*t*t + 1) + b;
+				},
+
+				"ease-in-out-quint": function (t, b, c, d) {
+					if ((t/=d/2) < 1) return c/2*t*t*t*t*t + b;
+					return c/2*((t-=2)*t*t*t*t + 2) + b;
+				},
+
+				"ease-in-sine": function (t, b, c, d) {
+					return -c * Math.cos(t/d * (Math.PI/2)) + c + b;
+				},
+
+				"ease-out-sine": function (t, b, c, d) {
+					return c * Math.sin(t/d * (Math.PI/2)) + b;
+				},
+
+				"ease-in-out-sine": function (t, b, c, d) {
+					return -c/2 * (Math.cos(Math.PI*t/d) - 1) + b;
+				},
+
+				"ease-in-expo": function (t, b, c, d) {
+					return (t==0) ? b : c * Math.pow(2, 10 * (t/d - 1)) + b;
+				},
+
+				"ease-out-expo": function (t, b, c, d) {
+					return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+				},
+
+				"ease-in-out-expo": function (t, b, c, d) {
+					if (t==0) return b;
+					if (t==d) return b+c;
+					if ((t/=d/2) < 1) return c/2 * Math.pow(2, 10 * (t - 1)) + b;
+					return c/2 * (-Math.pow(2, -10 * --t) + 2) + b;
+				},
+
+				"ease-in-circ": function (t, b, c, d) {
+					return -c * (Math.sqrt(1 - (t/=d)*t) - 1) + b;
+				},
+
+				"ease-out-circ": function (t, b, c, d) {
+					return c * Math.sqrt(1 - (t=t/d-1)*t) + b;
+				},
+
+				"ease-in-out-circ": function (t, b, c, d) {
+					if ((t/=d/2) < 1) return -c/2 * (Math.sqrt(1 - t*t) - 1) + b;
+					return c/2 * (Math.sqrt(1 - (t-=2)*t) + 1) + b;
+				},
+
+				"ease-in-elastic": function (t, b, c, d, a, p) {
+					a = a || 0;
+					if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
+					if (a < Math.abs(c)) { a=c; var s=p/4; }
+					else var s = p/(2*Math.PI) * Math.asin (c/a);
+					return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
+				},
+
+				"ease-out-elastic": function (t, b, c, d, a, p) {
+					a = a || 0;
+					if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
+					if (a < Math.abs(c)) { a=c; var s=p/4; }
+					else var s = p/(2*Math.PI) * Math.asin (c/a);
+					return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
+				},
+
+				"ease-in-out-elastic": function (t, b, c, d, a, p) {
+					a = a || 0;
+					if (t==0) return b;  if ((t/=d/2)==2) return b+c;  if (!p) p=d*(.3*1.5);
+					if (a < Math.abs(c)) { a=c; var s=p/4; }
+					else var s = p/(2*Math.PI) * Math.asin (c/a);
+					if (t < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
+					return a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )*.5 + c + b;
+				},
+
+				"ease-in-back": function (t, b, c, d, s) {
+					if (s == undefined) s = 1.70158;
+					return c*(t/=d)*t*((s+1)*t - s) + b;
+				},
+
+				"ease-out-back": function (t, b, c, d, s) {
+					if (s == undefined) s = 1.70158;
+					return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
+				},
+
+				"ease-in-out-back": function (t, b, c, d, s) {
+					if (s == undefined) s = 1.70158;
+					if ((t/=d/2) < 1) return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b;
+					return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b;
+				},
+
+				"ease-in-bounce": function (t, b, c, d) {
+					return c - this["ease-out-bounce"](d-t, 0, c, d) + b;
+				},
+
+				"ease-out-bounce": function (t, b, c, d) {
+					if ((t/=d) < (1/2.75)) {
+						return c*(7.5625*t*t) + b;
+					} else if (t < (2/2.75)) {
+						return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
+					} else if (t < (2.5/2.75)) {
+						return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
+					} else {
+						return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
+					}
+				},
+
+				"ease-in-out-bounce": function (t, b, c, d) {
+					if (t < d/2) return this["ease-in-bounce"](t*2, 0, c, d) * .5 + b;
+					return this["ease-in-out-bounce"](t*2-d, 0, c, d) * .5 + c*.5 + b;
+				},
+
+				// Deprecated, will be replaced by the new syntax for calling easing functions
 				cubicBezier: function (x1, y1, x2, y2, time) {
 
 					// Inspired by Don Lancaster's two articles
