@@ -67,4 +67,19 @@
 		}
 	};
 
+	oCanvas.addDOMEventHandler = function (core, domObject, eventName, handler, useCapture) {
+		core.domEventHandlers.push({
+			obj: domObject,
+			event: eventName,
+			handler: handler,
+			useCapture: !!useCapture
+		});
+		domObject.addEventListener(eventName, handler, useCapture);
+	};
+
+	oCanvas.removeDOMEventHandler = function (core, index) {
+		var data = core.domEventHandlers[index];
+		data.obj.removeEventListener(data.event, data.handler, data.useCapture);
+	};
+
 })(oCanvas, window, document);

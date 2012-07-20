@@ -14,9 +14,9 @@
 			init: function () {
 				var self = this;
 
-				document.addEventListener("keydown", function (e) { self.docHandler(e); }, false);
-				document.addEventListener("keyup", function (e) { self.docHandler(e); }, false);
-				document.addEventListener("keypress", function (e) { self.preventDefault(e); }, false);
+				oCanvas.addDOMEventHandler(this.core, document, "keydown", function (e) { self.docHandler(e); }, false);
+				oCanvas.addDOMEventHandler(this.core, document, "keyup", function (e) { self.docHandler(e); }, false);
+				oCanvas.addDOMEventHandler(this.core, document, "keypress", function (e) { self.preventDefault(e); }, false);
 			},
 
 			docHandler: function (e) {

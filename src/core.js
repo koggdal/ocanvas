@@ -27,6 +27,9 @@
 
 			// Initialize a list of all objects added directly to the canvas
 			this.children = [];
+
+			// Initialize a list of all DOM event handlers
+			this.domEventHandlers = [];
 			
 			// Add the registered modules to the new instance of core
 			for (var m in oCanvas.modules) {
@@ -49,6 +52,9 @@
 
 			// Update the settings with the user specified settings
 			oCanvas.extend(this.settings, options);
+
+			// Save these settings in case the core instance is reset
+			this.originalSettings = oCanvas.extend({}, this.settings);
 			
 			// Set canvas to specified element
 			if (this.settings.canvas.nodeName && this.settings.canvas.nodeName.toLowerCase() === "canvas") {
@@ -283,6 +289,44 @@
 			this.events.triggerHandlers(this.canvasElement, types.split(" "));
 			
 			return this;
+		},
+
+		// Method for resetting the core instance to its initial state
+		reset: function () {
+
+			// Remove all objects
+			var children = this.children;
+			for (var i = 0, l = children.length; i < l; i++) {
+				children[i].remove();
+				i--; l--;
+			}
+			children.length = 0;
+			this.lastObjectID = 0;
+
+			// Remove all oCanvas event handlers
+			var eventTypes = this.canvasElement.events;
+			for (var type in eventTypes) {
+				if (eventTypes[type] instanceof Array) {
+					this.unbind(type, eventTypes[type]);
+				}
+			}
+
+			// Reset the settings
+			this.settings = oCanvas.extend({}, this.originalSettings);
+		},
+
+		// Method for destroying the core instance, to clear up memory etc
+		destroy: function () {
+			this.reset();
+
+			// Remove all DOM event handlers
+			for (var i = 0, l = this.domEventHandlers.length; i < l; i++) {
+				oCanvas.removeDOMEventHandler(this, i);
+			}
+			this.domEventHandlers.length = 0;
+
+			// Remove the core instance from the global list of core instances
+			oCanvas.canvasList[this.id] = null;
 		}
 	};
 

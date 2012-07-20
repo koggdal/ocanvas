@@ -49,25 +49,26 @@
 			},
 
 			bindHandlers: function () {
-				var self, canvasElement, type;
+				var self, core, canvasElement, type;
 				
 				self = this;
-				canvasElement = this.core.canvasElement;
+				core = this.core;
+				canvasElement = core.canvasElement;
 
 				for (type in this.types) {
 
 					// Add event listeners to the canvas element
-					canvasElement.addEventListener(type, function (e) {
+					oCanvas.addDOMEventHandler(core, canvasElement, type, function (e) {
 						self.canvasHandler(e);
 					}, false);
 
 					// Add event listeners to the document (used for setting states and trigger mouseup events)
-					document.addEventListener(type, function (e) {
+					oCanvas.addDOMEventHandler(core, document, type, function (e) {
 						self.docHandler(e);
 					}, false);
 
 					if (window.parent !== window) {
-						window.parent.document.addEventListener(type, function (e) {
+						oCanvas.addDOMEventHandler(core, window.parent.document, type, function (e) {
 							self.docHandler(e);
 						}, false);
 					}
@@ -75,7 +76,7 @@
 
 				// Add event listener to prevent scrolling on touch devices
 				if (this.core.settings.disableScrolling) {
-					canvasElement.addEventListener("touchmove", function (e) {
+					oCanvas.addDOMEventHandler(core, canvasElement, "touchmove", function (e) {
 						e.preventDefault();
 					}, false);
 				}
