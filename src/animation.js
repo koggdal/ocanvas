@@ -252,6 +252,13 @@
 				}
 			},
 
+			delay: function (obj, duration, options) {
+				var queue = obj.animationQueues[(options && options.queue) || "default"];
+				if (queue) {
+					queue.add({ type: "delay", duration: duration || 0 });
+				}
+			},
+
 			mainTimer: {
 				animations: [],
 				add: function (animation) {
@@ -325,8 +332,15 @@
 							run: function () {
 								if (!this.isRunning && this.list.length > 0) {
 									this.isRunning = true;
+									var listItem = this.list[0];
 									var queue = this;
-									module.runAnimation(this.list[0], function () { queue.advance(); });
+									if (listItem.type === "delay") {
+										setTimeout(function () {
+											queue.advance();
+										}, listItem.duration);
+									} else {
+										module.runAnimation(listItem, function () { queue.advance(); });
+									}
 								}
 							},
 							advance: function () {

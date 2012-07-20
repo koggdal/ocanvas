@@ -532,6 +532,13 @@
 
 				return this;
 			},
+
+			// Method for delaying the rest of the animation queue (queue arg is optional)
+			delay: function (duration, options) {
+				this.core.animation.delay(this, duration, options);
+
+				return this;
+			},
 			
 			// Method for changing the opacity property to 1 as an animation
 			fadeIn: function () {
