@@ -42,7 +42,7 @@
 			
 			// Set up default settings
 			this.settings = {
-				fps: 30,
+				fps: 30, // Deprecated value, will soon be changed to 60
 				background: "transparent",
 				clearEachFrame: true,
 				drawEachFrame: true,
