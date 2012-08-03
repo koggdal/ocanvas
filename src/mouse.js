@@ -145,24 +145,11 @@
 			},
 			
 			getPos: function (e) {
-				var x, y,
-					boundingRect = this.core.canvasElement.getBoundingClientRect(),
-					node = document.documentElement || document.body.parentNode,
-					scrollElem = (node && (typeof node.ScrollTop === "number") ? node : document.body),
-					scrollX = window.scrollX !== undefined ? window.scrollX : (window.pageXOffset !== undefined ? window.pageXOffset : scrollElem.ScrollLeft),
-					scrollY = window.scrollY !== undefined ? window.scrollY : (window.pageYOffset !== undefined ? window.pageYOffset : scrollElem.ScrollTop);
-					
-				// Browsers supporting pageX/pageY
-				if (e.pageX !== undefined && e.pageY !== undefined) {
-					x = e.pageX - scrollX - Math.round(boundingRect.left);
-					y = e.pageY - scrollY - Math.round(boundingRect.top);
-				}
-				// Browsers not supporting pageX/pageY
-				else if (e.clientX !== undefined && e.clientY !== undefined) {
-					x = e.clientX + scrollX - Math.round(boundingRect.left);
-					y = e.clientY + scrollY - Math.round(boundingRect.top);
-				}
-				
+				var boundingRect = this.core.canvasElement.getBoundingClientRect();
+
+				var x = e.clientX - Math.round(boundingRect.left);
+				var y = e.clientY - Math.round(boundingRect.top);
+
 				return { x: x, y: y };
 			},
 

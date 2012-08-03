@@ -182,29 +182,19 @@
 			},
 			
 			getPos: function (e) {
-				var x, y, boundingRect, touches, node, scrollElem, scrollX, scrollY, numTouches;
+				var x, y;
 
-				touches = e.changedTouches;
+				var touches = e.changedTouches;
 				
 				if (touches !== undefined) {
-					boundingRect = this.core.canvasElement.getBoundingClientRect();
-					node = document.documentElement || document.body.parentNode;
-					scrollElem = (node && (typeof node.ScrollTop === "number") ? node : document.body);
-					scrollX = window.scrollX !== undefined ? window.scrollX : (window.pageXOffset !== undefined ? window.pageXOffset : scrollElem.ScrollLeft);
-					scrollY = window.scrollY !== undefined ? window.scrollY : (window.pageYOffset !== undefined ? window.pageYOffset : scrollElem.ScrollTop);
-					numTouches = touches.length;
+					var boundingRect = this.core.canvasElement.getBoundingClientRect();
+					var numTouches = touches.length;
 	
 					if (touches.length > 0) {
-						e = touches[0];
-							
-						// Browsers supporting pageX/pageY
-						if (e.pageX && e.pageY) {
-							x = e.pageX - scrollX - (Math.round(boundingRect.left) < 0 ? 0 : Math.round(boundingRect.left));
-							y = e.pageY - scrollY - (Math.round(boundingRect.top) < 0 ? 0 : Math.round(boundingRect.top));
-						} else {
-							x = this.x;
-							y = this.y;
-						}
+						var e = touches[0];
+
+						x = e.clientX - Math.round(boundingRect.left);
+						y = e.clientY - Math.round(boundingRect.top);
 					}
 				} else {
 					x = this.x;
