@@ -92,7 +92,7 @@
 
 			drawObjects: function (objects) {
 				var canvas = this.core.canvas,
-					i, l, obj, object, x, y, objectChain, lastX, lastY, n, len, parent, shadow;
+					i, l, obj, object, x, y, objectChain, lastX, lastY, n, len, parent, shadow, opacity;
 
 				for (i = 0, l = objects.length; i < l; i++) {
 					obj = objects[i];
@@ -119,6 +119,7 @@
 
 						// Loop through all objects in the parent chain
 						lastX = 0; lastY = 0;
+						opacity = 1;
 						for (n = 0, len = objectChain.length; n < len; n++) {
 							object = objectChain[n];
 
@@ -134,6 +135,9 @@
 							if (object.scalingX !== 1 || object.scalingY !== 1) {
 								canvas.scale(object.scalingX, object.scalingY);
 							}
+
+							// Scale the opacity
+							opacity *= object.opacity;
 							
 							// Save the current translation so that the next iteration can subtract that
 							lastX = object.abs_x;
@@ -151,7 +155,7 @@
 						obj._.abs_y = 0;
 
 						// Set the alpha to match the object's opacity
-						canvas.globalAlpha = !isNaN(parseFloat(obj.opacity)) ? parseFloat(obj.opacity) : 1;
+						canvas.globalAlpha = !isNaN(parseFloat(opacity)) ? parseFloat(opacity) : 1;
 
 						// Set the composition mode
 						canvas.globalCompositeOperation = obj.composition;
