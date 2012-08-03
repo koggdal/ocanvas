@@ -145,10 +145,13 @@
 			},
 			
 			getPos: function (e) {
-				var boundingRect = this.core.canvasElement.getBoundingClientRect();
+				var canvas = this.core.canvasElement;
+				var boundingRect = canvas.getBoundingClientRect();
+				var scaleX = canvas.width / canvas.clientWidth;
+				var scaleY = canvas.height / canvas.clientHeight;
 
-				var x = e.clientX - Math.round(boundingRect.left);
-				var y = e.clientY - Math.round(boundingRect.top);
+				var x = scaleX * (e.clientX - Math.round(boundingRect.left));
+				var y = scaleY * (e.clientY - Math.round(boundingRect.top));
 
 				return { x: x, y: y };
 			},

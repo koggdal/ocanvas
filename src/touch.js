@@ -186,16 +186,16 @@
 
 				var touches = e.changedTouches;
 				
-				if (touches !== undefined) {
-					var boundingRect = this.core.canvasElement.getBoundingClientRect();
-					var numTouches = touches.length;
-	
-					if (touches.length > 0) {
-						var e = touches[0];
+				if (touches !== undefined && touches.length > 0) {
+					e = touches[0];
+					var canvas = this.core.canvasElement;
+					var boundingRect = canvas.getBoundingClientRect();
+					var scaleX = canvas.width / canvas.clientWidth;
+					var scaleY = canvas.height / canvas.clientHeight;
 
-						x = e.clientX - Math.round(boundingRect.left);
-						y = e.clientY - Math.round(boundingRect.top);
-					}
+					x = scaleX * (e.clientX - Math.round(boundingRect.left));
+					y = scaleY * (e.clientY - Math.round(boundingRect.top));
+
 				} else {
 					x = this.x;
 					y = this.y;
