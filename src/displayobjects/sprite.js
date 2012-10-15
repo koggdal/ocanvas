@@ -87,6 +87,7 @@
 					}
 					_this.core.canvasElement.removeChild(this);
 					_this.loaded = true;
+					_this.core.redraw();
 				};
 				
 				// Set the path to the image if a string was passed in
