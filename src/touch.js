@@ -193,8 +193,13 @@
 					var scaleX = canvas.width / canvas.clientWidth;
 					var scaleY = canvas.height / canvas.clientHeight;
 
-					x = scaleX * (e.clientX - Math.round(boundingRect.left));
-					y = scaleY * (e.clientY - Math.round(boundingRect.top));
+					// Calculate the touch position relative to the viewport.
+					// e.clientX exists, but has been incorrect in older versions of webkit.
+					var clientX = e.pageX - window.pageXOffset;
+					var clientY = e.pageY - window.pageYOffset;
+
+					x = scaleX * (clientX - Math.round(boundingRect.left));
+					y = scaleY * (clientY - Math.round(boundingRect.top));
 
 				} else {
 					x = this.x;

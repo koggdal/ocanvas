@@ -150,8 +150,13 @@
 				var scaleX = canvas.width / canvas.clientWidth;
 				var scaleY = canvas.height / canvas.clientHeight;
 
-				var x = scaleX * (e.clientX - Math.round(boundingRect.left));
-				var y = scaleY * (e.clientY - Math.round(boundingRect.top));
+				// Calculate the mouse position relative to the viewport.
+				// e.clientX exists, but has been incorrect in older versions of webkit.
+				var clientX = e.pageX - window.pageXOffset;
+				var clientY = e.pageY - window.pageYOffset;
+
+				var x = scaleX * (clientX - Math.round(boundingRect.left));
+				var y = scaleY * (clientY - Math.round(boundingRect.top));
 
 				return { x: x, y: y };
 			},
