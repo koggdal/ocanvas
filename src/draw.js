@@ -57,13 +57,13 @@
 			
 			// Method for clearing the canvas from everything that has been drawn (bg can be kept)
 			clear: function (keepBackground) {
+
+				// Clear all the image data on the canvas
+				this.core.canvas.clearRect(0, 0, this.core.width, this.core.height);
 				
-				if (keepBackground === undefined || keepBackground === true) {
-					// The background is just redrawn over the entire canvas to remove all image data
+				// Redraw the background if it should be kept
+				if (keepBackground !== false) {
 					this.core.background.redraw();
-				} else {
-					// Clear all the image data on the canvas
-					this.core.canvas.clearRect(0, 0, this.core.width, this.core.height);
 				}
 				
 				// Set a flag that will affect the value of the `drawn` property of display objects

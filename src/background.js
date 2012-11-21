@@ -84,18 +84,13 @@
 			},
 			
 			// Method for redrawing the background (replaces everything thas has been drawn)
-			redraw: function (trigger) {
+			redraw: function () {
 				var core = this.core;
 				
 				// Fill canvas with the background color if it's not transparent
 				if (this.type !== "transparent") {
 					core.canvas.fillStyle = this.bg;
 					core.canvas.fillRect(0, 0, core.width, core.height);
-				}
-				
-				// Only clear the canvas if no background is specified
-				else {
-					core.canvas.clearRect(0, 0, core.width, core.height);
 				}
 			}
 		};
