@@ -12,6 +12,7 @@
 			start: 0,
 			end: 0,
 			direction: "clockwise",
+			pieSection: false,
 			
 			draw: function () {
 				var canvas = this.core.canvas,
@@ -24,6 +25,9 @@
 				
 					// Draw the arc
 					canvas.beginPath();
+					if (this.pieSection) {
+						canvas.moveTo(x, y);
+					}
 					canvas.arc(x, y, this.radius, this.start * Math.PI / 180, this.end * Math.PI / 180, (this.direction === "anticlockwise"));
 					
 					// Do fill
