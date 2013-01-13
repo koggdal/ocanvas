@@ -243,7 +243,8 @@
 					
 					// If the arc is made like a pie chart piece
 					// (desired radius is set as stroke width and actual radius is set to half that size)
-					if (radius === obj.strokeWidth / 2) {
+					if (radius === obj.strokeWidth / 2 || obj.pieSection) {
+						var strokeWidth = obj.pieSection ? obj.radius : strokeWidth;
 					
 						if (angleRange > 180) {
 						
@@ -255,7 +256,7 @@
 							pD = Math.sqrt(pX * pX + pY * pY),
 							pA = Math.acos(pX / pD) * 180 / Math.PI;
 							
-							if (pointer.y >= obj.abs_y - origin.y && D <= obj.strokeWidth) {
+							if (pointer.y >= obj.abs_y - origin.y && D <= strokeWidth) {
 								return true;
 							} else if (pointer.y < obj.abs_y - origin.y && pointer.x < obj.abs_x - origin.x && pA <= (angleRange - 180)) {
 								return true;
@@ -266,7 +267,7 @@
 						} else if (angleRange === 180) {
 							
 							// Inside if pointer is below the origin
-							if (pointer.y >= obj.abs_y - origin.y && D <= obj.strokeWidth) {
+							if (pointer.y >= obj.abs_y - origin.y && D <= strokeWidth) {
 								return true;
 							} else {
 								return false;
