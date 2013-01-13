@@ -27,7 +27,7 @@
 				// one entry in the stroke array.
 				var parenStart, parenEnd;
 				for (var i = 0, l = stroke.length; i < l; i++) {
-					if (stroke[i].indexOf("(") > -1) parenStart = i;
+					if (!parenStart && stroke[i].indexOf("(") > -1) parenStart = i;
 					if (stroke[i].indexOf(")") > -1) parenEnd = i;
 				}
 				var color = parenEnd ? stroke.splice(parenStart, parenEnd - parenStart + 1) : undefined;
