@@ -624,7 +624,8 @@
 					value += " " + (typeof val.variant === "string" ? val.variant : "normal");
 					value += " " + (typeof val.weight === "string" ? val.weight : "normal");
 					value += " " + (typeof val.size === "number" ? (~~(val.size * 10 + 0.5) / 10)+"px" : "16px");
-					value += "/" + (typeof val.lineHeight === "number" ? (~~(val.lineHeight * 10 + 0.5) / 10) : 1.5);
+					value += "/" + (typeof val.lineHeight === "number" ? (~~(val.lineHeight * 10 + 0.5) / 10) :
+						(typeof val.lineHeight === "string" ? (val.lineHeight.indexOf("px") > -1 ? val.lineHeight : 1) : 1));
 					value += " " + (typeof val.family === "string" ? val.family : "sans-serif");
 				}
 				
@@ -664,6 +665,7 @@
 							// Line height
 							if (!isNaN(parseFloat(splits[1]))) {
 								font_object.lineHeight = parseFloat(splits[1]);
+								font_object.lineHeightUnit = splits[1].indexOf("px") > -1 ? "px" : "relative";
 							}
 						} else
 						
@@ -690,12 +692,14 @@
 				font.style = font.style ? font.style : "normal";
 				font.variant = font.variant ? font.variant : "normal";
 				font.weight = font.weight ? font.weight : "normal";
-				font.size = font.size ? font.size : 16;
-				font.lineHeight = font.lineHeight ? font.lineHeight : 1;
+				font.size = font.size !== undefined ? font.size : 16;
+				font.lineHeight = font.lineHeight !== undefined ? font.lineHeight : 1;
+				font.lineHeightUnit = font.lineHeightUnit !== undefined ? font.lineHeightUnit : "relative";
 				font.family = font.family ? font.family : "sans-serif";
 				
 				if (return_type === "string") {
-					return font.style + " " + font.variant + " " + font.weight + " " + font.size + "px/" + font.lineHeight + " " + font.family;
+					return font.style + " " + font.variant + " " + font.weight + " " + font.size + "px/" +
+						font.lineHeight + (font.lineHeightUnit === "px" ? "px" : "") + " " + font.family;
 				}
 				else if (return_type === "object") {
 					return font;

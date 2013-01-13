@@ -8,7 +8,12 @@
 			var font = thecore.style.getFont(_this.font);
 			font[property] = value;
 			_this._.font = thecore.style.getFont(font, "string");
-			_this._[objectProperty] = value;
+			if (objectProperty === "lineHeight") {
+				_this._.lineHeight = isNaN(parseInt(value, 10)) ? 1 : parseInt(value, 10);
+				_this._.lineHeightUnit = typeof value === "string" ? (value.indexOf("px") > -1 ? "px" : "relative") : "relative";
+			} else {
+				_this._[objectProperty] = value;
+			}
 		};
 		
 		// Return an object when instantiated
@@ -50,6 +55,7 @@
 				this._.weight = font.weight;
 				this._.size = font.size;
 				this._.lineHeight = font.lineHeight;
+				this._.lineHeightUnit = font.lineHeightUnit;
 				this._.family = font.family;
 				this._.font = value;
 				
@@ -112,7 +118,7 @@
 				return this._.size;
 			},
 			get lineHeight () {
-				return this._.lineHeight;
+				return this._.lineHeight + (this._.lineHeightUnit === "px" ? "px" : 0);
 			},
 			get family () {
 				return this._.family;
@@ -137,7 +143,7 @@
 			// Method for setting width/height when something has changed
 			setDimensions: function () {
 				if (this._.initialized) {
-					var canvas, textLines, numLines, width, height, i, metrics, lines;
+					var canvas, textLines, numLines, lineHeight, width, height, i, metrics, lines;
 
 					canvas = this.core.canvas;
 					
@@ -154,11 +160,16 @@
 					for (i = 0; i < numLines; i++) {
 						metrics = canvas.measureText(textLines[i]);
 						width = (metrics.width > width) ? metrics.width : width;
-						height += this.size * this.lineHeight;
+						if (this._.lineHeightUnit === "px") {
+							lineHeight = this._.lineHeight;
+						} else {
+							lineHeight = this.size * this._.lineHeight;
+						}
+						height += lineHeight;
 						lines.push({
 							text: textLines[i],
 							width: metrics.width,
-							height: this.size * this.lineHeight
+							height: lineHeight
 						});
 					}
 
@@ -217,14 +228,15 @@
 			
 			// Method for drawing the object to the canvas
 			draw: function () {
-				var canvas, lines, alignOffset, baselineOffset, lineHeightOffset, origin, x, y, i, numLines;
+				var canvas, lines, alignOffset, baselineOffset, relativeLineHeight, lineHeightOffset, origin, x, y, i, numLines;
 
 				canvas = this.core.canvas;
 				lines = this._.lines;
 
 				alignOffset = this.getAlignOffset();
 				baselineOffset = this.getBaselineOffset();
-				lineHeightOffset = (this.baseline !== "top") ? (this.size * (this.lineHeight - 1)) / 2 : 0;
+				relativeLineHeight = this._.lineHeightUnit === "px" ? this._.lineHeight / this.size : this._.lineHeight;
+				lineHeightOffset = (this.baseline !== "top") ? (this.size * (relativeLineHeight - 1)) / 2 : 0;
 
 				origin = this.getOrigin();
 				x = this.abs_x - origin.x - alignOffset;
