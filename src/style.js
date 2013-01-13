@@ -18,12 +18,25 @@
 					value += " " + (typeof val.width === "number" ? val.width+"px" : "1px");
 					value += " " + (typeof val.color === "string" ? val.color : "#000000");
 				}
+
+				// Get stroke components
+				var stroke = value.split(" ");
+
+				// Handle color values with parentheses, because they can contain spaces,
+				// that would be split by the line above. The color value needs to be in
+				// one entry in the stroke array.
+				var parenStart, parenEnd;
+				for (var i = 0, l = stroke.length; i < l; i++) {
+					if (stroke[i].indexOf("(") > -1) parenStart = i;
+					if (stroke[i].indexOf(")") > -1) parenEnd = i;
+				}
+				var color = parenEnd ? stroke.splice(parenStart, parenEnd - parenStart + 1) : undefined;
+				if (color) stroke.push(color.join(" "));
 			
 				// Get stroke settings
-				var stroke = value.split(" "),
-					strokePositions = ["outside", "center", "inside"],
-					fixed_color = '', i, num_splits = stroke.length,
-					strokePos, width, color, only_color;
+				var strokePositions = ["outside", "center", "inside"];
+				var fixed_color = '', i, num_splits = stroke.length;
+				var strokePos, width, color, only_color;
 				
 				// If there are more than 2 splits
 				if (num_splits >= 3) {
