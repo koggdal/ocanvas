@@ -102,7 +102,6 @@
 				var obj, props, options, prop;
 
 				obj = animation.obj;
-				props = animation.properties;
 				options = animation.options;
 				animation.advanceCallback = callback;
 
@@ -110,17 +109,36 @@
 				this.mainTimer.add(animation);
 
 				// Collect values for the animation
-				for (prop in props) {
+				var props = this.parseProperties(animation.properties, obj);
+				animation.properties = props.properties;
+				animation.startValues = props.startValues;
+				animation.diffValues = props.diffValues;
+
+				// Set initial time
+				animation.startTime = new Date().getTime();
+			},
+
+			parseProperties: function (props, obj) {
+				var startValues = {};
+				var diffValues = {};
+				for (var prop in props) {
 					if (oCanvas.isNumber(props[prop])) {
-						animation.startValues[prop] = obj[prop] || 0;
-						animation.diffValues[prop] = props[prop] - (obj[prop] || 0);
+						startValues[prop] = obj[prop] || 0;
+						diffValues[prop] = props[prop] - (obj[prop] || 0);
+					} else if (typeof props[prop] === "object") {
+						var parsedProps = this.parseProperties(props[prop], obj[prop]);
+						startValues[prop] = parsedProps.startValues;
+						diffValues[prop] = parsedProps.diffValues;
 					} else {
 						delete props[prop];
 					}
 				}
 
-				// Set initial time
-				animation.startTime = new Date().getTime();
+				return {
+					properties: props,
+					startValues: startValues,
+					diffValues: diffValues
+				};
 			},
 
 			tick: function (animation) {
@@ -149,15 +167,28 @@
 				startValues = animation.startValues;
 				diffValues = animation.diffValues;
 				for (prop in diffValues) {
-					animation.obj[prop] = startValues[prop] + diffValues[prop] * propertyPosition;
+					this.setObjectProperty(animation.obj, prop, startValues[prop], diffValues[prop], propertyPosition);
 				}
 
 				return true;
 			},
 
+			setObjectProperty: function (obj, property, startValue, diffValue, propertyPosition) {
+				if (oCanvas.isNumber(startValue)) {
+					obj[property] = startValue + diffValue * propertyPosition;
+				} else {
+					for (var prop in startValue) {
+						this.setObjectProperty(obj[property], prop, startValue[prop], diffValue[prop], propertyPosition);
+					}
+				}
+			},
+
 			setEndValues: function (animation) {
+				var obj = animation.obj;
+				var startValues = animation.startValues;
+				var diffValues = animation.diffValues;
 				for (var prop in animation.properties) {
-					animation.obj[prop] = animation.properties[prop];
+					this.setObjectProperty(obj, prop, startValues[prop], diffValues[prop], 1);
 				}
 				if (!this.core.timeline.running) {
 					this.core.draw.redraw(true);
