@@ -39,7 +39,19 @@
 					offset.x = this.parent._.abs_x;
 					offset.y = this.parent._.abs_y;
 				}
-				return { x: this._.start_x - offset.x, y: this._.start_y - offset.y };
+				var self = this;
+				return {
+					get x () { return self._.start_x - offset.x; },
+					get y () { return self._.start_y - offset.y; },
+					set x (value) {
+						self._.start_x = value + (self.parent && !self.parent.isCore ? self.parent._.abs_x : 0);
+						self.setPosition();
+					},
+					set y (value) {
+						self._.start_y = value + (self.parent && !self.parent.isCore ? self.parent._.abs_y : 0);
+						self.setPosition();
+					}
+				};
 			},
 			get end () {
 				var offset = { x: 0, y: 0 };
@@ -47,7 +59,19 @@
 					offset.x = this.parent._.abs_x;
 					offset.y = this.parent._.abs_y;
 				}
-				return { x: this._.end_x - offset.x, y: this._.end_y - offset.y };
+				var self = this;
+				return {
+					get x () { return self._.end_x - offset.x; },
+					get y () { return self._.end_y - offset.y; },
+					set x (value) {
+						self._.end_x = value + (self.parent && !self.parent.isCore ? self.parent._.abs_x : 0);
+						self.setPosition();
+					},
+					set y (value) {
+						self._.end_y = value + (self.parent && !self.parent.isCore ? self.parent._.abs_y : 0);
+						self.setPosition();
+					}
+				};
 			},
 			
 			// Overwrite the setters that displayObject provides, to enable start/end coordinates to affect the position
