@@ -242,18 +242,36 @@
 	// Methods the core instances will have access to
 	oCanvas.core.prototype = {
 		
-		// Method for adding an object to the canvas
+		// Method for adding one or more objects to the canvas
 		addChild: function (displayobj, redraw) {
-			displayobj.add(redraw);
-			
-			return this;
+			if(typeof displayobj === "object" && displayobj != null && displayobj["core"] == null){
+				var returnStatement = [];
+				for(i=0;i<displayobj.length;i++){
+					displayobj[i].add(redraw);
+					returnStatement[i] = this;
+				}
+				return returnStatement;
+			}
+			else {
+				displayobj.add(redraw);
+				return this;
+			}
 		},
 		
-		// Method for removing an object from the canvas
+		// Method for removing one or more objects from the canvas
 		removeChild: function (displayobj) {
-			displayobj.remove();
-			
-			return this;
+			if(typeof displayobj === "object" && displayobj != null && displayobj["core"] == null){
+				var returnStatement = [];
+				for(i=0;i<displayobj.length;i++){
+					displayobj[i].remove();
+					returnStatement[i] = this;
+				}
+				return returnStatement;
+			}
+			else {
+				displayobj.remove();
+				return this;
+			}
 		},
 		
 		// Shorthand method for clearing the canvas
