@@ -242,7 +242,7 @@
 	// Methods the core instances will have access to
 	oCanvas.core.prototype = {
 		
-		// Method for adding an object to the canvas
+		// Method for adding one or more objects to the canvas
 		addChild: function (displayobj, redraw) {
 			if(typeof displayobj === "object" && displayobj != null && displayobj["core"] == null){
 				var returnStatement = [];
