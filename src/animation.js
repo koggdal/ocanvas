@@ -404,7 +404,6 @@
 							clear: function (finish) {
 								if (this.isRunning) {
 									var animation = this.list[0];
-									cancelAnimationFrame(animation.timer);
 									animation.cancelled = true;
 
 									if (finish) {
