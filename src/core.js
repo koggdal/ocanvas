@@ -31,6 +31,10 @@
 			// Initialize a list of all DOM event handlers
 			this.domEventHandlers = [];
 			
+			// Initialize scalingX and scalingY to 1
+			this.scalingX = 1;
+			this.scalingY = 1;
+			
 			// Add the registered modules to the new instance of core
 			for (var m in oCanvas.modules) {
 				if (typeof oCanvas.modules[m] === "function") {
@@ -327,6 +331,42 @@
 
 			// Remove the core instance from the global list of core instances
 			oCanvas.canvasList[this.id] = null;
+		},
+ 
+		// Method for scaling the object
+		scale: function (x, y) {
+			var scaling = this.getArgs(x, y, 1, 1);
+			this.scalingX = scaling.x;
+			this.scalingY = scaling.y;
+			this.redraw();
+			return this;
+		},
+ 
+		// Method for getting x/y arguments, with the ability to choose only one
+		// Used by other methods
+		//   Examples:
+		//     obj.move(50, 100); // moves object 50px to the right and 100px down
+		//     obj.move(50, "x"); // moves object 50px to the right
+		//     obj.move(50); // moves object 50px to the right and down
+		getArgs: function (x, y, default_x, default_y) {
+			default_x = default_x || 0;
+			default_y = default_y || 0;
+			
+			// Second argument is string 
+			if (typeof y === "string") {
+				var type = y,
+					val = x;
+				x = (type === "x") ? val : default_x;
+				y = (type === "y") ? val : default_y;
+			}
+			else if (y === undefined) {
+				y = x;
+			}
+			
+			return {
+				x: x,
+				y: y
+			};
 		}
 	};
 

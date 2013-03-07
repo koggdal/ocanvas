@@ -92,7 +92,10 @@
 			},
 
 			getFrontObject: function (pointerName) {
-				return this.findFrontObject(this.core.children, this.core[pointerName]) || undefined;
+				var pointer = this.core[pointerName];
+				pointer.x *= 1 / (this.core.scalingX);
+				pointer.y *= 1 / (this.core.scalingY);
+				return this.findFrontObject(this.core.children, pointer) || undefined;
 			},
 
 			triggerPointerEvent: function (type, frontObject, pointerName, e) {

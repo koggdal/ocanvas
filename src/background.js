@@ -90,7 +90,7 @@
 				// Fill canvas with the background color if it's not transparent
 				if (this.type !== "transparent") {
 					core.canvas.fillStyle = this.bg;
-					core.canvas.fillRect(0, 0, core.width, core.height);
+					core.canvas.fillRect(0, 0, core.width / core.scalingX, core.height / core.scalingY);
 				}
 			}
 		};

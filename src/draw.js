@@ -59,7 +59,7 @@
 			clear: function (keepBackground) {
 
 				// Clear all the image data on the canvas
-				this.core.canvas.clearRect(0, 0, this.core.width, this.core.height);
+				this.core.canvas.clearRect(0, 0, this.core.width / this.core.scalingX, this.core.height / this.core.scalingY);
 				
 				// Redraw the background if it should be kept
 				if (keepBackground !== false) {
@@ -76,6 +76,10 @@
 			redraw: function (forceClear) {
 				forceClear = forceClear || false;
 				
+				// Set the global scale factor
+				this.core.canvas.save();
+				this.core.canvas.scale( this.core.scalingX, this.core.scalingY );
+
 				// Clear the canvas (keep the background)
 				if (this.core.settings.clearEachFrame || forceClear) {
 					this.clear();
@@ -87,6 +91,8 @@
 				// Draw all objects in the correct order
 				this.drawObjects(this.core.children);
 				
+				// Restore the previous state
+				this.core.canvas.restore();
 				return this;
 			},
 
