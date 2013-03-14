@@ -64,7 +64,9 @@
 						self.docHandler(e);
 					}, false);
 
-					if (window.parent !== window) {
+					var a = document.createElement('a');
+					a.href = document.referrer;
+					if (a.host === window.location.host && window.parent !== window) {
 						oCanvas.addDOMEventHandler(core, window.parent.document, type, function (e) {
 							self.docHandler(e);
 						}, false);
