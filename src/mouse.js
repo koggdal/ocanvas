@@ -37,7 +37,7 @@
 				// Only bind events for mouse if touch is not available
 				//  This is to enable developers to bind to both touch and mouse,
 				//  but still only trigger handlers once (for the right input device)
-				if (!this.core.touch || !this.core.touch.isTouch) {
+				if ((!this.core.touch || !this.core.touch.isTouch) && (!this.core.mspointer || !this.core.mspointer.isMSPointer)) {
 					this.bindHandlers();
 				}
 			},
