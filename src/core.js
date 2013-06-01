@@ -285,8 +285,8 @@
 		},
 			
 		// Method for triggering all events added to the object
-		trigger: function (types) {
-			this.events.triggerHandlers(this.canvasElement, types.split(" "));
+		trigger: function (types, eventObject) {
+			this.events.triggerHandlers(this.canvasElement, types.split(" "), eventObject);
 			
 			return this;
 		},

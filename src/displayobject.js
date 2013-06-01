@@ -341,8 +341,8 @@
 			},
 			
 			// Method for triggering all events added to the object
-			trigger: function (types) {
-				this.core.events.triggerHandlers(this, types.split(" "));
+			trigger: function (types, eventObject) {
+				this.core.events.triggerHandlers(this, types.split(" "), eventObject);
 				
 				return this;
 			},

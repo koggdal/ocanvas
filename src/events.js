@@ -303,9 +303,17 @@
 					handlers = obj.events[types[i]];
 					isEnter = !!~types[i].indexOf("enter");
 					isLeave = !!~types[i].indexOf("leave");
+
+					// user defined bindings could be triggered > e still undefined
 					e = eventObject || (~types[i].indexOf("key") ? this.lastKeyboardEventObject : this.lastPointerEventObject);
+					
+					// e can still be undefined
+					if(e === undefined){
+						e = this.fixEventObject(e); 
+					}
 					e.type = types[i];
-					e.bubbles = (isEnter || isLeave) ? false : true;
+					e.bubbles = (isEnter || isLeave) ? false : true;	
+					
 
 					if (isEnter && !obj.events.hasEntered) {
 						obj.events.hasEntered = true;
@@ -340,7 +348,7 @@
 				eventObject = {
 					originalEvent: e,
 					timeStamp: (new Date()).getTime(),
-					which: e.which === 0 ? e.keyCode : e.which,
+					which: (e === undefined) ? 0 : (e.which === 0 ? e.keyCode : e.which),
 					
 					preventDefault: function () {
 						e.preventDefault();
@@ -354,6 +362,11 @@
 					}
 				};
 				
+				// if original is empty
+				if(eventObject === undefined){
+					return eventObject; 
+				}
+
 				// Set selected original properties
 				for (i = 0; i < numProps; i++) {
 					property = properties[i];
