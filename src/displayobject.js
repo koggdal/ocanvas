@@ -780,9 +780,12 @@
 			clone: function (settings) {
 				settings = settings || {};
 				settings.drawn = false;
+				var originalParent = this.parent;
 				var newObj = this.core.display[this.type](settings),
 					this_filtered = {},
 					reject = ["core", "events", "children", "parent", "img", "fill", "strokeColor", "added"],
+					absoluteX = ['abs_x', 'start_x', 'end_x'],
+					absoluteY = ['abs_y', 'start_y', 'end_y'],
 					loopObject, x, stroke, i, children, child, dX, dY, descriptor;
 				
 				// Filter out the setter and getter methods, and also properties listed above
@@ -791,14 +794,30 @@
 						if (~reject.indexOf(x)) {
 							continue;
 						}
-						if (typeof obj[x] === "object") {
-							destination[x] = (obj[x].constructor === Array) ? [] : {};
-							loopObject(obj[x], destination[x]);
-							continue;
-						}
 						descriptor = Object.getOwnPropertyDescriptor(obj, x);
 						if (descriptor && descriptor.get === undefined) {
-							destination[x] = obj[x];
+
+							// If the value is an object, we must copy each property of that object.
+							// This is so that we don't get objects that are shared between two
+							// display objects.
+							if (typeof obj[x] === "object") {
+								destination[x] = (obj[x].constructor === Array) ? [] : {};
+								loopObject(obj[x], destination[x]);
+								continue;
+							}
+
+							var value = obj[x];
+
+							// If the original object has a parent, we must remove the absolute position
+							// of the parent to get local positions for the new object. This is because
+							// the new object will not yet have a parent, so the absolute positions can't
+							// be based on a parent.
+							if (originalParent) {
+								if (absoluteX.indexOf(x) > -1) value -= originalParent.abs_x;
+								else if (absoluteY.indexOf(x) > -1) value -= originalParent.abs_y;
+							}
+
+							destination[x] = value;
 						}
 					}
 				}
