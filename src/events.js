@@ -303,9 +303,15 @@
 					handlers = obj.events[types[i]];
 					isEnter = !!~types[i].indexOf("enter");
 					isLeave = !!~types[i].indexOf("leave");
+
+					// get eventObject
 					e = eventObject || (~types[i].indexOf("key") ? this.lastKeyboardEventObject : this.lastPointerEventObject);
+					
+					// fix it no matter what
+					e = this.fixEventObject(e);
 					e.type = types[i];
 					e.bubbles = (isEnter || isLeave) ? false : true;
+					
 
 					if (isEnter && !obj.events.hasEntered) {
 						obj.events.hasEntered = true;
@@ -340,7 +346,6 @@
 				eventObject = {
 					originalEvent: e,
 					timeStamp: (new Date()).getTime(),
-					which: e.which === 0 ? e.keyCode : e.which,
 					
 					preventDefault: function () {
 						e.preventDefault();
@@ -350,10 +355,22 @@
 						if (this.bubbles) {
 							this.stoppingPropagation = true;
 						}
-						e.stopPropagation();
+						if (e !== undefined){
+							e.stopPropagation();	
+						}
 					}
 				};
 				
+				// Original eventObject is empty 
+				if(e === undefined){
+					return eventObject; 
+				}
+
+				// Copy corrected which property
+				if(e.which !== undefined){
+					eventObject["which"] = ((e.which === 0 && e.keyCode !== undefined)? e.keyCode : e.which);
+				}
+
 				// Set selected original properties
 				for (i = 0; i < numProps; i++) {
 					property = properties[i];
