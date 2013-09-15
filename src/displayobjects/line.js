@@ -146,6 +146,8 @@
 				dY = Math.cos(angle) * value;
 				this._.end_x = this._.start_x + dX;
 				this._.end_y = this._.start_y + dY;
+				this.x += 0;
+				this.y += 0;
 
 				this.setPosition();
 			},
