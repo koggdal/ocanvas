@@ -286,10 +286,10 @@
 				return chain;
 			},
 
-			triggerChain: function (chain, types) {
+			triggerChain: function (chain, types, eventObject) {
 				var i, l, continuePropagation;
 				for (i = 0, l = chain.length; i < l; i++) {
-					continuePropagation = this.triggerHandlers(chain[i], types);
+					continuePropagation = this.triggerHandlers(chain[i], types, eventObject);
 					if (!continuePropagation) {
 						break;
 					}
@@ -340,20 +340,28 @@
 				eventObject = {
 					originalEvent: e,
 					timeStamp: (new Date()).getTime(),
-					which: e.which === 0 ? e.keyCode : e.which,
+					which: e === undefined ? 0 : (e.which === 0 ? e.keyCode : e.which),
 					
 					preventDefault: function () {
-						e.preventDefault();
+						if (e !== undefined) {
+							e.preventDefault();
+						}
 					},
 					
 					stopPropagation: function () {
 						if (this.bubbles) {
 							this.stoppingPropagation = true;
 						}
-						e.stopPropagation();
+						if (e !== undefined) {
+							e.stopPropagation();
+						}
 					}
 				};
-				
+
+				if (e === undefined) {
+					return eventObject;
+				}
+
 				// Set selected original properties
 				for (i = 0; i < numProps; i++) {
 					property = properties[i];
