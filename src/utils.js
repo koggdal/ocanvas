@@ -73,6 +73,20 @@
 		};
 	}
 
+	// Define Object.getPropertyDescriptor if not available.
+	// This function will check for the descriptor in the whole prototype chain.
+	if (typeof Object.getPropertyDescriptor !== "function") {
+		Object.getPropertyDescriptor = function(object, property) {
+			var descriptor = Object.getOwnPropertyDescriptor(object, property);
+			var proto = Object.getPrototypeOf(object);
+			while (descriptor === undefined && proto !== null) {
+				descriptor = Object.getOwnPropertyDescriptor(proto, property);
+				proto = Object.getPrototypeOf(proto);
+			}
+			return descriptor;
+		};
+	}
+
 	// requestAnimationFrame polyfill by Erik Möller
 	// fixes from Paul Irish and Tino Zijdel
 	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/

@@ -796,7 +796,11 @@
 						if (~reject.indexOf(x)) {
 							continue;
 						}
-						descriptor = Object.getOwnPropertyDescriptor(obj, x);
+
+						// Check the descriptor to see if it has no getter method.
+						// This uses the getPropertyDescriptor method (planned to arrive in ES6),
+						// which is pollyfilled in oCanvas if it's not available.
+						descriptor = Object.getPropertyDescriptor(obj, x);
 						if (descriptor && descriptor.get === undefined) {
 
 							// If the value is an object, we must copy each property of that object.
