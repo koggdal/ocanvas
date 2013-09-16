@@ -299,6 +299,8 @@
 			triggerHandlers: function (obj, types, eventObject) {
 				var i, handlers, isEnter, isLeave, numHandlers, n, e;
 
+				var callObj = (obj === this.core.canvasElement) ? this.core : obj;
+
 				for (i = 0; i < types.length; i++) {
 					handlers = obj.events[types[i]];
 					isEnter = !!~types[i].indexOf("enter");
@@ -317,7 +319,7 @@
 						numHandlers = handlers.length;
 						for (n = 0; n < numHandlers; n++) {
 							if (typeof handlers[n] === "function") {
-								handlers[n].call(obj, e);
+								handlers[n].call(callObj, e);
 							}
 						}
 
