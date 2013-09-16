@@ -1,4 +1,4 @@
-version = 2.5.0
+version = 2.5.1
 source_dir = ../src/
 output_full = ocanvas-{version}.js
 output_min = ocanvas-{version}.min.js
