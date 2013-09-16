@@ -226,7 +226,7 @@
 				// Check boundaries => (left) && (right) && (top) && (bottom)
 				if ( (pos.x >= 0) && (pos.x <= this.core.width) && (pos.y >= 0) && (pos.y <= this.core.height) ) {
 					this.canvasHovered = true;
-					this.updatePos(e);
+					if (e) this.updatePos(e);
 					return true;
 				} else {
 					this.canvasHovered = false;
