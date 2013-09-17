@@ -760,19 +760,19 @@
 			},
 			
 			// Method for removing a child
-			removeChild: function (childObj) {
+			removeChild: function (childObj, redraw) {
 				var index = this.children.indexOf(childObj);
 				if (~index) {
-					this.removeChildAt(index);
+					this.removeChildAt(index, redraw);
 				}
 				
 				return this;
 			},
 			
 			// Method for removing a child at a specific index
-			removeChildAt: function (index) {
+			removeChildAt: function (index, redraw) {
 				if (this.children[index] !== undefined) {
-					this.children[index].remove();
+					this.children[index].remove(redraw);
 				}
 				
 				return this;

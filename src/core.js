@@ -250,8 +250,8 @@
 		},
 		
 		// Method for removing an object from the canvas
-		removeChild: function (displayobj) {
-			displayobj.remove();
+		removeChild: function (displayobj, redraw) {
+			displayobj.remove(redraw);
 			
 			return this;
 		},
