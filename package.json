@@ -16,5 +16,8 @@
   "license": "MIT",
   "engines": {
     "node": ">=0.10"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2"
   }
 }
