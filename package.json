@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "author": "Johannes Koggdal <johannes@koggdal.com>",
   "description": "Library for HTML5 Canvas, based on objects instead of pixels.",
-  "main": "source/oCanvas",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/koggdal/ocanvas.git"
