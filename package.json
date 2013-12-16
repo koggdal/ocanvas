@@ -18,6 +18,8 @@
     "node": ">=0.10"
   },
   "devDependencies": {
-    "grunt": "~0.4.2"
+    "grunt": "~0.4.2",
+    "grunt-exec": "~0.4.2",
+    "quickstart": "~0.7.2"
   }
 }
