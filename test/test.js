@@ -6,4 +6,5 @@ describe('Classes', function() {
 describe('Utilities', function() {
   require('./utils/defineProperties');
   require('./utils/inherit');
+  require('./utils/mixin');
 });
