@@ -5,11 +5,13 @@
 
 /**
  * Define properties on an object.
- * This is similar to Object.defineProperties, but has some
- * extra nice things. The configuration objects you pass to
- * contains hints for this method. It can be used to add
- * a getter and setter automatically, but also allows you to
- * do custom things when setting a property.
+ * This is similar to Object.defineProperties, but has some extra nice things.
+ * The configuration objects you pass to the method contains hints. It can be
+ * used to add a getter and setter automatically, but also allows you to
+ * do custom things when setting a property. It hides away the internal
+ * storage of values, so your setter method can contain only the extra things
+ * you want to do. You are of course able to tell it exactly what it should
+ * get/set.
  *
  * @param {Object} object The object that should receive the properties.
  * @param {Object} properties An object with other configuration objects.
@@ -19,14 +21,12 @@
  * defineProperties(object, {
  *   width: {
  *     value: 0,
- *     get: true,
  *     set: function(value) {
  *       this.element.width = width;
  *     }
  *   },
  *   height: {
  *     value: 0,
- *     get: true,
  *     set: function(value) {
  *       this.element.height = height;
  *     }
@@ -42,10 +42,24 @@ function defineProperties(object, properties) {
       privateVars[prop] = properties[prop].value;
       props[prop] = {};
 
-      if (properties[prop].get === true) {
-        props[prop].get = function() { return privateVars[prop]; };
-      } else if (typeof properties[prop].get === 'function') {
+      if ('configurable' in properties[prop]) {
+        props[prop].configurable = !!properties[prop].configurable;
+      }
+      if ('enumerable' in properties[prop]) {
+        props[prop].enumerable = !!properties[prop].enumerable;
+      }
+      if ('value' in properties[prop]) {
+        privateVars[prop] = properties[prop].value;
+      }
+
+      if (properties[prop].writable) {
+        properties[prop].set = true;
+      }
+
+      if (typeof properties[prop].get === 'function') {
         props[prop].get = properties[prop].get;
+      } else {
+        props[prop].get = function() { return privateVars[prop]; };
       }
 
       if (properties[prop].set) {
@@ -62,8 +76,6 @@ function defineProperties(object, properties) {
           }
           privateVars[prop] = value;
         };
-      } else if (typeof properties[prop].set === 'function') {
-        props[prop].set = properties[prop].set;
       }
     }(prop));
   }
