@@ -1,10 +1,2 @@
-describe('Classes', function() {
-  require('./classes/EventEmitter');
-  require('./classes/Collection');
-});
-
-describe('Utilities', function() {
-  require('./utils/defineProperties');
-  require('./utils/inherit');
-  require('./utils/mixin');
-});
+// The default test command will only run unit tests
+require('./unit/test');

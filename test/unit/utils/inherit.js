@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var inherit = require('../../utils/inherit');
+var inherit = require('../../../utils/inherit');
 
 describe('inherit', function() {
 

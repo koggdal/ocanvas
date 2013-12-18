@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var defineProperties = require('../../utils/defineProperties');
+var defineProperties = require('../../../utils/defineProperties');
 
 describe('defineProperties', function() {
 

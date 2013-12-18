@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var mixin = require('../../utils/mixin');
+var mixin = require('../../../utils/mixin');
 
 describe('mixin', function() {
 

@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var EventEmitter = require('../../classes/EventEmitter');
+var EventEmitter = require('../../../classes/EventEmitter');
 
 describe('EventEmitter', function() {
 

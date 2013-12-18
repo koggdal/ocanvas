@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var Collection = require('../../classes/Collection');
+var Collection = require('../../../classes/Collection');
 
 describe('Collection', function() {
 
