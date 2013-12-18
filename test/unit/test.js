@@ -1,6 +1,7 @@
 describe('Classes', function() {
   require('./classes/EventEmitter');
   require('./classes/Collection');
+  require('./classes/World');
 });
 
 describe('Utilities', function() {
