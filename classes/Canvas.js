@@ -12,15 +12,20 @@ var defineProperties = require('../utils/defineProperties');
  * @property {number} width The width of the canvas in pixels. This will be set
  *     automatically by the canvas element. If the property is provided in
  *     the properties object passed to the constructor, it will set the width
- *     to that value.
+ *     to that value. The default width for a canvas element is 300 px.
  * @property {number} height The height of the canvas in pixels. This will be set
  *     automatically by the canvas element. If the property is provided in
  *     the properties object passed to the constructor, it will set the height
- *     to that value.
- * @property {string} background Background color.
- * @property {Camera?} camera A camera instance.
- * @property {HTMLElement} element The canvas DOM element.
+ *     to that value. The default height for a canvas element is 150 px.
+ * @property {string} background Background color. Default value is '', which
+ *     means transparent.
+ * @property {Camera?} camera A camera instance. Default is null.
+ * @property {HTMLElement} element The canvas DOM element. Will be created if
+ *     not provided in the initial properties to the constructor.
  * @property {CanvasRenderingContext2D} context The canvas 2D context object.
+ *     This will be fetched from the element that is either set or created
+ *     at the time the constructor runs. Changing the element requires you to
+ *     manually update the context property as well.
  * @property {string} viewMode Decides how the contents of the camera
  *     is fitted inside the canvas. This only matters when the size of the
  *     camera does not match the size of the canvas. The possible values are:
