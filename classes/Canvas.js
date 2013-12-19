@@ -56,7 +56,7 @@ var defineProperties = require('../utils/defineProperties');
  * document.body.appendChild(canvas.element);
  */
 function Canvas(opt_properties) {
-  this.background = 'transparent';
+  this.background = '';
   this.camera = null;
   this.viewMode = 'fit';
   this.renderDepth = 0;
@@ -113,8 +113,10 @@ Canvas.prototype.render = function() {
   context.save();
 
   // Draw the background for the canvas
-  context.fillStyle = this.background;
-  context.fillRect(0, 0, this.width, this.height);
+  if (this.background && this.background !== 'transparent') {
+    context.fillStyle = this.background;
+    context.fillRect(0, 0, this.width, this.height);
+  }
 
   // Get values based on the current view mode
   var viewModeValues = this._getViewModeValues();
