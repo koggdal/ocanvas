@@ -110,7 +110,10 @@ Canvas.prototype.render = function() {
   this.clear();
 
   if (!this.camera) {
-    throw new Error('You must set a camera on the canvas instance to render.');
+    var message = 'You must set a camera on the canvas instance to render.';
+    var error = new Error(message);
+    error.name = 'ocanvas-no-camera';
+    throw error;
   }
 
   var context = this.context;

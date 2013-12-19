@@ -64,7 +64,11 @@ describe('Canvas', function() {
       try {
         canvas.render();
       } catch(error) {
-        done();
+        if (error.name === 'ocanvas-no-camera') {
+          done();
+        } else {
+          done(error);
+        }
       }
     });
 
