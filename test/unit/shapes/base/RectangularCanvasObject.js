@@ -1,7 +1,6 @@
 var expect = require('expect.js');
 var CanvasObject = require('../../../../shapes/base/CanvasObject');
 var RectangularCanvasObject = require('../../../../shapes/base/RectangularCanvasObject');
-var Collection = require('../../../../classes/Collection');
 
 describe('RectangularCanvasObject', function() {
 
