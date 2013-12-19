@@ -13,8 +13,9 @@ var defineProperties = require('../utils/defineProperties');
  * @property {number} x The x coordinate, referencing the center.
  * @property {number} y The y coordinate, referencing the center.
  * @property {number} rotation The rotation, around the center.
- * @property {number} zoom The zoom level. Default zoom is 0. Positive number
- *     is a closer zoom level, and a negative number is further away.
+ * @property {number} zoom The zoom level. Default zoom is 1. Number between
+ *     0 and 1 will zoom out (world gets smaller), and larger number will
+ *     zoom in (world gets bigger).
  * @property {number} width The width of the camera in pixels. If the zoom
  *     value is something else than 0, the actual width will not be this
  *     width, but rather the width after taking zoom into account. Setting
