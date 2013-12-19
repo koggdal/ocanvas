@@ -182,4 +182,32 @@ describe('Collection', function() {
 
   });
 
+  describe('#length', function() {
+
+    var collection = new Collection();
+    collection.add('String 1');
+    collection.add('String 2');
+    collection.add('String 3');
+
+    it('should be the number of items in the collection', function() {
+      expect(collection.length).to.equal(3);
+    });
+
+    it('should remove items from the collection if the length is set to less than the current length', function() {
+      expect(collection.get(2)).to.equal('String 3');
+      collection.length = 2;
+      expect(collection.get(2)).to.equal(null);
+      expect(collection.length).to.equal(2);
+      expect(collection.items.length).to.equal(2);
+    });
+
+    it('should add undefined items to the collection if the length is set to more than the current length', function() {
+      collection.length = 10;
+      expect(collection.get(6)).to.equal(undefined);
+      expect(collection.length).to.equal(10);
+      expect(collection.items.length).to.equal(10);
+    });
+
+  });
+
 });

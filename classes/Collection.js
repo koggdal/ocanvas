@@ -39,9 +39,15 @@ function Collection() {
         return this.items.length;
       },
       set: function(value) {
-        for (var i = value, l = this.items.length; i < l; i++) {
-          this.removeAt(i);
-          i--; l--;
+        if (value < this.items.length) {
+          for (var i = value, l = this.items.length; i < l; i++) {
+            this.removeAt(i);
+            i--; l--;
+          }
+        } else {
+          for (var n = this.items.length; n < value; n++) {
+            this.add(undefined);
+          }
         }
       }
     }
