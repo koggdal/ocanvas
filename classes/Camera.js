@@ -79,6 +79,7 @@ function Camera(opt_properties) {
   // default position of the camera as well (to the center).
   if (!opt_properties || !opt_properties.width) this.width = 300;
   if (!opt_properties || !opt_properties.height) this.height = 150;
+  if (!opt_properties || !opt_properties.aspectRatio) this.aspectRatio = this.width / this.height;
 
   if (opt_properties) {
     this.setProperties(opt_properties);
