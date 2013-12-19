@@ -138,6 +138,11 @@ Canvas.prototype.render = function() {
   context.closePath();
   context.clip();
 
+  // Translate to the middle of the canvas
+  // (the origin of the camera is in the center, and we want zoom etc
+  // to happen around that center point)
+  context.translate(this.width / 2, this.height / 2);
+
   // Scale the context proportionally based on the view mode setting
   context.scale(viewModeValues.scaleX, viewModeValues.scaleY);
 

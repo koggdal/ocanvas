@@ -108,7 +108,6 @@ Camera.prototype.render = function(canvas) {
   context.save();
 
   var zoom = Math.max(this.zoom, 0);
-  context.translate(this.x, this.y);
   context.scale(zoom, zoom);
   context.rotate(this.rotation * Math.PI / 180);
 
