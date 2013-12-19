@@ -58,6 +58,11 @@ module.exports = function(grunt) {
           var canvasMessage = 'echo "\nNOTE: node-canvas is not installed, so only normal unit tests were run.\n"';
           return condition + ' && ' + all + ' || (' + unit + ' && ' + canvasMessage + ')';
         }
+      },
+      'jsdoc': {
+        cmd: function() {
+          return 'jsdoc -r classes shapes utils index.js';
+        }
       }
     }
   });
@@ -88,6 +93,10 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test-canvas', [
     'exec:test-canvas'
+  ]);
+
+  grunt.registerTask('jsdoc', [
+    'exec:jsdoc'
   ]);
 
 };
