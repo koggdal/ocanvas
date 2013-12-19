@@ -109,7 +109,9 @@ Canvas.prototype.clear = function() {
 Canvas.prototype.render = function() {
   this.clear();
 
-  if (!this.camera) return;
+  if (!this.camera) {
+    throw new Error('You must set a camera on the canvas instance to render.');
+  }
 
   var context = this.context;
   var camera = this.camera;
