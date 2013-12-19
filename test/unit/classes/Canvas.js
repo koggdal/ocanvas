@@ -9,6 +9,7 @@ global.HTMLCanvasElement = function() {
   this.width = defaultWidth;
   this.height = defaultHeight;
 };
+global.HTMLCanvasElement.prototype.constructor = global.HTMLCanvasElement;
 global.HTMLCanvasElement.prototype.getContext = function() {
   return new global.CanvasRenderingContext2D();
 };
@@ -17,6 +18,9 @@ global.document = {
     return tagName === 'canvas' ? new HTMLCanvasElement() : null;
   }
 };
+
+var HTMLCanvasElement = global.HTMLCanvasElement;
+var CanvasRenderingContext2D = global.CanvasRenderingContext2D;
 
 describe('Canvas', function() {
 
