@@ -164,12 +164,12 @@ Canvas.prototype._getViewModeValues = function() {
   switch (this.viewMode) {
     case 'fit-x':
       scaleX = scaleY = this.width / camera.width;
-      y = (this.height - camera.height) * scaleY / 2;
+      y = (this.height - (camera.height * scaleY)) / 2;
       break;
 
     case 'fit-y':
       scaleX = scaleY = this.height / camera.height;
-      x = (this.width - camera.width) * scaleX / 2;
+      x = (this.width - (camera.width * scaleX)) / 2;
       break;
 
     case 'stretch':
