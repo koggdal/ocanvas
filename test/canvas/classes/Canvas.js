@@ -4,7 +4,6 @@ var NodeCanvas = require('canvas');
 var World = require('../../../classes/World');
 var Canvas = require('../../../classes/Canvas');
 var Camera = require('../../../classes/Camera');
-var CanvasObject = require('../../../shapes/base/CanvasObject');
 
 global.HTMLCanvasElement = NodeCanvas;
 
