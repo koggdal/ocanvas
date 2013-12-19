@@ -9,7 +9,7 @@ var defineProperties = require('../utils/defineProperties');
  * @classdesc A camera is put inside a world and when it is connected to a
  *     canvas, it will render what the camera sees in the world to that canvas.
  *
- * @property {World} world An instance of World.
+ * @property {World?} world An instance of World.
  * @property {number} x The x coordinate, referencing the center.
  * @property {number} y The y coordinate, referencing the center.
  * @property {number} rotation The rotation, around the center.
@@ -97,7 +97,11 @@ Camera.prototype.setProperties = function(properties) {
  * @param {Canvas} canvas The canvas instance to draw to.
  */
 Camera.prototype.render = function(canvas) {
-  if (!this.world) return;
+  if (!this.world) {
+    var message = 'You must set a world on the camera instance to render.';
+    message += ' This is done by `world.cameras.add(camera)`.';
+    throw new Error(message);
+  }
 
   var context = canvas.context;
 
