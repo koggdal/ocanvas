@@ -105,7 +105,9 @@ Camera.prototype.render = function(canvas) {
   if (!this.world) {
     var message = 'You must set a world on the camera instance to render.';
     message += ' This is done by `world.cameras.add(camera)`.';
-    throw new Error(message);
+    var error = new Error(message);
+    error.name = 'ocanvas-no-world';
+    throw error;
   }
 
   var context = canvas.context;
