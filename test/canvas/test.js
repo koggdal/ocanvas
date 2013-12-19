@@ -6,4 +6,5 @@ describe('Classes', function() {
 
 describe('Shapes', function() {
   require('./shapes/base/CanvasObject');
+  require('./shapes/Rectangle');
 });
