@@ -76,6 +76,16 @@ function Camera(opt_properties) {
     }
   });
 
+  // Set default dimensions for the camera
+  // These numbers are the same as the default size for a canvas element
+  // (as per the canvas specification). In the constructor for the Camera
+  // we can't know the size of the canvas, so we can't default to that. One
+  // camera can also be rendered to multiple canvases at once.
+  // Setting the values here will invoke the setters above and set the
+  // default position of the camera as well (to the center).
+  if (!opt_properties || !opt_properties.width) this.width = 300;
+  if (!opt_properties || !opt_properties.height) this.height = 150;
+
   if (opt_properties) {
     this.setProperties(opt_properties);
   }
