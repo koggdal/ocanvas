@@ -124,6 +124,25 @@ describe('Rectangle', function() {
       expect(getColor(ctx, 290, 290)).to.equal('rgba(0, 0, 0, 0)');
     });
 
+    it('should draw a rectangle with a camera fill', function(done) {
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300)
+      });
+
+      var camera = new Camera();
+      camera.render = function() {
+        done();
+      };
+
+      var object = new Rectangle({
+        width: 100,
+        height: 100,
+        fill: camera
+      });
+
+      object.render(canvas);
+    });
+
   });
 
 });
