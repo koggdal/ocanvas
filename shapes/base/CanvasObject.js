@@ -96,7 +96,9 @@ CanvasObject.prototype.calculateOrigin = function() {
   var message = 'CanvasObject does not have an implementation of the ' +
       'calculateOrigin method. Please use a subclass of ' +
       'CanvasObject that has an implementation of it.';
-  throw new Error(message);
+  var error = new Error(message);
+  error.name = 'ocanvas-needs-subclass';
+  throw error;
 };
 
 /**

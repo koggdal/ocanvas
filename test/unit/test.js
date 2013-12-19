@@ -11,3 +11,7 @@ describe('Classes', function() {
   require('./classes/Collection');
   require('./classes/World');
 });
+
+describe('Shapes', function() {
+  require('./shapes/base/CanvasObject');
+});
