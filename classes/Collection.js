@@ -45,7 +45,7 @@ function Collection() {
         }
       }
     }
-  });
+  }, {enumerable: true});
 }
 inherit(Collection, EventEmitter);
 

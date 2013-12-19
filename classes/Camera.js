@@ -46,14 +46,10 @@ function Camera(opt_properties) {
   defineProperties(this, {
     zoom: {
       value: 1,
-      get: true,
-      set: function(value) {
-        return value;
-      }
+      writable: true
     },
     width: {
       value: 0,
-      get: true,
       set: function(value, privateVars) {
         privateVars.aspectRatio = value / privateVars.height;
         this.x += (value - privateVars.width) / 2;
@@ -61,7 +57,6 @@ function Camera(opt_properties) {
     },
     height: {
       value: 0,
-      get: true,
       set: function(value, privateVars) {
         privateVars.aspectRatio = privateVars.width / value;
         this.y += (value - privateVars.height) / 2;
@@ -69,12 +64,11 @@ function Camera(opt_properties) {
     },
     aspectRatio: {
       value: 1,
-      get: true,
       set: function(value, privateVars) {
         privateVars.width = privateVars.height * value;
       }
     }
-  });
+  }, {enumerable: true});
 
   // Set default dimensions for the camera
   // These numbers are the same as the default size for a canvas element

@@ -75,7 +75,7 @@ function Canvas(opt_properties) {
         if (this.element) this.element.height = value;
       }
     }
-  });
+  }, {enumerable: true});
 
   if (opt_properties) {
     this.setProperties(opt_properties);
