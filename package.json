@@ -26,7 +26,6 @@
     "blanket": "~1.1.5"
   },
   "scripts": {
-    "coverage": "mocha test/unit test/canvas --require blanket -R html-cov | sed 's?'`pwd`'/??g' > coverage.html",
     "blanket": {
       "pattern": ".",
       "data-cover-never": ["node_modules", "test"]
