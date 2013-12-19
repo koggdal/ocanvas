@@ -1,1 +1,4 @@
 builds
+out
+coverage.html
+npm-debug.log
