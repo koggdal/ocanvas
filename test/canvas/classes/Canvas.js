@@ -20,8 +20,8 @@ describe('Canvas', function() {
 
     it('should clear the canvas', function() {
       var ctx = canvas.context;
-      var w = canvas.width;
-      var h = canvas.height;
+      var w = canvas.width - 1;
+      var h = canvas.height - 1;
 
       expect(getColor(ctx, 0, 0)).to.equal('rgba(255, 0, 0, 255)');
       expect(getColor(ctx, w, 0)).to.equal('rgba(255, 0, 0, 255)');
@@ -84,8 +84,8 @@ describe('Canvas', function() {
       canvas.render();
 
       var ctx = canvas.context;
-      var w = canvas.width;
-      var h = canvas.height;
+      var w = canvas.width - 1;
+      var h = canvas.height - 1;
 
       expect(getColor(ctx, 0, 0)).to.equal('rgba(255, 0, 0, 255)');
       expect(getColor(ctx, w, 0)).to.equal('rgba(255, 0, 0, 255)');
@@ -113,6 +113,6 @@ describe('Canvas', function() {
 });
 
 function getColor(context, x, y) {
-  var data = context.getImageData(0, 0, 1, 1).data;
+  var data = context.getImageData(x, y, 1, 1).data;
   return 'rgba(' + data[0] + ', ' + data[1] + ', ' + data[2] + ', ' + data[3] + ')';
 }
