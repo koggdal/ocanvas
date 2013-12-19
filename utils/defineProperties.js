@@ -15,6 +15,11 @@
  *
  * @param {Object} object The object that should receive the properties.
  * @param {Object} properties An object with other configuration objects.
+ * @param {Object} opt_default Default options. If a property descriptor
+ *     doesn't include something that's specified in this default object,
+ *     that property will get the the property from this object. Useful
+ *     if you for example want to make all properties enumerable, without
+ *     typing enumerable on every property.
  *
  * @example
  * var defineProperties = require('ocanvas/utils/defineProperties');
@@ -33,12 +38,22 @@
  *   }
  * });
  */
-function defineProperties(object, properties) {
+function defineProperties(object, properties, opt_defaults) {
   var privateVars = {};
 
   var props = {};
   for (var prop in properties) {
     (function(prop) {
+
+      // Set defaults from the defaults object
+      if (opt_defaults) {
+        for (var defaultProp in opt_defaults) {
+          if (!(defaultProp in properties[prop])) {
+            properties[prop][defaultProp] = opt_defaults[defaultProp];
+          }
+        }
+      }
+
       privateVars[prop] = properties[prop].value;
       props[prop] = {};
 

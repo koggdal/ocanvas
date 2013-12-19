@@ -198,6 +198,25 @@ describe('defineProperties', function() {
     expect(findProperty('bar', object)).to.equal(false);
   });
 
+  it('should define properties and set defaults if specified, but only if not specified in a specific property', function() {
+    var object = {};
+
+    defineProperties(object, {
+      foo: {
+        value: 'foo'
+      },
+      bar: {
+        value: 'bar',
+        enumerable: false
+      }
+    }, {enumerable: true});
+
+    expect(object.foo).to.equal('foo');
+    expect(object.bar).to.equal('bar');
+    expect(findProperty('foo', object)).to.equal(true);
+    expect(findProperty('bar', object)).to.equal(false);
+  });
+
 });
 
 function findProperty(propertyName, object) {
