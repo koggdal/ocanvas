@@ -1,7 +1,15 @@
 var expect = require('expect.js');
 var Collection = require('../../../classes/Collection');
+var EventEmitter = require('../../../classes/EventEmitter');
 
 describe('Collection', function() {
+
+  it('should inherit from EventEmitter', function() {
+    var collection = new Collection();
+    expect(Collection.prototype instanceof EventEmitter).to.equal(true);
+    expect(collection instanceof EventEmitter).to.equal(true);
+    expect(collection.emit).to.equal(EventEmitter.prototype.emit);
+  });
 
   describe('#add()', function() {
 
@@ -11,6 +19,18 @@ describe('Collection', function() {
       collection.add('A string');
 
       expect(collection.items[0]).to.equal('A string');
+    });
+
+    it('should emit an `insert` event when something is added', function(done) {
+      var collection = new Collection();
+
+      collection.on('insert', function(event) {
+        expect(event.item).to.equal('String 1');
+        expect(event.index).to.equal(0);
+        done();
+      });
+
+      collection.add('String 1');
     });
 
   });
@@ -31,6 +51,18 @@ describe('Collection', function() {
       expect(collection.items[2]).to.equal('String 3');
       expect(collection.items[3]).to.equal('String 4');
       expect(collection.items[4]).to.equal('String 5');
+    });
+
+    it('should emit an `insert` event when something is inserted', function(done) {
+      var collection = new Collection();
+
+      collection.on('insert', function(event) {
+        expect(event.item).to.equal('String 1');
+        expect(event.index).to.equal(0);
+        done();
+      });
+
+      collection.insert('String 1', 0);
     });
 
   });
@@ -64,6 +96,20 @@ describe('Collection', function() {
       expect(collection.items[1]).to.equal(undefined);
     });
 
+    it('should emit a `remove` event when something is removed', function(done) {
+      var collection = new Collection();
+
+      collection.add('String 1');
+
+      collection.on('remove', function(event) {
+        expect(event.item).to.equal('String 1');
+        expect(event.index).to.equal(0);
+        done();
+      });
+
+      collection.remove('String 1');
+    });
+
   });
 
   describe('#removeAt()', function() {
@@ -78,6 +124,20 @@ describe('Collection', function() {
       collection.removeAt(0);
 
       expect(collection.items[0]).to.equal(undefined);
+    });
+
+    it('should emit a `remove` event when something is removed', function(done) {
+      var collection = new Collection();
+
+      collection.add('String 1');
+
+      collection.on('remove', function(event) {
+        expect(event.item).to.equal('String 1');
+        expect(event.index).to.equal(0);
+        done();
+      });
+
+      collection.removeAt(0);
     });
 
   });
