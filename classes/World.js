@@ -57,7 +57,7 @@ World.prototype.setProperties = function(properties) {
  *
  * @param {Canvas} canvas The Canvas instance to render to.
  */
-World.prototype.renderTree = function(canvas) {
+World.prototype.render = function(canvas) {
   var camera = canvas.camera;
   var context = canvas.context;
   var objects = this.objects;

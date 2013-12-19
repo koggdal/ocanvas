@@ -19,7 +19,7 @@ describe('World', function() {
   var object = new CanvasObject();
   world.objects.add(object);
 
-  describe('#renderTree', function() {
+  describe('#render', function() {
 
     it('should render all objects added to the world', function(done) {
       var originalRender = object.render;
@@ -29,7 +29,7 @@ describe('World', function() {
         done();
       };
 
-      world.renderTree(canvas);
+      world.render(canvas);
     });
 
     it('should render recursively only the number of times specified', function(done) {
@@ -56,10 +56,10 @@ describe('World', function() {
           }
         }, 30);
 
-        world.renderTree(canvas);
+        world.render(canvas);
       };
 
-      world.renderTree(canvas);
+      world.render(canvas);
     });
 
   });

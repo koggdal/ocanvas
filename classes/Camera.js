@@ -118,7 +118,7 @@ Camera.prototype.render = function(canvas) {
   context.scale(zoom, zoom);
   context.rotate(this.rotation * Math.PI / 180);
 
-  this.world.renderTree(canvas);
+  this.world.render(canvas);
 
   context.restore();
 };
