@@ -64,12 +64,16 @@ function Canvas(opt_properties) {
 
   defineProperties(this, {
     width: {
-      value: 0, get: true,
-      set: function(value) { this.element.width = value; }
+      value: 0,
+      set: function(value) {
+        if (this.element) this.element.width = value;
+      }
     },
     height: {
-      value: 0, get: true,
-      set: function(value) { this.element.height = value; }
+      value: 0,
+      set: function(value) {
+        if (this.element) this.element.height = value;
+      }
     }
   });
 
