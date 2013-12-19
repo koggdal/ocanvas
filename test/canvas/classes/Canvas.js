@@ -41,10 +41,12 @@ describe('Canvas', function() {
   describe('#render', function() {
 
     it('should first clear the canvas', function(done) {
+      var world = new World();
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
         camera: new Camera()
       });
+      world.cameras.add(canvas.camera);
       var originalClear = canvas.clear;
       canvas.clear = function() {
         canvas.clear = originalClear;
@@ -67,11 +69,13 @@ describe('Canvas', function() {
     });
 
     it('should draw the background color of the canvas', function() {
+      var world = new World();
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
         camera: new Camera(),
         background: 'red'
       });
+      world.cameras.add(canvas.camera);
 
       canvas.render();
 
