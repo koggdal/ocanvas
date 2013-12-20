@@ -4,6 +4,7 @@
 'use strict';
 
 var defineProperties = require('../utils/defineProperties');
+var jsonHelpers = require('../utils/json');
 
 /**
  * @classdesc A camera is put inside a world and when it is connected to a
@@ -38,6 +39,9 @@ var defineProperties = require('../utils/defineProperties');
  * camera.zoom = 2;
  */
 function Camera(opt_properties) {
+  this.id = Camera.generateID();
+  Camera.cache[this.id] = this;
+
   this.x = 0;
   this.y = 0;
   this.rotation = 0;
@@ -85,6 +89,103 @@ function Camera(opt_properties) {
     this.setProperties(opt_properties);
   }
 }
+
+/**
+ * Cache of camera instances.
+ * Stored by ID (each camera instance has an `id` property, which is used as key
+ * here in the cache).
+ * The cache is used mainly by the JSON loaders, to keep track of the same
+ * camera instance, since it can be referenced in multiple places.
+ *
+ * @type {Object}
+ */
+Camera.cache = {};
+
+/**
+ * Properties that should be included in the plain object created by toObject.
+ *
+ * @type {Array}
+ */
+Camera.objectProperties = [
+  'id',
+  'x',
+  'y',
+  'width',
+  'height',
+  'aspectRatio',
+  'zoom',
+  'rotation'
+];
+
+/**
+ * Generate a new unique ID.
+ *
+ * @return {string} An ID.
+ */
+Camera.generateID = function() {
+  return (++ID).toString(36);
+};
+var ID = 0;
+
+/**
+ * Create a new Camera instance from a plain object. This object
+ * must have the structure that the toObject method creates.
+ *
+ * @param {Object} object A plain object.
+ *
+ * @return {Camera} A Camera instance.
+ */
+Camera.fromObject = function(object) {
+  var cache = Camera.cache;
+  var cachedObject = cache[object.id];
+
+  var camera = cachedObject || new this();
+
+  if (!cachedObject && object.id) {
+    delete cache[camera.id];
+    camera.id = object.id;
+    cache[camera.id] = camera;
+  }
+
+  return jsonHelpers.setProperties(camera, object);
+};
+
+/**
+ * Create a new Camera instance from a JSON string. This string
+ * must have the structure that the toJSON method creates.
+ *
+ * @param {string} json A plain object represented as a JSON string.
+ *
+ * @return {Camera} A Camera instance.
+ */
+Camera.fromJSON = function(json) {
+  return this.fromObject(JSON.parse(json));
+};
+
+/**
+ * Convert the Camera instance to a plain object.
+ * This plain object can be converted to a JSON string.
+ *
+ * @return {Object} An object that represents this camera.
+ */
+Camera.prototype.toObject = function() {
+  return jsonHelpers.toObject(this, Camera.objectProperties, 'Camera');
+};
+
+/**
+ * Convert the Camera instance to JSON.
+ *
+ * @param {number|string=} opt_space Optional argument to control
+ *     spacing in the output string. If set to a truthy value,
+ *     the output will be pretty-printed. If a number, each
+ *     indentation step will be that number of spaces wide. If it
+ *     is a string, each indentation step will be this string.
+ *
+ * @return {string} A JSON string.
+ */
+Camera.prototype.toJSON = function(opt_space) {
+  return jsonHelpers.toJSON(this, Camera.objectProperties, 'Camera', opt_space);
+};
 
 /**
  * Set multiple properties at the same time.
