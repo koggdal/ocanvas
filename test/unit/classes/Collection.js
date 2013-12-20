@@ -210,4 +210,58 @@ describe('Collection', function() {
 
   });
 
+  describe('#items', function() {
+
+    it('should be an array', function() {
+      var collection = new Collection();
+      expect(Array.isArray(collection.items)).to.equal(true);
+    });
+
+    it('should contain all the items', function() {
+      var collection = new Collection();
+      collection.add('String 1');
+      expect(collection.items[0]).to.equal('String 1');
+    });
+
+    it('should update length when the property is set to a new array', function() {
+      var collection = new Collection();
+      collection.add('String 1');
+
+      expect(collection.length).to.equal(1);
+      collection.items = [];
+      expect(collection.length).to.equal(0);
+      collection.items = ['String 1', 'String 2'];
+      expect(collection.length).to.equal(2);
+    });
+
+    it('should update the content when the property is set to a new array', function() {
+      var collection = new Collection();
+      collection.add('String 1');
+
+      collection.items = ['String 1', 'String 2'];
+      expect(collection.get(0)).to.equal('String 1');
+      expect(collection.get(1)).to.equal('String 2');
+    });
+
+    it('should emit insert/remove events when the property is set to a new array', function(done) {
+      var collection = new Collection();
+      collection.add('String 1');
+
+      var numRemoves = 0;
+      collection.on('remove', function() {
+        numRemoves++;
+        if (numRemoves === 1 && numInserts === 2) done();
+      });
+
+      var numInserts = 0;
+      collection.on('insert', function() {
+        numInserts++;
+        if (numRemoves === 1 && numInserts === 2) done();
+      });
+
+      collection.items = ['String 1', 'String 2'];
+    });
+
+  });
+
 });

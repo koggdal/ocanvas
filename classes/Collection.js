@@ -30,8 +30,6 @@ var defineProperties = require('../utils/defineProperties');
 function Collection() {
   EventEmitter.call(this);
 
-  this.items = [];
-
   defineProperties(this, {
     length: {
       value: 0,
@@ -48,6 +46,15 @@ function Collection() {
           for (var n = this.items.length; n < value; n++) {
             this.add(undefined);
           }
+        }
+      }
+    },
+    items: {
+      value: [],
+      set: function(value) {
+        this.length = 0;
+        for (var i = 0, l = value.length; i < l; i++) {
+          this.add(value[i]);
         }
       }
     }
