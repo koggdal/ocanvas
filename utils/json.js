@@ -160,7 +160,11 @@ function getProperties(object, properties) {
     var property = properties[i];
     var value = object[property];
 
-    if (typeof value === 'object') {
+    if (Array.isArray(value)) {
+      output[property] = value.map(function(item) {
+        return item.toObject ? item.toObject() : item;
+      });
+    } else if (typeof value === 'object') {
       if (value.toObject) {
         output[property] = value.toObject();
       } else {
