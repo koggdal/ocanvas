@@ -1,0 +1,1 @@
+window.oCanvas = require('./index');

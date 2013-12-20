@@ -7,12 +7,12 @@ module.exports = function(grunt) {
     exec: {
       'quickstart-dev': {
         cmd: function() {
-          return 'mkdir -p ./builds && ./node_modules/quickstart/quickstart > ./builds/ocanvas.js';
+          return 'mkdir -p ./builds && ./node_modules/quickstart/quickstart --main browser.js > ./builds/ocanvas.js';
         }
       },
       'quickstart-prod': {
         cmd: function() {
-          return 'mkdir -p ./builds && ./node_modules/quickstart/quickstart --compress > ./builds/ocanvas.min.js';
+          return 'mkdir -p ./builds && ./node_modules/quickstart/quickstart --main browser.js --compress > ./builds/ocanvas.min.js';
         }
       },
       'coverage': {

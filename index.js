@@ -3,10 +3,6 @@
  */
 'use strict';
 
-if (typeof window !== 'undefined') {
-  window.oCanvas = exports;
-}
-
 /**
  * Classes that are not shapes.
  * @type {Object}
