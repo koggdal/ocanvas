@@ -48,5 +48,6 @@ exports.shapes = {
 exports.utils = {
   defineProperties: require('./utils/defineProperties'),
   inherit: require('./utils/inherit'),
+  json: require('./utils/json'),
   mixin: require('./utils/mixin')
 };
