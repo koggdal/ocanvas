@@ -23,7 +23,8 @@ module.exports = function(grunt) {
           ];
           var commands = [
             'mocha ' + mochaTests.join(' ') + ' --require blanket -R html-cov | sed \'s?\'`pwd`\'/??g\' > coverage.html',
-            'echo "\nOpen coverage.html in your browser to see results for code coverage."'
+            'echo "\nCoverage: `sed -n \'s/.*id="stats".*class="percentage">\\(.*\\)<.*<.*sloc.*/\\1/p\' coverage.html`"',
+            'echo "\nOpen coverage.html in your browser to see the full results for code coverage."'
           ];
           return commands.join(' && ');
         }
