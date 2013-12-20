@@ -92,6 +92,24 @@ function Camera(opt_properties) {
  * @param {Object} properties Object with properties and their values.
  */
 Camera.prototype.setProperties = function(properties) {
+
+  // Some properties needs to be set before others.
+  // For example, the width property has a setter that sets the x property
+  // as well. If the x property is specified in the input properties, it will
+  // get the wrong value if we don't treat width before x.
+  if ('aspectRatio' in properties) {
+    this.aspectRatio = properties.aspectRatio;
+    delete properties.aspectRatio;
+  }
+  if ('width' in properties) {
+    this.width = properties.width;
+    delete properties.width;
+  }
+  if ('height' in properties) {
+    this.height = properties.height;
+    delete properties.height;
+  }
+
   for (var prop in properties) {
     this[prop] = properties[prop];
   }
