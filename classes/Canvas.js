@@ -148,16 +148,6 @@ Canvas.prototype.toObject = function() {
 };
 
 /**
- * Convert the canvas object and everything that is tied to it to a plain object.
- * This plain object can be converted to a JSON string.
- *
- * @return {Object} An object that represents this canvas.
- */
-Canvas.prototype.toObject = function() {
-  return jsonHelpers.toObject(this, Canvas.objectProperties, 'Canvas');
-};
-
-/**
  * Convert the canvas object and everything that is tied to it to JSON.
  *
  * @param {number|string=} opt_space Optional argument to control
