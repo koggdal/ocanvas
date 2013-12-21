@@ -5,6 +5,7 @@
 
 var CanvasObject = require('./CanvasObject');
 var inherit = require('../../utils/inherit');
+var jsonHelpers = require('../../utils/json');
 
 /**
  * @classdesc This is a class that a canvas object class can inherit from,
@@ -30,6 +31,7 @@ var inherit = require('../../utils/inherit');
 function RectangularCanvasObject(opt_properties) {
   CanvasObject.call(this);
 
+  this.constructorName = 'RectangularCanvasObject';
   this.width = 0;
   this.height = 0;
 
@@ -38,6 +40,64 @@ function RectangularCanvasObject(opt_properties) {
   }
 }
 inherit(RectangularCanvasObject, CanvasObject);
+
+/**
+ * Properties that should be included in the plain object created by toObject.
+ *
+ * @type {Array}
+ */
+RectangularCanvasObject.objectProperties = CanvasObject.objectProperties.concat([
+  'width',
+  'height'
+]);
+
+/**
+ * Create a new RectangularCanvasObject instance from a plain object. This object
+ * must have the structure that the toObject method creates.
+ *
+ * @param {Object} object A plain object.
+ *
+ * @return {RectangularCanvasObject} A RectangularCanvasObject instance.
+ */
+RectangularCanvasObject.fromObject = CanvasObject.fromObject;
+
+/**
+ * Create a new RectangularCanvasObject instance from a JSON string. This string
+ * must have the structure that the toJSON method creates.
+ *
+ * @param {string} json A plain object represented as a JSON string.
+ *
+ * @return {RectangularCanvasObject} A RectangularCanvasObject instance.
+ */
+RectangularCanvasObject.fromJSON = CanvasObject.fromJSON;
+
+/**
+ * Convert the RectangularCanvasObject instance to a plain object.
+ * This plain object can be converted to a JSON string.
+ *
+ * @return {Object} An object that represents this canvas object.
+ */
+RectangularCanvasObject.prototype.toObject = function() {
+  var props = RectangularCanvasObject.objectProperties;
+  return jsonHelpers.toObject(this, props, 'RectangularCanvasObject');
+};
+
+/**
+ * Convert the RectangularCanvasObject instance to a JSON string.
+ *
+ * @param {number|string=} opt_space Optional argument to control
+ *     spacing in the output string. If set to a truthy value,
+ *     the output will be pretty-printed. If a number, each
+ *     indentation step will be that number of spaces wide. If it
+ *     is a string, each indentation step will be this string.
+ *
+ * @return {string} A JSON string.
+ */
+RectangularCanvasObject.prototype.toJSON = function(opt_space) {
+  var props = RectangularCanvasObject.objectProperties;
+  return jsonHelpers.toJSON(this, props, 'RectangularCanvasObject', opt_space);
+};
+
 
 /**
  * Calculate the origin in pixels from the default origin of an object.
