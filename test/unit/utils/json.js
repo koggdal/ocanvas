@@ -1,4 +1,5 @@
 var expect = require('expect.js');
+var Camera = require('../../../classes/Camera');
 var jsonHelpers = require('../../../utils/json');
 
 describe('json', function() {
@@ -40,6 +41,20 @@ describe('json', function() {
       expect(instance.__class__).to.equal(undefined);
       expect(instance.x).to.equal(10);
       expect(instance.y).to.equal(20);
+    });
+
+    it('should pass an id to the constructor if the class is Camera (to get cached instance)', function() {
+      jsonHelpers.registerClasses({
+        Camera: Camera
+      });
+      var camera = new Camera({id: 'abc'});
+      var instance = jsonHelpers.fromObject({
+        __class__: 'Camera',
+        id: 'abc',
+        x: 10,
+        y: 20
+      });
+      expect(instance).to.equal(camera);
     });
 
     it('should handle converting arrays in the data', function() {

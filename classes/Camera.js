@@ -39,7 +39,10 @@ var jsonHelpers = require('../utils/json');
  * camera.zoom = 2;
  */
 function Camera(opt_properties) {
-  this.id = Camera.generateID();
+  this.id = (opt_properties && opt_properties.id) || Camera.generateID();
+  if (Camera.cache[this.id]) {
+    return Camera.cache[this.id];
+  }
   Camera.cache[this.id] = this;
 
   this.x = 0;

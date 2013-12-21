@@ -137,7 +137,12 @@ function expand(object) {
   if (className) {
     var Class = exports.registeredClasses[className];
     if (Class) {
-      var output = new Class();
+      var output;
+      if (className === 'Camera' && object.id) {
+        output = new Class({id: object.id});
+      } else {
+        output = new Class();
+      }
       return exports.setProperties(output, object);
     } else if (global.console && console.warn) {
       console.warn('JSON input has __class__ ' + className + ', ' +

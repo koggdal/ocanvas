@@ -7,6 +7,11 @@ describe('Camera', function() {
 
     var camera = new Camera({name: 'Camera'});
 
+    it('should return a cached instance if there is one with the same ID', function() {
+      var camera2 = new Camera({id: camera.id});
+      expect(camera).to.equal(camera2);
+    });
+
     it('should set any properties passed in', function() {
       expect(camera.name).to.equal('Camera');
     });
