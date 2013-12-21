@@ -4,6 +4,7 @@
 'use strict';
 
 var Collection = require('../../classes/Collection');
+var jsonHelpers = require('../../utils/json');
 
 /**
  * @classdesc The CanvasObject class is a base class that different objects
@@ -49,6 +50,7 @@ var Collection = require('../../classes/Collection');
 function CanvasObject(opt_properties) {
   var self = this;
 
+  this.constructorName = 'CanvasObject';
   this.x = 0;
   this.y = 0;
   this.originX = 0;
@@ -70,6 +72,72 @@ function CanvasObject(opt_properties) {
     this.setProperties(opt_properties);
   }
 }
+
+/**
+ * Properties that should be included in the plain object created by toObject.
+ *
+ * @type {Array}
+ */
+CanvasObject.objectProperties = [
+  'x',
+  'y',
+  'originX',
+  'originY',
+  'rotation',
+  'fill',
+  'stroke',
+  'opacity',
+  'children'
+];
+
+/**
+ * Create a new CanvasObject instance from a plain object. This object
+ * must have the structure that the toObject method creates.
+ *
+ * @param {Object} object A plain object.
+ *
+ * @return {CanvasObject} A CanvasObject instance.
+ */
+CanvasObject.fromObject = function(object) {
+  return jsonHelpers.fromObject(object);
+};
+
+/**
+ * Create a new CanvasObject instance from a JSON string. This string
+ * must have the structure that the toJSON method creates.
+ *
+ * @param {string} json A plain object represented as a JSON string.
+ *
+ * @return {CanvasObject} A CanvasObject instance.
+ */
+CanvasObject.fromJSON = function(json) {
+  return jsonHelpers.fromJSON(json);
+};
+
+/**
+ * Convert the CanvasObject instance to a plain object.
+ * This plain object can be converted to a JSON string.
+ *
+ * @return {Object} An object that represents this canvas object.
+ */
+CanvasObject.prototype.toObject = function() {
+  return jsonHelpers.toObject(this, CanvasObject.objectProperties, this.constructorName);
+};
+
+/**
+ * Convert the CanvasObject instance to JSON.
+ *
+ * @param {number|string=} opt_space Optional argument to control
+ *     spacing in the output string. If set to a truthy value,
+ *     the output will be pretty-printed. If a number, each
+ *     indentation step will be that number of spaces wide. If it
+ *     is a string, each indentation step will be this string.
+ *
+ * @return {string} A JSON string.
+ */
+CanvasObject.prototype.toJSON = function(opt_space) {
+  return jsonHelpers.toJSON(this, CanvasObject.objectProperties, this.constructorName, opt_space);
+};
 
 /**
  * Set multiple properties at the same time.
