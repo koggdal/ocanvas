@@ -6,6 +6,7 @@
 var EventEmitter = require('./EventEmitter');
 var inherit = require('../utils/inherit');
 var defineProperties = require('../utils/defineProperties');
+var jsonHelpers = require('../utils/json');
 
 /**
  * @classdesc The Collection class can be used to store items. When the
@@ -61,6 +62,99 @@ function Collection() {
   }, {enumerable: true});
 }
 inherit(Collection, EventEmitter);
+
+/**
+ * Create a new collection from a plain array.
+ * If the array contains plain objects created by oCanvas JSON utils,
+ * these will be expanded to their full objects.
+ *
+ * @param {Array} array The array.
+ *
+ * @return {Collection} A new Collection instance.
+ */
+Collection.fromArray = function(array) {
+  var collection = new this();
+
+  for (var i = 0, l = array.length; i < l; i++) {
+    collection.add(jsonHelpers.fromObject(array[i]));
+  }
+
+  return collection;
+};
+
+/**
+ * Create a new collection from a plain object. This object must match
+ * the style that #toObject returns, otherwise it can't reproduce the
+ * instance correctly. This means the object must have a __class__
+ * property and an items property that contains all items.
+ * The items will be expanded to instances if they also follow the correct
+ * pattern.
+ * You must first register the Collection class using the JSON utils.
+ *
+ * @param {Object} object The object.
+ *
+ * @return {Collection} A new Collection instance.
+ */
+Collection.fromObject = function(object) {
+  return jsonHelpers.fromObject(object);
+};
+
+/**
+ * Create a new collection from a JSON string representing a plain object.
+ * This object must match the style that #toObject returns, otherwise it
+ * can't reproduce the instance correctly. This means the object must have
+ * a __class__ property and an items property that contains all items.
+ * The items will be expanded to instances if they also follow the correct
+ * pattern.
+ * You must first register the Collection class using the JSON utils.
+ *
+ * @param {string} json The JSON string.
+ *
+ * @return {Collection} A new Collection instance.
+ */
+Collection.fromJSON = function(json) {
+  return jsonHelpers.fromJSON(json);
+};
+
+/**
+ * Convert the collection to a plain array and convert
+ * each item to a plain object (if the item has a method
+ * called toObject). This plain array can be converted
+ * to a JSON string (if the items can).
+ *
+ * @return {Array} An array that represents this collection.
+ */
+Collection.prototype.toArray = function() {
+  var object = jsonHelpers.toObject(this, ['items'], 'Collection');
+  return object.items;
+};
+
+/**
+ * Convert the collection to a plain object with an array and convert
+ * each item to a plain object (if the item has a method called toObject).
+ * This plain object can be converted to a JSON string (if the items can).
+ *
+ * @return {Object} An object that represents this collection.
+ */
+Collection.prototype.toObject = function() {
+  return jsonHelpers.toObject(this, ['items'], 'Collection');
+};
+
+/**
+ * Convert the collection to JSON. This is equal to running toObject
+ * and converting that plain object to JSON.
+ *
+ * @param {number|string=} opt_space Optional argument to control
+ *     spacing in the output string. If set to a truthy value,
+ *     the output will be pretty-printed. If a number, each
+ *     indentation step will be that number of spaces wide. If it
+ *     is a string, each indentation step will be this string.
+ *
+ * @return {string} A JSON string.
+ */
+Collection.prototype.toJSON = function(opt_space) {
+  return jsonHelpers.toJSON(this, ['items'], 'Collection', opt_space);
+};
 
 /**
  * Event for notifying that something was inserted into the collection.

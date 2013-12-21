@@ -1,6 +1,7 @@
 var expect = require('expect.js');
 var Collection = require('../../../classes/Collection');
 var EventEmitter = require('../../../classes/EventEmitter');
+var jsonHelpers = require('../../../utils/json');
 
 describe('Collection', function() {
 
@@ -9,6 +10,276 @@ describe('Collection', function() {
     expect(Collection.prototype instanceof EventEmitter).to.equal(true);
     expect(collection instanceof EventEmitter).to.equal(true);
     expect(collection.emit).to.equal(EventEmitter.prototype.emit);
+  });
+
+  describe('.fromArray()', function() {
+
+    it('should return a new Collection instance with the contents of the array', function() {
+      var collection = Collection.fromArray(['String 1', 'String 2', 'String 3']);
+
+      expect(collection instanceof Collection).to.equal(true);
+      expect(collection.length).to.equal(3);
+      expect(collection.get(0)).to.equal('String 1');
+      expect(collection.get(1)).to.equal('String 2');
+      expect(collection.get(2)).to.equal('String 3');
+    });
+
+    it('should expand array items to class instances if needed', function() {
+      function MyItemClass() {}
+      jsonHelpers.registerClasses({'MyItemClass': MyItemClass});
+
+      var collection = Collection.fromArray([
+        {
+          __class__: 'MyItemClass',
+          name: 'Item 1'
+        },
+        {
+          __class__: 'MyItemClass',
+          name: 'Item 2'
+        }
+      ]);
+
+      expect(collection instanceof Collection).to.equal(true);
+      expect(collection.length).to.equal(2);
+      expect(collection.get(0) instanceof MyItemClass).to.equal(true);
+      expect(collection.get(1) instanceof MyItemClass).to.equal(true);
+      expect(collection.get(0).name).to.equal('Item 1');
+      expect(collection.get(1).name).to.equal('Item 2');
+    });
+
+  });
+
+  describe('.fromObject()', function() {
+
+    it('should return a new Collection instance with the contents of the items array', function() {
+      jsonHelpers.registerClasses({'Collection': Collection});
+
+      var collection = Collection.fromObject({
+        __class__: 'Collection',
+        items: ['String 1', 'String 2', 'String 3']
+      });
+
+      expect(collection instanceof Collection).to.equal(true);
+      expect(collection.length).to.equal(3);
+      expect(collection.get(0)).to.equal('String 1');
+      expect(collection.get(1)).to.equal('String 2');
+      expect(collection.get(2)).to.equal('String 3');
+    });
+
+    it('should expand array items to class instances if needed', function() {
+      function MyItemClass() {}
+      jsonHelpers.registerClasses({
+        'Collection': Collection,
+        'MyItemClass': MyItemClass
+      });
+
+      var collection = Collection.fromObject({
+        __class__: 'Collection',
+        items: [
+          {
+            __class__: 'MyItemClass',
+            name: 'Item 1'
+          },
+          {
+            __class__: 'MyItemClass',
+            name: 'Item 2'
+          }
+        ]
+      });
+
+      expect(collection instanceof Collection).to.equal(true);
+      expect(collection.length).to.equal(2);
+      expect(collection.get(0) instanceof MyItemClass).to.equal(true);
+      expect(collection.get(1) instanceof MyItemClass).to.equal(true);
+      expect(collection.get(0).name).to.equal('Item 1');
+      expect(collection.get(1).name).to.equal('Item 2');
+    });
+
+  });
+
+  describe('.fromJSON()', function() {
+
+    it('should return a new Collection instance with the contents of the items array', function() {
+      jsonHelpers.registerClasses({'Collection': Collection});
+
+      var collection = Collection.fromJSON(JSON.stringify({
+        __class__: 'Collection',
+        items: ['String 1', 'String 2', 'String 3']
+      }));
+
+      expect(collection instanceof Collection).to.equal(true);
+      expect(collection.length).to.equal(3);
+      expect(collection.get(0)).to.equal('String 1');
+      expect(collection.get(1)).to.equal('String 2');
+      expect(collection.get(2)).to.equal('String 3');
+    });
+
+    it('should expand array items to class instances if needed', function() {
+      function MyItemClass() {}
+      jsonHelpers.registerClasses({
+        'Collection': Collection,
+        'MyItemClass': MyItemClass
+      });
+
+      var collection = Collection.fromJSON(JSON.stringify({
+        __class__: 'Collection',
+        items: [
+          {
+            __class__: 'MyItemClass',
+            name: 'Item 1'
+          },
+          {
+            __class__: 'MyItemClass',
+            name: 'Item 2'
+          }
+        ]
+      }));
+
+      expect(collection instanceof Collection).to.equal(true);
+      expect(collection.length).to.equal(2);
+      expect(collection.get(0) instanceof MyItemClass).to.equal(true);
+      expect(collection.get(1) instanceof MyItemClass).to.equal(true);
+      expect(collection.get(0).name).to.equal('Item 1');
+      expect(collection.get(1).name).to.equal('Item 2');
+    });
+
+  });
+
+  describe('#toArray()', function() {
+
+    it('should convert the collection to a plain array', function() {
+      var inputArray = ['String 1', 'String 2', 'String 3'];
+      var collection = Collection.fromArray(inputArray);
+      var outputArray = collection.toArray();
+
+      expect(Array.isArray(outputArray)).to.equal(true);
+      expect(outputArray).to.eql(inputArray);
+    });
+
+    it('should convert nested objects to plain objects', function() {
+      function MyItemClass(x, y) {
+        this.x = x;
+        this.y = y;
+      }
+      MyItemClass.prototype.toObject = function() {
+        return {
+          __class__: 'MyItemClass',
+          x: this.x,
+          y: this.y
+        };
+      };
+
+      var collection = Collection.fromArray([
+        new MyItemClass(20, 30),
+        new MyItemClass(45, 55)
+      ]);
+
+      var outputArray = collection.toArray();
+
+      expect(Array.isArray(outputArray)).to.equal(true);
+      expect(outputArray.length).to.equal(2);
+      expect(outputArray[0]).to.eql({
+        __class__: 'MyItemClass',
+        x: 20, y: 30
+      });
+      expect(outputArray[1]).to.eql({
+        __class__: 'MyItemClass',
+        x: 45, y: 55
+      });
+    });
+
+  });
+
+  describe('#toObject()', function() {
+
+    it('should convert the collection to a plain object', function() {
+      var inputArray = ['String 1', 'String 2', 'String 3'];
+      var collection = Collection.fromArray(inputArray);
+      var outputObject = collection.toObject();
+
+      expect(outputObject.items).to.eql(inputArray);
+    });
+
+    it('should convert nested objects to plain objects', function() {
+      function MyItemClass(x, y) {
+        this.x = x;
+        this.y = y;
+      }
+      MyItemClass.prototype.toObject = function() {
+        return {
+          __class__: 'MyItemClass',
+          x: this.x,
+          y: this.y
+        };
+      };
+
+      var collection = Collection.fromArray([
+        new MyItemClass(20, 30),
+        new MyItemClass(45, 55)
+      ]);
+
+      var outputObject = collection.toObject();
+
+      expect(typeof outputObject).to.equal('object');
+      expect(Array.isArray(outputObject.items)).to.equal(true);
+      expect(outputObject.items.length).to.equal(2);
+      expect(outputObject.items[0]).to.eql({
+        __class__: 'MyItemClass',
+        x: 20, y: 30
+      });
+      expect(outputObject.items[1]).to.eql({
+        __class__: 'MyItemClass',
+        x: 45, y: 55
+      });
+    });
+
+  });
+
+  describe('#toJSON()', function() {
+
+    it('should convert the collection to a JSON string representing a plain object', function() {
+      var inputArray = ['String 1', 'String 2', 'String 3'];
+      var collection = Collection.fromArray(inputArray);
+      var outputJSON = collection.toJSON();
+      var outputObject = JSON.parse(outputJSON);
+
+      expect(outputObject.items).to.eql(inputArray);
+    });
+
+    it('should convert nested objects to plain objects and then stringify them', function() {
+      function MyItemClass(x, y) {
+        this.x = x;
+        this.y = y;
+      }
+      MyItemClass.prototype.toObject = function() {
+        return {
+          __class__: 'MyItemClass',
+          x: this.x,
+          y: this.y
+        };
+      };
+
+      var collection = Collection.fromArray([
+        new MyItemClass(20, 30),
+        new MyItemClass(45, 55)
+      ]);
+
+      var outputJSON = collection.toJSON();
+      var outputObject = JSON.parse(outputJSON);
+
+      expect(typeof outputObject).to.equal('object');
+      expect(Array.isArray(outputObject.items)).to.equal(true);
+      expect(outputObject.items.length).to.equal(2);
+      expect(outputObject.items[0]).to.eql({
+        __class__: 'MyItemClass',
+        x: 20, y: 30
+      });
+      expect(outputObject.items[1]).to.eql({
+        __class__: 'MyItemClass',
+        x: 45, y: 55
+      });
+    });
+
   });
 
   describe('#add()', function() {
