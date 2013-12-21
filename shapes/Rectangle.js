@@ -36,6 +36,26 @@ function Rectangle(opt_properties) {
 inherit(Rectangle, RectangularCanvasObject);
 
 /**
+ * Create a new Rectangle instance from a plain object. This object
+ * must have the structure that the toObject method creates.
+ *
+ * @param {Object} object A plain object.
+ *
+ * @return {Rectangle} A Rectangle instance.
+ */
+Rectangle.fromObject = RectangularCanvasObject.fromObject;
+
+/**
+ * Create a new Rectangle instance from a JSON string. This string
+ * must have the structure that the toJSON method creates.
+ *
+ * @param {string} json A plain object represented as a JSON string.
+ *
+ * @return {Rectangle} A Rectangle instance.
+ */
+Rectangle.fromJSON = RectangularCanvasObject.fromJSON;
+
+/**
  * Render the object to a canvas.
  *
  * @param {Canvas} canvas The Canvas instance to render to.
