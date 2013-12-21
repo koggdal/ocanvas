@@ -279,4 +279,18 @@ Collection.prototype.get = function(index) {
   return index in this.items ? this.items[index] : null;
 };
 
+/**
+ * Run the provided function once per item in the collection.
+ * The function gets called with two arguments: `item` and `index`.
+ * When called, `this` is the collection.
+ *
+ * @param {function} func The function to run.
+ */
+Collection.prototype.forEach = function(func) {
+  var items = this.items;
+  for (var i = 0, l = items.length; i < l; i++) {
+    func.call(this, items[i], i);
+  }
+};
+
 module.exports = Collection;

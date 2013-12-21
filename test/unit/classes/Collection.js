@@ -453,6 +453,24 @@ describe('Collection', function() {
 
   });
 
+  describe('#forEach()', function() {
+
+    it('should loop through all items and call the function for every item', function() {
+      var collection = new Collection();
+      collection.add('String 1');
+      collection.add('String 2');
+      collection.add('String 3');
+
+      var i = 0;
+      collection.forEach(function(item, index) {
+        expect(index).to.equal(i);
+        expect(item).to.equal(collection.items[i]);
+        i++;
+      });
+    });
+
+  });
+
   describe('#length', function() {
 
     var collection = new Collection();
