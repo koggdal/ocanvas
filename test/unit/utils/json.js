@@ -94,6 +94,24 @@ describe('json', function() {
       expect(object.add(2, 3)).to.equal(5);
     });
 
+    it('should warn in the console if data has a class that\'s not registered', function(done) {
+      var data = {
+        object: {
+          __class__: 'ObjectClass',
+          x: 10
+        }
+      };
+
+      var originalConsoleWarn = global.console && global.console.warn;
+      global.console.warn = function() {
+        done();
+      };
+
+      var object = jsonHelpers.fromObject(data);
+
+      global.console.warn = originalConsoleWarn;
+    });
+
   });
 
   describe('.fromJSON()', function() {

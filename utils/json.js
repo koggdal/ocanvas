@@ -139,6 +139,11 @@ function expand(object) {
     if (Class) {
       var output = new Class();
       return exports.setProperties(output, object);
+    } else if (global.console && console.warn) {
+      console.warn('JSON input has __class__ ' + className + ', ' +
+          'but no class was registered with that name. \n' +
+          'Use ocanvas/utils/json#registerClasses to register classes.'
+      );
     }
   }
 
