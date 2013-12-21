@@ -29,6 +29,8 @@ var inherit = require('../utils/inherit');
 function Rectangle(opt_properties) {
   RectangularCanvasObject.call(this);
 
+  this.constructorName = 'Rectangle';
+
   if (opt_properties) {
     this.setProperties(opt_properties);
   }

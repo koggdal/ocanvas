@@ -79,7 +79,7 @@ RectangularCanvasObject.fromJSON = CanvasObject.fromJSON;
  */
 RectangularCanvasObject.prototype.toObject = function() {
   var props = RectangularCanvasObject.objectProperties;
-  return jsonHelpers.toObject(this, props, 'RectangularCanvasObject');
+  return jsonHelpers.toObject(this, props, this.constructorName);
 };
 
 /**
@@ -95,7 +95,7 @@ RectangularCanvasObject.prototype.toObject = function() {
  */
 RectangularCanvasObject.prototype.toJSON = function(opt_space) {
   var props = RectangularCanvasObject.objectProperties;
-  return jsonHelpers.toJSON(this, props, 'RectangularCanvasObject', opt_space);
+  return jsonHelpers.toJSON(this, props, this.constructorName, opt_space);
 };
 
 
