@@ -4,6 +4,7 @@
 'use strict';
 
 var Collection = require('./Collection');
+var defineProperties = require('../utils/defineProperties');
 var jsonHelpers = require('../utils/json');
 
 /**
@@ -27,8 +28,31 @@ var jsonHelpers = require('../utils/json');
 function World(opt_properties) {
   var self = this;
 
-  this.cameras = new Collection();
   this.objects = new Collection();
+
+  defineProperties(this, {
+
+    // By defining a setter for the cameras collection, we allow instantiation
+    // of the class, and at a later point set the cameras property to a new
+    // collection. With this setter, the collection is not switched out, but
+    // the items are copied over to the existing collection, keeping the event
+    // listeners on the collection intact.
+    cameras: {
+      value: new Collection(),
+      set: function(value, privateVars) {
+        var cameras = privateVars.cameras;
+
+        if (!(value instanceof Collection)) {
+          return cameras;
+        }
+
+        cameras.length = 0;
+        value.forEach(function(item) {
+          cameras.add(item);
+        });
+      }
+    }
+  }, {enumerable: true});
 
   this.cameras.on('insert', function(event) {
     event.item.world = self;
@@ -61,14 +85,7 @@ World.objectProperties = [
  * @return {World} A World instance.
  */
 World.fromObject = function(object) {
-  var world = jsonHelpers.fromObject(object);
-
-  var cameras = world.cameras;
-  for (var i = 0, l = cameras.length; i < l; i++) {
-    cameras.get(i).world = world;
-  }
-
-  return world;
+  return jsonHelpers.fromObject(object);
 };
 
 /**
@@ -80,7 +97,7 @@ World.fromObject = function(object) {
  * @return {World} A World instance.
  */
 World.fromJSON = function(json) {
-  return this.fromObject(JSON.parse(json));
+  return jsonHelpers.fromJSON(json);
 };
 
 /**

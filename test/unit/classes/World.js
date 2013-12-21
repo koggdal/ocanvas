@@ -93,6 +93,7 @@ describe('World', function() {
       expect(world.objects.get(0) instanceof CanvasObject).to.equal(true);
       expect(world.cameras.get(0).x).to.equal(35);
       expect(world.objects.get(0).x).to.equal(73);
+      expect(world.cameras.get(0).world).to.equal(world);
     });
 
   });
@@ -139,6 +140,7 @@ describe('World', function() {
       expect(world.objects.get(0) instanceof CanvasObject).to.equal(true);
       expect(world.cameras.get(0).x).to.equal(35);
       expect(world.objects.get(0).x).to.equal(73);
+      expect(world.cameras.get(0).world).to.equal(world);
     });
 
   });
