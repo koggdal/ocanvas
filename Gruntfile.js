@@ -81,6 +81,11 @@ module.exports = function(grunt) {
     'exec:quickstart-prod'
   ]);
 
+  grunt.registerTask('build', [
+    'exec:quickstart-dev',
+    'exec:quickstart-prod'
+  ]);
+
   grunt.registerTask('coverage', [
     'exec:coverage'
   ]);
