@@ -4,6 +4,7 @@
 'use strict';
 
 var defineProperties = require('../utils/defineProperties');
+var jsonHelpers = require('../utils/json');
 
 /**
  * @classdesc A Canvas instance is connected to a canvas DOM element. It will
@@ -83,6 +84,93 @@ function Canvas(opt_properties) {
 
   this._createCanvas();
 }
+
+/**
+ * Properties that should be included in the plain object created by toObject.
+ *
+ * @type {Array}
+ */
+Canvas.objectProperties = [
+  'width',
+  'height',
+  'background',
+  'camera',
+  'viewMode',
+  'maxRenderDepth'
+];
+
+/**
+ * Create a new Canvas instance from a plain object. This object
+ * must have the structure that the toObject method creates.
+ *
+ * @param {Object} object A plain object.
+ * @param {HTMLCanvasElement=} opt_canvas Optional canvas element.
+ *     The canvas element can't be stored in a JSON string, so to
+ *     be able to create the canvas instance from that, the
+ *     canvas element must be provided explicitly. If not provided,
+ *     a canvas element will be created for you (and accessible from
+ *     the `element` property).
+ *
+ * @return {Canvas} A Canvas instance.
+ */
+Canvas.fromObject = function(object, opt_canvas) {
+  var canvas = new this({element: opt_canvas});
+  return jsonHelpers.setProperties(canvas, object);
+};
+
+/**
+ * Create a new Canvas instance from a JSON string representing a plain object.
+ * This object must have the structure that the toObject method creates.
+ *
+ * @param {string} json A JSON string representing a plain object.
+ * @param {HTMLCanvasElement=} opt_canvas Optional canvas element.
+ *     The canvas element can't be stored in a JSON string, so to
+ *     be able to create the canvas instance from that, the
+ *     canvas element must be provided explicitly. If not provided,
+ *     a canvas element will be created for you (and accessible from
+ *     the `element` property).
+ *
+ * @return {Canvas} A Canvas instance.
+ */
+Canvas.fromJSON = function(json, opt_canvas) {
+  var canvas = new this({element: opt_canvas});
+  return jsonHelpers.setProperties(canvas, JSON.parse(json));
+};
+
+/**
+ * Convert the canvas object and everything that is tied to it to a plain object.
+ * This plain object can be converted to a JSON string.
+ *
+ * @return {Object} An object that represents this canvas.
+ */
+Canvas.prototype.toObject = function() {
+  return jsonHelpers.toObject(this, Canvas.objectProperties, 'Canvas');
+};
+
+/**
+ * Convert the canvas object and everything that is tied to it to a plain object.
+ * This plain object can be converted to a JSON string.
+ *
+ * @return {Object} An object that represents this canvas.
+ */
+Canvas.prototype.toObject = function() {
+  return jsonHelpers.toObject(this, Canvas.objectProperties, 'Canvas');
+};
+
+/**
+ * Convert the canvas object and everything that is tied to it to JSON.
+ *
+ * @param {number|string=} opt_space Optional argument to control
+ *     spacing in the output string. If set to a truthy value,
+ *     the output will be pretty-printed. If a number, each
+ *     indentation step will be that number of spaces wide. If it
+ *     is a string, each indentation step will be this string.
+ *
+ * @return {string} A JSON string.
+ */
+Canvas.prototype.toJSON = function(opt_space) {
+  return jsonHelpers.toJSON(this, Canvas.objectProperties, 'Canvas', opt_space);
+};
 
 /**
  * Set multiple properties at the same time.
