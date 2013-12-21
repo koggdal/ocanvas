@@ -9,7 +9,7 @@ global.HTMLCanvasElement = NodeCanvas;
 
 describe('Canvas', function() {
 
-  describe('#clear', function() {
+  describe('#clear()', function() {
     var canvas = new Canvas({
       element: new NodeCanvas(300, 300),
       camera: new Camera()
@@ -38,7 +38,7 @@ describe('Canvas', function() {
 
   });
 
-  describe('#render', function() {
+  describe('#render()', function() {
 
     it('should first clear the canvas', function(done) {
       var world = new World();

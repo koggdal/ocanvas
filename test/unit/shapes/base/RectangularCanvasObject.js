@@ -29,7 +29,7 @@ describe('RectangularCanvasObject', function() {
 
   });
 
-  describe('#calculateOrigin', function() {
+  describe('#calculateOrigin()', function() {
 
     var object = new RectangularCanvasObject({
       width: 200,

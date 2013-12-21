@@ -9,7 +9,7 @@ global.HTMLCanvasElement = NodeCanvas;
 
 describe('Camera', function() {
 
-  describe('#render', function() {
+  describe('#render()', function() {
 
     it('should throw an error if a world is not set', function(done) {
       var camera = new Camera();

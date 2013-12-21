@@ -197,7 +197,7 @@ describe('Camera', function() {
 
   });
 
-  describe('#setProperties', function() {
+  describe('#setProperties()', function() {
 
     it('should set any properties passed in', function() {
       var camera = new Camera();

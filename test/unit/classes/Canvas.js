@@ -70,7 +70,7 @@ describe('Canvas', function() {
 
   });
 
-  describe('#setProperties', function() {
+  describe('#setProperties()', function() {
 
     it('should set any properties passed in', function() {
       var canvas = new Canvas();
@@ -83,7 +83,7 @@ describe('Canvas', function() {
 
   });
 
-  describe('#_getViewModeValues', function() {
+  describe('#_getViewModeValues()', function() {
 
     var canvas = new Canvas({width: 300, height: 150});
 

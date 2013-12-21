@@ -65,7 +65,7 @@ describe('CanvasObject', function() {
 
   });
 
-  describe('#calculateOrigin', function() {
+  describe('#calculateOrigin()', function() {
 
     it('should be defined but throw an error (needs subclass implementation)', function(done) {
       var object = new CanvasObject();
@@ -83,7 +83,7 @@ describe('CanvasObject', function() {
 
   });
 
-  describe('#setProperties', function() {
+  describe('#setProperties()', function() {
 
     it('should set any properties passed in', function() {
       var object = new CanvasObject();

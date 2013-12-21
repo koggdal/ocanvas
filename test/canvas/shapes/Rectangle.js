@@ -11,7 +11,7 @@ global.HTMLCanvasElement = NodeCanvas;
 
 describe('Rectangle', function() {
 
-  describe('#render', function() {
+  describe('#render()', function() {
 
     it('should call the super render method', function(done) {
       var canvas = new Canvas({

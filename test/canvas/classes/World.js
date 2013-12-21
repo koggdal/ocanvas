@@ -19,7 +19,7 @@ describe('World', function() {
   var object = new CanvasObject();
   world.objects.add(object);
 
-  describe('#render', function() {
+  describe('#render()', function() {
 
     it('should render all objects added to the world', function(done) {
       var originalRender = object.render;

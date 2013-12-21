@@ -10,7 +10,7 @@ global.HTMLCanvasElement = NodeCanvas;
 
 describe('CanvasObject', function() {
 
-  describe('#render', function() {
+  describe('#render()', function() {
 
     it('should run with no problems (a subclass will call this function in the overriden method)', function() {
       var canvas = new Canvas({
@@ -22,7 +22,7 @@ describe('CanvasObject', function() {
 
   });
 
-  describe('#renderTree', function() {
+  describe('#renderTree()', function() {
 
     it('should call the render method', function(done) {
       var canvas = new Canvas({
