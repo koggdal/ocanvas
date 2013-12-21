@@ -4,6 +4,7 @@
 'use strict';
 
 var Collection = require('../../classes/Collection');
+var defineProperties = require('../../utils/defineProperties');
 var jsonHelpers = require('../../utils/json');
 
 /**
@@ -59,7 +60,30 @@ function CanvasObject(opt_properties) {
   this.fill = '';
   this.stroke = '';
   this.opacity = 1;
-  this.children = new Collection();
+
+  defineProperties(this, {
+
+    // By defining a setter for the children collection, we allow instantiation
+    // of the class, and at a later point set the children property to a new
+    // collection. With this setter, the collection is not switched out, but
+    // the items are copied over to the existing collection, keeping the event
+    // listeners on the collection intact.
+    children: {
+      value: new Collection(),
+      set: function(value, privateVars) {
+        var children = privateVars.children;
+
+        if (!(value instanceof Collection)) {
+          return children;
+        }
+
+        children.length = 0;
+        value.forEach(function(item) {
+          children.add(item);
+        });
+      }
+    }
+  }, {enumerable: true});
 
   this.children.on('insert', function(event) {
     event.item.parent = self;

@@ -120,6 +120,7 @@ describe('CanvasObject', function() {
       expect(object.children.get(0) instanceof CanvasObject).to.equal(true);
       expect(object.children.get(0).x).to.equal(10);
       expect(object.children.get(0).y).to.equal(20);
+      expect(object.children.get(0).parent).to.equal(object);
     });
 
   });
@@ -170,6 +171,7 @@ describe('CanvasObject', function() {
       expect(object.children.get(0) instanceof CanvasObject).to.equal(true);
       expect(object.children.get(0).x).to.equal(10);
       expect(object.children.get(0).y).to.equal(20);
+      expect(object.children.get(0).parent).to.equal(object);
     });
 
   });
