@@ -49,6 +49,12 @@ describe('CanvasObject', function() {
       expect(object.children instanceof Collection).to.equal(true);
     });
 
+    it('should not allow setting the children property to something that is not a collection', function() {
+      expect(object.children instanceof Collection).to.equal(true);
+      object.children = 'foo';
+      expect(object.children instanceof Collection).to.equal(true);
+    });
+
     it('should set up an insert event listener for the children collection (to set the parent property)', function() {
       var object1 = new CanvasObject();
       var object2 = new CanvasObject();

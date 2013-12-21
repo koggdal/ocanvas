@@ -26,6 +26,13 @@ describe('World', function() {
       expect(world.objects instanceof Collection).to.equal(true);
     });
 
+    it('should not allow setting the cameras property to something that is not a collection', function() {
+      var world = new World();
+      expect(world.cameras instanceof Collection).to.equal(true);
+      world.cameras = 'foo';
+      expect(world.cameras instanceof Collection).to.equal(true);
+    });
+
     it('should set up an insert event listener for the cameras collection (to set the world property)', function() {
       var world = new World();
       var dummyCamera = {};
