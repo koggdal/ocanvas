@@ -47,3 +47,9 @@ exports.utils = {
   json: require('./utils/json'),
   mixin: require('./utils/mixin')
 };
+
+/**
+ * Helper for creating a base setup.
+ * @type {function}
+ */
+exports.create = require('./create');

@@ -63,7 +63,7 @@ module.exports = function(grunt) {
       'jsdoc': {
         cmd: function() {
           var commands = [
-            'jsdoc -r classes shapes utils index.js -d docs',
+            'jsdoc -r classes shapes utils create.js index.js -d docs',
             'echo "\nJSDoc Documentation is now created in docs/"',
             'echo "\nRun \\`http-server docs\\` and open your browser to localhost:<port>"'
           ];

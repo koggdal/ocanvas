@@ -18,3 +18,7 @@ describe('Shapes', function() {
   require('./shapes/base/RectangularCanvasObject');
   require('./shapes/Rectangle');
 });
+
+describe('Helpers', function() {
+  require('./create');
+});
