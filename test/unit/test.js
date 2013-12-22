@@ -10,6 +10,7 @@ describe('Classes', function() {
   require('./classes/Camera');
   require('./classes/EventEmitter');
   require('./classes/Collection');
+  require('./classes/Pool');
   require('./classes/World');
 });
 
