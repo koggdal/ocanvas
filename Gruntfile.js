@@ -18,8 +18,8 @@ module.exports = function(grunt) {
       'coverage': {
         cmd: function() {
           var mochaTests = [
-            'test/unit',
-            'test/canvas'
+            'test/unit/test.js',
+            'test/canvas/test.js'
           ];
           var commands = [
             'mocha ' + mochaTests.join(' ') + ' --require blanket -R html-cov | sed \'s?\'`pwd`\'/??g\' > coverage.html',
@@ -31,13 +31,13 @@ module.exports = function(grunt) {
       },
       'test-unit': {
         cmd: function() {
-          return 'mocha test/unit -R spec';
+          return 'mocha test/unit/test.js -R spec';
         }
       },
       'test-canvas': {
         cmd: function() {
           var condition = '[ -e node_modules/canvas ]';
-          var tests = 'mocha test/canvas -R spec';
+          var tests = 'mocha test/canvas/test.js -R spec';
           var canvasMessage = 'echo "\nNOTE: node-canvas is not installed, so no tests were run.\n"';
           return condition + ' && ' + tests + ' || ' + canvasMessage;
         }
@@ -45,8 +45,8 @@ module.exports = function(grunt) {
       'test': {
         cmd: function() {
           var condition = '[ -e node_modules/canvas ]';
-          var all = 'mocha test/unit test/canvas -R spec';
-          var unit = 'mocha test/unit -R spec';
+          var all = 'mocha test/unit/test.js test/canvas/test.js -R spec';
+          var unit = 'mocha test/unit/test.js -R spec';
           var canvasMessage = 'echo "\nNOTE: node-canvas is not installed, so only normal unit tests were run.\n"';
           return condition + ' && ' + all + ' || (' + unit + ' && ' + canvasMessage + ')';
         }
@@ -54,8 +54,8 @@ module.exports = function(grunt) {
       'test-simple': {
         cmd: function() {
           var condition = '[ -e node_modules/canvas ]';
-          var all = 'mocha test/unit test/canvas';
-          var unit = 'mocha test/unit';
+          var all = 'mocha test/unit/test.js test/canvas/test.js';
+          var unit = 'mocha test/unit/test.js';
           var canvasMessage = 'echo "\nNOTE: node-canvas is not installed, so only normal unit tests were run.\n"';
           return condition + ' && ' + all + ' || (' + unit + ' && ' + canvasMessage + ')';
         }
