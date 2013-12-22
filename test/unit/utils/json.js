@@ -228,6 +228,16 @@ describe('json', function() {
       expect(data.nested.y).to.equal(80);
     });
 
+    it('should handle converting objects with null properties', function() {
+      var object = {
+        x: 10,
+        y: null
+      };
+      var data = jsonHelpers.toObject(object, ['x', 'y']);
+      expect(data.x).to.equal(10);
+      expect(data.y).to.equal(null);
+    });
+
   });
 
   describe('.toJSON()', function() {

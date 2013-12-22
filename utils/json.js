@@ -175,7 +175,7 @@ function getProperties(object, properties) {
         return item.toObject ? item.toObject() : item;
       });
     } else if (typeof value === 'object') {
-      if (value.toObject) {
+      if (value && value.toObject) {
         output[property] = value.toObject();
       } else {
         output[property] = value;
