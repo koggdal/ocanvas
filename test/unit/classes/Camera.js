@@ -48,6 +48,19 @@ describe('Camera', function() {
       expect(camera.aspectRatio).to.equal(2);
     });
 
+    it('should set the value of property `aspectRatio` correctly based on the options', function() {
+      var camera1 = new Camera({width: 600});
+      expect(camera1.aspectRatio).to.equal(4);
+      var camera2 = new Camera({height: 100});
+      expect(camera2.aspectRatio).to.equal(3);
+      var camera3 = new Camera({width: 200, height: 100});
+      expect(camera3.aspectRatio).to.equal(2);
+      var camera4 = new Camera({aspectRatio: 6});
+      expect(camera4.aspectRatio).to.equal(6);
+      expect(camera4.width).to.equal(900);
+      expect(camera4.height).to.equal(150);
+    });
+
   });
 
   describe('.cache', function() {
