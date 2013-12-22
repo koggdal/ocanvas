@@ -279,6 +279,24 @@ describe('CanvasObject', function() {
 
   });
 
+  describe('#renderPath()', function() {
+
+    it('should be defined but throw an error (needs subclass implementation)', function(done) {
+      var object = new CanvasObject();
+
+      try {
+        object.renderPath();
+      } catch(error) {
+        if (error.name === 'ocanvas-needs-subclass') {
+          done();
+        } else {
+          done(error);
+        }
+      }
+    });
+
+  });
+
   describe('#setProperties()', function() {
 
     it('should set any properties passed in', function() {

@@ -207,6 +207,22 @@ CanvasObject.prototype.render = function(canvas) {
 };
 
 /**
+ * Render the path of the object to a canvas.
+ * This needs implementation in a subclass. You should not call this
+ * super method in the subclass.
+ *
+ * @param {Canvas} canvas The Canvas instance to render to.
+ */
+CanvasObject.prototype.renderPath = function(canvas) {
+  var message = 'CanvasObject does not have an implementation of the ' +
+      'renderPath method. Please use a subclass of ' +
+      'CanvasObject that has an implementation of it.';
+  var error = new Error(message);
+  error.name = 'ocanvas-needs-subclass';
+  throw error;
+};
+
+/**
  * Render the object and all of the children trees to a canvas.
  * This will call the render method of this object, which needs
  * implementation in a subclass. It will also call the renderTree method

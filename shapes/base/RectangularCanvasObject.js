@@ -131,4 +131,19 @@ RectangularCanvasObject.prototype.calculateOrigin = function() {
   };
 };
 
+/**
+ * Render the path of the object to a canvas.
+ *
+ * @param {Canvas} canvas The Canvas instance to render to.
+ */
+RectangularCanvasObject.prototype.renderPath = function(canvas) {
+  var context = canvas.context;
+
+  var origin = this.calculateOrigin();
+  var x = -origin.x;
+  var y = -origin.y;
+
+  context.rect(x, y, this.width, this.height);
+};
+
 module.exports = RectangularCanvasObject;
