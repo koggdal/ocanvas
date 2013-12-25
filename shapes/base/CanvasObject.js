@@ -36,6 +36,13 @@ var jsonHelpers = require('../../utils/json');
  *     'px'.
  * @property {number} opacity The opacity of the object, 0–1.
  * @property {Collection} children A collection of children objects.
+ * @property {?CanvasObject|function} clippingMask If set, the object will be
+ *     clipped to the shape of either the provided canvas object, or to what's
+ *     drawn by the provided function. If a function is provided, it will be
+ *     called with two arguments: canvas (Canvas instance) and context (the
+ *     CanvasRenderingContext2D instance that belongs to the canvas element).
+ *     If a canvas object is provided, it will call the renderPath method on
+ *     the object, which means that method must be implemented.
  *
  * @constructor
  *
@@ -62,6 +69,14 @@ function CanvasObject(opt_properties) {
   this.opacity = 1;
 
   defineProperties(this, {
+    clippingMask: {
+      value: null,
+      set: function(value) {
+        if (value instanceof CanvasObject) return value;
+        if (typeof value === 'function') return value;
+        return null;
+      }
+    },
 
     // By defining a setter for the children collection, we allow instantiation
     // of the class, and at a later point set the children property to a new
@@ -111,7 +126,8 @@ CanvasObject.objectProperties = [
   'fill',
   'stroke',
   'opacity',
-  'children'
+  'children',
+  'clippingMask'
 ];
 
 /**
@@ -204,6 +220,20 @@ CanvasObject.prototype.render = function(canvas) {
   var context = canvas.context;
 
   context.globalAlpha *= this.opacity;
+
+  if (this.clippingMask) {
+    context.beginPath();
+    if (this.clippingMask instanceof CanvasObject) {
+      context.save();
+      canvas.transformContextToObject(this.clippingMask, this);
+      this.clippingMask.renderPath(canvas);
+      context.restore();
+    } else if (typeof this.clippingMask === 'function') {
+      this.clippingMask(canvas, context);
+    }
+    context.closePath();
+    context.clip();
+  }
 };
 
 /**

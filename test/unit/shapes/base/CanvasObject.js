@@ -45,6 +45,10 @@ describe('CanvasObject', function() {
       expect(object.opacity).to.equal(1);
     });
 
+    it('should set the default value of property `clippingMask` to null', function() {
+      expect(object.clippingMask).to.equal(null);
+    });
+
     it('should set the default value of property `children` to a new collection', function() {
       expect(object.children instanceof Collection).to.equal(true);
     });
@@ -129,6 +133,42 @@ describe('CanvasObject', function() {
       expect(object.children.get(0).parent).to.equal(object);
     });
 
+    it('should restore a clipping mask (CanvasObject) from a data object', function() {
+      var data = {
+        __class__: 'CanvasObject',
+        x: 35,
+        clippingMask: {
+          __class__: 'CanvasObject',
+          x: 10
+        }
+      };
+
+      var object = CanvasObject.fromObject(data);
+
+      expect(object instanceof CanvasObject).to.equal(true);
+      expect(object.x).to.equal(data.x);
+      expect(object.clippingMask instanceof CanvasObject).to.equal(true);
+      expect(object.clippingMask.x).to.equal(data.clippingMask.x);
+    });
+
+    it('should restore a clipping mask (function) from a data object', function() {
+      var data = {
+        __class__: 'CanvasObject',
+        x: 35,
+        clippingMask: {
+          __type__: 'function',
+          content: 'function(param) { return param; }'
+        }
+      };
+
+      var object = CanvasObject.fromObject(data);
+
+      expect(object instanceof CanvasObject).to.equal(true);
+      expect(object.x).to.equal(data.x);
+      expect(typeof object.clippingMask).to.equal('function');
+      expect(object.clippingMask('foo')).to.equal('foo');
+    });
+
   });
 
   describe('.fromJSON()', function() {
@@ -180,6 +220,44 @@ describe('CanvasObject', function() {
       expect(object.children.get(0).parent).to.equal(object);
     });
 
+    it('should restore a clipping mask (CanvasObject) from a data object', function() {
+      var data = {
+        __class__: 'CanvasObject',
+        x: 35,
+        clippingMask: {
+          __class__: 'CanvasObject',
+          x: 10
+        }
+      };
+      var json = JSON.stringify(data);
+
+      var object = CanvasObject.fromJSON(json);
+
+      expect(object instanceof CanvasObject).to.equal(true);
+      expect(object.x).to.equal(data.x);
+      expect(object.clippingMask instanceof CanvasObject).to.equal(true);
+      expect(object.clippingMask.x).to.equal(data.clippingMask.x);
+    });
+
+    it('should restore a clipping mask (function) from a data object', function() {
+      var data = {
+        __class__: 'CanvasObject',
+        x: 35,
+        clippingMask: {
+          __type__: 'function',
+          content: 'function(param) { return param; }'
+        }
+      };
+      var json = JSON.stringify(data);
+
+      var object = CanvasObject.fromJSON(json);
+
+      expect(object instanceof CanvasObject).to.equal(true);
+      expect(object.x).to.equal(data.x);
+      expect(typeof object.clippingMask).to.equal('function');
+      expect(object.clippingMask('foo')).to.equal('foo');
+    });
+
   });
 
   describe('#toObject()', function() {
@@ -217,6 +295,41 @@ describe('CanvasObject', function() {
       expect(data.children.items[0].__class__).to.equal('CanvasObject');
       expect(data.children.items[0].x).to.equal(10);
       expect(data.children.items[0].y).to.equal(20);
+    });
+
+    it('should handle serializing a clipping mask specified with a canvas object', function() {
+      var clippingMask = new CanvasObject({
+        x: 10, y: 15
+      });
+      var object = new CanvasObject({
+        x: 35, y: 25,
+        clippingMask: clippingMask
+      });
+
+      var data = object.toObject();
+
+      expect(typeof data.clippingMask).to.equal('object');
+      expect(data.clippingMask.__class__).to.equal('CanvasObject');
+      expect(data.clippingMask.x).to.equal(10);
+      expect(data.clippingMask.y).to.equal(15);
+      expect(data.x).to.equal(35);
+      expect(data.y).to.equal(25);
+    });
+
+    it('should handle serializing a clipping mask specified with a function', function() {
+      var clippingMask = function(context) {
+        context.rect(0, 0, 100, 100);
+      };
+      var object = new CanvasObject({
+        x: 35, y: 25,
+        clippingMask: clippingMask
+      });
+
+      var data = object.toObject();
+
+      expect(typeof data.clippingMask).to.equal('object');
+      expect(data.clippingMask.__type__).to.equal('function');
+      expect(data.clippingMask.content).to.equal(clippingMask.toString());
     });
 
   });
@@ -257,6 +370,43 @@ describe('CanvasObject', function() {
       expect(data.children.items[0].__class__).to.equal('CanvasObject');
       expect(data.children.items[0].x).to.equal(10);
       expect(data.children.items[0].y).to.equal(20);
+    });
+
+    it('should handle serializing a clipping mask specified with a canvas object', function() {
+      var clippingMask = new CanvasObject({
+        x: 10, y: 15
+      });
+      var object = new CanvasObject({
+        x: 35, y: 25,
+        clippingMask: clippingMask
+      });
+
+      var json = object.toJSON();
+      var data = JSON.parse(json);
+
+      expect(typeof data.clippingMask).to.equal('object');
+      expect(data.clippingMask.__class__).to.equal('CanvasObject');
+      expect(data.clippingMask.x).to.equal(10);
+      expect(data.clippingMask.y).to.equal(15);
+      expect(data.x).to.equal(35);
+      expect(data.y).to.equal(25);
+    });
+
+    it('should handle serializing a clipping mask specified with a function', function() {
+      var clippingMask = function(context) {
+        context.rect(0, 0, 100, 100);
+      };
+      var object = new CanvasObject({
+        x: 35, y: 25,
+        clippingMask: clippingMask
+      });
+
+      var json = object.toJSON();
+      var data = JSON.parse(json);
+
+      expect(typeof data.clippingMask).to.equal('object');
+      expect(data.clippingMask.__type__).to.equal('function');
+      expect(data.clippingMask.content).to.equal(clippingMask.toString());
     });
 
   });
@@ -306,6 +456,29 @@ describe('CanvasObject', function() {
         name: 'CanvasObject'
       });
       expect(object.name).to.equal('CanvasObject');
+    });
+
+  });
+
+  describe('#clippingMask', function() {
+
+    it('should only accept to be set to a CanvasObject, a function or null', function() {
+      var object = new CanvasObject();
+      var clippingMaskCanvasObject = new CanvasObject();
+      var clippingMaskFunction = function() {};
+      var clippingMaskString = 'foo';
+
+      object.clippingMask = clippingMaskCanvasObject;
+      expect(object.clippingMask).to.equal(clippingMaskCanvasObject);
+
+      object.clippingMask = clippingMaskString;
+      expect(object.clippingMask).to.equal(null);
+
+      object.clippingMask = clippingMaskFunction;
+      expect(object.clippingMask).to.equal(clippingMaskFunction);
+
+      object.clippingMask = null;
+      expect(object.clippingMask).to.equal(null);
     });
 
   });

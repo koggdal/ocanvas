@@ -20,6 +20,92 @@ describe('CanvasObject', function() {
       object.render(canvas);
     });
 
+    it('should handle clipping to a clipping mask (using a CanvasObject instance)', function() {
+      var render = function(canvas) {
+        CanvasObject.prototype.render.apply(this, arguments);
+        canvas.context.fillStyle = this.fill;
+        canvas.context.fillRect(0, 0, this.width, this.height);
+      };
+      var renderPath = function(canvas) {
+        canvas.context.rect(0, 0, this.width, this.height);
+      };
+
+      var camera = new Camera();
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: camera
+      });
+      camera.width = canvas.width;
+      camera.height = canvas.height;
+
+      var world = new World();
+      world.cameras.add(canvas.camera);
+
+      var mask = new CanvasObject({
+        fill: '#0f0',
+        x: 25,
+        y: 25,
+        width: 50,
+        height: 50,
+        render: render,
+        renderPath: renderPath,
+        rotation: 20
+      });
+      var object = new CanvasObject({
+        fill: '#f00',
+        width: 100,
+        height: 100,
+        render: render,
+        clippingMask: mask
+      });
+      world.objects.add(object);
+      canvas.render();
+
+      var context = canvas.context;
+      expect(getColor(context, 26, 30)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(context, 60, 30)).to.equal('rgba(0, 0, 0, 0)');
+    });
+
+    it('should handle clipping to a clipping mask (using a function)', function() {
+      var render = function(canvas) {
+        CanvasObject.prototype.render.apply(this, arguments);
+        canvas.context.fillStyle = this.fill;
+        canvas.context.fillRect(0, 0, this.width, this.height);
+      };
+
+      var camera = new Camera();
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: camera
+      });
+      camera.width = canvas.width;
+      camera.height = canvas.height;
+
+      var world = new World();
+      world.cameras.add(canvas.camera);
+
+      var object = new CanvasObject({
+        fill: '#f00',
+        width: 100,
+        height: 100,
+        render: render,
+        clippingMask: function(canvas, context) {
+          expect(canvas.context).to.equal(context);
+          context.save();
+          context.translate(25, 25);
+          context.rotate(20 * Math.PI / 180);
+          context.rect(0, 0, 50, 50);
+          context.restore();
+        }
+      });
+      world.objects.add(object);
+      canvas.render();
+
+      var context = canvas.context;
+      expect(getColor(context, 26, 30)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(context, 60, 30)).to.equal('rgba(0, 0, 0, 0)');
+    });
+
   });
 
   describe('#renderTree()', function() {
@@ -62,3 +148,8 @@ describe('CanvasObject', function() {
   });
 
 });
+
+function getColor(context, x, y) {
+  var data = context.getImageData(x, y, 1, 1).data;
+  return 'rgba(' + data[0] + ', ' + data[1] + ', ' + data[2] + ', ' + data[3] + ')';
+}
