@@ -233,6 +233,52 @@ Canvas.prototype.render = function() {
 };
 
 /**
+ * Transform the canvas context from the specified current object to the
+ * specified target object. This assumes that the canvas has previously been
+ * transformed to where the current object is (starting with the outermost
+ * parent). It's advised to do `context.save()` before calling this, and
+ * `context.restore()` when you're done.
+ *
+ * @param {CanvasObject} object The CanvasObject instance to transform to.
+ * @param {CanvasObject} currentObject The CanvasObject instance to start from.
+ *     This method will start by transforming out to the outermost parent from
+ *     this object and then back in to the object specified in the first
+ *     argument.
+ */
+Canvas.prototype.transformContextToObject = function(object, currentObject) {
+  var context = this.context;
+  var camera = this.camera;
+  var x;
+  var y;
+  var obj;
+
+  obj = currentObject;
+  while (obj) {
+    x = !obj.parent ? -(obj.x - camera.x) : -obj.x;
+    y = !obj.parent ? -(obj.y - camera.y) : -obj.y;
+    context.rotate(-obj.rotation * Math.PI / 180);
+    context.translate(x, y);
+    obj = obj.parent;
+  }
+
+  obj = object;
+  var chain = [];
+  while (obj) {
+    chain.push(obj);
+    obj = obj.parent;
+  }
+  chain.reverse();
+
+  for (var i = 0, l = chain.length; i < l; i++) {
+    obj = chain[i];
+    x = !obj.parent ? obj.x - camera.x : obj.x;
+    y = !obj.parent ? obj.y - camera.y : obj.y;
+    context.translate(x, y);
+    context.rotate(obj.rotation * Math.PI / 180);
+  }
+};
+
+/**
  * Get the values for scaling the context to fit the camera
  * contents into the canvas, based on the viewMode property.
  *
