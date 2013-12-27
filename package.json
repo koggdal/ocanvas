@@ -28,7 +28,10 @@
   "scripts": {
     "blanket": {
       "pattern": ".",
-      "data-cover-never": ["node_modules", "test"]
+      "data-cover-never": [
+        "node_modules",
+        "test"
+      ]
     }
   }
 }
