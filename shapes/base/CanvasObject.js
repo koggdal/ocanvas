@@ -267,6 +267,10 @@ CanvasObject.prototype.renderPath = function(canvas) {
 CanvasObject.prototype.renderTree = function(canvas) {
   var context = canvas.context;
 
+  // If the opacity is 0, it's not necessary to render this object or
+  // any of its children, since they won't be visible anyway.
+  if (this.opacity === 0) return;
+
   this.render(canvas);
 
   var children = this.children;
