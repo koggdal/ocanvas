@@ -17,6 +17,7 @@ exports.classes = {
   Canvas: require('./classes/Canvas'),
   Collection: require('./classes/Collection'),
   EventEmitter: require('./classes/EventEmitter'),
+  Matrix: require('./classes/Matrix'),
   Pool: require('./classes/Pool'),
   World: require('./classes/World')
 };

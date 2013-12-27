@@ -1,6 +1,7 @@
 var expect = require('expect.js');
 var CanvasObject = require('../../../../shapes/base/CanvasObject');
 var Collection = require('../../../../classes/Collection');
+var Matrix = require('../../../../classes/Matrix');
 var jsonHelpers = require('../../../../utils/json');
 
 describe('CanvasObject', function() {
@@ -55,6 +56,10 @@ describe('CanvasObject', function() {
 
     it('should set the default value of property `clippingMask` to null', function() {
       expect(object.clippingMask).to.equal(null);
+    });
+
+    it('should set the default value of property `matrixCache` to an object', function() {
+      expect(typeof object.matrixCache).to.equal('object');
     });
 
     it('should set the default value of property `children` to a new collection', function() {
@@ -476,6 +481,186 @@ describe('CanvasObject', function() {
         name: 'CanvasObject'
       });
       expect(object.name).to.equal('CanvasObject');
+    });
+
+  });
+
+  describe('#getTransformationMatrix()', function() {
+
+    it('should return a matrix that contains translation', function() {
+      var object = new CanvasObject({x: 10, y: 20});
+      expect(object.getTransformationMatrix().toArray()).to.eql([1, 0, 10, 0, 1, 20, 0, 0, 1]);
+    });
+
+    it('should return a matrix that contains rotation', function() {
+      var object = new CanvasObject({rotation: 10});
+      expect(object.getTransformationMatrix().toArray()).to.eql([
+        0.984807753012208,
+        -0.17364817766693033,
+        0,
+        0.17364817766693033,
+        0.984807753012208,
+        0,
+        0,
+        0,
+        1
+      ]);
+    });
+
+    it('should return a matrix that contains scaling', function() {
+      var object = new CanvasObject({scalingX: 0.5, scalingY: 2});
+      expect(object.getTransformationMatrix().toArray()).to.eql([0.5, 0, 0, 0, 2, 0, 0, 0, 1]);
+    });
+
+    it('should return a matrix that combines translation, rotation and scaling', function() {
+      var object = new CanvasObject({
+        x: 10, y: 20,
+        rotation: 10,
+        scalingX: 0.5, scalingY: 2
+      });
+
+      expect(object.getTransformationMatrix().toArray()).to.eql([
+        0.492403876506104,
+        -0.34729635533386066,
+        10,
+        0.08682408883346517,
+        1.969615506024416,
+        20,
+        0,
+        0,
+        1
+      ]);
+
+    });
+
+    it('should return a cached matrix if nothing has changed', function(done) {
+      var object = new CanvasObject({x: 10, y: 20});
+      var matrix = object.getTransformationMatrix();
+      var setData = matrix.setData;
+      var setDataCalled = false;
+      matrix.setData = function() {
+        setDataCalled = true;
+        setData.call(this);
+      };
+      expect(matrix.toArray()).to.eql([1, 0, 10, 0, 1, 20, 0, 0, 1]);
+
+      expect(object.getTransformationMatrix().toArray()).to.eql([1, 0, 10, 0, 1, 20, 0, 0, 1]);
+
+      setTimeout(function() {
+        if (!setDataCalled) done();
+        else done(new Error('The matrix was updated and did not use the cache'));
+      }, 10);
+    });
+
+    it('should return an updated matrix when position has changed', function() {
+      var object = new CanvasObject({x: 10, y: 20});
+
+      expect(object.getTransformationMatrix().toArray()).to.eql([1, 0, 10, 0, 1, 20, 0, 0, 1]);
+
+      object.x = 15;
+
+      expect(object.getTransformationMatrix().toArray()).to.eql([1, 0, 15, 0, 1, 20, 0, 0, 1]);
+
+      object.y = 25;
+
+      expect(object.getTransformationMatrix().toArray()).to.eql([1, 0, 15, 0, 1, 25, 0, 0, 1]);
+    });
+
+    it('should return an updated matrix when rotation has changed', function() {
+      var object = new CanvasObject({rotation: 0});
+
+      expect(object.getTransformationMatrix().toArray()).to.eql([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+
+      object.rotation = 10;
+
+      expect(object.getTransformationMatrix().toArray()).to.eql([
+        0.984807753012208,
+        -0.17364817766693033,
+        0,
+        0.17364817766693033,
+        0.984807753012208,
+        0,
+        0,
+        0,
+        1
+      ]);
+    });
+
+    it('should return an updated matrix when scaling has changed', function() {
+      var object = new CanvasObject({scalingX: 2, scalingY: 0.5});
+
+      expect(object.getTransformationMatrix().toArray()).to.eql([2, 0, 0, 0, 0.5, 0, 0, 0, 1]);
+
+      object.scalingX = 0.5;
+
+      expect(object.getTransformationMatrix().toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
+
+      object.scalingY = 2;
+
+      expect(object.getTransformationMatrix().toArray()).to.eql([0.5, 0, 0, 0, 2, 0, 0, 0, 1]);
+    });
+
+  });
+
+  describe('#matrixCache', function() {
+
+    it('should have four objects for matrices (combined, translation, rotation, scaling)', function() {
+      var object = new CanvasObject();
+
+      expect(object.matrixCache.combined).to.eql({valid: false, matrix: null});
+      expect(object.matrixCache.translation).to.eql({valid: false, matrix: null});
+      expect(object.matrixCache.rotation).to.eql({valid: false, matrix: null});
+      expect(object.matrixCache.scaling).to.eql({valid: false, matrix: null});
+    });
+
+    it('should store Matrix instances after first calculation', function() {
+      var object = new CanvasObject();
+      object.getTransformationMatrix();
+
+      var cache = object.matrixCache;
+
+      expect(cache.combined.matrix instanceof Matrix).to.eql(true);
+      expect(cache.translation.matrix instanceof Matrix).to.eql(true);
+      expect(cache.rotation.matrix instanceof Matrix).to.eql(true);
+      expect(cache.scaling.matrix instanceof Matrix).to.eql(true);
+    });
+
+    it('should have an invalidate method to invalidate all matrices', function() {
+      var object = new CanvasObject();
+      object.getTransformationMatrix();
+
+      var cache = object.matrixCache;
+
+      expect(cache.combined.valid).to.eql(true);
+      expect(cache.translation.valid).to.eql(true);
+      expect(cache.rotation.valid).to.eql(true);
+      expect(cache.scaling.valid).to.eql(true);
+
+      cache.invalidate();
+
+      expect(cache.combined.valid).to.eql(false);
+      expect(cache.translation.valid).to.eql(false);
+      expect(cache.rotation.valid).to.eql(false);
+      expect(cache.scaling.valid).to.eql(false);
+    });
+
+    it('should have an invalidate method to invalidate one type of matrix (plus the combined)', function() {
+      var object = new CanvasObject();
+      object.getTransformationMatrix();
+
+      var cache = object.matrixCache;
+
+      expect(cache.combined.valid).to.eql(true);
+      expect(cache.translation.valid).to.eql(true);
+      expect(cache.rotation.valid).to.eql(true);
+      expect(cache.scaling.valid).to.eql(true);
+
+      cache.invalidate('translation');
+
+      expect(cache.combined.valid).to.eql(false);
+      expect(cache.translation.valid).to.eql(false);
+      expect(cache.rotation.valid).to.eql(true);
+      expect(cache.scaling.valid).to.eql(true);
     });
 
   });

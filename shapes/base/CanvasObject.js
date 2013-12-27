@@ -6,6 +6,7 @@
 var Collection = require('../../classes/Collection');
 var defineProperties = require('../../utils/defineProperties');
 var jsonHelpers = require('../../utils/json');
+var Matrix = require('../../classes/Matrix');
 
 /**
  * @classdesc The CanvasObject class is a base class that different objects
@@ -43,6 +44,13 @@ var jsonHelpers = require('../../utils/json');
  *     CanvasRenderingContext2D instance that belongs to the canvas element).
  *     If a canvas object is provided, it will call the renderPath method on
  *     the object, which means that method must be implemented.
+ * @property {Object} matrixCache Object with matrix data for this object.
+ *     It contains four properties: `combined`, `translation`, `rotation` and
+ *     `scaling`, where each of them is an object with the properties `valid`
+ *     (boolean) and `matrix` (Matrix instance or null). The matrixCache object
+ *     also has a function `invalidate` which takes a type as argument (like
+ *     object.matrixCache.invalidate('translation'); ). If no argument is
+ *     passed, all types of matrices will be invalidated.
  *
  * @constructor
  *
@@ -59,18 +67,51 @@ function CanvasObject(opt_properties) {
   var self = this;
 
   this.constructorName = 'CanvasObject';
-  this.x = 0;
-  this.y = 0;
+  this.matrixCache = {
+    combined: {valid: false, matrix: null},
+    translation: {valid: false, matrix: null},
+    rotation: {valid: false, matrix: null},
+    scaling: {valid: false, matrix: null},
+    invalidate: function(type) {
+      if (!type) {
+        this.translation.valid = false;
+        this.rotation.valid = false;
+        this.scaling.valid = false;
+      } else if (this[type]) {
+        this[type].valid = false;
+      }
+      this.combined.valid = false;
+    }
+  };
+
   this.originX = 0;
   this.originY = 0;
-  this.scalingX = 1;
-  this.scalingY = 1;
-  this.rotation = 0;
   this.fill = '';
   this.stroke = '';
   this.opacity = 1;
 
   defineProperties(this, {
+    x: {
+      value: 0,
+      set: function() { this.matrixCache.invalidate('translation'); }
+    },
+    y: {
+      value: 0,
+      set: function() { this.matrixCache.invalidate('translation'); }
+    },
+    rotation: {
+      value: 0,
+      set: function() { this.matrixCache.invalidate('rotation'); }
+    },
+    scalingX: {
+      value: 1,
+      set: function() { this.matrixCache.invalidate('scaling'); }
+    },
+    scalingY: {
+      value: 1,
+      set: function() { this.matrixCache.invalidate('scaling'); }
+    },
+
     clippingMask: {
       value: null,
       set: function(value) {
@@ -283,6 +324,62 @@ CanvasObject.prototype.renderTree = function(canvas) {
     object.renderTree(canvas);
     context.restore();
   }
+};
+
+/**
+ * Get a transformation matrix for this object. It will be a combined matrix
+ * for all transformations (translation, rotation and scaling).
+ * If the matrix cache is still valid, it will not update the matrix.
+ *
+ * @return {Matrix} A Matrix instance representing the transformations.
+ */
+CanvasObject.prototype.getTransformationMatrix = function() {
+  var cache = this.matrixCache;
+
+  if (cache.combined.valid) return cache.combined.matrix;
+
+  if (!cache.combined.matrix) cache.combined.matrix = new Matrix(3, 3);
+  if (!cache.translation.matrix) cache.translation.matrix = new Matrix(3, 3);
+  if (!cache.rotation.matrix) cache.rotation.matrix = new Matrix(3, 3);
+  if (!cache.scaling.matrix) cache.scaling.matrix = new Matrix(3, 3);
+
+  if (!cache.translation.valid) {
+    cache.translation.matrix.setData(
+      1, 0, this.x,
+      0, 1, this.y,
+      0, 0, 1
+    );
+    cache.translation.valid = true;
+  }
+
+  if (!cache.rotation.valid) {
+    var rotation = this.rotation * Math.PI / 180;
+    cache.rotation.matrix.setData(
+      Math.cos(rotation), -Math.sin(rotation), 0,
+      Math.sin(rotation), Math.cos(rotation), 0,
+      0, 0, 1
+    );
+    cache.rotation.valid = true;
+  }
+
+  if (!cache.scaling.valid) {
+    cache.scaling.matrix.setData(
+      this.scalingX, 0, 0,
+      0, this.scalingY, 0,
+      0, 0, 1
+    );
+    cache.scaling.valid = true;
+  }
+
+  cache.combined.matrix.setIdentityData();
+  cache.combined.matrix.multiply(
+    cache.translation.matrix,
+    cache.rotation.matrix,
+    cache.scaling.matrix
+  );
+  cache.combined.valid = true;
+
+  return cache.combined.matrix;
 };
 
 module.exports = CanvasObject;
