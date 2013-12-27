@@ -63,6 +63,8 @@ function CanvasObject(opt_properties) {
   this.y = 0;
   this.originX = 0;
   this.originY = 0;
+  this.scalingX = 1;
+  this.scalingY = 1;
   this.rotation = 0;
   this.fill = '';
   this.stroke = '';
@@ -122,6 +124,8 @@ CanvasObject.objectProperties = [
   'y',
   'originX',
   'originY',
+  'scalingX',
+  'scalingY',
   'rotation',
   'fill',
   'stroke',
@@ -271,6 +275,7 @@ CanvasObject.prototype.renderTree = function(canvas) {
     context.save();
     context.translate(object.x, object.y);
     context.rotate(object.rotation * Math.PI / 180);
+    context.scale(object.scalingX, object.scalingY);
     object.renderTree(canvas);
     context.restore();
   }

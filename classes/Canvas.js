@@ -256,6 +256,7 @@ Canvas.prototype.transformContextToObject = function(object, currentObject) {
   while (obj) {
     x = !obj.parent ? -(obj.x - camera.x) : -obj.x;
     y = !obj.parent ? -(obj.y - camera.y) : -obj.y;
+    context.scale(1 / obj.scalingX, 1 / obj.scalingY);
     context.rotate(-obj.rotation * Math.PI / 180);
     context.translate(x, y);
     obj = obj.parent;
@@ -275,6 +276,7 @@ Canvas.prototype.transformContextToObject = function(object, currentObject) {
     y = !obj.parent ? obj.y - camera.y : obj.y;
     context.translate(x, y);
     context.rotate(obj.rotation * Math.PI / 180);
+    context.scale(obj.scalingX, obj.scalingY);
   }
 };
 

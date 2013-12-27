@@ -125,14 +125,32 @@ describe('Canvas', function() {
       var world = new World();
       world.cameras.add(canvas.camera);
 
-      var obj1 = new Rectangle({width: 100, height: 100, fill: '#f00'});
+      var obj1 = new Rectangle({
+        width: 100, height: 100,
+        fill: '#f00'
+      });
       world.objects.add(obj1);
-      var obj2 = new Rectangle({x: 10, y: 15, width: 50, height: 50, fill: '#0f0'});
+      var obj2 = new Rectangle({
+        x: 10, y: 15,
+        width: 50, height: 50,
+        fill: '#0f0'
+      });
       obj1.children.add(obj2);
 
-      var obj3 = new Rectangle({x: 20, y: 25, width: 30, height: 30, fill: '#00f'});
+      var obj3 = new Rectangle({
+        x: 20, y: 25,
+        width: 30, height: 30,
+        fill: '#00f'
+      });
       world.objects.add(obj3);
-      var obj4 = new Rectangle({x: 30, y: 35, width: 30, height: 30, fill: '#0ff'});
+      var obj4 = new Rectangle({
+        x: 30, y: 35,
+        width: 30, height: 30,
+        fill: '#0ff',
+        rotation: 45,
+        scalingX: 1.5,
+        scalingY: 0.5
+      });
       obj3.children.add(obj4);
 
       obj2render = obj2.render;
@@ -156,10 +174,10 @@ describe('Canvas', function() {
 
       // Object 3 and 4
       expect(getColor(context, 20, 25)).to.equal('rgba(0, 0, 255, 255)');
-      expect(getColor(context, 50, 60)).to.equal('rgba(0, 255, 255, 255)');
+      expect(getColor(context, 71, 100)).to.equal('rgba(0, 255, 255, 255)');
 
       // The manually drawn area, drawn at the position of obj4, at the time of obj2 render
-      expect(getColor(context, 85, 95)).to.equal('rgba(255, 255, 0, 255)');
+      expect(getColor(context, 78, 114)).to.equal('rgba(255, 255, 0, 255)');
     });
 
   });

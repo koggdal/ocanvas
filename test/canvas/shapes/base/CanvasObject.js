@@ -1,6 +1,7 @@
 var expect = require('expect.js');
 var NodeCanvas = require('canvas');
 
+var create = require('../../../../create');
 var World = require('../../../../classes/World');
 var Canvas = require('../../../../classes/Canvas');
 var Camera = require('../../../../classes/Camera');
@@ -143,6 +144,47 @@ describe('CanvasObject', function() {
       object1.children.add(object2);
       object1.children.add(object3);
       object1.renderTree(canvas);
+    });
+
+    it('should scale the canvas context for each child object', function() {
+      var setup = create({
+        element: new NodeCanvas(300, 300)
+      });
+
+      var object1 = new CanvasObject({
+        width: 200, height: 150,
+        fill: 'red'
+      });
+      var object2 = new CanvasObject({
+        width: 100, height: 50,
+        scalingX: 0.5, scalingY: 2,
+        fill: 'lime'
+      });
+      var object3 = new CanvasObject({
+        width: 50, height: 25,
+        scalingX: 2, scalingY: 0.5,
+        fill: 'blue'
+      });
+
+      setup.world.objects.add(object1);
+      object1.children.add(object2);
+      object2.children.add(object3);
+
+      var render = function(canvas) {
+        canvas.context.fillStyle = this.fill;
+        canvas.context.fillRect(0, 0, this.width, this.height);
+      };
+      object1.render = object2.render = object3.render = render;
+
+      setup.canvas.render();
+
+      var ctx = setup.canvas.context;
+
+      expect(getColor(ctx, 199, 99)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 49, 99)).to.equal('rgba(0, 255, 0, 255)');
+      expect(getColor(ctx, 50, 100)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 49, 24)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 50, 25)).to.equal('rgba(255, 0, 0, 255)');
     });
 
   });

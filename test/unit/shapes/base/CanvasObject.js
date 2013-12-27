@@ -29,6 +29,14 @@ describe('CanvasObject', function() {
       expect(object.originY).to.equal(0);
     });
 
+    it('should set the default value of property `scalingX` to 1', function() {
+      expect(object.scalingX).to.equal(1);
+    });
+
+    it('should set the default value of property `scalingY` to 1', function() {
+      expect(object.scalingY).to.equal(1);
+    });
+
     it('should set the default value of property `rotation` to 0', function() {
       expect(object.rotation).to.equal(0);
     });
@@ -98,6 +106,8 @@ describe('CanvasObject', function() {
       y: 25,
       originX: 'left',
       originY: 'bottom',
+      scalingX: 1.5,
+      scalingY: 1.2,
       rotation: 98,
       fill: 'red',
       stroke: '10px green',
@@ -122,6 +132,8 @@ describe('CanvasObject', function() {
       expect(object.y).to.equal(data.y);
       expect(object.originX).to.equal(data.originX);
       expect(object.originY).to.equal(data.originY);
+      expect(object.scalingX).to.equal(data.scalingX);
+      expect(object.scalingY).to.equal(data.scalingY);
       expect(object.rotation).to.equal(data.rotation);
       expect(object.fill).to.equal(data.fill);
       expect(object.stroke).to.equal(data.stroke);
@@ -184,6 +196,8 @@ describe('CanvasObject', function() {
       y: 25,
       originX: 'left',
       originY: 'bottom',
+      scalingX: 1.5,
+      scalingY: 1.2,
       rotation: 98,
       fill: 'red',
       stroke: '10px green',
@@ -209,6 +223,8 @@ describe('CanvasObject', function() {
       expect(object.y).to.equal(data.y);
       expect(object.originX).to.equal(data.originX);
       expect(object.originY).to.equal(data.originY);
+      expect(object.scalingX).to.equal(data.scalingX);
+      expect(object.scalingY).to.equal(data.scalingY);
       expect(object.rotation).to.equal(data.rotation);
       expect(object.fill).to.equal(data.fill);
       expect(object.stroke).to.equal(data.stroke);
@@ -268,6 +284,8 @@ describe('CanvasObject', function() {
         y: 25,
         originX: 'left',
         originY: 'bottom',
+        scalingX: 1.5,
+        scalingY: 1.2,
         rotation: 98,
         fill: 'red',
         stroke: '10px green',
@@ -342,6 +360,8 @@ describe('CanvasObject', function() {
         y: 25,
         originX: 'left',
         originY: 'bottom',
+        scalingX: 1.5,
+        scalingY: 1.2,
         rotation: 98,
         fill: 'red',
         stroke: '10px green',

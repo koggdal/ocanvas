@@ -155,6 +155,7 @@ World.prototype.render = function(canvas) {
       context.save();
       context.translate(object.x - camera.x, object.y - camera.y);
       context.rotate(object.rotation * Math.PI / 180);
+      context.scale(object.scalingX, object.scalingY);
       object.renderTree(canvas);
       context.restore();
     }
