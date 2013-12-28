@@ -300,10 +300,7 @@ Camera.prototype.render = function(canvas) {
 
 /**
  * Get a transformation matrix for this camera. It will be a combined matrix
- * for rotation and scaling. It will not include translation in the final
- * matrix, it will only use translation in the process to rotate and scale
- * around the camera position. This is because the camera is fixed in relation
- * to the canvas.
+ * for translation, rotation and scaling.
  * If the matrix cache is still valid, it will not update the matrix.
  *
  * @return {Matrix} A Matrix instance representing the transformations.
@@ -358,8 +355,7 @@ Camera.prototype.getTransformationMatrix = function() {
   cache.combined.matrix.multiply(
     cache.translation.matrix,
     cache.rotation.matrix,
-    cache.scaling.matrix,
-    cache.translation.matrixReverse
+    cache.scaling.matrix
   );
   cache.combined.valid = true;
 

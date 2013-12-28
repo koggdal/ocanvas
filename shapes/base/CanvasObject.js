@@ -461,6 +461,7 @@ CanvasObject.prototype.getGlobalTransformationMatrix = function(canvas) {
     matrices.push(this.parent.getGlobalTransformationMatrix(canvas));
   } else {
     matrices.push(canvas.camera.getTransformationMatrix());
+    matrices.push(canvas.camera.matrixCache.translation.matrixReverse);
   }
 
   // Also add the local matrix for this object

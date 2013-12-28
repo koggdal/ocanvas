@@ -239,9 +239,9 @@ describe('Camera', function() {
 
   describe('#getTransformationMatrix()', function() {
 
-    it('should return a matrix that does not contain translation', function() {
+    it('should return a matrix that contains translation', function() {
       var camera = new Camera({x: 10, y: 20});
-      expect(camera.getTransformationMatrix().toArray()).to.eql([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+      expect(camera.getTransformationMatrix().toArray()).to.eql([1, 0, 10, 0, 1, 20, 0, 0, 1]);
     });
 
     it('should return a matrix that contains rotation', function() {
@@ -264,7 +264,7 @@ describe('Camera', function() {
       expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
     });
 
-    it('should return a matrix that combines rotation and scaling', function() {
+    it('should return a matrix that combines translation, rotation and scaling', function() {
       var camera = new Camera({
         x: 10, y: 20,
         rotation: 10,
@@ -274,10 +274,10 @@ describe('Camera', function() {
       expect(camera.getTransformationMatrix().toArray()).to.eql([
         0.492403876506104,
         -0.08682408883346517,
-        6.812443011608264,
+        10,
         0.08682408883346517,
         0.492403876506104,
-        9.283681581543268,
+        20,
         0,
         0,
         1
@@ -311,11 +311,11 @@ describe('Camera', function() {
 
       camera.x = 20;
 
-      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 10, 0, 0.5, 0, 0, 0, 1]);
+      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 20, 0, 0.5, 0, 0, 0, 1]);
 
       camera.y = 30;
 
-      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 10, 0, 0.5, 15, 0, 0, 1]);
+      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 20, 0, 0.5, 30, 0, 0, 1]);
     });
 
     it('should return an updated matrix when rotation has changed', function() {
@@ -346,6 +346,13 @@ describe('Camera', function() {
       camera.zoom = 0.5;
 
       expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
+    });
+
+    it('should create a cached matrix for reversed translation', function() {
+      var camera = new Camera({x: 10, y: 20});
+      camera.getTransformationMatrix();
+
+      expect(camera.matrixCache.translation.matrixReverse.toArray()).to.eql([1, 0, -10, 0, 1, -20, 0, 0, 1]);
     });
 
   });
