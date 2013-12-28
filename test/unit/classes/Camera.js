@@ -62,6 +62,14 @@ describe('Camera', function() {
       expect(camera4.height).to.equal(150);
     });
 
+    it('should set the default value of property `matrixCache` to an object', function() {
+      expect(typeof camera.matrixCache).to.equal('object');
+    });
+
+    it('should set the default value of property `vertexCache` to an object', function() {
+      expect(typeof camera.vertexCache).to.equal('object');
+    });
+
   });
 
   describe('.cache', function() {
@@ -342,6 +350,89 @@ describe('Camera', function() {
 
   });
 
+  describe('#getVertices()', function() {
+
+    it('should return the coordinates of all vertices of the camera', function() {
+      var camera = new Camera({width: 100, height: 50});
+      var vertices = camera.getVertices();
+
+      expect(vertices[0]).to.eql({x: -50, y: -25});
+      expect(vertices[1]).to.eql({x: 50, y: -25});
+      expect(vertices[2]).to.eql({x: 50, y: 25});
+      expect(vertices[3]).to.eql({x: -50, y: 25});
+    });
+
+    it('should return a cached array if nothing has changed', function(done) {
+      var camera = new Camera({
+        width: 100,
+        height: 50
+      });
+      var vertices = camera.getVertices();
+
+      expect(vertices[0]).to.eql({x: -50, y: -25});
+
+      var hasBeenSet = false;
+      var x = vertices[0].x;
+      Object.defineProperty(vertices[0], 'x', {
+        get: function() { return x; },
+        set: function(value) {
+          x = value;
+          hasBeenSet = true;
+        }
+      });
+
+      camera.getVertices();
+
+      setTimeout(function() {
+        if (hasBeenSet) done(new Error('The vertex was updated and did not use the cache'));
+        else done();
+      }, 10);
+    });
+
+    it('should return an updated array if width has changed', function() {
+      var camera = new Camera({
+        width: 100,
+        height: 50
+      });
+      var vertices = camera.getVertices();
+
+      expect(vertices[0]).to.eql({x: -50, y: -25});
+      expect(vertices[1]).to.eql({x: 50, y: -25});
+      expect(vertices[2]).to.eql({x: 50, y: 25});
+      expect(vertices[3]).to.eql({x: -50, y: 25});
+
+      camera.width = 200;
+      vertices = camera.getVertices();
+
+      expect(vertices[0]).to.eql({x: -100, y: -25});
+      expect(vertices[1]).to.eql({x: 100, y: -25});
+      expect(vertices[2]).to.eql({x: 100, y: 25});
+      expect(vertices[3]).to.eql({x: -100, y: 25});
+    });
+
+    it('should return an updated array if height has changed', function() {
+      var camera = new Camera({
+        width: 100,
+        height: 50
+      });
+      var vertices = camera.getVertices();
+
+      expect(vertices[0]).to.eql({x: -50, y: -25});
+      expect(vertices[1]).to.eql({x: 50, y: -25});
+      expect(vertices[2]).to.eql({x: 50, y: 25});
+      expect(vertices[3]).to.eql({x: -50, y: 25});
+
+      camera.height = 100;
+      vertices = camera.getVertices();
+
+      expect(vertices[0]).to.eql({x: -50, y: -50});
+      expect(vertices[1]).to.eql({x: 50, y: -50});
+      expect(vertices[2]).to.eql({x: 50, y: 50});
+      expect(vertices[3]).to.eql({x: -50, y: 50});
+    });
+
+  });
+
   describe('#matrixCache', function() {
 
     it('should have four objects for matrices (combined, translation, rotation, scaling)', function() {
@@ -402,6 +493,36 @@ describe('Camera', function() {
       expect(cache.translation.valid).to.eql(false);
       expect(cache.rotation.valid).to.eql(true);
       expect(cache.scaling.valid).to.eql(true);
+    });
+
+  });
+
+  describe('#vertexCache', function() {
+
+    it('should have one object for vertices (local)', function() {
+      var camera = new Camera();
+
+      expect(camera.vertexCache.local).to.eql({valid: false, vertices: null});
+    });
+
+    it('should have an invalidate method to invalidate all vertices', function() {
+      var camera = new Camera();
+      var cache = camera.vertexCache;
+      cache.local.valid = true;
+
+      cache.invalidate();
+
+      expect(cache.local.valid).to.eql(false);
+    });
+
+    it('should have an invalidate method to invalidate one type of vertices', function() {
+      var camera = new Camera();
+      var cache = camera.vertexCache;
+      cache.local.valid = true;
+
+      cache.invalidate('local');
+
+      expect(cache.local.valid).to.eql(false);
     });
 
   });

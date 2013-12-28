@@ -34,8 +34,14 @@ var Matrix = require('../classes/Matrix');
  *     and `combined`, where each of them is an object with the properties
  *     `valid` (boolean) and `matrix` (Matrix instance or null). The
  *     matrixCache object also has a function `invalidate` which takes a type
- *     as argument (like object.matrixCache.invalidate('translation'); ). If
+ *     as argument (like camera.matrixCache.invalidate('translation'); ). If
  *     no argument is passed, all types of matrices will be invalidated.
+ * @property {Object} vertexCache Object with vertex data for this camera.
+ *     It contains one property: `local`, which is an object with the
+ *     properties `valid` (boolean) and `vertices` (array or null). The
+ *     vertexCache object also has a function `invalidate` which takes a type
+ *     as argument (like camera.vertexCache.invalidate('local'); ). If no
+ *     argument is passed, all types of vertices will be invalidated.
  *
  * @constructor
  *
@@ -69,6 +75,16 @@ function Camera(opt_properties) {
       this.combined.valid = false;
     }
   };
+  this.vertexCache = {
+    local: {valid: false, vertices: null},
+    invalidate: function(type) {
+      if (!type) {
+        this.local.valid = false;
+      } else if (this[type]) {
+        this[type].valid = false;
+      }
+    }
+  };
 
   this.world = null;
 
@@ -92,6 +108,7 @@ function Camera(opt_properties) {
     width: {
       value: 0,
       set: function(value, privateVars) {
+        this.vertexCache.invalidate();
         privateVars.aspectRatio = privateVars.height ? (value / privateVars.height) || 1 : 1;
         this.x += (value - privateVars.width) / 2;
       }
@@ -99,6 +116,7 @@ function Camera(opt_properties) {
     height: {
       value: 0,
       set: function(value, privateVars) {
+        this.vertexCache.invalidate();
         privateVars.aspectRatio = value ? (privateVars.width / value) || 1 : 1;
         this.y += (value - privateVars.height) / 2;
       }
@@ -346,6 +364,47 @@ Camera.prototype.getTransformationMatrix = function() {
   cache.combined.valid = true;
 
   return cache.combined.matrix;
+};
+
+/**
+ * Get the vertices for this camera. The coordinates will be relative
+ * to the center of this camera and are not affected by any transformations.
+ *
+ * @return {Array} Array of objects, where each object has `x` and `y`
+ *     properties representing the coordinates.
+ */
+Camera.prototype.getVertices = function() {
+  var cache = this.vertexCache.local;
+
+  if (cache.valid) return cache.vertices;
+
+  if (!cache.vertices) {
+    cache.vertices = new Array(4);
+    cache.vertices[0] = {x: 0, y: 0};
+    cache.vertices[1] = {x: 0, y: 0};
+    cache.vertices[2] = {x: 0, y: 0};
+    cache.vertices[3] = {x: 0, y: 0};
+  }
+
+  var right = this.width / 2;
+  var left = -right;
+  var bottom = this.height / 2;
+  var top = -bottom;
+
+  var vertices = cache.vertices;
+
+  vertices[0].x = left;
+  vertices[0].y = top;
+  vertices[1].x = right;
+  vertices[1].y = top;
+  vertices[2].x = right;
+  vertices[2].y = bottom;
+  vertices[3].x = left;
+  vertices[3].y = bottom;
+
+  cache.valid = true;
+
+  return vertices;
 };
 
 module.exports = Camera;
