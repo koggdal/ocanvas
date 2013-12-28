@@ -434,6 +434,8 @@ CanvasObject.prototype.getTransformationMatrix = function() {
  * objects in the parent chain for this object (including the camera as the
  * root). If the matrix cache is still valid, it will not update the matrix.
  *
+ * @param {Canvas} canvas The Canvas instance to use. Needed to get the camera.
+ *
  * @return {Matrix} A Matrix instance representing the transformations.
  */
 CanvasObject.prototype.getGlobalTransformationMatrix = function(canvas) {
