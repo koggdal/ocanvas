@@ -357,6 +357,91 @@ describe('Camera', function() {
 
   });
 
+  describe('#getGlobalPoint()', function() {
+
+    it('should return a point in global space', function() {
+      var camera = new Camera({x: 150, y: 75});
+      var point = camera.getGlobalPoint(10, 10);
+      expect(point).to.eql({x: 160, y: 85});
+    });
+
+    it('should return a cached point if nothing has changed', function(done) {
+      var camera = new Camera({x: 150, y: 75});
+
+      var point = camera.getGlobalPoint(10, 10);
+      expect(point).to.eql({x: 160, y: 85});
+
+      var globalPointMatrix = camera.matrixCache.globalPoint.matrix;
+      var setData = globalPointMatrix.setData;
+      var setDataCalled = false;
+      globalPointMatrix.setData = function() {
+        setDataCalled = true;
+        setData.apply(this, arguments);
+      };
+
+      point = camera.getGlobalPoint(10, 10);
+      expect(point).to.eql({x: 160, y: 85});
+
+      setTimeout(function() {
+        if (!setDataCalled) done();
+        else done(new Error('The matrix was updated and did not use the cache'));
+      }, 10);
+
+    });
+
+    it('should return an updated global point if position has changed', function() {
+      var camera = new Camera({x: 150, y: 75});
+
+      var point = camera.getGlobalPoint(10, 10);
+      expect(point).to.eql({x: 160, y: 85});
+
+      camera.x = 300;
+
+      point = camera.getGlobalPoint(10, 10);
+      expect(point).to.eql({x: 310, y: 85});
+
+      camera.y = 200;
+
+      point = camera.getGlobalPoint(10, 10);
+      expect(point).to.eql({x: 310, y: 210});
+    });
+
+    it('should return an updated global point if rotation has changed', function() {
+      var camera = new Camera({x: 150, y: 75});
+
+      var point = camera.getGlobalPoint(10, 10);
+      expect(point).to.eql({x: 160, y: 85});
+
+      camera.rotation = 45;
+
+      point = camera.getGlobalPoint(10, 10);
+      expect(point).to.eql({x: 150, y: 89.14213562373095});
+    });
+
+    it('should return an updated global point if zoom has changed', function() {
+      var camera = new Camera({x: 150, y: 75});
+
+      var point = camera.getGlobalPoint(10, 10);
+      expect(point).to.eql({x: 160, y: 85});
+
+      camera.zoom = 2;
+
+      point = camera.getGlobalPoint(10, 10);
+      expect(point).to.eql({x: 170, y: 95});
+    });
+
+    it('should return an updated global point if a different local point was passed in', function() {
+      var camera = new Camera({x: 150, y: 75});
+
+      var point = camera.getGlobalPoint(10, 10);
+      expect(point).to.eql({x: 160, y: 85});
+
+      point = camera.getGlobalPoint(20, 20);
+      expect(point).to.eql({x: 170, y: 95});
+    });
+
+  });
+
   describe('#getVertices()', function() {
 
     it('should return the coordinates of all vertices of the camera', function() {
@@ -442,18 +527,21 @@ describe('Camera', function() {
 
   describe('#matrixCache', function() {
 
-    it('should have four objects for matrices (combined, translation, rotation, scaling)', function() {
+    it('should have six objects for matrices (translation, rotation, scaling, combined, localPoint, globalPoint)', function() {
       var camera = new Camera();
 
       expect(camera.matrixCache.combined).to.eql({valid: false, matrix: null});
       expect(camera.matrixCache.translation).to.eql({valid: false, matrix: null, matrixReverse: null});
       expect(camera.matrixCache.rotation).to.eql({valid: false, matrix: null});
       expect(camera.matrixCache.scaling).to.eql({valid: false, matrix: null});
+      expect(camera.matrixCache.localPoint).to.eql({valid: false, matrix: null});
+      expect(camera.matrixCache.globalPoint).to.eql({valid: false, matrix: null});
     });
 
     it('should store Matrix instances after first calculation', function() {
       var camera = new Camera();
       camera.getTransformationMatrix();
+      camera.getGlobalPoint(2, 2);
 
       var cache = camera.matrixCache;
 
@@ -462,11 +550,14 @@ describe('Camera', function() {
       expect(cache.translation.matrixReverse instanceof Matrix).to.eql(true);
       expect(cache.rotation.matrix instanceof Matrix).to.eql(true);
       expect(cache.scaling.matrix instanceof Matrix).to.eql(true);
+      expect(cache.localPoint.matrix instanceof Matrix).to.eql(true);
+      expect(cache.globalPoint.matrix instanceof Matrix).to.eql(true);
     });
 
     it('should have an invalidate method to invalidate all matrices', function() {
       var camera = new Camera();
       camera.getTransformationMatrix();
+      camera.getGlobalPoint(2, 2);
 
       var cache = camera.matrixCache;
 
@@ -474,6 +565,8 @@ describe('Camera', function() {
       expect(cache.translation.valid).to.eql(true);
       expect(cache.rotation.valid).to.eql(true);
       expect(cache.scaling.valid).to.eql(true);
+      expect(cache.localPoint.valid).to.eql(true);
+      expect(cache.globalPoint.valid).to.eql(true);
 
       cache.invalidate();
 
@@ -481,11 +574,14 @@ describe('Camera', function() {
       expect(cache.translation.valid).to.eql(false);
       expect(cache.rotation.valid).to.eql(false);
       expect(cache.scaling.valid).to.eql(false);
+      expect(cache.localPoint.valid).to.eql(false);
+      expect(cache.globalPoint.valid).to.eql(false);
     });
 
     it('should have an invalidate method to invalidate one type of matrix (plus the combined)', function() {
       var camera = new Camera();
       camera.getTransformationMatrix();
+      camera.getGlobalPoint(2, 2);
 
       var cache = camera.matrixCache;
 
@@ -493,6 +589,8 @@ describe('Camera', function() {
       expect(cache.translation.valid).to.eql(true);
       expect(cache.rotation.valid).to.eql(true);
       expect(cache.scaling.valid).to.eql(true);
+      expect(cache.localPoint.valid).to.eql(true);
+      expect(cache.globalPoint.valid).to.eql(true);
 
       cache.invalidate('translation');
 
@@ -500,6 +598,8 @@ describe('Camera', function() {
       expect(cache.translation.valid).to.eql(false);
       expect(cache.rotation.valid).to.eql(true);
       expect(cache.scaling.valid).to.eql(true);
+      expect(cache.localPoint.valid).to.eql(false);
+      expect(cache.globalPoint.valid).to.eql(false);
     });
 
   });

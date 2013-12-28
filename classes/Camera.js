@@ -30,12 +30,13 @@ var Matrix = require('../classes/Matrix');
  *     the camera. Changing this number will change the width of the camera
  *     but keep the height.
  * @property {Object} matrixCache Object with matrix data for this camera.
- *     It contains four properties: `translation`, `rotation`, `scaling`,
- *     and `combined`, where each of them is an object with the properties
- *     `valid` (boolean) and `matrix` (Matrix instance or null). The
- *     matrixCache object also has a function `invalidate` which takes a type
- *     as argument (like camera.matrixCache.invalidate('translation'); ). If
- *     no argument is passed, all types of matrices will be invalidated.
+ *     It contains six properties: `translation`, `rotation`, `scaling`,
+ *     `combined`, `localPoint` and `globalPoint`, where each of them is an
+ *     object with the properties `valid` (boolean) and `matrix` (Matrix
+ *     instance or null). The matrixCache object also has a function
+ *     `invalidate` which takes a type as argument (like
+ *     camera.matrixCache.invalidate('translation'); ). If no argument is
+ *     passed, all types of matrices will be invalidated.
  * @property {Object} vertexCache Object with vertex data for this camera.
  *     It contains one property: `local`, which is an object with the
  *     properties `valid` (boolean) and `vertices` (array or null). The
@@ -64,6 +65,9 @@ function Camera(opt_properties) {
     translation: {valid: false, matrix: null, matrixReverse: null},
     rotation: {valid: false, matrix: null},
     scaling: {valid: false, matrix: null},
+    localPoint: {valid: false, matrix: null},
+    globalPoint: {valid: false, matrix: null},
+
     invalidate: function(type) {
       if (!type) {
         this.translation.valid = false;
@@ -72,7 +76,15 @@ function Camera(opt_properties) {
       } else if (this[type]) {
         this[type].valid = false;
       }
-      this.combined.valid = false;
+
+      if (type !== 'combined') {
+        this.localPoint.valid = false;
+        this.globalPoint.valid = false;
+      }
+
+      if (type !== 'localPoint' && type !== 'globalPoint') {
+        this.combined.valid = false;
+      }
     }
   };
   this.vertexCache = {
@@ -360,6 +372,62 @@ Camera.prototype.getTransformationMatrix = function() {
   cache.combined.valid = true;
 
   return cache.combined.matrix;
+};
+
+/*
+ * Get a global point from a local point.
+ * A local point is a coordinate inside this camera, with no regards to any
+ * transformations. The global point will take all transformations from the
+ * camera into account, to give a point relative to the world.
+ *
+ * @param {number} x The local X position.
+ * @param {number} y The local Y position.
+ *
+ * @return {Object} An object with properties x and y.
+ */
+Camera.prototype.getGlobalPoint = function(x, y) {
+  var cache = this.matrixCache;
+  var globalPointMatrix;
+
+  if (cache.localPoint.x !== x || cache.localPoint.y !== y) {
+    cache.invalidate('localPoint');
+    cache.invalidate('globalPoint');
+  }
+
+  if (!cache.globalPoint.valid) {
+
+    if (!cache.localPoint.matrix) cache.localPoint.matrix = new Matrix(3, 3, false);
+    if (!cache.globalPoint.matrix) cache.globalPoint.matrix = new Matrix(3, 3, false);
+
+    if (!cache.localPoint.valid) {
+      cache.localPoint.matrix.setData(
+        1, 0, x,
+        0, 1, y,
+        0, 0, 1
+      );
+      cache.localPoint.x = x;
+      cache.localPoint.y = y;
+      cache.localPoint.valid = true;
+    }
+
+    // Get a matrix that represents the local point in global space, after it's
+    // been transformed by all the objects in the parent chain (including the
+    // camera).
+    globalPointMatrix = cache.globalPoint.matrix;
+    globalPointMatrix.setIdentityData();
+    globalPointMatrix.multiply(this.getTransformationMatrix(),
+        cache.localPoint.matrix);
+    cache.globalPoint.valid = true;
+
+  } else {
+    globalPointMatrix = cache.globalPoint.matrix;
+  }
+
+  // Extract the 2D coordinate from the matrix and return it
+  return {
+    x: globalPointMatrix[2],
+    y: globalPointMatrix[5]
+  };
 };
 
 /**
