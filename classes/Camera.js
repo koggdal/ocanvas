@@ -29,6 +29,13 @@ var Matrix = require('../classes/Matrix');
  * @property {number} aspectRatio The aspect ratio of the dimensions of
  *     the camera. Changing this number will change the width of the camera
  *     but keep the height.
+ * @property {Object} matrixCache Object with matrix data for this camera.
+ *     It contains four properties: `translation`, `rotation`, `scaling`,
+ *     and `combined`, where each of them is an object with the properties
+ *     `valid` (boolean) and `matrix` (Matrix instance or null). The
+ *     matrixCache object also has a function `invalidate` which takes a type
+ *     as argument (like object.matrixCache.invalidate('translation'); ). If
+ *     no argument is passed, all types of matrices will be invalidated.
  *
  * @constructor
  *

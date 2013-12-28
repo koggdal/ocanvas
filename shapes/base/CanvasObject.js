@@ -45,12 +45,12 @@ var Matrix = require('../../classes/Matrix');
  *     If a canvas object is provided, it will call the renderPath method on
  *     the object, which means that method must be implemented.
  * @property {Object} matrixCache Object with matrix data for this object.
- *     It contains four properties: `combined`, `translation`, `rotation` and
- *     `scaling`, where each of them is an object with the properties `valid`
- *     (boolean) and `matrix` (Matrix instance or null). The matrixCache object
- *     also has a function `invalidate` which takes a type as argument (like
- *     object.matrixCache.invalidate('translation'); ). If no argument is
- *     passed, all types of matrices will be invalidated.
+ *     It contains five properties: `translation`, `rotation`, `scaling`,
+ *     `combined` and `global`, where each of them is an object with the
+ *     properties `valid` (boolean) and `matrix` (Matrix instance or null).
+ *     The matrixCache object also has a function `invalidate` which takes
+ *     a type as argument (like object.matrixCache.invalidate('translation');
+ *     ). If no argument is passed, all types of matrices will be invalidated.
  *
  * @constructor
  *
