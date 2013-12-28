@@ -39,7 +39,7 @@ module.exports = function(grunt) {
           var condition = '[ -e node_modules/canvas ]';
           var tests = 'mocha test/canvas/test.js -R spec';
           var canvasMessage = 'echo "\nNOTE: node-canvas is not installed, so no tests were run.\n"';
-          return condition + ' && ' + tests + ' || ' + canvasMessage;
+          return condition + ' && (' + tests + ' || echo "") || ' + canvasMessage;
         }
       },
       'test': {
@@ -48,7 +48,7 @@ module.exports = function(grunt) {
           var all = 'mocha test/unit/test.js test/canvas/test.js -R spec';
           var unit = 'mocha test/unit/test.js -R spec';
           var canvasMessage = 'echo "\nNOTE: node-canvas is not installed, so only normal unit tests were run.\n"';
-          return condition + ' && ' + all + ' || (' + unit + ' && ' + canvasMessage + ')';
+          return condition + ' && (' + all + ' || echo "") || (' + unit + ' && ' + canvasMessage + ')';
         }
       },
       'test-simple': {
@@ -57,7 +57,7 @@ module.exports = function(grunt) {
           var all = 'mocha test/unit/test.js test/canvas/test.js';
           var unit = 'mocha test/unit/test.js';
           var canvasMessage = 'echo "\nNOTE: node-canvas is not installed, so only normal unit tests were run.\n"';
-          return condition + ' && ' + all + ' || (' + unit + ' && ' + canvasMessage + ')';
+          return condition + ' && (' + all + ' || echo "") || (' + unit + ' && ' + canvasMessage + ')';
         }
       },
       'jsdoc': {
