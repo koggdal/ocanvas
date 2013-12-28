@@ -772,11 +772,9 @@ describe('CanvasObject', function() {
     it('should have five objects for matrices (translation, rotation, scaling, combined, global)', function() {
       var object = new CanvasObject();
 
-      expect(object.matrixCache.translation).to.eql({valid: false, matrix: null});
-      expect(object.matrixCache.rotation).to.eql({valid: false, matrix: null});
-      expect(object.matrixCache.scaling).to.eql({valid: false, matrix: null});
-      expect(object.matrixCache.combined).to.eql({valid: false, matrix: null});
-      expect(object.matrixCache.global).to.eql({valid: false, matrix: null});
+      ['translation', 'rotation', 'scaling', 'combined', 'global'].forEach(function(property) {
+        expect(object.matrixCache[property]).to.eql({valid: false, matrix: null});
+      });
     });
 
     it('should store Matrix instances after first calculation', function() {
@@ -786,11 +784,9 @@ describe('CanvasObject', function() {
 
       var cache = object.matrixCache;
 
-      expect(cache.translation.matrix instanceof Matrix).to.eql(true);
-      expect(cache.rotation.matrix instanceof Matrix).to.eql(true);
-      expect(cache.scaling.matrix instanceof Matrix).to.eql(true);
-      expect(cache.combined.matrix instanceof Matrix).to.eql(true);
-      expect(cache.global.matrix instanceof Matrix).to.eql(true);
+      ['translation', 'rotation', 'scaling', 'combined', 'global'].forEach(function(property) {
+        expect(cache[property].matrix instanceof Matrix).to.equal(true);
+      });
     });
 
     it('should have an invalidate method to invalidate all matrices', function() {
@@ -800,19 +796,15 @@ describe('CanvasObject', function() {
 
       var cache = object.matrixCache;
 
-      expect(cache.translation.valid).to.eql(true);
-      expect(cache.rotation.valid).to.eql(true);
-      expect(cache.scaling.valid).to.eql(true);
-      expect(cache.combined.valid).to.eql(true);
-      expect(cache.global.valid).to.eql(true);
+      ['translation', 'rotation', 'scaling', 'combined', 'global'].forEach(function(property) {
+        expect(cache[property].valid).to.equal(true);
+      });
 
       cache.invalidate();
 
-      expect(cache.translation.valid).to.eql(false);
-      expect(cache.rotation.valid).to.eql(false);
-      expect(cache.scaling.valid).to.eql(false);
-      expect(cache.combined.valid).to.eql(false);
-      expect(cache.global.valid).to.eql(false);
+      ['translation', 'rotation', 'scaling', 'combined', 'global'].forEach(function(property) {
+        expect(cache[property].valid).to.equal(false);
+      });
     });
 
     it('should have an invalidate method to invalidate one type of matrix (plus the combined)', function() {
@@ -822,19 +814,18 @@ describe('CanvasObject', function() {
 
       var cache = object.matrixCache;
 
-      expect(cache.translation.valid).to.eql(true);
-      expect(cache.rotation.valid).to.eql(true);
-      expect(cache.scaling.valid).to.eql(true);
-      expect(cache.combined.valid).to.eql(true);
-      expect(cache.global.valid).to.eql(true);
+      ['translation', 'rotation', 'scaling', 'combined', 'global'].forEach(function(property) {
+        expect(cache[property].valid).to.equal(true);
+      });
 
       cache.invalidate('translation');
 
-      expect(cache.translation.valid).to.eql(false);
-      expect(cache.rotation.valid).to.eql(true);
-      expect(cache.scaling.valid).to.eql(true);
-      expect(cache.combined.valid).to.eql(false);
-      expect(cache.global.valid).to.eql(false);
+      ['rotation', 'scaling'].forEach(function(property) {
+        expect(cache[property].valid).to.equal(true);
+      });
+      ['translation', 'combined', 'global'].forEach(function(property) {
+        expect(cache[property].valid).to.equal(false);
+      });
     });
 
     it('should have an invalidate method that invalidates all child objects as well', function() {
@@ -847,31 +838,29 @@ describe('CanvasObject', function() {
       var cache1 = object1.matrixCache;
       var cache2 = object2.matrixCache;
 
-      expect(cache1.translation.valid).to.eql(true);
-      expect(cache1.rotation.valid).to.eql(true);
-      expect(cache1.scaling.valid).to.eql(true);
-      expect(cache1.combined.valid).to.eql(true);
-      expect(cache1.global.valid).to.eql(true);
+      ['translation', 'rotation', 'scaling', 'combined', 'global'].forEach(function(property) {
+        expect(cache1[property].valid).to.equal(true);
+      });
 
-      expect(cache2.translation.valid).to.eql(true);
-      expect(cache2.rotation.valid).to.eql(true);
-      expect(cache2.scaling.valid).to.eql(true);
-      expect(cache2.combined.valid).to.eql(true);
-      expect(cache2.global.valid).to.eql(true);
+      ['translation', 'rotation', 'scaling', 'combined', 'global'].forEach(function(property) {
+        expect(cache2[property].valid).to.equal(true);
+      });
 
       cache1.invalidate('translation');
 
-      expect(cache1.translation.valid).to.eql(false);
-      expect(cache1.rotation.valid).to.eql(true);
-      expect(cache1.scaling.valid).to.eql(true);
-      expect(cache1.combined.valid).to.eql(false);
-      expect(cache1.global.valid).to.eql(false);
+      ['rotation', 'scaling'].forEach(function(property) {
+        expect(cache1[property].valid).to.equal(true);
+      });
+      ['translation', 'combined', 'global'].forEach(function(property) {
+        expect(cache1[property].valid).to.equal(false);
+      });
 
-      expect(cache2.translation.valid).to.eql(true);
-      expect(cache2.rotation.valid).to.eql(true);
-      expect(cache2.scaling.valid).to.eql(true);
-      expect(cache2.combined.valid).to.eql(true);
-      expect(cache2.global.valid).to.eql(false);
+      ['translation', 'rotation', 'scaling', 'combined'].forEach(function(property) {
+        expect(cache2[property].valid).to.equal(true);
+      });
+      ['global'].forEach(function(property) {
+        expect(cache2[property].valid).to.equal(false);
+      });
     });
 
   });
