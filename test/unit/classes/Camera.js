@@ -633,13 +633,13 @@ describe('Camera', function() {
 
       var cache = camera.matrixCache;
 
-      expect(cache.combined.matrix instanceof Matrix).to.eql(true);
-      expect(cache.translation.matrix instanceof Matrix).to.eql(true);
-      expect(cache.translation.matrixReverse instanceof Matrix).to.eql(true);
-      expect(cache.rotation.matrix instanceof Matrix).to.eql(true);
-      expect(cache.scaling.matrix instanceof Matrix).to.eql(true);
-      expect(cache.localPoint.matrix instanceof Matrix).to.eql(true);
-      expect(cache.globalPoint.matrix instanceof Matrix).to.eql(true);
+      expect(cache.combined.matrix instanceof Matrix).to.equal(true);
+      expect(cache.translation.matrix instanceof Matrix).to.equal(true);
+      expect(cache.translation.matrixReverse instanceof Matrix).to.equal(true);
+      expect(cache.rotation.matrix instanceof Matrix).to.equal(true);
+      expect(cache.scaling.matrix instanceof Matrix).to.equal(true);
+      expect(cache.localPoint.matrix instanceof Matrix).to.equal(true);
+      expect(cache.globalPoint.matrix instanceof Matrix).to.equal(true);
     });
 
     it('should have an invalidate method to invalidate all matrices', function() {
@@ -649,21 +649,21 @@ describe('Camera', function() {
 
       var cache = camera.matrixCache;
 
-      expect(cache.combined.valid).to.eql(true);
-      expect(cache.translation.valid).to.eql(true);
-      expect(cache.rotation.valid).to.eql(true);
-      expect(cache.scaling.valid).to.eql(true);
-      expect(cache.localPoint.valid).to.eql(true);
-      expect(cache.globalPoint.valid).to.eql(true);
+      expect(cache.combined.valid).to.equal(true);
+      expect(cache.translation.valid).to.equal(true);
+      expect(cache.rotation.valid).to.equal(true);
+      expect(cache.scaling.valid).to.equal(true);
+      expect(cache.localPoint.valid).to.equal(true);
+      expect(cache.globalPoint.valid).to.equal(true);
 
       cache.invalidate();
 
-      expect(cache.combined.valid).to.eql(false);
-      expect(cache.translation.valid).to.eql(false);
-      expect(cache.rotation.valid).to.eql(false);
-      expect(cache.scaling.valid).to.eql(false);
-      expect(cache.localPoint.valid).to.eql(false);
-      expect(cache.globalPoint.valid).to.eql(false);
+      expect(cache.combined.valid).to.equal(false);
+      expect(cache.translation.valid).to.equal(false);
+      expect(cache.rotation.valid).to.equal(false);
+      expect(cache.scaling.valid).to.equal(false);
+      expect(cache.localPoint.valid).to.equal(false);
+      expect(cache.globalPoint.valid).to.equal(false);
     });
 
     it('should have an invalidate method to invalidate one type of matrix (plus the combined)', function() {
@@ -673,21 +673,21 @@ describe('Camera', function() {
 
       var cache = camera.matrixCache;
 
-      expect(cache.combined.valid).to.eql(true);
-      expect(cache.translation.valid).to.eql(true);
-      expect(cache.rotation.valid).to.eql(true);
-      expect(cache.scaling.valid).to.eql(true);
-      expect(cache.localPoint.valid).to.eql(true);
-      expect(cache.globalPoint.valid).to.eql(true);
+      expect(cache.combined.valid).to.equal(true);
+      expect(cache.translation.valid).to.equal(true);
+      expect(cache.rotation.valid).to.equal(true);
+      expect(cache.scaling.valid).to.equal(true);
+      expect(cache.localPoint.valid).to.equal(true);
+      expect(cache.globalPoint.valid).to.equal(true);
 
       cache.invalidate('translation');
 
-      expect(cache.combined.valid).to.eql(false);
-      expect(cache.translation.valid).to.eql(false);
-      expect(cache.rotation.valid).to.eql(true);
-      expect(cache.scaling.valid).to.eql(true);
-      expect(cache.localPoint.valid).to.eql(false);
-      expect(cache.globalPoint.valid).to.eql(false);
+      expect(cache.combined.valid).to.equal(false);
+      expect(cache.translation.valid).to.equal(false);
+      expect(cache.rotation.valid).to.equal(true);
+      expect(cache.scaling.valid).to.equal(true);
+      expect(cache.localPoint.valid).to.equal(false);
+      expect(cache.globalPoint.valid).to.equal(false);
     });
 
   });
@@ -707,7 +707,7 @@ describe('Camera', function() {
 
       cache.invalidate();
 
-      expect(cache.local.valid).to.eql(false);
+      expect(cache.local.valid).to.equal(false);
     });
 
     it('should have an invalidate method to invalidate one type of vertices', function() {
@@ -717,7 +717,7 @@ describe('Camera', function() {
 
       cache.invalidate('local');
 
-      expect(cache.local.valid).to.eql(false);
+      expect(cache.local.valid).to.equal(false);
     });
 
   });

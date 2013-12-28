@@ -1029,8 +1029,8 @@ describe('CanvasObject', function() {
 
       cache.invalidate();
 
-      expect(cache.local.valid).to.eql(false);
-      expect(cache.global.valid).to.eql(false);
+      expect(cache.local.valid).to.equal(false);
+      expect(cache.global.valid).to.equal(false);
     });
 
     it('should have an invalidate method to invalidate one type of vertices', function() {
@@ -1041,8 +1041,8 @@ describe('CanvasObject', function() {
 
       cache.invalidate('local');
 
-      expect(cache.local.valid).to.eql(false);
-      expect(cache.global.valid).to.eql(true);
+      expect(cache.local.valid).to.equal(false);
+      expect(cache.global.valid).to.equal(true);
     });
 
   });
