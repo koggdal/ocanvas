@@ -136,6 +136,7 @@ function Camera(opt_properties) {
     aspectRatio: {
       value: 1,
       set: function(value, privateVars) {
+        this.vertexCache.invalidate();
         privateVars.width = privateVars.height * value;
       }
     }
