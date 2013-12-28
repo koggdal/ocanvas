@@ -31,13 +31,11 @@ describe('CanvasObject', function() {
         canvas.context.rect(0, 0, this.width, this.height);
       };
 
-      var camera = new Camera();
       var canvas = new Canvas({
-        element: new NodeCanvas(300, 300),
-        camera: camera
+        element: new NodeCanvas(300, 300)
       });
-      camera.width = canvas.width;
-      camera.height = canvas.height;
+      var camera = new Camera({width: canvas.width, height: canvas.height});
+      canvas.camera = camera;
 
       var world = new World();
       world.cameras.add(canvas.camera);
@@ -74,13 +72,11 @@ describe('CanvasObject', function() {
         canvas.context.fillRect(0, 0, this.width, this.height);
       };
 
-      var camera = new Camera();
       var canvas = new Canvas({
-        element: new NodeCanvas(300, 300),
-        camera: camera
+        element: new NodeCanvas(300, 300)
       });
-      camera.width = canvas.width;
-      camera.height = canvas.height;
+      var camera = new Camera({width: canvas.width, height: canvas.height});
+      canvas.camera = camera;
 
       var world = new World();
       world.cameras.add(canvas.camera);

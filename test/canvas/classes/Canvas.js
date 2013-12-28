@@ -114,13 +114,11 @@ describe('Canvas', function() {
   describe('#transformContextToObject()', function() {
 
     it('should transform the context to a specific object', function() {
-      var camera = new Camera();
       var canvas = new Canvas({
-        element: new NodeCanvas(300, 300),
-        camera: camera
+        element: new NodeCanvas(300, 300)
       });
-      camera.width = canvas.width;
-      camera.height = canvas.height;
+      var camera = new Camera({width: canvas.width, height: canvas.height});
+      canvas.camera = camera;
 
       var world = new World();
       world.cameras.add(canvas.camera);

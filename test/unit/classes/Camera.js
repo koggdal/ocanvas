@@ -634,4 +634,34 @@ describe('Camera', function() {
 
   });
 
+  describe('#width', function() {
+
+    it('should not change `x` when changed', function() {
+      var camera = new Camera({width: 300, height: 150});
+      expect(camera.width).to.equal(300);
+      expect(camera.x).to.equal(150);
+
+      camera.width = 500;
+
+      expect(camera.width).to.equal(500);
+      expect(camera.x).to.equal(150);
+    });
+
+  });
+
+  describe('#height', function() {
+
+    it('should not change `y` when changed', function() {
+      var camera = new Camera({width: 300, height: 150});
+      expect(camera.height).to.equal(150);
+      expect(camera.y).to.equal(75);
+
+      camera.height = 300;
+
+      expect(camera.height).to.equal(300);
+      expect(camera.y).to.equal(75);
+    });
+
+  });
+
 });

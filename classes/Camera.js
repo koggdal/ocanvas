@@ -122,7 +122,6 @@ function Camera(opt_properties) {
       set: function(value, privateVars) {
         this.vertexCache.invalidate();
         privateVars.aspectRatio = privateVars.height ? (value / privateVars.height) || 1 : 1;
-        this.x += (value - privateVars.width) / 2;
       }
     },
     height: {
@@ -130,7 +129,6 @@ function Camera(opt_properties) {
       set: function(value, privateVars) {
         this.vertexCache.invalidate();
         privateVars.aspectRatio = value ? (privateVars.width / value) || 1 : 1;
-        this.y += (value - privateVars.height) / 2;
       }
     },
     aspectRatio: {
@@ -156,6 +154,9 @@ function Camera(opt_properties) {
   if (opt_properties) {
     this.setProperties(opt_properties);
   }
+
+  if (!opt_properties || !('x' in opt_properties)) this.x = this.width / 2;
+  if (!opt_properties || !('y' in opt_properties)) this.y = this.height / 2;
 }
 
 /**
