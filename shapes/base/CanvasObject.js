@@ -338,10 +338,10 @@ CanvasObject.prototype.getTransformationMatrix = function() {
 
   if (cache.combined.valid) return cache.combined.matrix;
 
-  if (!cache.combined.matrix) cache.combined.matrix = new Matrix(3, 3);
-  if (!cache.translation.matrix) cache.translation.matrix = new Matrix(3, 3);
-  if (!cache.rotation.matrix) cache.rotation.matrix = new Matrix(3, 3);
-  if (!cache.scaling.matrix) cache.scaling.matrix = new Matrix(3, 3);
+  if (!cache.combined.matrix) cache.combined.matrix = new Matrix(3, 3, false);
+  if (!cache.translation.matrix) cache.translation.matrix = new Matrix(3, 3, false);
+  if (!cache.rotation.matrix) cache.rotation.matrix = new Matrix(3, 3, false);
+  if (!cache.scaling.matrix) cache.scaling.matrix = new Matrix(3, 3, false);
 
   if (!cache.translation.valid) {
     cache.translation.matrix.setData(
