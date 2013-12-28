@@ -68,10 +68,12 @@ function CanvasObject(opt_properties) {
 
   this.constructorName = 'CanvasObject';
   this.matrixCache = {
-    combined: {valid: false, matrix: null},
     translation: {valid: false, matrix: null},
     rotation: {valid: false, matrix: null},
     scaling: {valid: false, matrix: null},
+    combined: {valid: false, matrix: null},
+    global: {valid: false, matrix: null},
+
     invalidate: function(type) {
       if (!type) {
         this.translation.valid = false;
@@ -80,7 +82,16 @@ function CanvasObject(opt_properties) {
       } else if (this[type]) {
         this[type].valid = false;
       }
-      this.combined.valid = false;
+
+      if (type !== 'global') {
+        this.combined.valid = false;
+        this.global.valid = false;
+      }
+
+      var children = self.children;
+      for (var i = 0, l = children.length; i < l; i++) {
+        children.get(i).matrixCache.invalidate('global');
+      }
     }
   };
 
@@ -380,6 +391,53 @@ CanvasObject.prototype.getTransformationMatrix = function() {
   cache.combined.valid = true;
 
   return cache.combined.matrix;
+};
+
+/**
+ * Get a global transformation matrix for this object. It will be a combined
+ * matrix for all transformations (translation, rotation and scaling) for all
+ * objects in the parent chain for this object (including the camera as the
+ * root). If the matrix cache is still valid, it will not update the matrix.
+ *
+ * @return {Matrix} A Matrix instance representing the transformations.
+ */
+CanvasObject.prototype.getGlobalTransformationMatrix = function(canvas) {
+  var globalCache = this.matrixCache.global;
+
+  if (globalCache.valid) return globalCache.matrix;
+
+  if (!globalCache.matrix) globalCache.matrix = new Matrix(3, 3, false);
+
+  if (!canvas || !canvas.camera) {
+    var message = 'The provided Canvas instance does not have a camera.';
+    var error = new Error(message);
+    error.name = 'ocanvas-needs-camera';
+    throw error;
+  }
+
+  var matrices = [];
+
+  // If this object has a parent, get the global matrix from the parent
+  // instead. This will finally go up to the outermost object, which will
+  // not have a parent, and add the camera matrix instead. When this comes
+  // back to the initial call to this method, it will have a global
+  // transformation matrix for the whole parent chain, including the camera.
+  if (this.parent) {
+    matrices.push(this.parent.getGlobalTransformationMatrix(canvas));
+  } else {
+    matrices.push(canvas.camera.getTransformationMatrix());
+  }
+
+  // Also add the local matrix for this object
+  matrices.push(this.getTransformationMatrix());
+
+  // Multiplying the global matrix for the parent chain with the local matrix
+  // for this object will result in a global matrix for this object.
+  globalCache.matrix.setIdentityData();
+  globalCache.matrix.multiply.apply(globalCache.matrix, matrices);
+  globalCache.valid = true;
+
+  return globalCache.matrix;
 };
 
 module.exports = CanvasObject;
