@@ -749,6 +749,130 @@ describe('CanvasObject', function() {
 
   });
 
+  describe('#getGlobalPoint()', function() {
+
+    it('should return a point in global space', function() {
+      var camera = new Camera({rotation: 45});
+      var object1 = new CanvasObject({rotation: 45, x: 200});
+      var object2 = new CanvasObject({rotation: -45, y: 100});
+      object1.children.add(object2);
+
+      var point = object2.getGlobalPoint(2, 2, {camera: camera});
+      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+    });
+
+    it('should return a cached point if nothing has changed', function(done) {
+      var camera = new Camera({rotation: 45});
+      var object1 = new CanvasObject({rotation: 45, x: 200});
+      var object2 = new CanvasObject({rotation: -45, y: 100});
+      object1.children.add(object2);
+
+      var point = object2.getGlobalPoint(2, 2, {camera: camera});
+      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+
+      var globalPointMatrix = object2.matrixCache.globalPoint.matrix;
+      var setData = globalPointMatrix.setData;
+      var setDataCalled = false;
+      globalPointMatrix.setData = function() {
+        setDataCalled = true;
+        setData.apply(this, arguments);
+      };
+
+      point = object2.getGlobalPoint(2, 2, {camera: camera});
+      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+
+      setTimeout(function() {
+        if (!setDataCalled) done();
+        else done(new Error('The matrix was updated and did not use the cache'));
+      }, 10);
+
+    });
+
+    it('should return an updated global point if position has changed', function() {
+      var camera = new Camera({rotation: 45});
+      var object1 = new CanvasObject({rotation: 45, x: 200});
+      var object2 = new CanvasObject({rotation: -45, y: 100});
+      object1.children.add(object2);
+
+      var point = object2.getGlobalPoint(2, 2, {camera: camera});
+      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+
+      object2.x = 300;
+
+      point = object2.getGlobalPoint(2, 2, {camera: camera});
+      expect(point).to.eql({x: 138.38834764831853, y: 360.1507575950825});
+
+      object2.y = 200;
+
+      point = object2.getGlobalPoint(2, 2, {camera: camera});
+      expect(point).to.eql({x: 38.3883476483185, y: 360.1507575950826});
+    });
+
+    it('should return an updated global point if rotation has changed', function() {
+      var camera = new Camera({rotation: 45});
+      var object1 = new CanvasObject({rotation: 45, x: 200});
+      var object2 = new CanvasObject({rotation: -45, y: 100});
+      object1.children.add(object2);
+
+      var point = object2.getGlobalPoint(2, 2, {camera: camera});
+      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+
+      object2.rotation = 0;
+
+      point = object2.getGlobalPoint(2, 2, {camera: camera});
+      expect(point).to.eql({x: 136.38834764831844, y: 59.32233047033633});
+    });
+
+    it('should return an updated global point if scaling has changed', function() {
+      var camera = new Camera({rotation: 45});
+      var object1 = new CanvasObject({rotation: 45, x: 200});
+      var object2 = new CanvasObject({rotation: -45, y: 100});
+      object1.children.add(object2);
+
+      var point = object2.getGlobalPoint(2, 2, {camera: camera});
+      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+
+      object2.scalingX = 2;
+
+      point = object2.getGlobalPoint(2, 2, {camera: camera});
+      expect(point).to.eql({x: 139.80256121069155, y: 61.564971157455616});
+
+      object2.scalingY = 2;
+
+      point = object2.getGlobalPoint(2, 2, {camera: camera});
+      expect(point).to.eql({x: 138.38834764831844, y: 62.97918471982871});
+    });
+
+    it('should return an updated global point if a parent has changed', function() {
+      var camera = new Camera({rotation: 45});
+      var object1 = new CanvasObject({rotation: 45, x: 200});
+      var object2 = new CanvasObject({rotation: -45, y: 100});
+      object1.children.add(object2);
+
+      var point = object2.getGlobalPoint(2, 2, {camera: camera});
+      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+
+      object1.rotation = 0;
+
+      point = object2.getGlobalPoint(2, 2, {camera: camera});
+      expect(point).to.eql({x: 169.67766952966372, y: 130.03300858899107});
+    });
+
+    it('should return an updated global point if a different local point was passed in', function() {
+      var camera = new Camera({rotation: 45});
+      var object1 = new CanvasObject({rotation: 45, x: 200});
+      var object2 = new CanvasObject({rotation: -45, y: 100});
+      object1.children.add(object2);
+
+      var point = object2.getGlobalPoint(2, 2, {camera: camera});
+      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+
+      point = object2.getGlobalPoint(4, 4, {camera: camera});
+      expect(point).to.eql({x: 138.38834764831844, y: 62.97918471982871});
+    });
+
+  });
+
   describe('#getVertices()', function() {
 
     it('should be defined but throw an error (needs subclass implementation)', function(done) {
@@ -769,10 +893,10 @@ describe('CanvasObject', function() {
 
   describe('#matrixCache', function() {
 
-    it('should have five objects for matrices (translation, rotation, scaling, combined, global)', function() {
+    it('should have seven objects for matrices (translation, rotation, scaling, combined, global, localPoint, globalPoint)', function() {
       var object = new CanvasObject();
 
-      ['translation', 'rotation', 'scaling', 'combined', 'global'].forEach(function(property) {
+      ['translation', 'rotation', 'scaling', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
         expect(object.matrixCache[property]).to.eql({valid: false, matrix: null});
       });
     });
@@ -781,10 +905,11 @@ describe('CanvasObject', function() {
       var camera = new Camera();
       var object = new CanvasObject();
       object.getGlobalTransformationMatrix({camera: camera});
+      object.getGlobalPoint(2, 2, {camera: camera});
 
       var cache = object.matrixCache;
 
-      ['translation', 'rotation', 'scaling', 'combined', 'global'].forEach(function(property) {
+      ['translation', 'rotation', 'scaling', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
         expect(cache[property].matrix instanceof Matrix).to.equal(true);
       });
     });
@@ -793,16 +918,17 @@ describe('CanvasObject', function() {
       var camera = new Camera();
       var object = new CanvasObject();
       object.getGlobalTransformationMatrix({camera: camera});
+      object.getGlobalPoint(2, 2, {camera: camera});
 
       var cache = object.matrixCache;
 
-      ['translation', 'rotation', 'scaling', 'combined', 'global'].forEach(function(property) {
+      ['translation', 'rotation', 'scaling', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
         expect(cache[property].valid).to.equal(true);
       });
 
       cache.invalidate();
 
-      ['translation', 'rotation', 'scaling', 'combined', 'global'].forEach(function(property) {
+      ['translation', 'rotation', 'scaling', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
         expect(cache[property].valid).to.equal(false);
       });
     });
@@ -811,10 +937,11 @@ describe('CanvasObject', function() {
       var camera = new Camera();
       var object = new CanvasObject();
       object.getGlobalTransformationMatrix({camera: camera});
+      object.getGlobalPoint(2, 2, {camera: camera});
 
       var cache = object.matrixCache;
 
-      ['translation', 'rotation', 'scaling', 'combined', 'global'].forEach(function(property) {
+      ['translation', 'rotation', 'scaling', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
         expect(cache[property].valid).to.equal(true);
       });
 
@@ -823,7 +950,7 @@ describe('CanvasObject', function() {
       ['rotation', 'scaling'].forEach(function(property) {
         expect(cache[property].valid).to.equal(true);
       });
-      ['translation', 'combined', 'global'].forEach(function(property) {
+      ['translation', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
         expect(cache[property].valid).to.equal(false);
       });
     });
@@ -834,15 +961,17 @@ describe('CanvasObject', function() {
       var object2 = new CanvasObject();
       object1.children.add(object2);
       object2.getGlobalTransformationMatrix({camera: camera});
+      object1.getGlobalPoint(2, 2, {camera: camera});
+      object2.getGlobalPoint(2, 2, {camera: camera});
 
       var cache1 = object1.matrixCache;
       var cache2 = object2.matrixCache;
 
-      ['translation', 'rotation', 'scaling', 'combined', 'global'].forEach(function(property) {
+      ['translation', 'rotation', 'scaling', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
         expect(cache1[property].valid).to.equal(true);
       });
 
-      ['translation', 'rotation', 'scaling', 'combined', 'global'].forEach(function(property) {
+      ['translation', 'rotation', 'scaling', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
         expect(cache2[property].valid).to.equal(true);
       });
 
@@ -851,14 +980,14 @@ describe('CanvasObject', function() {
       ['rotation', 'scaling'].forEach(function(property) {
         expect(cache1[property].valid).to.equal(true);
       });
-      ['translation', 'combined', 'global'].forEach(function(property) {
+      ['translation', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
         expect(cache1[property].valid).to.equal(false);
       });
 
       ['translation', 'rotation', 'scaling', 'combined'].forEach(function(property) {
         expect(cache2[property].valid).to.equal(true);
       });
-      ['global'].forEach(function(property) {
+      ['global', 'localPoint', 'globalPoint'].forEach(function(property) {
         expect(cache2[property].valid).to.equal(false);
       });
     });

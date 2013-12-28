@@ -45,12 +45,13 @@ var Matrix = require('../../classes/Matrix');
  *     If a canvas object is provided, it will call the renderPath method on
  *     the object, which means that method must be implemented.
  * @property {Object} matrixCache Object with matrix data for this object.
- *     It contains five properties: `translation`, `rotation`, `scaling`,
- *     `combined` and `global`, where each of them is an object with the
- *     properties `valid` (boolean) and `matrix` (Matrix instance or null).
- *     The matrixCache object also has a function `invalidate` which takes
- *     a type as argument (like object.matrixCache.invalidate('translation');
- *     ). If no argument is passed, all types of matrices will be invalidated.
+ *     It contains seven properties: `translation`, `rotation`, `scaling`,
+ *     `combined`, `global`, `localPoint` and `globalPoint`, where each of them
+ *     is an object with the properties `valid` (boolean) and `matrix` (Matrix
+ *     instance or null). The matrixCache object also has a function
+ *     `invalidate` which takes a type as argument (like
+ *     object.matrixCache.invalidate('translation'); ). If no argument is
+ *     passed, all types of matrices will be invalidated.
  * @property {Object} vertexCache Object with vertex data for this object.
  *     It contains one property: `local`, which is an object with the
  *     properties `valid` (boolean) and `vertices` (array or null). The
@@ -79,17 +80,26 @@ function CanvasObject(opt_properties) {
     scaling: {valid: false, matrix: null},
     combined: {valid: false, matrix: null},
     global: {valid: false, matrix: null},
+    localPoint: {valid: false, matrix: null},
+    globalPoint: {valid: false, matrix: null},
 
     invalidate: function(type) {
       if (!type) {
         this.translation.valid = false;
         this.rotation.valid = false;
         this.scaling.valid = false;
+        this.localPoint.valid = false;
+        this.globalPoint.valid = false;
       } else if (this[type]) {
         this[type].valid = false;
       }
 
-      if (type !== 'global') {
+      if (type !== 'combined') {
+        this.localPoint.valid = false;
+        this.globalPoint.valid = false;
+      }
+
+      if (type !== 'global' && type !== 'localPoint' && type !== 'globalPoint') {
         this.combined.valid = false;
         this.global.valid = false;
       }
@@ -463,6 +473,65 @@ CanvasObject.prototype.getGlobalTransformationMatrix = function(canvas) {
   globalCache.valid = true;
 
   return globalCache.matrix;
+};
+
+/*
+ * Get a global point from a local point.
+ * A local point is a coordinate inside this object, with no regards to any
+ * transformations. The global point will take all transformations from all
+ * objects in the parent chain into account, to give a point relative to the
+ * world.
+ *
+ * @param {number} x The local X position.
+ * @param {number} y The local Y position.
+ * @param {Canvas} canvas The Canvas instance. This is needed to
+ *     transform the vertices to global space.
+ *
+ * @return {Object} An object with properties x and y.
+ */
+CanvasObject.prototype.getGlobalPoint = function(x, y, canvas) {
+  var cache = this.matrixCache;
+  var globalPointMatrix;
+
+  if (cache.localPoint.x !== x || cache.localPoint.y !== y) {
+    cache.invalidate('localPoint');
+    cache.invalidate('globalPoint');
+  }
+
+  if (!cache.globalPoint.valid) {
+
+    if (!cache.localPoint.matrix) cache.localPoint.matrix = new Matrix(3, 3, false);
+    if (!cache.globalPoint.matrix) cache.globalPoint.matrix = new Matrix(3, 3, false);
+
+    if (!cache.localPoint.valid) {
+      cache.localPoint.matrix.setData(
+        1, 0, x,
+        0, 1, y,
+        0, 0, 1
+      );
+      cache.localPoint.x = x;
+      cache.localPoint.y = y;
+      cache.localPoint.valid = true;
+    }
+
+    // Get a matrix that represents the local point in global space, after it's
+    // been transformed by all the objects in the parent chain (including the
+    // camera).
+    globalPointMatrix = cache.globalPoint.matrix;
+    globalPointMatrix.setIdentityData();
+    globalPointMatrix.multiply(this.getGlobalTransformationMatrix(canvas),
+        cache.localPoint.matrix);
+    cache.globalPoint.valid = true;
+
+  } else {
+    globalPointMatrix = cache.globalPoint.matrix;
+  }
+
+  // Extract the 2D coordinate from the matrix and return it
+  return {
+    x: globalPointMatrix[2],
+    y: globalPointMatrix[5]
+  };
 };
 
 /**
