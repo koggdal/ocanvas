@@ -113,19 +113,26 @@ function CanvasObject(opt_properties) {
   this.vertexCache = {
     local: {valid: false, vertices: null},
     global: {valid: false, vertices: null},
+    tree: {valid: false, vertices: null},
+
     invalidate: function(type) {
       if (!type) {
         this.local.valid = false;
         this.global.valid = false;
+        this.tree.valid = false;
       } else if (this[type]) {
         this[type].valid = false;
       }
 
-      if (type === 'global') {
+      if (!type || type === 'global') {
+        this.tree.valid = false;
         var children = self.children;
         for (var i = 0, l = children.length; i < l; i++) {
           children.get(i).vertexCache.invalidate('global');
         }
+      }
+      if ((!type || type === 'tree') && self.parent) {
+        self.parent.vertexCache.invalidate('tree');
       }
     }
   };
@@ -139,6 +146,7 @@ function CanvasObject(opt_properties) {
       set: function() {
         this.matrixCache.invalidate('translation');
         this.vertexCache.invalidate('global');
+        this.vertexCache.invalidate('tree');
       }
     },
     y: {
@@ -146,6 +154,7 @@ function CanvasObject(opt_properties) {
       set: function() {
         this.matrixCache.invalidate('translation');
         this.vertexCache.invalidate('global');
+        this.vertexCache.invalidate('tree');
       }
     },
     rotation: {
@@ -153,6 +162,7 @@ function CanvasObject(opt_properties) {
       set: function() {
         this.matrixCache.invalidate('rotation');
         this.vertexCache.invalidate('global');
+        this.vertexCache.invalidate('tree');
       }
     },
     scalingX: {
@@ -160,6 +170,7 @@ function CanvasObject(opt_properties) {
       set: function() {
         this.matrixCache.invalidate('scaling');
         this.vertexCache.invalidate('global');
+        this.vertexCache.invalidate('tree');
       }
     },
     scalingY: {
@@ -167,6 +178,7 @@ function CanvasObject(opt_properties) {
       set: function() {
         this.matrixCache.invalidate('scaling');
         this.vertexCache.invalidate('global');
+        this.vertexCache.invalidate('tree');
       }
     },
     originX: {
@@ -599,6 +611,35 @@ CanvasObject.prototype.getGlobalVertices = function(canvas) {
   var error = new Error(message);
   error.name = 'ocanvas-needs-subclass';
   throw error;
+};
+
+/**
+ * Get the global vertices for this object and the tree of children. The
+ * coordinates will be relative to the world.
+ *
+ * @param {Canvas} canvas The Canvas instance to use. Needed to get the camera.
+ *
+ * @return {Array} Array of objects, where each object has `x` and `y`
+ *     properties representing the coordinates.
+ */
+CanvasObject.prototype.getGlobalVerticesForTree = function(canvas) {
+  var cache = this.vertexCache.tree;
+
+  if (cache.valid) return cache.vertices;
+
+  var vertices = cache.vertices || [];
+  vertices.length = 0;
+  vertices.push.apply(vertices, this.getGlobalVertices(canvas));
+
+  var children = this.children;
+  for (var i = 0, l = children.length; i < l; i++) {
+    vertices.push.apply(vertices, children.get(i).getGlobalVerticesForTree(canvas));
+  }
+
+  cache.vertices = vertices;
+  cache.valid = true;
+
+  return vertices;
 };
 
 module.exports = CanvasObject;

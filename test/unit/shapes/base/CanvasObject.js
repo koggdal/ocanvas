@@ -909,6 +909,302 @@ describe('CanvasObject', function() {
 
   });
 
+  describe('#getGlobalVerticesForTree()', function() {
+
+    it('should return the coordinates of all vertices of the object and its children', function() {
+      var camera = new Camera();
+
+      var object1 = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getGlobalVertices: function() {
+          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+        }
+      });
+      var object2 = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getGlobalVertices: function() {
+          return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}];
+        }
+      });
+      var object3 = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getGlobalVertices: function() {
+          return [{x: 300, y: 150}, {x: 400, y: 150}, {x: 400, y: 200}];
+        }
+      });
+      object1.children.add(object2);
+      object2.children.add(object3);
+
+      var vertices = object1.getGlobalVerticesForTree({camera: camera});
+
+      expect(vertices.length).to.equal(9);
+      expect(vertices[0]).to.eql({x: 100, y: 50});
+      expect(vertices[1]).to.eql({x: 200, y: 50});
+      expect(vertices[2]).to.eql({x: 200, y: 100});
+      expect(vertices[3]).to.eql({x: 200, y: 100});
+      expect(vertices[4]).to.eql({x: 300, y: 100});
+      expect(vertices[5]).to.eql({x: 300, y: 150});
+      expect(vertices[6]).to.eql({x: 300, y: 150});
+      expect(vertices[7]).to.eql({x: 400, y: 150});
+      expect(vertices[8]).to.eql({x: 400, y: 200});
+    });
+
+    it('should return a cached array if nothing has changed', function(done) {
+      var camera = new Camera();
+
+      var object1 = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getGlobalVertices: function() {
+          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+        }
+      });
+      var object2 = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getGlobalVertices: function() {
+          return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}];
+        }
+      });
+      object1.children.add(object2);
+
+      var vertices = object1.getGlobalVerticesForTree({camera: camera});
+
+      var hasAskedForNew = false;
+      object1.getGlobalVertices = function() {
+        hasAskedForNew = true;
+      };
+
+      object1.getGlobalVerticesForTree({camera: camera});
+
+      setTimeout(function() {
+        if (hasAskedForNew) done(new Error('The vertices were updated and did not use the cache'));
+        else done();
+      }, 10);
+    });
+
+    it('should return an updated array if position has changed', function() {
+      var camera = new Camera();
+
+      var object = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getGlobalVertices: function() {
+          var x = this.x;
+          var y = this.y;
+          var w = this.width;
+          var h = this.height;
+          return [{x: x, y: y}, {x: x + w, y: y}, {x: x + w, y: y + h}, {x: x, y: y + h}];
+        }
+      });
+
+      var vertices = object.getGlobalVerticesForTree({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 100, y: 50});
+      expect(vertices[1]).to.eql({x: 200, y: 50});
+      expect(vertices[2]).to.eql({x: 200, y: 100});
+      expect(vertices[3]).to.eql({x: 100, y: 100});
+
+      object.x = 200;
+      vertices = object.getGlobalVerticesForTree({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 200, y: 50});
+      expect(vertices[1]).to.eql({x: 300, y: 50});
+      expect(vertices[2]).to.eql({x: 300, y: 100});
+      expect(vertices[3]).to.eql({x: 200, y: 100});
+
+      object.y = 100;
+      vertices = object.getGlobalVerticesForTree({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 200, y: 100});
+      expect(vertices[1]).to.eql({x: 300, y: 100});
+      expect(vertices[2]).to.eql({x: 300, y: 150});
+      expect(vertices[3]).to.eql({x: 200, y: 150});
+    });
+
+    it('should return an updated array if rotation has changed', function(done) {
+      var camera = new Camera();
+
+      var object = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getGlobalVertices: function() {
+          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+        }
+      });
+
+      var vertices = object.getGlobalVerticesForTree({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 100, y: 50});
+      expect(vertices[1]).to.eql({x: 200, y: 50});
+      expect(vertices[2]).to.eql({x: 200, y: 100});
+
+      var hasAskedForNew = false;
+      object.getGlobalVertices = function() {
+        hasAskedForNew = true;
+      };
+
+      object.rotation = 180;
+      object.getGlobalVerticesForTree({camera: camera});
+
+      setTimeout(function() {
+        if (hasAskedForNew) done();
+        else done(new Error('The vertices were still cached and were not invalidated'));
+      }, 10);
+    });
+
+    it('should return an updated array if scaling has changed', function(done) {
+      var camera = new Camera();
+
+      var object = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getGlobalVertices: function() {
+          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+        }
+      });
+
+      var vertices = object.getGlobalVerticesForTree({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 100, y: 50});
+      expect(vertices[1]).to.eql({x: 200, y: 50});
+      expect(vertices[2]).to.eql({x: 200, y: 100});
+
+      var hasAskedForNew = 0;
+      object.getGlobalVertices = function() {
+        hasAskedForNew++;
+      };
+
+      object.scalingX = 0.5;
+      object.getGlobalVerticesForTree({camera: camera});
+      object.scalingY = 0.5;
+      object.getGlobalVerticesForTree({camera: camera});
+
+      setTimeout(function() {
+        if (hasAskedForNew === 2) done();
+        else done(new Error('The vertices were still cached and were not invalidated'));
+      }, 10);
+    });
+
+    it('should return an updated array if origin has changed', function(done) {
+      var camera = new Camera();
+
+      var object = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getGlobalVertices: function() {
+          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+        }
+      });
+
+      var vertices = object.getGlobalVerticesForTree({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 100, y: 50});
+      expect(vertices[1]).to.eql({x: 200, y: 50});
+      expect(vertices[2]).to.eql({x: 200, y: 100});
+
+      var hasAskedForNew = 0;
+      object.getGlobalVertices = function() {
+        hasAskedForNew++;
+      };
+
+      object.originX = 10;
+      object.getGlobalVerticesForTree({camera: camera});
+      object.originY = 10;
+      object.getGlobalVerticesForTree({camera: camera});
+
+      setTimeout(function() {
+        if (hasAskedForNew === 2) done();
+        else done(new Error('The vertices were still cached and were not invalidated'));
+      }, 10);
+    });
+
+    it('should return an updated array if a child has changed', function(done) {
+      var camera = new Camera();
+
+      var object1 = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getGlobalVertices: function() {
+          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+        }
+      });
+      var object2 = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getGlobalVertices: function() {
+          return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}];
+        }
+      });
+      object1.children.add(object2);
+
+      var vertices = object1.getGlobalVerticesForTree({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 100, y: 50});
+      expect(vertices[1]).to.eql({x: 200, y: 50});
+      expect(vertices[2]).to.eql({x: 200, y: 100});
+      expect(vertices[3]).to.eql({x: 200, y: 100});
+      expect(vertices[4]).to.eql({x: 300, y: 100});
+      expect(vertices[5]).to.eql({x: 300, y: 150});
+
+      var hasAskedForNew = false;
+      object1.getGlobalVertices = function() {
+        hasAskedForNew = true;
+      };
+
+      object2.x = 10;
+      object1.getGlobalVerticesForTree({camera: camera});
+
+      setTimeout(function() {
+        if (hasAskedForNew) done();
+        else done(new Error('The vertices were still cached and were not invalidated'));
+      }, 10);
+    });
+
+    it('should return an updated array if a parent has changed', function(done) {
+      var camera = new Camera();
+
+      var object1 = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getGlobalVertices: function() {
+          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+        }
+      });
+      var object2 = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getGlobalVertices: function() {
+          return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}];
+        }
+      });
+      object1.children.add(object2);
+
+      var vertices = object2.getGlobalVerticesForTree({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 200, y: 100});
+      expect(vertices[1]).to.eql({x: 300, y: 100});
+      expect(vertices[2]).to.eql({x: 300, y: 150});
+
+      var hasAskedForNew = false;
+      object2.getGlobalVertices = function() {
+        hasAskedForNew = true;
+      };
+
+      object1.x = 10;
+      object2.getGlobalVerticesForTree({camera: camera});
+
+      setTimeout(function() {
+        if (hasAskedForNew) done();
+        else done(new Error('The vertices were still cached and were not invalidated'));
+      }, 10);
+    });
+
+  });
+
   describe('#matrixCache', function() {
 
     it('should have seven objects for matrices (translation, rotation, scaling, combined, global, localPoint, globalPoint)', function() {
