@@ -205,4 +205,37 @@ RectangularCanvasObject.prototype.getVertices = function() {
   return vertices;
 };
 
+/**
+ * Get the global vertices for this object. The coordinates will be relative
+ * to the world.
+ *
+ * @param {Canvas} canvas The Canvas instance to use. Needed to get the camera.
+ *
+ * @return {Array} Array of objects, where each object has `x` and `y`
+ *     properties representing the coordinates.
+ */
+RectangularCanvasObject.prototype.getGlobalVertices = function(canvas) {
+  var cache = this.vertexCache.global;
+
+  if (cache.valid) return cache.vertices;
+
+  if (!cache.vertices) cache.vertices = new Array(4);
+
+  var localVertices = this.getVertices();
+  var left = localVertices[0].x;
+  var right = localVertices[1].x;
+  var top = localVertices[0].y;
+  var bottom = localVertices[2].y;
+
+  var vertices = cache.vertices;
+  vertices[0] = this.getGlobalPoint(left, top, canvas);
+  vertices[1] = this.getGlobalPoint(right, top, canvas);
+  vertices[2] = this.getGlobalPoint(right, bottom, canvas);
+  vertices[3] = this.getGlobalPoint(left, bottom, canvas);
+
+  cache.valid = true;
+
+  return vertices;
+};
+
 module.exports = RectangularCanvasObject;

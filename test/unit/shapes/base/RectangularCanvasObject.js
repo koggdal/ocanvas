@@ -2,6 +2,7 @@ var expect = require('expect.js');
 var CanvasObject = require('../../../../shapes/base/CanvasObject');
 var RectangularCanvasObject = require('../../../../shapes/base/RectangularCanvasObject');
 var Collection = require('../../../../classes/Collection');
+var Camera = require('../../../../classes/Camera');
 var jsonHelpers = require('../../../../utils/json');
 
 describe('RectangularCanvasObject', function() {
@@ -475,6 +476,225 @@ describe('RectangularCanvasObject', function() {
       expect(vertices[1]).to.eql({x: 100, y: -10});
       expect(vertices[2]).to.eql({x: 100, y: 40});
       expect(vertices[3]).to.eql({x: 0, y: 40});
+    });
+
+  });
+
+  describe('#getGlobalVertices()', function() {
+
+    it('should return the coordinates of all vertices of the object', function() {
+      var camera = new Camera();
+      var object = new RectangularCanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        rotation: 45,
+        scalingX: 0.5, scalingY: 2
+      });
+      var vertices = object.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 100, y: 50});
+      expect(vertices[1]).to.eql({x: 135.35533905932738, y: 85.35533905932738});
+      expect(vertices[2]).to.eql({x: 64.64466094067264, y: 156.06601717798213});
+      expect(vertices[3]).to.eql({x: 29.28932188134526, y: 120.71067811865476});
+    });
+
+    it('should return the coordinates of all vertices of the object, including the stroke', function() {
+      var camera = new Camera();
+      var object = new RectangularCanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        stroke: '10px #f00'
+      });
+      var vertices = object.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 90, y: 40});
+      expect(vertices[1]).to.eql({x: 210, y: 40});
+      expect(vertices[2]).to.eql({x: 210, y: 110});
+      expect(vertices[3]).to.eql({x: 90, y: 110});
+    });
+
+    it('should return the coordinates of all vertices of the object, respecting origin', function() {
+      var camera = new Camera();
+      var object = new RectangularCanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        originX: 'center',
+        originY: 'center'
+      });
+      var vertices = object.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 50, y: 25});
+      expect(vertices[1]).to.eql({x: 150, y: 25});
+      expect(vertices[2]).to.eql({x: 150, y: 75});
+      expect(vertices[3]).to.eql({x: 50, y: 75});
+    });
+
+    it('should return a cached array if nothing has changed', function(done) {
+      var camera = new Camera();
+      var object = new RectangularCanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+      var vertices = object.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 100, y: 50});
+
+      var hasBeenSet = false;
+      var zero = vertices[0];
+      Object.defineProperty(vertices, '0', {
+        get: function() { return zero; },
+        set: function(value) {
+          zero = value;
+          hasBeenSet = true;
+        }
+      });
+
+      object.getGlobalVertices({camera: camera});
+
+      setTimeout(function() {
+        if (hasBeenSet) done(new Error('The vertex was updated and did not use the cache'));
+        else done();
+      }, 10);
+    });
+
+    it('should return an updated array if width has changed', function() {
+      var camera = new Camera();
+      var object = new RectangularCanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+      var vertices = object.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 100, y: 50});
+      expect(vertices[1]).to.eql({x: 200, y: 50});
+      expect(vertices[2]).to.eql({x: 200, y: 100});
+      expect(vertices[3]).to.eql({x: 100, y: 100});
+
+      object.width = 200;
+      vertices = object.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 100, y: 50});
+      expect(vertices[1]).to.eql({x: 300, y: 50});
+      expect(vertices[2]).to.eql({x: 300, y: 100});
+      expect(vertices[3]).to.eql({x: 100, y: 100});
+    });
+
+    it('should return an updated array if height has changed', function() {
+      var camera = new Camera();
+      var object = new RectangularCanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+      var vertices = object.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 100, y: 50});
+      expect(vertices[1]).to.eql({x: 200, y: 50});
+      expect(vertices[2]).to.eql({x: 200, y: 100});
+      expect(vertices[3]).to.eql({x: 100, y: 100});
+
+      object.height = 100;
+      vertices = object.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 100, y: 50});
+      expect(vertices[1]).to.eql({x: 200, y: 50});
+      expect(vertices[2]).to.eql({x: 200, y: 150});
+      expect(vertices[3]).to.eql({x: 100, y: 150});
+    });
+
+    it('should return an updated array if stroke has changed', function() {
+      var camera = new Camera();
+      var object = new RectangularCanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        stroke: '10px red'
+      });
+      var vertices = object.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 90, y: 40});
+      expect(vertices[1]).to.eql({x: 210, y: 40});
+      expect(vertices[2]).to.eql({x: 210, y: 110});
+      expect(vertices[3]).to.eql({x: 90, y: 110});
+
+      object.stroke = '20px red';
+      vertices = object.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 80, y: 30});
+      expect(vertices[1]).to.eql({x: 220, y: 30});
+      expect(vertices[2]).to.eql({x: 220, y: 120});
+      expect(vertices[3]).to.eql({x: 80, y: 120});
+    });
+
+    it('should return an updated array if originX has changed', function() {
+      var camera = new Camera();
+      var object = new RectangularCanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        originX: 0
+      });
+      var vertices = object.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 100, y: 50});
+      expect(vertices[1]).to.eql({x: 200, y: 50});
+      expect(vertices[2]).to.eql({x: 200, y: 100});
+      expect(vertices[3]).to.eql({x: 100, y: 100});
+
+      object.originX = 10;
+      vertices = object.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 90, y: 50});
+      expect(vertices[1]).to.eql({x: 190, y: 50});
+      expect(vertices[2]).to.eql({x: 190, y: 100});
+      expect(vertices[3]).to.eql({x: 90, y: 100});
+    });
+
+    it('should return an updated array if originY has changed', function() {
+      var camera = new Camera();
+      var object = new RectangularCanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        originY: 0
+      });
+      var vertices = object.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 100, y: 50});
+      expect(vertices[1]).to.eql({x: 200, y: 50});
+      expect(vertices[2]).to.eql({x: 200, y: 100});
+      expect(vertices[3]).to.eql({x: 100, y: 100});
+
+      object.originY = 10;
+      vertices = object.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 100, y: 40});
+      expect(vertices[1]).to.eql({x: 200, y: 40});
+      expect(vertices[2]).to.eql({x: 200, y: 90});
+      expect(vertices[3]).to.eql({x: 100, y: 90});
+    });
+
+    it('should return an updated array if a parent has changed', function() {
+      var camera = new Camera();
+      var object1 = new RectangularCanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+      var object2 = new RectangularCanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+      object1.children.add(object2);
+      var vertices = object2.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 200, y: 100});
+      expect(vertices[1]).to.eql({x: 300, y: 100});
+      expect(vertices[2]).to.eql({x: 300, y: 150});
+      expect(vertices[3]).to.eql({x: 200, y: 150});
+
+      object1.y = 100;
+      vertices = object2.getGlobalVertices({camera: camera});
+
+      expect(vertices[0]).to.eql({x: 200, y: 150});
+      expect(vertices[1]).to.eql({x: 300, y: 150});
+      expect(vertices[2]).to.eql({x: 300, y: 200});
+      expect(vertices[3]).to.eql({x: 200, y: 200});
     });
 
   });

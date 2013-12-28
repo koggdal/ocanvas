@@ -53,11 +53,11 @@ var Matrix = require('../../classes/Matrix');
  *     object.matrixCache.invalidate('translation'); ). If no argument is
  *     passed, all types of matrices will be invalidated.
  * @property {Object} vertexCache Object with vertex data for this object.
- *     It contains one property: `local`, which is an object with the
- *     properties `valid` (boolean) and `vertices` (array or null). The
- *     vertexCache object also has a function `invalidate` which takes a type
- *     as argument (like object.vertexCache.invalidate('local'); ). If no
- *     argument is passed, all types of vertices will be invalidated.
+ *     It contains two properties: `local` and `global`, where each of them is
+ *     an object with the properties `valid` (boolean) and `vertices` (array or
+ *     null). The vertexCache object also has a function `invalidate` which
+ *     takes a type as argument (like object.vertexCache.invalidate('local');
+ *     ). If no argument is passed, all types of vertices will be invalidated.
  *
  * @constructor
  *
@@ -112,11 +112,20 @@ function CanvasObject(opt_properties) {
   };
   this.vertexCache = {
     local: {valid: false, vertices: null},
+    global: {valid: false, vertices: null},
     invalidate: function(type) {
       if (!type) {
         this.local.valid = false;
+        this.global.valid = false;
       } else if (this[type]) {
         this[type].valid = false;
+      }
+
+      if (type === 'global') {
+        var children = self.children;
+        for (var i = 0, l = children.length; i < l; i++) {
+          children.get(i).vertexCache.invalidate('global');
+        }
       }
     }
   };
@@ -127,23 +136,38 @@ function CanvasObject(opt_properties) {
   defineProperties(this, {
     x: {
       value: 0,
-      set: function() { this.matrixCache.invalidate('translation'); }
+      set: function() {
+        this.matrixCache.invalidate('translation');
+        this.vertexCache.invalidate('global');
+      }
     },
     y: {
       value: 0,
-      set: function() { this.matrixCache.invalidate('translation'); }
+      set: function() {
+        this.matrixCache.invalidate('translation');
+        this.vertexCache.invalidate('global');
+      }
     },
     rotation: {
       value: 0,
-      set: function() { this.matrixCache.invalidate('rotation'); }
+      set: function() {
+        this.matrixCache.invalidate('rotation');
+        this.vertexCache.invalidate('global');
+      }
     },
     scalingX: {
       value: 1,
-      set: function() { this.matrixCache.invalidate('scaling'); }
+      set: function() {
+        this.matrixCache.invalidate('scaling');
+        this.vertexCache.invalidate('global');
+      }
     },
     scalingY: {
       value: 1,
-      set: function() { this.matrixCache.invalidate('scaling'); }
+      set: function() {
+        this.matrixCache.invalidate('scaling');
+        this.vertexCache.invalidate('global');
+      }
     },
     originX: {
       value: 0,
@@ -550,6 +574,27 @@ CanvasObject.prototype.getGlobalPoint = function(x, y, canvas) {
 CanvasObject.prototype.getVertices = function() {
   var message = 'CanvasObject does not have an implementation of the ' +
       'getVertices method. Please use a subclass of ' +
+      'CanvasObject that has an implementation of it.';
+  var error = new Error(message);
+  error.name = 'ocanvas-needs-subclass';
+  throw error;
+};
+
+/**
+ * Get the global vertices for this object. The coordinates will be relative
+ * to the world.
+ *
+ * This needs implementation in a subclass. You should not call this
+ * super method in the subclass.
+ *
+ * @param {Canvas} canvas The Canvas instance to use. Needed to get the camera.
+ *
+ * @return {Array} Array of objects, where each object has `x` and `y`
+ *     properties representing the coordinates.
+ */
+CanvasObject.prototype.getGlobalVertices = function(canvas) {
+  var message = 'CanvasObject does not have an implementation of the ' +
+      'getGlobalVertices method. Please use a subclass of ' +
       'CanvasObject that has an implementation of it.';
   var error = new Error(message);
   error.name = 'ocanvas-needs-subclass';

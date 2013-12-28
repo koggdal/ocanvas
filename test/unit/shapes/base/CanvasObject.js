@@ -891,6 +891,24 @@ describe('CanvasObject', function() {
 
   });
 
+  describe('#getGlobalVertices()', function() {
+
+    it('should be defined but throw an error (needs subclass implementation)', function(done) {
+      var object = new CanvasObject();
+
+      try {
+        object.getGlobalVertices();
+      } catch(error) {
+        if (error.name === 'ocanvas-needs-subclass') {
+          done();
+        } else {
+          done(error);
+        }
+      }
+    });
+
+  });
+
   describe('#matrixCache', function() {
 
     it('should have seven objects for matrices (translation, rotation, scaling, combined, global, localPoint, globalPoint)', function() {
@@ -996,30 +1014,35 @@ describe('CanvasObject', function() {
 
   describe('#vertexCache', function() {
 
-    it('should have one object for vertices (local)', function() {
+    it('should have two objects for vertices (local, global)', function() {
       var object = new CanvasObject();
 
       expect(object.vertexCache.local).to.eql({valid: false, vertices: null});
+      expect(object.vertexCache.global).to.eql({valid: false, vertices: null});
     });
 
     it('should have an invalidate method to invalidate all vertices', function() {
       var object = new CanvasObject();
       var cache = object.vertexCache;
       cache.local.valid = true;
+      cache.global.valid = true;
 
       cache.invalidate();
 
       expect(cache.local.valid).to.eql(false);
+      expect(cache.global.valid).to.eql(false);
     });
 
     it('should have an invalidate method to invalidate one type of vertices', function() {
       var object = new CanvasObject();
       var cache = object.vertexCache;
       cache.local.valid = true;
+      cache.global.valid = true;
 
       cache.invalidate('local');
 
       expect(cache.local.valid).to.eql(false);
+      expect(cache.global.valid).to.eql(true);
     });
 
   });
