@@ -1,5 +1,6 @@
 var expect = require('expect.js');
 var Camera = require('../../../classes/Camera');
+var Matrix = require('../../../classes/Matrix');
 
 describe('Camera', function() {
 
@@ -224,6 +225,183 @@ describe('Camera', function() {
         name: 'Camera'
       });
       expect(camera.name).to.equal('Camera');
+    });
+
+  });
+
+  describe('#getTransformationMatrix()', function() {
+
+    it('should return a matrix that does not contain translation', function() {
+      var camera = new Camera({x: 10, y: 20});
+      expect(camera.getTransformationMatrix().toArray()).to.eql([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    });
+
+    it('should return a matrix that contains rotation', function() {
+      var camera = new Camera({rotation: 10, x: 0, y: 0});
+      expect(camera.getTransformationMatrix().toArray()).to.eql([
+        0.984807753012208,
+        -0.17364817766693033,
+        0,
+        0.17364817766693033,
+        0.984807753012208,
+        0,
+        0,
+        0,
+        1
+      ]);
+    });
+
+    it('should return a matrix that contains scaling', function() {
+      var camera = new Camera({zoom: 0.5, x: 0, y: 0});
+      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
+    });
+
+    it('should return a matrix that combines rotation and scaling', function() {
+      var camera = new Camera({
+        x: 10, y: 20,
+        rotation: 10,
+        zoom: 0.5
+      });
+
+      expect(camera.getTransformationMatrix().toArray()).to.eql([
+        0.492403876506104,
+        -0.08682408883346517,
+        6.812443011608264,
+        0.08682408883346517,
+        0.492403876506104,
+        9.283681581543268,
+        0,
+        0,
+        1
+      ]);
+
+    });
+
+    it('should return a cached matrix if nothing has changed', function(done) {
+      var camera = new Camera({zoom: 0.5, x: 0, y: 0});
+      var matrix = camera.getTransformationMatrix();
+      var setData = matrix.setData;
+      var setDataCalled = false;
+      matrix.setData = function() {
+        setDataCalled = true;
+        setData.apply(this, arguments);
+      };
+      expect(matrix.toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
+
+      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
+
+      setTimeout(function() {
+        if (!setDataCalled) done();
+        else done(new Error('The matrix was updated and did not use the cache'));
+      }, 10);
+    });
+
+    it('should return an updated matrix when position has changed', function() {
+      var camera = new Camera({zoom: 0.5, x: 0, y: 0});
+
+      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
+
+      camera.x = 20;
+
+      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 10, 0, 0.5, 0, 0, 0, 1]);
+
+      camera.y = 30;
+
+      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 10, 0, 0.5, 15, 0, 0, 1]);
+    });
+
+    it('should return an updated matrix when rotation has changed', function() {
+      var camera = new Camera({rotation: 0, x: 0, y: 0});
+
+      expect(camera.getTransformationMatrix().toArray()).to.eql([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+
+      camera.rotation = 10;
+
+      expect(camera.getTransformationMatrix().toArray()).to.eql([
+        0.984807753012208,
+        -0.17364817766693033,
+        0,
+        0.17364817766693033,
+        0.984807753012208,
+        0,
+        0,
+        0,
+        1
+      ]);
+    });
+
+    it('should return an updated matrix when scaling has changed', function() {
+      var camera = new Camera({zoom: 2, x: 0, y: 0});
+
+      expect(camera.getTransformationMatrix().toArray()).to.eql([2, 0, 0, 0, 2, 0, 0, 0, 1]);
+
+      camera.zoom = 0.5;
+
+      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
+    });
+
+  });
+
+  describe('#matrixCache', function() {
+
+    it('should have four objects for matrices (combined, translation, rotation, scaling)', function() {
+      var camera = new Camera();
+
+      expect(camera.matrixCache.combined).to.eql({valid: false, matrix: null});
+      expect(camera.matrixCache.translation).to.eql({valid: false, matrix: null, matrixReverse: null});
+      expect(camera.matrixCache.rotation).to.eql({valid: false, matrix: null});
+      expect(camera.matrixCache.scaling).to.eql({valid: false, matrix: null});
+    });
+
+    it('should store Matrix instances after first calculation', function() {
+      var camera = new Camera();
+      camera.getTransformationMatrix();
+
+      var cache = camera.matrixCache;
+
+      expect(cache.combined.matrix instanceof Matrix).to.eql(true);
+      expect(cache.translation.matrix instanceof Matrix).to.eql(true);
+      expect(cache.translation.matrixReverse instanceof Matrix).to.eql(true);
+      expect(cache.rotation.matrix instanceof Matrix).to.eql(true);
+      expect(cache.scaling.matrix instanceof Matrix).to.eql(true);
+    });
+
+    it('should have an invalidate method to invalidate all matrices', function() {
+      var camera = new Camera();
+      camera.getTransformationMatrix();
+
+      var cache = camera.matrixCache;
+
+      expect(cache.combined.valid).to.eql(true);
+      expect(cache.translation.valid).to.eql(true);
+      expect(cache.rotation.valid).to.eql(true);
+      expect(cache.scaling.valid).to.eql(true);
+
+      cache.invalidate();
+
+      expect(cache.combined.valid).to.eql(false);
+      expect(cache.translation.valid).to.eql(false);
+      expect(cache.rotation.valid).to.eql(false);
+      expect(cache.scaling.valid).to.eql(false);
+    });
+
+    it('should have an invalidate method to invalidate one type of matrix (plus the combined)', function() {
+      var camera = new Camera();
+      camera.getTransformationMatrix();
+
+      var cache = camera.matrixCache;
+
+      expect(cache.combined.valid).to.eql(true);
+      expect(cache.translation.valid).to.eql(true);
+      expect(cache.rotation.valid).to.eql(true);
+      expect(cache.scaling.valid).to.eql(true);
+
+      cache.invalidate('translation');
+
+      expect(cache.combined.valid).to.eql(false);
+      expect(cache.translation.valid).to.eql(false);
+      expect(cache.rotation.valid).to.eql(true);
+      expect(cache.scaling.valid).to.eql(true);
     });
 
   });

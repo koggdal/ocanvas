@@ -5,6 +5,7 @@
 
 var defineProperties = require('../utils/defineProperties');
 var jsonHelpers = require('../utils/json');
+var Matrix = require('../classes/Matrix');
 
 /**
  * @classdesc A camera is put inside a world and when it is connected to a
@@ -45,15 +46,41 @@ function Camera(opt_properties) {
   }
   Camera.cache[this.id] = this;
 
-  this.x = 0;
-  this.y = 0;
-  this.rotation = 0;
+  this.matrixCache = {
+    combined: {valid: false, matrix: null},
+    translation: {valid: false, matrix: null, matrixReverse: null},
+    rotation: {valid: false, matrix: null},
+    scaling: {valid: false, matrix: null},
+    invalidate: function(type) {
+      if (!type) {
+        this.translation.valid = false;
+        this.rotation.valid = false;
+        this.scaling.valid = false;
+      } else if (this[type]) {
+        this[type].valid = false;
+      }
+      this.combined.valid = false;
+    }
+  };
+
   this.world = null;
 
   defineProperties(this, {
+    x: {
+      value: 0,
+      set: function() { this.matrixCache.invalidate('translation'); }
+    },
+    y: {
+      value: 0,
+      set: function() { this.matrixCache.invalidate('translation'); }
+    },
+    rotation: {
+      value: 0,
+      set: function() { this.matrixCache.invalidate('rotation'); }
+    },
     zoom: {
       value: 1,
-      writable: true
+      set: function() { this.matrixCache.invalidate('scaling'); }
     },
     width: {
       value: 0,
@@ -244,6 +271,74 @@ Camera.prototype.render = function(canvas) {
   this.world.render(canvas);
 
   context.restore();
+};
+
+/**
+ * Get a transformation matrix for this camera. It will be a combined matrix
+ * for rotation and scaling. It will not include translation in the final
+ * matrix, it will only use translation in the process to rotate and scale
+ * around the camera position. This is because the camera is fixed in relation
+ * to the canvas.
+ * If the matrix cache is still valid, it will not update the matrix.
+ *
+ * @return {Matrix} A Matrix instance representing the transformations.
+ */
+Camera.prototype.getTransformationMatrix = function() {
+  var cache = this.matrixCache;
+
+  if (cache.combined.valid) return cache.combined.matrix;
+
+  if (!cache.combined.matrix) cache.combined.matrix = new Matrix(3, 3, false);
+  if (!cache.rotation.matrix) cache.rotation.matrix = new Matrix(3, 3, false);
+  if (!cache.scaling.matrix) cache.scaling.matrix = new Matrix(3, 3, false);
+  if (!cache.translation.matrix)
+      cache.translation.matrix = new Matrix(3, 3, false);
+  if (!cache.translation.matrixReverse)
+      cache.translation.matrixReverse = new Matrix(3, 3, false);
+
+  if (!cache.translation.valid) {
+    cache.translation.matrix.setData(
+      1, 0, this.x,
+      0, 1, this.y,
+      0, 0, 1
+    );
+    cache.translation.matrixReverse.setData(
+      1, 0, -this.x,
+      0, 1, -this.y,
+      0, 0, 1
+    );
+    cache.translation.valid = true;
+  }
+
+  if (!cache.rotation.valid) {
+    var rotation = this.rotation * Math.PI / 180;
+    cache.rotation.matrix.setData(
+      Math.cos(rotation), -Math.sin(rotation), 0,
+      Math.sin(rotation), Math.cos(rotation), 0,
+      0, 0, 1
+    );
+    cache.rotation.valid = true;
+  }
+
+  if (!cache.scaling.valid) {
+    cache.scaling.matrix.setData(
+      this.zoom, 0, 0,
+      0, this.zoom, 0,
+      0, 0, 1
+    );
+    cache.scaling.valid = true;
+  }
+
+  cache.combined.matrix.setIdentityData();
+  cache.combined.matrix.multiply(
+    cache.translation.matrix,
+    cache.rotation.matrix,
+    cache.scaling.matrix,
+    cache.translation.matrixReverse
+  );
+  cache.combined.valid = true;
+
+  return cache.combined.matrix;
 };
 
 module.exports = Camera;
