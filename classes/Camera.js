@@ -89,9 +89,11 @@ function Camera(opt_properties) {
   };
   this.vertexCache = {
     local: {valid: false, vertices: null},
+    global: {valid: false, vertices: null},
     invalidate: function(type) {
       if (!type) {
         this.local.valid = false;
+        this.global.valid = false;
       } else if (this[type]) {
         this[type].valid = false;
       }
@@ -103,19 +105,31 @@ function Camera(opt_properties) {
   defineProperties(this, {
     x: {
       value: 0,
-      set: function() { this.matrixCache.invalidate('translation'); }
+      set: function() {
+        this.matrixCache.invalidate('translation');
+        this.vertexCache.invalidate('global');
+      }
     },
     y: {
       value: 0,
-      set: function() { this.matrixCache.invalidate('translation'); }
+      set: function() {
+        this.matrixCache.invalidate('translation');
+        this.vertexCache.invalidate('global');
+      }
     },
     rotation: {
       value: 0,
-      set: function() { this.matrixCache.invalidate('rotation'); }
+      set: function() {
+        this.matrixCache.invalidate('rotation');
+        this.vertexCache.invalidate('global');
+      }
     },
     zoom: {
       value: 1,
-      set: function() { this.matrixCache.invalidate('scaling'); }
+      set: function() {
+        this.matrixCache.invalidate('scaling');
+        this.vertexCache.invalidate('global');
+      }
     },
     width: {
       value: 0,
@@ -467,6 +481,37 @@ Camera.prototype.getVertices = function() {
   vertices[2].y = bottom;
   vertices[3].x = left;
   vertices[3].y = bottom;
+
+  cache.valid = true;
+
+  return vertices;
+};
+
+/**
+ * Get the global vertices for this camera. The coordinates will be relative
+ * to the world.
+ *
+ * @return {Array} Array of objects, where each object has `x` and `y`
+ *     properties representing the coordinates.
+ */
+Camera.prototype.getGlobalVertices = function() {
+  var cache = this.vertexCache.global;
+
+  if (cache.valid) return cache.vertices;
+
+  if (!cache.vertices) cache.vertices = new Array(4);
+
+  var localVertices = this.getVertices();
+  var left = localVertices[0].x;
+  var right = localVertices[1].x;
+  var top = localVertices[0].y;
+  var bottom = localVertices[2].y;
+
+  var vertices = cache.vertices;
+  vertices[0] = this.getGlobalPoint(left, top);
+  vertices[1] = this.getGlobalPoint(right, top);
+  vertices[2] = this.getGlobalPoint(right, bottom);
+  vertices[3] = this.getGlobalPoint(left, bottom);
 
   cache.valid = true;
 

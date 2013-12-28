@@ -525,6 +525,94 @@ describe('Camera', function() {
 
   });
 
+  describe('#getGlobalVertices()', function() {
+
+    it('should return the coordinates of all vertices of the camera', function() {
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        rotation: 45,
+        zoom: 2
+      });
+      var vertices = camera.getGlobalVertices();
+
+      expect(vertices[0]).to.eql({x: 64.64466094067262, y: -56.06601717798212});
+      expect(vertices[1]).to.eql({x: 206.06601717798213, y: 85.35533905932736});
+      expect(vertices[2]).to.eql({x: 135.35533905932738, y: 156.06601717798213});
+      expect(vertices[3]).to.eql({x: -6.066017177982133, y: 14.644660940672637});
+    });
+
+    it('should return a cached array if nothing has changed', function(done) {
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+      var vertices = camera.getGlobalVertices();
+
+      expect(vertices[0]).to.eql({x: 50, y: 25});
+
+      var hasBeenSet = false;
+      var zero = vertices[0];
+      Object.defineProperty(vertices, '0', {
+        get: function() { return zero; },
+        set: function(value) {
+          zero = value;
+          hasBeenSet = true;
+        }
+      });
+
+      camera.getGlobalVertices();
+
+      setTimeout(function() {
+        if (hasBeenSet) done(new Error('The vertex was updated and did not use the cache'));
+        else done();
+      }, 10);
+    });
+
+    it('should return an updated array if width has changed', function() {
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+      var vertices = camera.getGlobalVertices();
+
+      expect(vertices[0]).to.eql({x: 50, y: 25});
+      expect(vertices[1]).to.eql({x: 150, y: 25});
+      expect(vertices[2]).to.eql({x: 150, y: 75});
+      expect(vertices[3]).to.eql({x: 50, y: 75});
+
+      camera.width = 200;
+      vertices = camera.getGlobalVertices();
+
+      expect(vertices[0]).to.eql({x: 0, y: 25});
+      expect(vertices[1]).to.eql({x: 200, y: 25});
+      expect(vertices[2]).to.eql({x: 200, y: 75});
+      expect(vertices[3]).to.eql({x: 0, y: 75});
+    });
+
+    it('should return an updated array if height has changed', function() {
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+      var vertices = camera.getGlobalVertices();
+
+      expect(vertices[0]).to.eql({x: 50, y: 25});
+      expect(vertices[1]).to.eql({x: 150, y: 25});
+      expect(vertices[2]).to.eql({x: 150, y: 75});
+      expect(vertices[3]).to.eql({x: 50, y: 75});
+
+      camera.height = 100;
+      vertices = camera.getGlobalVertices();
+
+      expect(vertices[0]).to.eql({x: 50, y: 0});
+      expect(vertices[1]).to.eql({x: 150, y: 0});
+      expect(vertices[2]).to.eql({x: 150, y: 100});
+      expect(vertices[3]).to.eql({x: 50, y: 100});
+    });
+
+  });
+
   describe('#matrixCache', function() {
 
     it('should have six objects for matrices (translation, rotation, scaling, combined, localPoint, globalPoint)', function() {
