@@ -540,7 +540,7 @@ describe('CanvasObject', function() {
       var setDataCalled = false;
       matrix.setData = function() {
         setDataCalled = true;
-        setData.call(this);
+        setData.apply(this, arguments);
       };
       expect(matrix.toArray()).to.eql([1, 0, 10, 0, 1, 20, 0, 0, 1]);
 
