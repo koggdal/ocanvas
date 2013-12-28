@@ -303,4 +303,180 @@ describe('RectangularCanvasObject', function() {
 
   });
 
+  describe('#getVertices()', function() {
+
+    it('should return the coordinates of all vertices of the object', function() {
+      var object = new RectangularCanvasObject({width: 100, height: 50});
+      var vertices = object.getVertices();
+
+      expect(vertices[0]).to.eql({x: 0, y: 0});
+      expect(vertices[1]).to.eql({x: 100, y: 0});
+      expect(vertices[2]).to.eql({x: 100, y: 50});
+      expect(vertices[3]).to.eql({x: 0, y: 50});
+    });
+
+    it('should return the coordinates of all vertices of the object, including the stroke', function() {
+      var object = new RectangularCanvasObject({width: 100, height: 50, stroke: '10px #f00'});
+      var vertices = object.getVertices();
+
+      expect(vertices[0]).to.eql({x: -10, y: -10});
+      expect(vertices[1]).to.eql({x: 110, y: -10});
+      expect(vertices[2]).to.eql({x: 110, y: 60});
+      expect(vertices[3]).to.eql({x: -10, y: 60});
+    });
+
+    it('should return the coordinates of all vertices of the object, respecting origin', function() {
+      var object = new RectangularCanvasObject({
+        width: 100,
+        height: 50,
+        originX: 'center',
+        originY: 'center'
+      });
+      var vertices = object.getVertices();
+
+      expect(vertices[0]).to.eql({x: -50, y: -25});
+      expect(vertices[1]).to.eql({x: 50, y: -25});
+      expect(vertices[2]).to.eql({x: 50, y: 25});
+      expect(vertices[3]).to.eql({x: -50, y: 25});
+    });
+
+    it('should return a cached array if nothing has changed', function(done) {
+      var object = new RectangularCanvasObject({
+        width: 100,
+        height: 50,
+        originX: 'center',
+        originY: 'center'
+      });
+      var vertices = object.getVertices();
+
+      expect(vertices[0]).to.eql({x: -50, y: -25});
+
+      var hasBeenSet = false;
+      var x = vertices[0].x;
+      Object.defineProperty(vertices[0], 'x', {
+        get: function() { return x; },
+        set: function(value) {
+          x = value;
+          hasBeenSet = true;
+        }
+      });
+
+      object.getVertices();
+
+      setTimeout(function() {
+        if (hasBeenSet) done(new Error('The vertex was updated and did not use the cache'));
+        else done();
+      }, 10);
+    });
+
+    it('should return an updated array if width has changed', function() {
+      var object = new RectangularCanvasObject({
+        width: 100,
+        height: 50
+      });
+      var vertices = object.getVertices();
+
+      expect(vertices[0]).to.eql({x: 0, y: 0});
+      expect(vertices[1]).to.eql({x: 100, y: 0});
+      expect(vertices[2]).to.eql({x: 100, y: 50});
+      expect(vertices[3]).to.eql({x: 0, y: 50});
+
+      object.width = 200;
+      vertices = object.getVertices();
+
+      expect(vertices[0]).to.eql({x: 0, y: 0});
+      expect(vertices[1]).to.eql({x: 200, y: 0});
+      expect(vertices[2]).to.eql({x: 200, y: 50});
+      expect(vertices[3]).to.eql({x: 0, y: 50});
+    });
+
+    it('should return an updated array if height has changed', function() {
+      var object = new RectangularCanvasObject({
+        width: 100,
+        height: 50
+      });
+      var vertices = object.getVertices();
+
+      expect(vertices[0]).to.eql({x: 0, y: 0});
+      expect(vertices[1]).to.eql({x: 100, y: 0});
+      expect(vertices[2]).to.eql({x: 100, y: 50});
+      expect(vertices[3]).to.eql({x: 0, y: 50});
+
+      object.height = 100;
+      vertices = object.getVertices();
+
+      expect(vertices[0]).to.eql({x: 0, y: 0});
+      expect(vertices[1]).to.eql({x: 100, y: 0});
+      expect(vertices[2]).to.eql({x: 100, y: 100});
+      expect(vertices[3]).to.eql({x: 0, y: 100});
+    });
+
+    it('should return an updated array if stroke has changed', function() {
+      var object = new RectangularCanvasObject({
+        width: 100,
+        height: 50,
+        stroke: '10px red'
+      });
+      var vertices = object.getVertices();
+
+      expect(vertices[0]).to.eql({x: -10, y: -10});
+      expect(vertices[1]).to.eql({x: 110, y: -10});
+      expect(vertices[2]).to.eql({x: 110, y: 60});
+      expect(vertices[3]).to.eql({x: -10, y: 60});
+
+      object.stroke = '20px red';
+      vertices = object.getVertices();
+
+      expect(vertices[0]).to.eql({x: -20, y: -20});
+      expect(vertices[1]).to.eql({x: 120, y: -20});
+      expect(vertices[2]).to.eql({x: 120, y: 70});
+      expect(vertices[3]).to.eql({x: -20, y: 70});
+    });
+
+    it('should return an updated array if originX has changed', function() {
+      var object = new RectangularCanvasObject({
+        width: 100,
+        height: 50,
+        originX: 0
+      });
+      var vertices = object.getVertices();
+
+      expect(vertices[0]).to.eql({x: 0, y: 0});
+      expect(vertices[1]).to.eql({x: 100, y: 0});
+      expect(vertices[2]).to.eql({x: 100, y: 50});
+      expect(vertices[3]).to.eql({x: 0, y: 50});
+
+      object.originX = 10;
+      vertices = object.getVertices();
+
+      expect(vertices[0]).to.eql({x: -10, y: 0});
+      expect(vertices[1]).to.eql({x: 90, y: 0});
+      expect(vertices[2]).to.eql({x: 90, y: 50});
+      expect(vertices[3]).to.eql({x: -10, y: 50});
+    });
+
+    it('should return an updated array if originY has changed', function() {
+      var object = new RectangularCanvasObject({
+        width: 100,
+        height: 50,
+        originY: 0
+      });
+      var vertices = object.getVertices();
+
+      expect(vertices[0]).to.eql({x: 0, y: 0});
+      expect(vertices[1]).to.eql({x: 100, y: 0});
+      expect(vertices[2]).to.eql({x: 100, y: 50});
+      expect(vertices[3]).to.eql({x: 0, y: 50});
+
+      object.originY = 10;
+      vertices = object.getVertices();
+
+      expect(vertices[0]).to.eql({x: 0, y: -10});
+      expect(vertices[1]).to.eql({x: 100, y: -10});
+      expect(vertices[2]).to.eql({x: 100, y: 40});
+      expect(vertices[3]).to.eql({x: 0, y: 40});
+    });
+
+  });
+
 });

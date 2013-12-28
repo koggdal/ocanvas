@@ -63,6 +63,10 @@ describe('CanvasObject', function() {
       expect(typeof object.matrixCache).to.equal('object');
     });
 
+    it('should set the default value of property `vertexCache` to an object', function() {
+      expect(typeof object.vertexCache).to.equal('object');
+    });
+
     it('should set the default value of property `children` to a new collection', function() {
       expect(object.children instanceof Collection).to.equal(true);
     });
@@ -745,6 +749,24 @@ describe('CanvasObject', function() {
 
   });
 
+  describe('#getVertices()', function() {
+
+    it('should be defined but throw an error (needs subclass implementation)', function(done) {
+      var object = new CanvasObject();
+
+      try {
+        object.getVertices();
+      } catch(error) {
+        if (error.name === 'ocanvas-needs-subclass') {
+          done();
+        } else {
+          done(error);
+        }
+      }
+    });
+
+  });
+
   describe('#matrixCache', function() {
 
     it('should have five objects for matrices (translation, rotation, scaling, combined, global)', function() {
@@ -850,6 +872,36 @@ describe('CanvasObject', function() {
       expect(cache2.scaling.valid).to.eql(true);
       expect(cache2.combined.valid).to.eql(true);
       expect(cache2.global.valid).to.eql(false);
+    });
+
+  });
+
+  describe('#vertexCache', function() {
+
+    it('should have one object for vertices (local)', function() {
+      var object = new CanvasObject();
+
+      expect(object.vertexCache.local).to.eql({valid: false, vertices: null});
+    });
+
+    it('should have an invalidate method to invalidate all vertices', function() {
+      var object = new CanvasObject();
+      var cache = object.vertexCache;
+      cache.local.valid = true;
+
+      cache.invalidate();
+
+      expect(cache.local.valid).to.eql(false);
+    });
+
+    it('should have an invalidate method to invalidate one type of vertices', function() {
+      var object = new CanvasObject();
+      var cache = object.vertexCache;
+      cache.local.valid = true;
+
+      cache.invalidate('local');
+
+      expect(cache.local.valid).to.eql(false);
     });
 
   });

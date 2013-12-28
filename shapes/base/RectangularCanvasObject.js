@@ -5,6 +5,7 @@
 
 var CanvasObject = require('./CanvasObject');
 var inherit = require('../../utils/inherit');
+var defineProperties = require('../../utils/defineProperties');
 var jsonHelpers = require('../../utils/json');
 
 /**
@@ -32,8 +33,17 @@ function RectangularCanvasObject(opt_properties) {
   CanvasObject.call(this);
 
   this.constructorName = 'RectangularCanvasObject';
-  this.width = 0;
-  this.height = 0;
+
+  defineProperties(this, {
+    width: {
+      value: 0,
+      set: function() { this.vertexCache.invalidate(); }
+    },
+    height: {
+      value: 0,
+      set: function() { this.vertexCache.invalidate(); }
+    }
+  }, {enumerable: true});
 
   if (opt_properties) {
     this.setProperties(opt_properties);
@@ -144,6 +154,55 @@ RectangularCanvasObject.prototype.renderPath = function(canvas) {
   var y = -origin.y;
 
   context.rect(x, y, this.width, this.height);
+};
+
+/**
+ * Get the vertices for this object. The coordinates will be relative
+ * to the origin of this object and are not affected by any transformations.
+ *
+ * @return {Array} Array of objects, where each object has `x` and `y`
+ *     properties representing the coordinates.
+ */
+RectangularCanvasObject.prototype.getVertices = function() {
+  var cache = this.vertexCache.local;
+
+  if (cache.valid) return cache.vertices;
+
+  if (!cache.vertices) {
+    cache.vertices = new Array(4);
+    cache.vertices[0] = {x: 0, y: 0};
+    cache.vertices[1] = {x: 0, y: 0};
+    cache.vertices[2] = {x: 0, y: 0};
+    cache.vertices[3] = {x: 0, y: 0};
+  }
+
+  var origin = this.calculateOrigin();
+
+  var lineWidth = 0;
+  if (this.stroke) {
+    var parts = this.stroke.split(' ');
+    lineWidth = parseFloat(parts[0], 10);
+  }
+
+  var left = -origin.x - lineWidth;
+  var right = left + this.width + lineWidth * 2;
+  var top = -origin.y - lineWidth;
+  var bottom = top + this.height + lineWidth * 2;
+
+  var vertices = cache.vertices;
+
+  vertices[0].x = left;
+  vertices[0].y = top;
+  vertices[1].x = right;
+  vertices[1].y = top;
+  vertices[2].x = right;
+  vertices[2].y = bottom;
+  vertices[3].x = left;
+  vertices[3].y = bottom;
+
+  cache.valid = true;
+
+  return vertices;
 };
 
 module.exports = RectangularCanvasObject;
