@@ -216,7 +216,7 @@ Cache.prototype.invalidate = function(name) {
     return this;
   }
 
-  if (this.units[name]) {
+  if (this.units[name] && this.units[name].isValid) {
     this.units[name].isValid = false;
     this.emit('invalidate', {unit: name});
   }

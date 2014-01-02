@@ -190,6 +190,21 @@ describe('Cache', function() {
       cache.invalidate('translation');
     });
 
+    it('should not invalidate a unit that is already invalid', function(done) {
+      var cache = new Cache();
+      cache.define('translation').update('translation');
+      var invalidations = 0;
+      cache.on('invalidate', function(event) {
+        invalidations++;
+      });
+      cache.invalidate('translation');
+      cache.invalidate('translation');
+      setTimeout(function() {
+        expect(invalidations).to.equal(1);
+        done();
+      }, 10);
+    });
+
     it('should return the cache instance', function() {
       var cache = new Cache();
       var cacheReturn = cache.invalidate('translation');
