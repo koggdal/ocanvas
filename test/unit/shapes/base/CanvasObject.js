@@ -1244,6 +1244,173 @@ describe('CanvasObject', function() {
 
   });
 
+  describe('#getBoundingRectangle()', function() {
+
+    it('should return an object with data about the bounding rectangle', function() {
+      var camera = new Camera();
+      var object = new CanvasObject();
+      object.getGlobalVertices = function() {
+        return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
+      };
+      var rect = object.getBoundingRectangle({camera: camera});
+      expect(rect.top).to.equal(0);
+      expect(rect.right).to.equal(100);
+      expect(rect.bottom).to.equal(50);
+      expect(rect.left).to.equal(0);
+      expect(rect.width).to.equal(100);
+      expect(rect.height).to.equal(50);
+    });
+
+    it('should return data only for this object, not its children', function() {
+      var camera = new Camera();
+      var object1 = new CanvasObject();
+      var object2 = new CanvasObject();
+      object1.children.add(object2);
+      object1.getGlobalVertices = function() {
+        return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
+      };
+      object2.getGlobalVertices = function() {
+        return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+      };
+      var rect = object1.getBoundingRectangle({camera: camera});
+      expect(rect.top).to.equal(0);
+      expect(rect.right).to.equal(100);
+      expect(rect.bottom).to.equal(50);
+      expect(rect.left).to.equal(0);
+      expect(rect.width).to.equal(100);
+      expect(rect.height).to.equal(50);
+    });
+
+    it('should return a cached rectangle if nothing has changed', function() {
+      var camera = new Camera();
+      var object = new CanvasObject();
+      var numCalls = 0;
+      object.getGlobalVertices = function() {
+        numCalls++;
+        return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
+      };
+      object.getBoundingRectangle({camera: camera});
+      object.getBoundingRectangle({camera: camera});
+
+      expect(numCalls).to.equal(1);
+    });
+
+    it('should return an updated rectangle if something has changed', function() {
+      var camera = new Camera();
+      var object = new CanvasObject();
+      var numCalls = 0;
+
+      var updateCache = function(cache) {
+        cache.update('globalVertices').update('treeVertices');
+        cache.update('translation').update('transformations').update('globalTransformations');
+      };
+
+      object.getGlobalVertices = function() {
+        numCalls++;
+        updateCache(this.cache);
+        var x = this.x;
+        return [{x: x, y: 0}, {x: x + 100, y: 0}, {x: x + 100, y: 50}];
+      };
+      object.getBoundingRectangle({camera: camera});
+      object.x = 100;
+      var rect = object.getBoundingRectangle({camera: camera});
+
+      expect(numCalls).to.equal(2);
+      expect(rect.top).to.equal(0);
+      expect(rect.right).to.equal(200);
+      expect(rect.bottom).to.equal(50);
+      expect(rect.left).to.equal(100);
+      expect(rect.width).to.equal(100);
+      expect(rect.height).to.equal(50);
+    });
+
+  });
+
+  describe('#getBoundingRectangleForTree()', function() {
+
+    it('should return an object with data about the bounding rectangle', function() {
+      var camera = new Camera();
+      var object = new CanvasObject();
+      object.getGlobalVerticesForTree = function() {
+        return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
+      };
+      var rect = object.getBoundingRectangleForTree({camera: camera});
+      expect(rect.top).to.equal(0);
+      expect(rect.right).to.equal(100);
+      expect(rect.bottom).to.equal(50);
+      expect(rect.left).to.equal(0);
+      expect(rect.width).to.equal(100);
+      expect(rect.height).to.equal(50);
+    });
+
+    it('should return data for this object and its children', function() {
+      var camera = new Camera();
+      var object1 = new CanvasObject();
+      var object2 = new CanvasObject();
+      object1.children.add(object2);
+      object1.getGlobalVerticesForTree = function() {
+        var vertices = [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
+        var childVertices = object2.getGlobalVerticesForTree();
+        return vertices.concat(childVertices);
+      };
+      object2.getGlobalVerticesForTree = function() {
+        return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+      };
+      var rect = object1.getBoundingRectangleForTree({camera: camera});
+      expect(rect.top).to.equal(0);
+      expect(rect.right).to.equal(200);
+      expect(rect.bottom).to.equal(100);
+      expect(rect.left).to.equal(0);
+      expect(rect.width).to.equal(200);
+      expect(rect.height).to.equal(100);
+    });
+
+    it('should return a cached rectangle if nothing has changed', function() {
+      var camera = new Camera();
+      var object = new CanvasObject();
+      var numCalls = 0;
+      object.getGlobalVerticesForTree = function() {
+        numCalls++;
+        return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
+      };
+      object.getBoundingRectangleForTree({camera: camera});
+      object.getBoundingRectangleForTree({camera: camera});
+
+      expect(numCalls).to.equal(1);
+    });
+
+    it('should return an updated rectangle if something has changed', function() {
+      var camera = new Camera();
+      var object = new CanvasObject();
+      var numCalls = 0;
+
+      var updateCache = function(cache) {
+        cache.update('globalVertices').update('treeVertices');
+        cache.update('translation').update('transformations').update('globalTransformations');
+        cache.update('boundingRectangle').update('boundingRectangleForTree');
+      };
+
+      object.getGlobalVerticesForTree = function() {
+        numCalls++;
+        updateCache(this.cache);
+        var x = this.x;
+        return [{x: x, y: 0}, {x: x + 100, y: 0}, {x: x + 100, y: 50}];
+      };
+      object.getBoundingRectangleForTree({camera: camera});
+      object.x = 100;
+      var rect = object.getBoundingRectangleForTree({camera: camera});
+
+      expect(numCalls).to.equal(2);
+      expect(rect.top).to.equal(0);
+      expect(rect.right).to.equal(200);
+      expect(rect.bottom).to.equal(50);
+      expect(rect.left).to.equal(100);
+      expect(rect.width).to.equal(100);
+      expect(rect.height).to.equal(50);
+    });
+
+  });
+
   describe('#cache', function() {
     var object = new CanvasObject();
 
@@ -1285,6 +1452,14 @@ describe('CanvasObject', function() {
 
     it('should have a cache unit for vertices for a subtree of objects', function() {
       expect(object.cache.get('treeVertices')).to.not.equal(null);
+    });
+
+    it('should have a cache unit for a bounding rectangle', function() {
+      expect(object.cache.get('boundingRectangle')).to.not.equal(null);
+    });
+
+    it('should have a cache unit for a bounding rectangle for a subtree of objects', function() {
+      expect(object.cache.get('boundingRectangleForTree')).to.not.equal(null);
     });
 
     it('should invalidate globalPoint on children when globalPoint is invalidated on this object', function() {

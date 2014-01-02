@@ -271,6 +271,14 @@ CanvasObject.prototype.initCache = function() {
     dependencies: ['globalVertices']
   });
 
+  // Bounding Rectangles
+  this.cache.define('boundingRectangle', {
+    dependencies: ['globalVertices']
+  });
+  this.cache.define('boundingRectangleForTree', {
+    dependencies: ['boundingRectangle']
+  });
+
   this.cache.on('invalidate', function(event) {
 
     // Matrices
@@ -293,6 +301,11 @@ CanvasObject.prototype.initCache = function() {
       self.children.forEach(function(child) {
         child.cache.invalidate('globalVertices');
       });
+    }
+
+    // Bounding Rectangles
+    else if (event.unit === 'boundingRectangleForTree') {
+      if (self.parent) self.parent.cache.invalidate('boundingRectangleForTree');
     }
   });
 };
@@ -626,6 +639,96 @@ CanvasObject.prototype.getGlobalVerticesForTree = function(canvas) {
   this.cache.update('treeVertices');
 
   return vertices;
+};
+
+/**
+ * Get the bounding rectangle for this object.
+ *
+ * @param {Canvas} canvas A Canvas instance. Needed to get global coordinates.
+ *
+ * @return {Object} An object with data about the bounding rectangle. The
+ *     positions are global and relative to the world. The properties of the
+ *     returned object are: top, right, bottom, left, width, height
+ */
+CanvasObject.prototype.getBoundingRectangle = function(canvas) {
+  var cache = this.cache.get('boundingRectangle');
+
+  if (cache.isValid) return cache.data;
+
+  if (!cache.data) cache.data = {};
+
+  var vertices = this.getGlobalVertices(canvas);
+
+  var minX = Infinity;
+  var maxX = -Infinity;
+  var minY = Infinity;
+  var maxY = -Infinity;
+  var vertex;
+
+  for (var i = 0, l = vertices.length; i < l; i++) {
+    vertex = vertices[i];
+
+    if (vertex.x < minX) minX = vertex.x;
+    if (vertex.x > maxX) maxX = vertex.x;
+    if (vertex.y < minY) minY = vertex.y;
+    if (vertex.y > maxY) maxY = vertex.y;
+  }
+
+  cache.data.top = minY;
+  cache.data.right = maxX;
+  cache.data.bottom = maxY;
+  cache.data.left = minX;
+  cache.data.width = maxX - minX;
+  cache.data.height = maxY - minY;
+
+  this.cache.update('boundingRectangle');
+
+  return cache.data;
+};
+
+/**
+ * Get the bounding rectangle for this object and all its children.
+ *
+ * @param {Canvas} canvas A Canvas instance. Needed to get global coordinates.
+ *
+ * @return {Object} An object with data about the bounding rectangle. The
+ *     positions are global and relative to the world. The properties of the
+ *     returned object are: top, right, bottom, left, width, height
+ */
+CanvasObject.prototype.getBoundingRectangleForTree = function(canvas) {
+  var cache = this.cache.get('boundingRectangleForTree');
+
+  if (cache.isValid) return cache.data;
+
+  if (!cache.data) cache.data = {};
+
+  var vertices = this.getGlobalVerticesForTree(canvas);
+
+  var minX = Infinity;
+  var maxX = -Infinity;
+  var minY = Infinity;
+  var maxY = -Infinity;
+  var vertex;
+
+  for (var i = 0, l = vertices.length; i < l; i++) {
+    vertex = vertices[i];
+
+    if (vertex.x < minX) minX = vertex.x;
+    if (vertex.x > maxX) maxX = vertex.x;
+    if (vertex.y < minY) minY = vertex.y;
+    if (vertex.y > maxY) maxY = vertex.y;
+  }
+
+  cache.data.top = minY;
+  cache.data.right = maxX;
+  cache.data.bottom = maxY;
+  cache.data.left = minX;
+  cache.data.width = maxX - minX;
+  cache.data.height = maxY - minY;
+
+  this.cache.update('boundingRectangleForTree');
+
+  return cache.data;
 };
 
 module.exports = CanvasObject;
