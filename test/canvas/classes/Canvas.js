@@ -39,6 +39,151 @@ describe('Canvas', function() {
 
   });
 
+  describe('#renderBoundingRectangleForObject()', function() {
+
+    it('should render the bounding rectangle for an object', function() {
+      var world = new World();
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: new Camera()
+      });
+      world.cameras.add(canvas.camera);
+
+      var object = new Rectangle({
+        x: 100, y: 100,
+        width: 100, height: 50,
+        originX: 'center',
+        originY: 'center',
+        fill: '#0f0',
+        rotation: 45
+      });
+      world.objects.add(object);
+
+      canvas.context.strokeStyle = 'red';
+      canvas.context.lineWidth = 2;
+      canvas.renderBoundingRectangleForObject(object);
+
+      var ctx = canvas.context;
+
+      expect(getColor(ctx, 46, 46)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 153, 46)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 153, 153)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 46, 153)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 100, 100)).to.equal('rgba(0, 0, 0, 0)');
+    });
+
+    it('should render the bounding rectangle for an object and its children', function() {
+      var world = new World();
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: new Camera()
+      });
+      world.cameras.add(canvas.camera);
+
+      var object1 = new Rectangle({
+        x: 10, y: 10,
+        width: 100, height: 50,
+        fill: '#0f0'
+      });
+      var object2 = new Rectangle({
+        x: 10, y: 10,
+        width: 100, height: 50,
+        fill: '#0f0'
+      });
+      world.objects.add(object1);
+      object1.children.add(object2);
+
+      canvas.context.strokeStyle = 'red';
+      canvas.context.lineWidth = 2;
+      canvas.renderBoundingRectangleForObject(object1);
+
+      var ctx = canvas.context;
+
+      expect(getColor(ctx, 9, 9)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 19, 19)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 110, 60)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 120, 70)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 120, 9)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 9, 70)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 60, 30)).to.equal('rgba(0, 0, 0, 0)');
+    });
+
+    it('should render the bounding rectangle for an object, but not its children if not specified', function() {
+      var world = new World();
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: new Camera()
+      });
+      world.cameras.add(canvas.camera);
+
+      var object1 = new Rectangle({
+        x: 10, y: 10,
+        width: 100, height: 50,
+        fill: '#0f0'
+      });
+      var object2 = new Rectangle({
+        x: 10, y: 10,
+        width: 100, height: 50,
+        fill: '#0f0'
+      });
+      world.objects.add(object1);
+      object1.children.add(object2);
+
+      canvas.boundingRectanglesWrapChildren = false;
+      canvas.context.strokeStyle = 'red';
+      canvas.context.lineWidth = 2;
+      canvas.renderBoundingRectangleForObject(object1);
+
+      var ctx = canvas.context;
+
+      expect(getColor(ctx, 9, 9)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 19, 19)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 110, 60)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 120, 70)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 120, 9)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 9, 70)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 60, 30)).to.equal('rgba(0, 0, 0, 0)');
+    });
+
+    it('should not render the bounding rectangle for an object, only its children, if specified', function() {
+      var world = new World();
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: new Camera()
+      });
+      world.cameras.add(canvas.camera);
+
+      var object1 = new Rectangle({
+        x: 10, y: 10,
+        width: 100, height: 50,
+        fill: '#0f0'
+      });
+      var object2 = new Rectangle({
+        x: 10, y: 10,
+        width: 100, height: 50,
+        fill: '#0f0'
+      });
+      world.objects.add(object1);
+      object1.children.add(object2);
+
+      canvas.boundingRectanglesWrapSelf = false;
+      canvas.context.strokeStyle = 'red';
+      canvas.context.lineWidth = 2;
+      canvas.renderBoundingRectangleForObject(object1);
+
+      var ctx = canvas.context;
+
+      expect(getColor(ctx, 9, 9)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 19, 19)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 110, 60)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 120, 70)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 120, 9)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 9, 70)).to.equal('rgba(255, 0, 0, 255)');
+      expect(getColor(ctx, 60, 30)).to.equal('rgba(0, 0, 0, 0)');
+    });
+
+  });
+
   describe('#render()', function() {
 
     it('should first clear the canvas', function(done) {
@@ -107,6 +252,40 @@ describe('Canvas', function() {
       };
 
       canvas.render();
+    });
+
+    it('should render the bounding rectangles for all objects if specified', function() {
+      var world = new World();
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: new Camera({width: 300, height: 300})
+      });
+      world.cameras.add(canvas.camera);
+
+      var object = new Rectangle({
+        x: 100, y: 100,
+        width: 100, height: 50,
+        originX: 'center',
+        originY: 'center',
+        fill: '#0f0',
+        rotation: 45
+      });
+      world.objects.add(object);
+
+      canvas.boundingRectanglesEnabled = true;
+      canvas.boundingRectanglesColor = '#00f';
+      canvas.boundingRectanglesThickness = 10;
+      canvas.render();
+
+      var ctx = canvas.context;
+
+      expect(getColor(ctx, 37, 37)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 46, 46)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 48, 48)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 151, 151)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 153, 153)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 162, 162)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 100, 100)).to.equal('rgba(0, 255, 0, 255)');
     });
 
   });

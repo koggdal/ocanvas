@@ -61,6 +61,26 @@ describe('Canvas', function() {
       expect(canvas.maxRenderDepth).to.equal(5);
     });
 
+    it('should set the default value of property `boundingRectanglesEnabled` to false', function() {
+      expect(canvas.boundingRectanglesEnabled).to.equal(false);
+    });
+
+    it('should set the default value of property `boundingRectanglesWrapChildren` to true', function() {
+      expect(canvas.boundingRectanglesWrapChildren).to.equal(true);
+    });
+
+    it('should set the default value of property `boundingRectanglesWrapSelf` to true', function() {
+      expect(canvas.boundingRectanglesWrapSelf).to.equal(true);
+    });
+
+    it('should set the default value of property `boundingRectanglesColor` to \'red\'', function() {
+      expect(canvas.boundingRectanglesColor).to.equal('red');
+    });
+
+    it('should set the default value of property `boundingRectanglesThickness` to 2', function() {
+      expect(canvas.boundingRectanglesThickness).to.equal(2);
+    });
+
   });
 
   describe('.objectProperties', function() {

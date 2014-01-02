@@ -47,6 +47,22 @@ var jsonHelpers = require('../utils/json');
  * @property {number} maxRenderDepth The maximum number of times the world
  *     will be rendered recursively (a shape with a camera fill will trigger
  *     the world to be rendered recursively one step).
+ * @property {boolean} boundingRectanglesEnabled Whether the render method
+ *     should render bounding rectangles for all objects as well. Default
+ *     is false.
+ * @property {boolean} boundingRectanglesWrapChildren Whether the bounding
+ *     rectangles should wrap the children of the objects. Default is true.
+ * @property {boolean} boundingRectanglesWrapSelf Whether the bounding
+ *     rectangles should wrap the object itself. If both this and the setting
+ *     for children is set to true, it will render two bounding boxes—one for
+ *     the object itself and one that wraps all its children. If the setting
+ *     for children is set to false and this is true, it will render only a
+ *     rectangle around the object itself. If both are false, it won't render
+ *     any bounding rectangles. Default is true.
+ * @property {string} boundingRectanglesColor The color to use for the bounding
+ *     rectangles. Default is 'red'.
+ * @property {number} boundingRectanglesThickness The thickness in pixels for
+ *     the bounding rectangle stroke. Default is 2.
  *
  * @constructor
  *
@@ -62,6 +78,11 @@ function Canvas(opt_properties) {
   this.viewMode = 'fit';
   this.renderDepth = 0;
   this.maxRenderDepth = 5;
+  this.boundingRectanglesEnabled = false;
+  this.boundingRectanglesWrapChildren = true;
+  this.boundingRectanglesWrapSelf = true;
+  this.boundingRectanglesColor = 'red';
+  this.boundingRectanglesThickness = 2;
 
   defineProperties(this, {
     width: {
@@ -230,6 +251,27 @@ Canvas.prototype.render = function() {
   camera.render(this);
 
   context.restore();
+
+  if (camera.world) {
+    var bRectEnabled = this.boundingRectanglesEnabled;
+    var bRectThickness = this.boundingRectanglesThickness;
+
+    if (bRectEnabled && bRectThickness > 0) {
+      context.save();
+      context.translate(this.width / 2, this.height / 2);
+      context.scale(viewModeValues.scaleX, viewModeValues.scaleY);
+      context.translate(-camera.x, -camera.y);
+      context.strokeStyle = this.boundingRectanglesColor;
+      context.lineWidth = this.boundingRectanglesThickness;
+
+      var objects = camera.world.objects;
+      for (var i = 0, l = objects.length; i < l; i++) {
+        this.renderBoundingRectangleForObject(objects.get(i));
+      }
+
+      context.restore();
+    }
+  }
 };
 
 /**
@@ -277,6 +319,49 @@ Canvas.prototype.transformContextToObject = function(object, currentObject) {
     context.translate(x, y);
     context.rotate(obj.rotation * Math.PI / 180);
     context.scale(obj.scalingX, obj.scalingY);
+  }
+};
+
+/**
+ * Render the bounding rectangle for an object, based on the settings set on
+ * this canvas instance.
+ *
+ * @param {CanvasObject} object The canvas object to render the rectangle for.
+ */
+Canvas.prototype.renderBoundingRectangleForObject = function(object) {
+  var rect1, rect2;
+
+  if (this.boundingRectanglesWrapChildren) {
+    rect1 = object.getBoundingRectangleForTree(this);
+    if (this.boundingRectanglesWrapSelf) {
+      rect2 = object.getBoundingRectangle(this);
+    }
+  } else if (this.boundingRectanglesWrapSelf) {
+    rect1 = object.getBoundingRectangle(this);
+  }
+
+  var thickness = this.boundingRectanglesThickness;
+
+  if (rect1) {
+    var left1 = rect1.left - thickness / 2;
+    var top1 = rect1.top - thickness / 2;
+    var width1 = rect1.width + thickness;
+    var height1 = rect1.height + thickness;
+    this.context.strokeRect(left1, top1, width1, height1);
+  }
+
+  if (rect2) {
+    var left2 = rect2.left - thickness / 2;
+    var top2 = rect2.top - thickness / 2;
+    var width2 = rect2.width + thickness;
+    var height2 = rect2.height + thickness;
+    this.context.strokeRect(left2, top2, width2, height2);
+  }
+
+  if (object.children.length > 0) {
+    for (var i = 0, l = object.children.length; i < l; i++) {
+      this.renderBoundingRectangleForObject(object.children.get(i));
+    }
   }
 };
 
