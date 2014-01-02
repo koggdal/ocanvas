@@ -271,6 +271,17 @@ Camera.prototype.initCache = function() {
   this.cache.define('globalVertices', {
     dependencies: ['vertices', 'transformations']
   });
+
+  this.cache.on('invalidate', function(event) {
+    if (event.unit === 'transformations') {
+      if (self.world) {
+        var objects = self.world.objects;
+        for (var i = 0, l = objects.length; i < l; i++) {
+          objects.get(i).cache.invalidate('globalTransformations');
+        }
+      }
+    }
+  });
 };
 
 /**

@@ -1,5 +1,7 @@
 var expect = require('expect.js');
 var Camera = require('../../../classes/Camera');
+var World = require('../../../classes/World');
+var CanvasObject = require('../../../shapes/base/CanvasObject');
 var Matrix = require('../../../classes/Matrix');
 var Cache = require('../../../classes/Cache');
 
@@ -643,6 +645,23 @@ describe('Camera', function() {
 
     it('should have a cache unit for global vertices', function() {
       expect(camera.cache.get('globalVertices')).to.not.equal(null);
+    });
+
+    it('should invalidate globalTransformations on objects in the connected world when camera changes', function() {
+      var camera = new Camera();
+      var world = new World();
+      var object = new CanvasObject();
+
+      world.cameras.add(camera);
+      world.objects.add(object);
+
+      object.getGlobalTransformationMatrix({camera: camera});
+
+      expect(object.cache.test('globalTransformations')).to.equal(true);
+
+      camera.rotation = 45;
+
+      expect(object.cache.test('globalTransformations')).to.equal(false);
     });
 
   });
