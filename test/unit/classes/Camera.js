@@ -1,6 +1,7 @@
 var expect = require('expect.js');
 var Camera = require('../../../classes/Camera');
 var Matrix = require('../../../classes/Matrix');
+var Cache = require('../../../classes/Cache');
 
 describe('Camera', function() {
 
@@ -62,12 +63,8 @@ describe('Camera', function() {
       expect(camera4.height).to.equal(150);
     });
 
-    it('should set the default value of property `matrixCache` to an object', function() {
-      expect(typeof camera.matrixCache).to.equal('object');
-    });
-
-    it('should set the default value of property `vertexCache` to an object', function() {
-      expect(typeof camera.vertexCache).to.equal('object');
+    it('should set the default value of property `cache` to a Cache instance', function() {
+      expect(camera.cache instanceof Cache).to.equal(true);
     });
 
   });
@@ -352,7 +349,7 @@ describe('Camera', function() {
       var camera = new Camera({x: 10, y: 20});
       camera.getTransformationMatrix();
 
-      expect(camera.matrixCache.translation.matrixReverse.toArray()).to.eql([1, 0, -10, 0, 1, -20, 0, 0, 1]);
+      expect(camera.cache.get('translation').matrixReverse.toArray()).to.eql([1, 0, -10, 0, 1, -20, 0, 0, 1]);
     });
 
   });
@@ -371,7 +368,7 @@ describe('Camera', function() {
       var point = camera.getGlobalPoint(10, 10);
       expect(point).to.eql({x: 160, y: 85});
 
-      var globalPointMatrix = camera.matrixCache.globalPoint.matrix;
+      var globalPointMatrix = camera.cache.get('globalPoint').matrix;
       var setData = globalPointMatrix.setData;
       var setDataCalled = false;
       globalPointMatrix.setData = function() {
@@ -613,111 +610,39 @@ describe('Camera', function() {
 
   });
 
-  describe('#matrixCache', function() {
+  describe('#cache', function() {
+    var camera = new Camera();
 
-    it('should have six objects for matrices (translation, rotation, scaling, combined, localPoint, globalPoint)', function() {
-      var camera = new Camera();
-
-      expect(camera.matrixCache.combined).to.eql({valid: false, matrix: null});
-      expect(camera.matrixCache.translation).to.eql({valid: false, matrix: null, matrixReverse: null});
-      expect(camera.matrixCache.rotation).to.eql({valid: false, matrix: null});
-      expect(camera.matrixCache.scaling).to.eql({valid: false, matrix: null});
-      expect(camera.matrixCache.localPoint).to.eql({valid: false, matrix: null});
-      expect(camera.matrixCache.globalPoint).to.eql({valid: false, matrix: null});
+    it('should have a cache unit for translation', function() {
+      expect(camera.cache.get('translation')).to.not.equal(null);
     });
 
-    it('should store Matrix instances after first calculation', function() {
-      var camera = new Camera();
-      camera.getTransformationMatrix();
-      camera.getGlobalPoint(2, 2);
-
-      var cache = camera.matrixCache;
-
-      expect(cache.combined.matrix instanceof Matrix).to.equal(true);
-      expect(cache.translation.matrix instanceof Matrix).to.equal(true);
-      expect(cache.translation.matrixReverse instanceof Matrix).to.equal(true);
-      expect(cache.rotation.matrix instanceof Matrix).to.equal(true);
-      expect(cache.scaling.matrix instanceof Matrix).to.equal(true);
-      expect(cache.localPoint.matrix instanceof Matrix).to.equal(true);
-      expect(cache.globalPoint.matrix instanceof Matrix).to.equal(true);
+    it('should have a cache unit for rotation', function() {
+      expect(camera.cache.get('rotation')).to.not.equal(null);
     });
 
-    it('should have an invalidate method to invalidate all matrices', function() {
-      var camera = new Camera();
-      camera.getTransformationMatrix();
-      camera.getGlobalPoint(2, 2);
-
-      var cache = camera.matrixCache;
-
-      expect(cache.combined.valid).to.equal(true);
-      expect(cache.translation.valid).to.equal(true);
-      expect(cache.rotation.valid).to.equal(true);
-      expect(cache.scaling.valid).to.equal(true);
-      expect(cache.localPoint.valid).to.equal(true);
-      expect(cache.globalPoint.valid).to.equal(true);
-
-      cache.invalidate();
-
-      expect(cache.combined.valid).to.equal(false);
-      expect(cache.translation.valid).to.equal(false);
-      expect(cache.rotation.valid).to.equal(false);
-      expect(cache.scaling.valid).to.equal(false);
-      expect(cache.localPoint.valid).to.equal(false);
-      expect(cache.globalPoint.valid).to.equal(false);
+    it('should have a cache unit for scaling', function() {
+      expect(camera.cache.get('scaling')).to.not.equal(null);
     });
 
-    it('should have an invalidate method to invalidate one type of matrix (plus the combined)', function() {
-      var camera = new Camera();
-      camera.getTransformationMatrix();
-      camera.getGlobalPoint(2, 2);
-
-      var cache = camera.matrixCache;
-
-      expect(cache.combined.valid).to.equal(true);
-      expect(cache.translation.valid).to.equal(true);
-      expect(cache.rotation.valid).to.equal(true);
-      expect(cache.scaling.valid).to.equal(true);
-      expect(cache.localPoint.valid).to.equal(true);
-      expect(cache.globalPoint.valid).to.equal(true);
-
-      cache.invalidate('translation');
-
-      expect(cache.combined.valid).to.equal(false);
-      expect(cache.translation.valid).to.equal(false);
-      expect(cache.rotation.valid).to.equal(true);
-      expect(cache.scaling.valid).to.equal(true);
-      expect(cache.localPoint.valid).to.equal(false);
-      expect(cache.globalPoint.valid).to.equal(false);
+    it('should have a cache unit for combined transformations', function() {
+      expect(camera.cache.get('transformations')).to.not.equal(null);
     });
 
-  });
-
-  describe('#vertexCache', function() {
-
-    it('should have one object for vertices (local)', function() {
-      var camera = new Camera();
-
-      expect(camera.vertexCache.local).to.eql({valid: false, vertices: null});
+    it('should have a cache unit for a local point', function() {
+      expect(camera.cache.get('point')).to.not.equal(null);
     });
 
-    it('should have an invalidate method to invalidate all vertices', function() {
-      var camera = new Camera();
-      var cache = camera.vertexCache;
-      cache.local.valid = true;
-
-      cache.invalidate();
-
-      expect(cache.local.valid).to.equal(false);
+    it('should have a cache unit for a global point', function() {
+      expect(camera.cache.get('globalPoint')).to.not.equal(null);
     });
 
-    it('should have an invalidate method to invalidate one type of vertices', function() {
-      var camera = new Camera();
-      var cache = camera.vertexCache;
-      cache.local.valid = true;
+    it('should have a cache unit for local vertices', function() {
+      expect(camera.cache.get('vertices')).to.not.equal(null);
+    });
 
-      cache.invalidate('local');
-
-      expect(cache.local.valid).to.equal(false);
+    it('should have a cache unit for global vertices', function() {
+      expect(camera.cache.get('globalVertices')).to.not.equal(null);
     });
 
   });

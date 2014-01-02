@@ -7,6 +7,7 @@ var Collection = require('../../classes/Collection');
 var defineProperties = require('../../utils/defineProperties');
 var jsonHelpers = require('../../utils/json');
 var Matrix = require('../../classes/Matrix');
+var Cache = require('../../classes/Cache');
 
 /**
  * @classdesc The CanvasObject class is a base class that different objects
@@ -44,20 +45,8 @@ var Matrix = require('../../classes/Matrix');
  *     CanvasRenderingContext2D instance that belongs to the canvas element).
  *     If a canvas object is provided, it will call the renderPath method on
  *     the object, which means that method must be implemented.
- * @property {Object} matrixCache Object with matrix data for this object.
- *     It contains seven properties: `translation`, `rotation`, `scaling`,
- *     `combined`, `global`, `localPoint` and `globalPoint`, where each of them
- *     is an object with the properties `valid` (boolean) and `matrix` (Matrix
- *     instance or null). The matrixCache object also has a function
- *     `invalidate` which takes a type as argument (like
- *     object.matrixCache.invalidate('translation'); ). If no argument is
- *     passed, all types of matrices will be invalidated.
- * @property {Object} vertexCache Object with vertex data for this object.
- *     It contains two properties: `local` and `global`, where each of them is
- *     an object with the properties `valid` (boolean) and `vertices` (array or
- *     null). The vertexCache object also has a function `invalidate` which
- *     takes a type as argument (like object.vertexCache.invalidate('local');
- *     ). If no argument is passed, all types of vertices will be invalidated.
+ * @property {Cache} cache A Cache instance storing cached matrices and
+ *     vertices to speed up calculations.
  *
  * @constructor
  *
@@ -74,73 +63,12 @@ function CanvasObject(opt_properties) {
   var self = this;
 
   this.constructorName = 'CanvasObject';
-  this.matrixCache = {
-    translation: {valid: false, matrix: null},
-    rotation: {valid: false, matrix: null},
-    scaling: {valid: false, matrix: null},
-    combined: {valid: false, matrix: null},
-    global: {valid: false, matrix: null},
-    localPoint: {valid: false, matrix: null},
-    globalPoint: {valid: false, matrix: null},
-
-    invalidate: function(type) {
-      if (!type) {
-        this.translation.valid = false;
-        this.rotation.valid = false;
-        this.scaling.valid = false;
-        this.localPoint.valid = false;
-        this.globalPoint.valid = false;
-      } else if (this[type]) {
-        this[type].valid = false;
-      }
-
-      if (type !== 'combined') {
-        this.localPoint.valid = false;
-        this.globalPoint.valid = false;
-      }
-
-      if (type !== 'global' && type !== 'localPoint' && type !== 'globalPoint') {
-        this.combined.valid = false;
-        this.global.valid = false;
-      }
-
-      var children = self.children;
-      for (var i = 0, l = children.length; i < l; i++) {
-        children.get(i).matrixCache.invalidate('global');
-      }
-    }
-  };
-  this.vertexCache = {
-    local: {valid: false, vertices: null},
-    global: {valid: false, vertices: null},
-    tree: {valid: false, vertices: null},
-
-    invalidate: function(type) {
-      if (!type) {
-        this.local.valid = false;
-        this.global.valid = false;
-        this.tree.valid = false;
-      } else if (this[type]) {
-        this[type].valid = false;
-      }
-
-      if (!type || type === 'global') {
-        this.tree.valid = false;
-        var children = self.children;
-        for (var i = 0, l = children.length; i < l; i++) {
-          children.get(i).vertexCache.invalidate('global');
-        }
-      }
-      if ((!type || type === 'tree') && self.parent) {
-        self.parent.vertexCache.invalidate('tree');
-      }
-    }
-  };
-
   this.fill = '';
   this.opacity = 1;
 
   defineProperties(this, this.propertyDescriptors, {enumerable: true});
+
+  this.initCache();
 
   this.children = new Collection();
 
@@ -234,55 +162,35 @@ CanvasObject.prototype.toJSON = function(opt_space) {
 CanvasObject.prototype.propertyDescriptors = {
   x: {
     value: 0,
-    set: function() {
-      this.matrixCache.invalidate('translation');
-      this.vertexCache.invalidate('global');
-      this.vertexCache.invalidate('tree');
-    }
+    set: function() { this.cache.invalidate('translation'); }
   },
   y: {
     value: 0,
-    set: function() {
-      this.matrixCache.invalidate('translation');
-      this.vertexCache.invalidate('global');
-      this.vertexCache.invalidate('tree');
-    }
+    set: function() { this.cache.invalidate('translation'); }
   },
   rotation: {
     value: 0,
-    set: function() {
-      this.matrixCache.invalidate('rotation');
-      this.vertexCache.invalidate('global');
-      this.vertexCache.invalidate('tree');
-    }
+    set: function() { this.cache.invalidate('rotation'); }
   },
   scalingX: {
     value: 1,
-    set: function() {
-      this.matrixCache.invalidate('scaling');
-      this.vertexCache.invalidate('global');
-      this.vertexCache.invalidate('tree');
-    }
+    set: function() { this.cache.invalidate('scaling'); }
   },
   scalingY: {
     value: 1,
-    set: function() {
-      this.matrixCache.invalidate('scaling');
-      this.vertexCache.invalidate('global');
-      this.vertexCache.invalidate('tree');
-    }
+    set: function() { this.cache.invalidate('scaling'); }
   },
   originX: {
     value: 0,
-    set: function() { this.vertexCache.invalidate(); }
+    set: function() { this.cache.invalidate('vertices'); }
   },
   originY: {
     value: 0,
-    set: function() { this.vertexCache.invalidate(); }
+    set: function() { this.cache.invalidate('vertices'); }
   },
   stroke: {
     value: '',
-    set: function() { this.vertexCache.invalidate(); }
+    set: function() { this.cache.invalidate('vertices'); }
   },
 
   clippingMask: {
@@ -329,6 +237,64 @@ CanvasObject.prototype.setProperties = function(properties) {
   for (var prop in properties) {
     this[prop] = properties[prop];
   }
+};
+
+/**
+ * Initialize the cache (used for matrices, vertices etc).
+ * This should only be called once, which happens in the constructor. Calling
+ * it more times will create a new cache that replaces the old one.
+ */
+CanvasObject.prototype.initCache = function() {
+  var self = this;
+
+  this.cache = new Cache();
+
+  // Matrices
+  this.cache.define(['translation', 'rotation', 'scaling']);
+  this.cache.define('transformations', {
+    dependencies: ['translation', 'rotation', 'scaling']
+  });
+  this.cache.define('globalTransformations', {
+    dependencies: ['transformations']
+  });
+  this.cache.define('point');
+  this.cache.define('globalPoint', {
+    dependencies: ['point', 'translation', 'rotation', 'scaling']
+  });
+
+  // Vertices
+  this.cache.define('vertices');
+  this.cache.define('globalVertices', {
+    dependencies: ['vertices', 'globalTransformations']
+  });
+  this.cache.define('treeVertices', {
+    dependencies: ['globalVertices']
+  });
+
+  this.cache.on('invalidate', function(event) {
+
+    // Matrices
+    if (event.unit === 'globalTransformations') {
+      self.children.forEach(function(child) {
+        child.cache.invalidate('globalTransformations');
+      });
+    }
+    else if (event.unit === 'globalPoint') {
+      self.children.forEach(function(child) {
+        child.cache.invalidate('globalPoint');
+      });
+    }
+
+    // Vertices
+    else if (event.unit === 'treeVertices') {
+      if (self.parent) self.parent.cache.invalidate('treeVertices');
+    }
+    else if (event.unit === 'globalVertices') {
+      self.children.forEach(function(child) {
+        child.cache.invalidate('globalVertices');
+      });
+    }
+  });
 };
 
 /**
@@ -430,52 +396,57 @@ CanvasObject.prototype.renderTree = function(canvas) {
  * @return {Matrix} A Matrix instance representing the transformations.
  */
 CanvasObject.prototype.getTransformationMatrix = function() {
-  var cache = this.matrixCache;
+  var cache = this.cache;
+  var transformations = cache.get('transformations');
 
-  if (cache.combined.valid) return cache.combined.matrix;
+  if (transformations.isValid) return transformations.matrix;
 
-  if (!cache.combined.matrix) cache.combined.matrix = new Matrix(3, 3, false);
-  if (!cache.translation.matrix) cache.translation.matrix = new Matrix(3, 3, false);
-  if (!cache.rotation.matrix) cache.rotation.matrix = new Matrix(3, 3, false);
-  if (!cache.scaling.matrix) cache.scaling.matrix = new Matrix(3, 3, false);
+  var translation = cache.get('translation');
+  var rotation = cache.get('rotation');
+  var scaling = cache.get('scaling');
 
-  if (!cache.translation.valid) {
-    cache.translation.matrix.setData(
+  if (!transformations.matrix) transformations.matrix = new Matrix(3, 3, false);
+  if (!translation.matrix) translation.matrix = new Matrix(3, 3, false);
+  if (!rotation.matrix) rotation.matrix = new Matrix(3, 3, false);
+  if (!scaling.matrix) scaling.matrix = new Matrix(3, 3, false);
+
+  if (!translation.isValid) {
+    translation.matrix.setData(
       1, 0, this.x,
       0, 1, this.y,
       0, 0, 1
     );
-    cache.translation.valid = true;
+    cache.update('translation');
   }
 
-  if (!cache.rotation.valid) {
-    var rotation = this.rotation * Math.PI / 180;
-    cache.rotation.matrix.setData(
-      Math.cos(rotation), -Math.sin(rotation), 0,
-      Math.sin(rotation), Math.cos(rotation), 0,
+  if (!rotation.isValid) {
+    var rotationValue = this.rotation * Math.PI / 180;
+    rotation.matrix.setData(
+      Math.cos(rotationValue), -Math.sin(rotationValue), 0,
+      Math.sin(rotationValue), Math.cos(rotationValue), 0,
       0, 0, 1
     );
-    cache.rotation.valid = true;
+    cache.update('rotation');
   }
 
-  if (!cache.scaling.valid) {
-    cache.scaling.matrix.setData(
+  if (!scaling.isValid) {
+    scaling.matrix.setData(
       this.scalingX, 0, 0,
       0, this.scalingY, 0,
       0, 0, 1
     );
-    cache.scaling.valid = true;
+    cache.update('scaling');
   }
 
-  cache.combined.matrix.setIdentityData();
-  cache.combined.matrix.multiply(
-    cache.translation.matrix,
-    cache.rotation.matrix,
-    cache.scaling.matrix
+  transformations.matrix.setIdentityData();
+  transformations.matrix.multiply(
+    translation.matrix,
+    rotation.matrix,
+    scaling.matrix
   );
-  cache.combined.valid = true;
+  cache.update('transformations');
 
-  return cache.combined.matrix;
+  return transformations.matrix;
 };
 
 /**
@@ -489,11 +460,11 @@ CanvasObject.prototype.getTransformationMatrix = function() {
  * @return {Matrix} A Matrix instance representing the transformations.
  */
 CanvasObject.prototype.getGlobalTransformationMatrix = function(canvas) {
-  var globalCache = this.matrixCache.global;
+  var globalTransformations = this.cache.get('globalTransformations');
 
-  if (globalCache.valid) return globalCache.matrix;
+  if (globalTransformations.isValid) return globalTransformations.matrix;
 
-  if (!globalCache.matrix) globalCache.matrix = new Matrix(3, 3, false);
+  if (!globalTransformations.matrix) globalTransformations.matrix = new Matrix(3, 3, false);
 
   if (!canvas || !canvas.camera) {
     var message = 'The provided Canvas instance does not have a camera.';
@@ -513,7 +484,7 @@ CanvasObject.prototype.getGlobalTransformationMatrix = function(canvas) {
     matrices.push(this.parent.getGlobalTransformationMatrix(canvas));
   } else {
     matrices.push(canvas.camera.getTransformationMatrix());
-    matrices.push(canvas.camera.matrixCache.translation.matrixReverse);
+    matrices.push(canvas.camera.cache.get('translation').matrixReverse);
   }
 
   // Also add the local matrix for this object
@@ -521,11 +492,11 @@ CanvasObject.prototype.getGlobalTransformationMatrix = function(canvas) {
 
   // Multiplying the global matrix for the parent chain with the local matrix
   // for this object will result in a global matrix for this object.
-  globalCache.matrix.setIdentityData();
-  globalCache.matrix.multiply.apply(globalCache.matrix, matrices);
-  globalCache.valid = true;
+  globalTransformations.matrix.setIdentityData();
+  globalTransformations.matrix.multiply.apply(globalTransformations.matrix, matrices);
+  this.cache.update('globalTransformations');
 
-  return globalCache.matrix;
+  return globalTransformations.matrix;
 };
 
 /*
@@ -543,41 +514,42 @@ CanvasObject.prototype.getGlobalTransformationMatrix = function(canvas) {
  * @return {Object} An object with properties x and y.
  */
 CanvasObject.prototype.getGlobalPoint = function(x, y, canvas) {
-  var cache = this.matrixCache;
+  var cache = this.cache;
+  var localPoint = cache.get('point');
+  var globalPoint = cache.get('globalPoint');
   var globalPointMatrix;
 
-  if (cache.localPoint.x !== x || cache.localPoint.y !== y) {
-    cache.invalidate('localPoint');
-    cache.invalidate('globalPoint');
+  if (localPoint.x !== x || localPoint.y !== y) {
+    cache.invalidate('point');
   }
 
-  if (!cache.globalPoint.valid) {
+  if (!globalPoint.isValid) {
 
-    if (!cache.localPoint.matrix) cache.localPoint.matrix = new Matrix(3, 3, false);
-    if (!cache.globalPoint.matrix) cache.globalPoint.matrix = new Matrix(3, 3, false);
+    if (!localPoint.matrix) localPoint.matrix = new Matrix(3, 3, false);
+    if (!globalPoint.matrix) globalPoint.matrix = new Matrix(3, 3, false);
 
-    if (!cache.localPoint.valid) {
-      cache.localPoint.matrix.setData(
+    if (!localPoint.isValid) {
+      localPoint.matrix.setData(
         1, 0, x,
         0, 1, y,
         0, 0, 1
       );
-      cache.localPoint.x = x;
-      cache.localPoint.y = y;
-      cache.localPoint.valid = true;
+      localPoint.x = x;
+      localPoint.y = y;
+      cache.update('point');
     }
 
     // Get a matrix that represents the local point in global space, after it's
     // been transformed by all the objects in the parent chain (including the
     // camera).
-    globalPointMatrix = cache.globalPoint.matrix;
+    globalPointMatrix = globalPoint.matrix;
     globalPointMatrix.setIdentityData();
     globalPointMatrix.multiply(this.getGlobalTransformationMatrix(canvas),
-        cache.localPoint.matrix);
-    cache.globalPoint.valid = true;
+        localPoint.matrix);
+    cache.update('globalPoint');
 
   } else {
-    globalPointMatrix = cache.globalPoint.matrix;
+    globalPointMatrix = globalPoint.matrix;
   }
 
   // Extract the 2D coordinate from the matrix and return it
@@ -637,9 +609,9 @@ CanvasObject.prototype.getGlobalVertices = function(canvas) {
  *     properties representing the coordinates.
  */
 CanvasObject.prototype.getGlobalVerticesForTree = function(canvas) {
-  var cache = this.vertexCache.tree;
+  var cache = this.cache.get('treeVertices');
 
-  if (cache.valid) return cache.vertices;
+  if (cache.isValid) return cache.vertices;
 
   var vertices = cache.vertices || [];
   vertices.length = 0;
@@ -651,7 +623,7 @@ CanvasObject.prototype.getGlobalVerticesForTree = function(canvas) {
   }
 
   cache.vertices = vertices;
-  cache.valid = true;
+  this.cache.update('treeVertices');
 
   return vertices;
 };

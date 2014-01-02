@@ -2,6 +2,7 @@ var expect = require('expect.js');
 var CanvasObject = require('../../../../shapes/base/CanvasObject');
 var Camera = require('../../../../classes/Camera');
 var Collection = require('../../../../classes/Collection');
+var Cache = require('../../../../classes/Cache');
 var Matrix = require('../../../../classes/Matrix');
 var jsonHelpers = require('../../../../utils/json');
 
@@ -59,12 +60,8 @@ describe('CanvasObject', function() {
       expect(object.clippingMask).to.equal(null);
     });
 
-    it('should set the default value of property `matrixCache` to an object', function() {
-      expect(typeof object.matrixCache).to.equal('object');
-    });
-
-    it('should set the default value of property `vertexCache` to an object', function() {
-      expect(typeof object.vertexCache).to.equal('object');
+    it('should set the default value of property `cache` to a Cache instance', function() {
+      expect(object.cache instanceof Cache).to.equal(true);
     });
 
     it('should set the default value of property `children` to a new collection', function() {
@@ -770,7 +767,7 @@ describe('CanvasObject', function() {
       var point = object2.getGlobalPoint(2, 2, {camera: camera});
       expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
 
-      var globalPointMatrix = object2.matrixCache.globalPoint.matrix;
+      var globalPointMatrix = object2.cache.get('globalPoint').matrix;
       var setData = globalPointMatrix.setData;
       var setDataCalled = false;
       globalPointMatrix.setData = function() {
@@ -1205,140 +1202,47 @@ describe('CanvasObject', function() {
 
   });
 
-  describe('#matrixCache', function() {
+  describe('#cache', function() {
+    var object = new CanvasObject();
 
-    it('should have seven objects for matrices (translation, rotation, scaling, combined, global, localPoint, globalPoint)', function() {
-      var object = new CanvasObject();
-
-      ['translation', 'rotation', 'scaling', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
-        expect(object.matrixCache[property]).to.eql({valid: false, matrix: null});
-      });
+    it('should have a cache unit for translation', function() {
+      expect(object.cache.get('translation')).to.not.equal(null);
     });
 
-    it('should store Matrix instances after first calculation', function() {
-      var camera = new Camera();
-      var object = new CanvasObject();
-      object.getGlobalTransformationMatrix({camera: camera});
-      object.getGlobalPoint(2, 2, {camera: camera});
-
-      var cache = object.matrixCache;
-
-      ['translation', 'rotation', 'scaling', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
-        expect(cache[property].matrix instanceof Matrix).to.equal(true);
-      });
+    it('should have a cache unit for rotation', function() {
+      expect(object.cache.get('rotation')).to.not.equal(null);
     });
 
-    it('should have an invalidate method to invalidate all matrices', function() {
-      var camera = new Camera();
-      var object = new CanvasObject();
-      object.getGlobalTransformationMatrix({camera: camera});
-      object.getGlobalPoint(2, 2, {camera: camera});
-
-      var cache = object.matrixCache;
-
-      ['translation', 'rotation', 'scaling', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
-        expect(cache[property].valid).to.equal(true);
-      });
-
-      cache.invalidate();
-
-      ['translation', 'rotation', 'scaling', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
-        expect(cache[property].valid).to.equal(false);
-      });
+    it('should have a cache unit for scaling', function() {
+      expect(object.cache.get('scaling')).to.not.equal(null);
     });
 
-    it('should have an invalidate method to invalidate one type of matrix (plus the combined)', function() {
-      var camera = new Camera();
-      var object = new CanvasObject();
-      object.getGlobalTransformationMatrix({camera: camera});
-      object.getGlobalPoint(2, 2, {camera: camera});
-
-      var cache = object.matrixCache;
-
-      ['translation', 'rotation', 'scaling', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
-        expect(cache[property].valid).to.equal(true);
-      });
-
-      cache.invalidate('translation');
-
-      ['rotation', 'scaling'].forEach(function(property) {
-        expect(cache[property].valid).to.equal(true);
-      });
-      ['translation', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
-        expect(cache[property].valid).to.equal(false);
-      });
+    it('should have a cache unit for combined transformations', function() {
+      expect(object.cache.get('transformations')).to.not.equal(null);
     });
 
-    it('should have an invalidate method that invalidates all child objects as well', function() {
-      var camera = new Camera();
-      var object1 = new CanvasObject();
-      var object2 = new CanvasObject();
-      object1.children.add(object2);
-      object2.getGlobalTransformationMatrix({camera: camera});
-      object1.getGlobalPoint(2, 2, {camera: camera});
-      object2.getGlobalPoint(2, 2, {camera: camera});
-
-      var cache1 = object1.matrixCache;
-      var cache2 = object2.matrixCache;
-
-      ['translation', 'rotation', 'scaling', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
-        expect(cache1[property].valid).to.equal(true);
-      });
-
-      ['translation', 'rotation', 'scaling', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
-        expect(cache2[property].valid).to.equal(true);
-      });
-
-      cache1.invalidate('translation');
-
-      ['rotation', 'scaling'].forEach(function(property) {
-        expect(cache1[property].valid).to.equal(true);
-      });
-      ['translation', 'combined', 'global', 'localPoint', 'globalPoint'].forEach(function(property) {
-        expect(cache1[property].valid).to.equal(false);
-      });
-
-      ['translation', 'rotation', 'scaling', 'combined'].forEach(function(property) {
-        expect(cache2[property].valid).to.equal(true);
-      });
-      ['global', 'localPoint', 'globalPoint'].forEach(function(property) {
-        expect(cache2[property].valid).to.equal(false);
-      });
+    it('should have a cache unit for combined transformations in global space', function() {
+      expect(object.cache.get('globalTransformations')).to.not.equal(null);
     });
 
-  });
-
-  describe('#vertexCache', function() {
-
-    it('should have two objects for vertices (local, global)', function() {
-      var object = new CanvasObject();
-
-      expect(object.vertexCache.local).to.eql({valid: false, vertices: null});
-      expect(object.vertexCache.global).to.eql({valid: false, vertices: null});
+    it('should have a cache unit for a local point', function() {
+      expect(object.cache.get('point')).to.not.equal(null);
     });
 
-    it('should have an invalidate method to invalidate all vertices', function() {
-      var object = new CanvasObject();
-      var cache = object.vertexCache;
-      cache.local.valid = true;
-      cache.global.valid = true;
-
-      cache.invalidate();
-
-      expect(cache.local.valid).to.equal(false);
-      expect(cache.global.valid).to.equal(false);
+    it('should have a cache unit for a global point', function() {
+      expect(object.cache.get('globalPoint')).to.not.equal(null);
     });
 
-    it('should have an invalidate method to invalidate one type of vertices', function() {
-      var object = new CanvasObject();
-      var cache = object.vertexCache;
-      cache.local.valid = true;
-      cache.global.valid = true;
+    it('should have a cache unit for local vertices', function() {
+      expect(object.cache.get('vertices')).to.not.equal(null);
+    });
 
-      cache.invalidate('local');
+    it('should have a cache unit for global vertices', function() {
+      expect(object.cache.get('globalVertices')).to.not.equal(null);
+    });
 
-      expect(cache.local.valid).to.equal(false);
-      expect(cache.global.valid).to.equal(true);
+    it('should have a cache unit for vertices for a subtree of objects', function() {
+      expect(object.cache.get('treeVertices')).to.not.equal(null);
     });
 
   });

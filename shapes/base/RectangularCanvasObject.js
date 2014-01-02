@@ -37,11 +37,11 @@ function RectangularCanvasObject(opt_properties) {
   defineProperties(this, {
     width: {
       value: 0,
-      set: function() { this.vertexCache.invalidate(); }
+      set: function() { this.cache.invalidate('vertices'); }
     },
     height: {
       value: 0,
-      set: function() { this.vertexCache.invalidate(); }
+      set: function() { this.cache.invalidate('vertices'); }
     }
   }, {enumerable: true});
 
@@ -164,9 +164,9 @@ RectangularCanvasObject.prototype.renderPath = function(canvas) {
  *     properties representing the coordinates.
  */
 RectangularCanvasObject.prototype.getVertices = function() {
-  var cache = this.vertexCache.local;
+  var cache = this.cache.get('vertices');
 
-  if (cache.valid) return cache.vertices;
+  if (cache.isValid) return cache.vertices;
 
   if (!cache.vertices) {
     cache.vertices = new Array(4);
@@ -200,7 +200,7 @@ RectangularCanvasObject.prototype.getVertices = function() {
   vertices[3].x = left;
   vertices[3].y = bottom;
 
-  cache.valid = true;
+  this.cache.update('vertices');
 
   return vertices;
 };
@@ -215,9 +215,9 @@ RectangularCanvasObject.prototype.getVertices = function() {
  *     properties representing the coordinates.
  */
 RectangularCanvasObject.prototype.getGlobalVertices = function(canvas) {
-  var cache = this.vertexCache.global;
+  var cache = this.cache.get('globalVertices');
 
-  if (cache.valid) return cache.vertices;
+  if (cache.isValid) return cache.vertices;
 
   if (!cache.vertices) cache.vertices = new Array(4);
 
@@ -233,7 +233,7 @@ RectangularCanvasObject.prototype.getGlobalVertices = function(canvas) {
   vertices[2] = this.getGlobalPoint(right, bottom, canvas);
   vertices[3] = this.getGlobalPoint(left, bottom, canvas);
 
-  cache.valid = true;
+  this.cache.update('globalVertices');
 
   return vertices;
 };

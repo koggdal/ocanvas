@@ -6,6 +6,7 @@
 var defineProperties = require('../utils/defineProperties');
 var jsonHelpers = require('../utils/json');
 var Matrix = require('../classes/Matrix');
+var Cache = require('../classes/Cache');
 
 /**
  * @classdesc A camera is put inside a world and when it is connected to a
@@ -29,20 +30,8 @@ var Matrix = require('../classes/Matrix');
  * @property {number} aspectRatio The aspect ratio of the dimensions of
  *     the camera. Changing this number will change the width of the camera
  *     but keep the height.
- * @property {Object} matrixCache Object with matrix data for this camera.
- *     It contains six properties: `translation`, `rotation`, `scaling`,
- *     `combined`, `localPoint` and `globalPoint`, where each of them is an
- *     object with the properties `valid` (boolean) and `matrix` (Matrix
- *     instance or null). The matrixCache object also has a function
- *     `invalidate` which takes a type as argument (like
- *     camera.matrixCache.invalidate('translation'); ). If no argument is
- *     passed, all types of matrices will be invalidated.
- * @property {Object} vertexCache Object with vertex data for this camera.
- *     It contains one property: `local`, which is an object with the
- *     properties `valid` (boolean) and `vertices` (array or null). The
- *     vertexCache object also has a function `invalidate` which takes a type
- *     as argument (like camera.vertexCache.invalidate('local'); ). If no
- *     argument is passed, all types of vertices will be invalidated.
+ * @property {Cache} cache A Cache instance storing cached matrices and
+ *     vertices to speed up calculations.
  *
  * @constructor
  *
@@ -60,49 +49,11 @@ function Camera(opt_properties) {
   }
   Camera.cache[this.id] = this;
 
-  this.matrixCache = {
-    combined: {valid: false, matrix: null},
-    translation: {valid: false, matrix: null, matrixReverse: null},
-    rotation: {valid: false, matrix: null},
-    scaling: {valid: false, matrix: null},
-    localPoint: {valid: false, matrix: null},
-    globalPoint: {valid: false, matrix: null},
-
-    invalidate: function(type) {
-      if (!type) {
-        this.translation.valid = false;
-        this.rotation.valid = false;
-        this.scaling.valid = false;
-      } else if (this[type]) {
-        this[type].valid = false;
-      }
-
-      if (type !== 'combined') {
-        this.localPoint.valid = false;
-        this.globalPoint.valid = false;
-      }
-
-      if (type !== 'localPoint' && type !== 'globalPoint') {
-        this.combined.valid = false;
-      }
-    }
-  };
-  this.vertexCache = {
-    local: {valid: false, vertices: null},
-    global: {valid: false, vertices: null},
-    invalidate: function(type) {
-      if (!type) {
-        this.local.valid = false;
-        this.global.valid = false;
-      } else if (this[type]) {
-        this[type].valid = false;
-      }
-    }
-  };
-
   this.world = null;
 
   defineProperties(this, this.propertyDescriptors, {enumerable: true});
+
+  this.initCache();
 
   // Set default dimensions for the camera
   // These numbers are the same as the default size for a canvas element
@@ -229,50 +180,38 @@ Camera.prototype.toJSON = function(opt_space) {
 Camera.prototype.propertyDescriptors = {
   x: {
     value: 0,
-    set: function() {
-      this.matrixCache.invalidate('translation');
-      this.vertexCache.invalidate('global');
-    }
+    set: function() { this.cache.invalidate('translation'); }
   },
   y: {
     value: 0,
-    set: function() {
-      this.matrixCache.invalidate('translation');
-      this.vertexCache.invalidate('global');
-    }
+    set: function() { this.cache.invalidate('translation'); }
   },
   rotation: {
     value: 0,
-    set: function() {
-      this.matrixCache.invalidate('rotation');
-      this.vertexCache.invalidate('global');
-    }
+    set: function() { this.cache.invalidate('rotation'); }
   },
   zoom: {
     value: 1,
-    set: function() {
-      this.matrixCache.invalidate('scaling');
-      this.vertexCache.invalidate('global');
-    }
+    set: function() { this.cache.invalidate('scaling'); }
   },
   width: {
     value: 0,
     set: function(value, privateVars) {
-      this.vertexCache.invalidate();
+      this.cache.invalidate('vertices');
       privateVars.aspectRatio = privateVars.height ? (value / privateVars.height) || 1 : 1;
     }
   },
   height: {
     value: 0,
     set: function(value, privateVars) {
-      this.vertexCache.invalidate();
+      this.cache.invalidate('vertices');
       privateVars.aspectRatio = value ? (privateVars.width / value) || 1 : 1;
     }
   },
   aspectRatio: {
     value: 1,
     set: function(value, privateVars) {
-      this.vertexCache.invalidate();
+      this.cache.invalidate('vertices');
       privateVars.width = privateVars.height * value;
     }
   }
@@ -305,6 +244,33 @@ Camera.prototype.setProperties = function(properties) {
   for (var prop in properties) {
     this[prop] = properties[prop];
   }
+};
+
+/**
+ * Initialize the cache (used for matrices, vertices etc).
+ * This should only be called once, which happens in the constructor. Calling
+ * it more times will create a new cache that replaces the old one.
+ */
+Camera.prototype.initCache = function() {
+  var self = this;
+
+  this.cache = new Cache();
+
+  // Matrices
+  this.cache.define(['translation', 'rotation', 'scaling']);
+  this.cache.define('transformations', {
+    dependencies: ['translation', 'rotation', 'scaling']
+  });
+  this.cache.define('point');
+  this.cache.define('globalPoint', {
+    dependencies: ['point', 'transformations']
+  });
+
+  // Vertices
+  this.cache.define('vertices');
+  this.cache.define('globalVertices', {
+    dependencies: ['vertices', 'transformations']
+  });
 };
 
 /**
@@ -342,60 +308,65 @@ Camera.prototype.render = function(canvas) {
  * @return {Matrix} A Matrix instance representing the transformations.
  */
 Camera.prototype.getTransformationMatrix = function() {
-  var cache = this.matrixCache;
+  var cache = this.cache;
+  var transformations = cache.get('transformations');
 
-  if (cache.combined.valid) return cache.combined.matrix;
+  if (transformations.isValid) return transformations.matrix;
 
-  if (!cache.combined.matrix) cache.combined.matrix = new Matrix(3, 3, false);
-  if (!cache.rotation.matrix) cache.rotation.matrix = new Matrix(3, 3, false);
-  if (!cache.scaling.matrix) cache.scaling.matrix = new Matrix(3, 3, false);
-  if (!cache.translation.matrix)
-      cache.translation.matrix = new Matrix(3, 3, false);
-  if (!cache.translation.matrixReverse)
-      cache.translation.matrixReverse = new Matrix(3, 3, false);
+  var translation = cache.get('translation');
+  var rotation = cache.get('rotation');
+  var scaling = cache.get('scaling');
 
-  if (!cache.translation.valid) {
-    cache.translation.matrix.setData(
+  if (!transformations.matrix) transformations.matrix = new Matrix(3, 3, false);
+  if (!rotation.matrix) rotation.matrix = new Matrix(3, 3, false);
+  if (!scaling.matrix) scaling.matrix = new Matrix(3, 3, false);
+  if (!translation.matrix)
+      translation.matrix = new Matrix(3, 3, false);
+  if (!translation.matrixReverse)
+      translation.matrixReverse = new Matrix(3, 3, false);
+
+  if (!translation.isValid) {
+    translation.matrix.setData(
       1, 0, this.x,
       0, 1, this.y,
       0, 0, 1
     );
-    cache.translation.matrixReverse.setData(
+    translation.matrixReverse.setData(
       1, 0, -this.x,
       0, 1, -this.y,
       0, 0, 1
     );
-    cache.translation.valid = true;
+    cache.update('translation');
   }
 
-  if (!cache.rotation.valid) {
-    var rotation = this.rotation * Math.PI / 180;
-    cache.rotation.matrix.setData(
-      Math.cos(rotation), -Math.sin(rotation), 0,
-      Math.sin(rotation), Math.cos(rotation), 0,
+  if (!rotation.isValid) {
+    var rotationValue = this.rotation * Math.PI / 180;
+    rotation.matrix.setData(
+      Math.cos(rotationValue), -Math.sin(rotationValue), 0,
+      Math.sin(rotationValue), Math.cos(rotationValue), 0,
       0, 0, 1
     );
-    cache.rotation.valid = true;
+    cache.update('rotation');
   }
 
-  if (!cache.scaling.valid) {
-    cache.scaling.matrix.setData(
+  if (!scaling.isValid) {
+    scaling.matrix.setData(
       this.zoom, 0, 0,
       0, this.zoom, 0,
       0, 0, 1
     );
-    cache.scaling.valid = true;
+    cache.update('scaling');
   }
 
-  cache.combined.matrix.setIdentityData();
-  cache.combined.matrix.multiply(
-    cache.translation.matrix,
-    cache.rotation.matrix,
-    cache.scaling.matrix
+  transformations.matrix.setIdentityData();
+  transformations.matrix.multiply(
+    translation.matrix,
+    rotation.matrix,
+    scaling.matrix
   );
-  cache.combined.valid = true;
+  cache.update('transformations');
 
-  return cache.combined.matrix;
+  return transformations.matrix;
 };
 
 /*
@@ -410,41 +381,42 @@ Camera.prototype.getTransformationMatrix = function() {
  * @return {Object} An object with properties x and y.
  */
 Camera.prototype.getGlobalPoint = function(x, y) {
-  var cache = this.matrixCache;
+  var cache = this.cache;
+  var localPoint = cache.get('point');
+  var globalPoint = cache.get('globalPoint');
   var globalPointMatrix;
 
-  if (cache.localPoint.x !== x || cache.localPoint.y !== y) {
-    cache.invalidate('localPoint');
-    cache.invalidate('globalPoint');
+  if (localPoint.x !== x || localPoint.y !== y) {
+    cache.invalidate('point');
   }
 
-  if (!cache.globalPoint.valid) {
+  if (!globalPoint.isValid) {
 
-    if (!cache.localPoint.matrix) cache.localPoint.matrix = new Matrix(3, 3, false);
-    if (!cache.globalPoint.matrix) cache.globalPoint.matrix = new Matrix(3, 3, false);
+    if (!localPoint.matrix) localPoint.matrix = new Matrix(3, 3, false);
+    if (!globalPoint.matrix) globalPoint.matrix = new Matrix(3, 3, false);
 
-    if (!cache.localPoint.valid) {
-      cache.localPoint.matrix.setData(
+    if (!localPoint.isValid) {
+      localPoint.matrix.setData(
         1, 0, x,
         0, 1, y,
         0, 0, 1
       );
-      cache.localPoint.x = x;
-      cache.localPoint.y = y;
-      cache.localPoint.valid = true;
+      localPoint.x = x;
+      localPoint.y = y;
+      cache.update('point');
     }
 
     // Get a matrix that represents the local point in global space, after it's
     // been transformed by all the objects in the parent chain (including the
     // camera).
-    globalPointMatrix = cache.globalPoint.matrix;
+    globalPointMatrix = globalPoint.matrix;
     globalPointMatrix.setIdentityData();
     globalPointMatrix.multiply(this.getTransformationMatrix(),
-        cache.localPoint.matrix);
-    cache.globalPoint.valid = true;
+        localPoint.matrix);
+    cache.update('globalPoint');
 
   } else {
-    globalPointMatrix = cache.globalPoint.matrix;
+    globalPointMatrix = globalPoint.matrix;
   }
 
   // Extract the 2D coordinate from the matrix and return it
@@ -462,9 +434,9 @@ Camera.prototype.getGlobalPoint = function(x, y) {
  *     properties representing the coordinates.
  */
 Camera.prototype.getVertices = function() {
-  var cache = this.vertexCache.local;
+  var cache = this.cache.get('vertices');
 
-  if (cache.valid) return cache.vertices;
+  if (cache.isValid) return cache.vertices;
 
   if (!cache.vertices) {
     cache.vertices = new Array(4);
@@ -490,7 +462,7 @@ Camera.prototype.getVertices = function() {
   vertices[3].x = left;
   vertices[3].y = bottom;
 
-  cache.valid = true;
+  this.cache.update('vertices');
 
   return vertices;
 };
@@ -503,9 +475,9 @@ Camera.prototype.getVertices = function() {
  *     properties representing the coordinates.
  */
 Camera.prototype.getGlobalVertices = function() {
-  var cache = this.vertexCache.global;
+  var cache = this.cache.get('globalVertices');
 
-  if (cache.valid) return cache.vertices;
+  if (cache.isValid) return cache.vertices;
 
   if (!cache.vertices) cache.vertices = new Array(4);
 
@@ -521,7 +493,7 @@ Camera.prototype.getGlobalVertices = function() {
   vertices[2] = this.getGlobalPoint(right, bottom);
   vertices[3] = this.getGlobalPoint(left, bottom);
 
-  cache.valid = true;
+  this.cache.update('globalVertices');
 
   return vertices;
 };
