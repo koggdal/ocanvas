@@ -259,7 +259,7 @@ CanvasObject.prototype.initCache = function() {
   });
   this.cache.define('point');
   this.cache.define('globalPoint', {
-    dependencies: ['point', 'translation', 'rotation', 'scaling']
+    dependencies: ['point', 'globalTransformations']
   });
 
   // Vertices

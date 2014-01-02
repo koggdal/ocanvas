@@ -990,11 +990,17 @@ describe('CanvasObject', function() {
         width: 100, height: 50,
         x: 100, y: 50,
         getGlobalVertices: function() {
+          this.cache.update('vertices', {
+            vertices: [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}]
+          });
+          this.getGlobalTransformationMatrix({camera: camera});
           var x = this.x;
           var y = this.y;
           var w = this.width;
           var h = this.height;
-          return [{x: x, y: y}, {x: x + w, y: y}, {x: x + w, y: y + h}, {x: x, y: y + h}];
+          var globalVertices = [{x: x, y: y}, {x: x + w, y: y}, {x: x + w, y: y + h}, {x: x, y: y + h}];
+          this.cache.update('globalVertices', {vertices: globalVertices});
+          return globalVertices;
         }
       });
 
@@ -1029,7 +1035,13 @@ describe('CanvasObject', function() {
         width: 100, height: 50,
         x: 100, y: 50,
         getGlobalVertices: function() {
-          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+          this.cache.update('vertices', {
+            vertices: [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}]
+          });
+          this.getGlobalTransformationMatrix({camera: camera});
+          var globalVertices = [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+          this.cache.update('globalVertices', {vertices: globalVertices});
+          return globalVertices;
         }
       });
 
@@ -1056,10 +1068,16 @@ describe('CanvasObject', function() {
     it('should return an updated array if scaling has changed', function(done) {
       var camera = new Camera();
 
+      var updateCache = function(cache) {
+        cache.update('vertices').update('globalVertices').update('treeVertices');
+        cache.update('scaling').update('transformations').update('globalTransformations');
+      };
+
       var object = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
         getGlobalVertices: function() {
+          updateCache(this.cache);
           return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
         }
       });
@@ -1073,6 +1091,7 @@ describe('CanvasObject', function() {
       var hasAskedForNew = 0;
       object.getGlobalVertices = function() {
         hasAskedForNew++;
+        updateCache(this.cache);
       };
 
       object.scalingX = 0.5;
@@ -1089,10 +1108,15 @@ describe('CanvasObject', function() {
     it('should return an updated array if origin has changed', function(done) {
       var camera = new Camera();
 
+      var updateCache = function(cache) {
+        cache.update('vertices').update('globalVertices').update('treeVertices');
+      };
+
       var object = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
         getGlobalVertices: function() {
+          updateCache(this.cache);
           return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
         }
       });
@@ -1106,6 +1130,7 @@ describe('CanvasObject', function() {
       var hasAskedForNew = 0;
       object.getGlobalVertices = function() {
         hasAskedForNew++;
+        updateCache(this.cache);
       };
 
       object.originX = 10;
@@ -1122,10 +1147,16 @@ describe('CanvasObject', function() {
     it('should return an updated array if a child has changed', function(done) {
       var camera = new Camera();
 
+      var updateCache = function(cache) {
+        cache.update('vertices').update('globalVertices').update('treeVertices');
+        cache.update('translation').update('transformations').update('globalTransformations');
+      };
+
       var object1 = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
         getGlobalVertices: function() {
+          updateCache(this.cache);
           return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
         }
       });
@@ -1133,6 +1164,7 @@ describe('CanvasObject', function() {
         width: 100, height: 50,
         x: 100, y: 50,
         getGlobalVertices: function() {
+          updateCache(this.cache);
           return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}];
         }
       });
@@ -1150,6 +1182,7 @@ describe('CanvasObject', function() {
       var hasAskedForNew = false;
       object1.getGlobalVertices = function() {
         hasAskedForNew = true;
+        updateCache(this.cache);
       };
 
       object2.x = 10;
@@ -1164,10 +1197,16 @@ describe('CanvasObject', function() {
     it('should return an updated array if a parent has changed', function(done) {
       var camera = new Camera();
 
+      var updateCache = function(cache) {
+        cache.update('vertices').update('globalVertices').update('treeVertices');
+        cache.update('translation').update('transformations').update('globalTransformations');
+      };
+
       var object1 = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
         getGlobalVertices: function() {
+          updateCache(this.cache);
           return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
         }
       });
@@ -1175,6 +1214,8 @@ describe('CanvasObject', function() {
         width: 100, height: 50,
         x: 100, y: 50,
         getGlobalVertices: function() {
+          updateCache(this.cache);
+          object1.getGlobalVertices();
           return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}];
         }
       });
@@ -1189,6 +1230,7 @@ describe('CanvasObject', function() {
       var hasAskedForNew = false;
       object2.getGlobalVertices = function() {
         hasAskedForNew = true;
+        updateCache(this.cache);
       };
 
       object1.x = 10;
