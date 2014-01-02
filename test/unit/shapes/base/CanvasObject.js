@@ -1287,6 +1287,24 @@ describe('CanvasObject', function() {
       expect(object.cache.get('treeVertices')).to.not.equal(null);
     });
 
+    it('should invalidate globalPoint on children when globalPoint is invalidated on this object', function() {
+      var camera = new Camera();
+      var object1 = new CanvasObject();
+      var object2 = new CanvasObject();
+      object1.children.add(object2);
+
+      object1.getGlobalPoint(10, 10, {camera: camera});
+      object2.getGlobalPoint(10, 10, {camera: camera});
+
+      expect(object1.cache.test('globalPoint')).to.equal(true);
+      expect(object2.cache.test('globalPoint')).to.equal(true);
+
+      object1.cache.invalidate('globalPoint');
+
+      expect(object1.cache.test('globalPoint')).to.equal(false);
+      expect(object2.cache.test('globalPoint')).to.equal(false);
+    });
+
   });
 
   describe('#clippingMask', function() {
