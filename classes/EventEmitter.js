@@ -56,10 +56,12 @@ EventEmitter.prototype.off = function(events, listener) {
  */
 EventEmitter.prototype.emit = function(events, opt_eventObject) {
   events = events.split(' ');
-  var i, l, n, len, event, e, listeners;
+  var e = events.length > 1 ? null : opt_eventObject;
+
+  var i, l, n, len, event, listeners;
   for (i = 0, l = events.length; i < l; i++) {
     event = events[i];
-    e = opt_eventObject ? Object.create(opt_eventObject) : {};
+    e = e || (opt_eventObject ? Object.create(opt_eventObject) : {});
     e.type = event;
     listeners = this._listeners[event];
     if (listeners) {
