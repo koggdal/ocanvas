@@ -140,90 +140,9 @@ function CanvasObject(opt_properties) {
   this.fill = '';
   this.opacity = 1;
 
-  defineProperties(this, {
-    x: {
-      value: 0,
-      set: function() {
-        this.matrixCache.invalidate('translation');
-        this.vertexCache.invalidate('global');
-        this.vertexCache.invalidate('tree');
-      }
-    },
-    y: {
-      value: 0,
-      set: function() {
-        this.matrixCache.invalidate('translation');
-        this.vertexCache.invalidate('global');
-        this.vertexCache.invalidate('tree');
-      }
-    },
-    rotation: {
-      value: 0,
-      set: function() {
-        this.matrixCache.invalidate('rotation');
-        this.vertexCache.invalidate('global');
-        this.vertexCache.invalidate('tree');
-      }
-    },
-    scalingX: {
-      value: 1,
-      set: function() {
-        this.matrixCache.invalidate('scaling');
-        this.vertexCache.invalidate('global');
-        this.vertexCache.invalidate('tree');
-      }
-    },
-    scalingY: {
-      value: 1,
-      set: function() {
-        this.matrixCache.invalidate('scaling');
-        this.vertexCache.invalidate('global');
-        this.vertexCache.invalidate('tree');
-      }
-    },
-    originX: {
-      value: 0,
-      set: function() { this.vertexCache.invalidate(); }
-    },
-    originY: {
-      value: 0,
-      set: function() { this.vertexCache.invalidate(); }
-    },
-    stroke: {
-      value: '',
-      set: function() { this.vertexCache.invalidate(); }
-    },
+  defineProperties(this, this.propertyDescriptors, {enumerable: true});
 
-    clippingMask: {
-      value: null,
-      set: function(value) {
-        if (value instanceof CanvasObject) return value;
-        if (typeof value === 'function') return value;
-        return null;
-      }
-    },
-
-    // By defining a setter for the children collection, we allow instantiation
-    // of the class, and at a later point set the children property to a new
-    // collection. With this setter, the collection is not switched out, but
-    // the items are copied over to the existing collection, keeping the event
-    // listeners on the collection intact.
-    children: {
-      value: new Collection(),
-      set: function(value, privateVars) {
-        var children = privateVars.children;
-
-        if (!(value instanceof Collection)) {
-          return children;
-        }
-
-        children.length = 0;
-        value.forEach(function(item) {
-          children.add(item);
-        });
-      }
-    }
-  }, {enumerable: true});
+  this.children = new Collection();
 
   this.children.on('insert', function(event) {
     event.item.parent = self;
@@ -304,6 +223,101 @@ CanvasObject.prototype.toObject = function() {
  */
 CanvasObject.prototype.toJSON = function(opt_space) {
   return jsonHelpers.toJSON(this, CanvasObject.objectProperties, this.constructorName, opt_space);
+};
+
+/**
+ * Property descriptors for this class. These properties will be defined in the
+ * constructor of this class with the accessors specified here.
+ *
+ * @type {Object}
+ */
+CanvasObject.prototype.propertyDescriptors = {
+  x: {
+    value: 0,
+    set: function() {
+      this.matrixCache.invalidate('translation');
+      this.vertexCache.invalidate('global');
+      this.vertexCache.invalidate('tree');
+    }
+  },
+  y: {
+    value: 0,
+    set: function() {
+      this.matrixCache.invalidate('translation');
+      this.vertexCache.invalidate('global');
+      this.vertexCache.invalidate('tree');
+    }
+  },
+  rotation: {
+    value: 0,
+    set: function() {
+      this.matrixCache.invalidate('rotation');
+      this.vertexCache.invalidate('global');
+      this.vertexCache.invalidate('tree');
+    }
+  },
+  scalingX: {
+    value: 1,
+    set: function() {
+      this.matrixCache.invalidate('scaling');
+      this.vertexCache.invalidate('global');
+      this.vertexCache.invalidate('tree');
+    }
+  },
+  scalingY: {
+    value: 1,
+    set: function() {
+      this.matrixCache.invalidate('scaling');
+      this.vertexCache.invalidate('global');
+      this.vertexCache.invalidate('tree');
+    }
+  },
+  originX: {
+    value: 0,
+    set: function() { this.vertexCache.invalidate(); }
+  },
+  originY: {
+    value: 0,
+    set: function() { this.vertexCache.invalidate(); }
+  },
+  stroke: {
+    value: '',
+    set: function() { this.vertexCache.invalidate(); }
+  },
+
+  clippingMask: {
+    value: null,
+    set: function(value) {
+      if (value instanceof CanvasObject) return value;
+      if (typeof value === 'function') return value;
+      return null;
+    }
+  },
+
+  // By defining a setter for the children collection, we allow instantiation
+  // of the class, and at a later point set the children property to a new
+  // collection. With this setter, the collection is not switched out, but
+  // the items are copied over to the existing collection, keeping the event
+  // listeners on the collection intact.
+  children: {
+    value: null,
+    set: function(value, privateVars) {
+      var children = privateVars.children;
+
+      if (!(value instanceof Collection)) {
+        return children;
+      }
+
+      if (children instanceof Collection) {
+        children.length = 0;
+        value.forEach(function(item) {
+          children.add(item);
+        });
+      } else {
+        privateVars.children = value;
+      }
+    }
+  }
 };
 
 /**
