@@ -6,6 +6,7 @@ describe('Utilities', function() {
 });
 
 describe('Classes', function() {
+  require('./classes/Cache');
   require('./classes/Canvas');
   require('./classes/Camera');
   require('./classes/EventEmitter');
