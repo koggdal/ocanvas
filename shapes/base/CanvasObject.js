@@ -276,7 +276,7 @@ CanvasObject.prototype.initCache = function() {
     dependencies: ['globalVertices']
   });
   this.cache.define('boundingRectangleForTree', {
-    dependencies: ['boundingRectangle']
+    dependencies: ['globalVertices']
   });
 
   this.cache.on('invalidate', function(event) {
