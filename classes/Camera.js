@@ -102,57 +102,7 @@ function Camera(opt_properties) {
 
   this.world = null;
 
-  defineProperties(this, {
-    x: {
-      value: 0,
-      set: function() {
-        this.matrixCache.invalidate('translation');
-        this.vertexCache.invalidate('global');
-      }
-    },
-    y: {
-      value: 0,
-      set: function() {
-        this.matrixCache.invalidate('translation');
-        this.vertexCache.invalidate('global');
-      }
-    },
-    rotation: {
-      value: 0,
-      set: function() {
-        this.matrixCache.invalidate('rotation');
-        this.vertexCache.invalidate('global');
-      }
-    },
-    zoom: {
-      value: 1,
-      set: function() {
-        this.matrixCache.invalidate('scaling');
-        this.vertexCache.invalidate('global');
-      }
-    },
-    width: {
-      value: 0,
-      set: function(value, privateVars) {
-        this.vertexCache.invalidate();
-        privateVars.aspectRatio = privateVars.height ? (value / privateVars.height) || 1 : 1;
-      }
-    },
-    height: {
-      value: 0,
-      set: function(value, privateVars) {
-        this.vertexCache.invalidate();
-        privateVars.aspectRatio = value ? (privateVars.width / value) || 1 : 1;
-      }
-    },
-    aspectRatio: {
-      value: 1,
-      set: function(value, privateVars) {
-        this.vertexCache.invalidate();
-        privateVars.width = privateVars.height * value;
-      }
-    }
-  }, {enumerable: true});
+  defineProperties(this, this.propertyDescriptors, {enumerable: true});
 
   // Set default dimensions for the camera
   // These numbers are the same as the default size for a canvas element
@@ -268,6 +218,64 @@ Camera.prototype.toObject = function() {
  */
 Camera.prototype.toJSON = function(opt_space) {
   return jsonHelpers.toJSON(this, Camera.objectProperties, 'Camera', opt_space);
+};
+
+/**
+ * Property descriptors for this class. These properties will be defined in the
+ * constructor of this class with the accessors specified here.
+ *
+ * @type {Object}
+ */
+Camera.prototype.propertyDescriptors = {
+  x: {
+    value: 0,
+    set: function() {
+      this.matrixCache.invalidate('translation');
+      this.vertexCache.invalidate('global');
+    }
+  },
+  y: {
+    value: 0,
+    set: function() {
+      this.matrixCache.invalidate('translation');
+      this.vertexCache.invalidate('global');
+    }
+  },
+  rotation: {
+    value: 0,
+    set: function() {
+      this.matrixCache.invalidate('rotation');
+      this.vertexCache.invalidate('global');
+    }
+  },
+  zoom: {
+    value: 1,
+    set: function() {
+      this.matrixCache.invalidate('scaling');
+      this.vertexCache.invalidate('global');
+    }
+  },
+  width: {
+    value: 0,
+    set: function(value, privateVars) {
+      this.vertexCache.invalidate();
+      privateVars.aspectRatio = privateVars.height ? (value / privateVars.height) || 1 : 1;
+    }
+  },
+  height: {
+    value: 0,
+    set: function(value, privateVars) {
+      this.vertexCache.invalidate();
+      privateVars.aspectRatio = value ? (privateVars.width / value) || 1 : 1;
+    }
+  },
+  aspectRatio: {
+    value: 1,
+    set: function(value, privateVars) {
+      this.vertexCache.invalidate();
+      privateVars.width = privateVars.height * value;
+    }
+  }
 };
 
 /**
