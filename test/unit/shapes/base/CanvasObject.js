@@ -868,6 +868,18 @@ describe('CanvasObject', function() {
       expect(point).to.eql({x: 138.38834764831844, y: 62.97918471982871});
     });
 
+    it('should return the passed in point object with correct data', function() {
+      var camera = new Camera({rotation: 45});
+      var object1 = new CanvasObject({rotation: 45, x: 200});
+      var object2 = new CanvasObject({rotation: -45, y: 100});
+      object1.children.add(object2);
+
+      var point = {x: 0, y: 0};
+      var returnedPoint = object2.getGlobalPoint(2, 2, {camera: camera}, point);
+      expect(returnedPoint).to.equal(point);
+      expect(returnedPoint).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+    });
+
   });
 
   describe('#getVertices()', function() {

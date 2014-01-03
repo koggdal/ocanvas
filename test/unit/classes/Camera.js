@@ -439,6 +439,14 @@ describe('Camera', function() {
       expect(point).to.eql({x: 170, y: 95});
     });
 
+    it('should return the passed in point object with correct data', function() {
+      var camera = new Camera({x: 150, y: 75});
+      var point = {x: 0, y: 0};
+      var returnedPoint = camera.getGlobalPoint(10, 10, point);
+      expect(returnedPoint).to.equal(point);
+      expect(returnedPoint).to.eql({x: 160, y: 85});
+    });
+
   });
 
   describe('#getVertices()', function() {

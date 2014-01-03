@@ -388,10 +388,11 @@ Camera.prototype.getTransformationMatrix = function() {
  *
  * @param {number} x The local X position.
  * @param {number} y The local Y position.
+ * @param {Object=} opt_point Optional object to put the point properties in.
  *
  * @return {Object} An object with properties x and y.
  */
-Camera.prototype.getGlobalPoint = function(x, y) {
+Camera.prototype.getGlobalPoint = function(x, y, opt_point) {
   var cache = this.cache;
   var localPoint = cache.get('point');
   var globalPoint = cache.get('globalPoint');
@@ -430,11 +431,12 @@ Camera.prototype.getGlobalPoint = function(x, y) {
     globalPointMatrix = globalPoint.matrix;
   }
 
+  var output = opt_point || {x: 0, y: 0};
+  output.x = globalPointMatrix[2];
+  output.y = globalPointMatrix[5];
+
   // Extract the 2D coordinate from the matrix and return it
-  return {
-    x: globalPointMatrix[2],
-    y: globalPointMatrix[5]
-  };
+  return output;
 };
 
 /**

@@ -219,7 +219,13 @@ RectangularCanvasObject.prototype.getGlobalVertices = function(canvas) {
 
   if (cache.isValid) return cache.vertices;
 
-  if (!cache.vertices) cache.vertices = new Array(4);
+  if (!cache.vertices) {
+    cache.vertices = new Array(4);
+    cache.vertices[0] = {x: 0, y: 0};
+    cache.vertices[1] = {x: 0, y: 0};
+    cache.vertices[2] = {x: 0, y: 0};
+    cache.vertices[3] = {x: 0, y: 0};
+  }
 
   var localVertices = this.getVertices();
   var left = localVertices[0].x;
@@ -228,10 +234,10 @@ RectangularCanvasObject.prototype.getGlobalVertices = function(canvas) {
   var bottom = localVertices[2].y;
 
   var vertices = cache.vertices;
-  vertices[0] = this.getGlobalPoint(left, top, canvas);
-  vertices[1] = this.getGlobalPoint(right, top, canvas);
-  vertices[2] = this.getGlobalPoint(right, bottom, canvas);
-  vertices[3] = this.getGlobalPoint(left, bottom, canvas);
+  vertices[0] = this.getGlobalPoint(left, top, canvas, vertices[0]);
+  vertices[1] = this.getGlobalPoint(right, top, canvas, vertices[1]);
+  vertices[2] = this.getGlobalPoint(right, bottom, canvas, vertices[2]);
+  vertices[3] = this.getGlobalPoint(left, bottom, canvas, vertices[3]);
 
   this.cache.update('globalVertices');
 

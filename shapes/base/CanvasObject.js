@@ -523,10 +523,11 @@ CanvasObject.prototype.getGlobalTransformationMatrix = function(canvas) {
  * @param {number} y The local Y position.
  * @param {Canvas} canvas The Canvas instance. This is needed to
  *     transform the vertices to global space.
+ * @param {Object=} opt_point Optional object to put the point properties in.
  *
  * @return {Object} An object with properties x and y.
  */
-CanvasObject.prototype.getGlobalPoint = function(x, y, canvas) {
+CanvasObject.prototype.getGlobalPoint = function(x, y, canvas, opt_point) {
   var cache = this.cache;
   var localPoint = cache.get('point');
   var globalPoint = cache.get('globalPoint');
@@ -565,11 +566,12 @@ CanvasObject.prototype.getGlobalPoint = function(x, y, canvas) {
     globalPointMatrix = globalPoint.matrix;
   }
 
+  var output = opt_point || {x: 0, y: 0};
+  output.x = globalPointMatrix[2];
+  output.y = globalPointMatrix[5];
+
   // Extract the 2D coordinate from the matrix and return it
-  return {
-    x: globalPointMatrix[2],
-    y: globalPointMatrix[5]
-  };
+  return output;
 };
 
 /**
