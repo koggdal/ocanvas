@@ -392,6 +392,11 @@ CanvasObject.prototype.renderTree = function(canvas) {
   var children = this.children;
   for (var i = 0, l = children.length; i < l; i++) {
     var object = children.get(i);
+
+    if (canvas.boundingRectangleCulling && !object.isTreeInView(canvas)) {
+      continue;
+    }
+
     context.save();
     context.translate(object.x, object.y);
     context.rotate(object.rotation * Math.PI / 180);

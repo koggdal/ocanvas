@@ -12,27 +12,87 @@ describe('World', function() {
 
   var canvas = new Canvas({
     element: new NodeCanvas(300, 300),
-    camera: new Camera()
+    camera: new Camera({width: 300, height: 300})
   });
   var world = new World();
   world.cameras.add(canvas.camera);
-  var object = new CanvasObject();
-  world.objects.add(object);
 
   describe('#render()', function() {
 
     it('should render all objects added to the world', function(done) {
+      var object = new CanvasObject();
+      world.objects.add(object);
+
       var originalRender = object.render;
       object.render = function() {
         originalRender.call(object, canvas);
         object.render = originalRender;
         done();
       };
+      object.getGlobalVertices = function() {
+        return [{x: this.x, y: this.y}];
+      };
 
       world.render(canvas);
+
+      world.objects.remove(object);
+    });
+
+    it('should not render objects that are not in view', function(done) {
+      var object = new CanvasObject();
+      world.objects.add(object);
+
+      var hasBeenCalled = false;
+      object.render = function() {
+        hasBeenCalled = true;
+      };
+      object.getGlobalVertices = function() {
+        return [{x: 5000, y: this.y}];
+      };
+
+      world.render(canvas);
+
+      setTimeout(function() {
+        if (hasBeenCalled) done(new Error('The object was rendered even if it was not in view'));
+        else done();
+      }, 10);
+
+      world.objects.remove(object);
+    });
+
+    it('should render objects that are not in view if the setting says so', function(done) {
+      var object = new CanvasObject();
+      world.objects.add(object);
+
+      canvas.boundingRectangleCulling = false;
+
+      var hasBeenCalled = false;
+      object.render = function() {
+        hasBeenCalled = true;
+      };
+      object.getGlobalVertices = function() {
+        return [{x: 5000, y: this.y}];
+      };
+
+      world.render(canvas);
+
+      setTimeout(function() {
+        if (hasBeenCalled) done();
+        else done(new Error('The object was not rendered even if it was supposed to be'));
+      }, 10);
+
+      canvas.boundingRectangleCulling = true;
+      world.objects.remove(object);
     });
 
     it('should render recursively only the number of times specified', function(done) {
+      var object = new CanvasObject({
+        getGlobalVertices: function() {
+          return [{x: this.x, y: this.y}];
+        }
+      });
+      world.objects.add(object);
+
       var originalRender = object.render;
       var numCalls = 0;
 
@@ -60,6 +120,8 @@ describe('World', function() {
       };
 
       world.render(canvas);
+
+      world.objects.remove(object);
     });
 
   });

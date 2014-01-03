@@ -30,6 +30,14 @@ describe('CanvasObject', function() {
       var renderPath = function(canvas) {
         canvas.context.rect(0, 0, this.width, this.height);
       };
+      var getGlobalVertices = function() {
+        return [
+          {x: this.x, y: this.y},
+          {x: this.x + this.width, y: this.y},
+          {x: this.x + this.width, y: this.y + this.height},
+          {x: this.x, y: this.y + this.height}
+        ];
+      };
 
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300)
@@ -48,6 +56,7 @@ describe('CanvasObject', function() {
         height: 50,
         render: render,
         renderPath: renderPath,
+        getGlobalVertices: getGlobalVertices,
         rotation: 20
       });
       var object = new CanvasObject({
@@ -55,6 +64,7 @@ describe('CanvasObject', function() {
         width: 100,
         height: 100,
         render: render,
+        getGlobalVertices: getGlobalVertices,
         clippingMask: mask
       });
       world.objects.add(object);
@@ -71,6 +81,14 @@ describe('CanvasObject', function() {
         canvas.context.fillStyle = this.fill;
         canvas.context.fillRect(0, 0, this.width, this.height);
       };
+      var getGlobalVertices = function() {
+        return [
+          {x: this.x, y: this.y},
+          {x: this.x + this.width, y: this.y},
+          {x: this.x + this.width, y: this.y + this.height},
+          {x: this.x, y: this.y + this.height}
+        ];
+      };
 
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300)
@@ -86,6 +104,7 @@ describe('CanvasObject', function() {
         width: 100,
         height: 100,
         render: render,
+        getGlobalVertices: getGlobalVertices,
         clippingMask: function(canvas, context) {
           expect(canvas.context).to.equal(context);
           context.save();
@@ -120,12 +139,17 @@ describe('CanvasObject', function() {
 
     it('should call the renderTree method of all children', function(done) {
       var canvas = new Canvas({
-        element: new NodeCanvas(300, 300)
+        element: new NodeCanvas(300, 300),
+        camera: new Camera({width: 300, height: 300})
       });
 
-      var object1 = new CanvasObject();
-      var object2 = new CanvasObject();
-      var object3 = new CanvasObject();
+      var getGlobalVertices = function() {
+        return [{x: this.x, y: this.y}];
+      };
+
+      var object1 = new CanvasObject({getGlobalVertices: getGlobalVertices});
+      var object2 = new CanvasObject({getGlobalVertices: getGlobalVertices});
+      var object3 = new CanvasObject({getGlobalVertices: getGlobalVertices});
 
       var numObjectsRendered = 1;
       object2.renderTree = function(canvas) {
@@ -142,21 +166,81 @@ describe('CanvasObject', function() {
       object1.renderTree(canvas);
     });
 
+    it('should not render child objects that are not in view', function(done) {
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: new Camera({width: 300, height: 300})
+      });
+
+      var object1 = new CanvasObject();
+      var object2 = new CanvasObject();
+      object1.children.add(object2);
+
+      var hasBeenCalled = false;
+      object2.render = function() {
+        hasBeenCalled = true;
+      };
+      object2.getGlobalVertices = function() {
+        return [{x: 5000, y: this.y}];
+      };
+
+      object1.renderTree(canvas);
+
+      setTimeout(function() {
+        if (hasBeenCalled) done(new Error('The object was rendered even if it was not in view'));
+        else done();
+      }, 10);
+    });
+
+    it('should render child objects that are not in view if the setting says so', function(done) {
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: new Camera({width: 300, height: 300}),
+        boundingRectangleCulling: false
+      });
+
+      var object1 = new CanvasObject();
+      var object2 = new CanvasObject();
+      object1.children.add(object2);
+
+      var hasBeenCalled = false;
+      object2.render = function() {
+        hasBeenCalled = true;
+      };
+      object2.getGlobalVertices = function() {
+        return [{x: 5000, y: this.y}];
+      };
+
+      object1.renderTree(canvas);
+
+      setTimeout(function() {
+        if (hasBeenCalled) done();
+        else done(new Error('The object was not rendered even if it was supposed to be'));
+      }, 10);
+    });
+
     it('should scale the canvas context for each child object', function() {
       var setup = create({
         element: new NodeCanvas(300, 300)
       });
 
+      var getGlobalVertices = function() {
+        return [{x: this.x, y: this.y}];
+      };
+
       var object1 = new CanvasObject({
+        getGlobalVertices: getGlobalVertices,
         width: 200, height: 150,
         fill: 'red'
       });
       var object2 = new CanvasObject({
+        getGlobalVertices: getGlobalVertices,
         width: 100, height: 50,
         scalingX: 0.5, scalingY: 2,
         fill: 'lime'
       });
       var object3 = new CanvasObject({
+        getGlobalVertices: getGlobalVertices,
         width: 50, height: 25,
         scalingX: 2, scalingY: 0.5,
         fill: 'blue'

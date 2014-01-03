@@ -81,6 +81,10 @@ describe('Canvas', function() {
       expect(canvas.boundingRectanglesThickness).to.equal(2);
     });
 
+    it('should set the default value of property `boundingRectangleCulling` to true', function() {
+      expect(canvas.boundingRectangleCulling).to.equal(true);
+    });
+
   });
 
   describe('.objectProperties', function() {

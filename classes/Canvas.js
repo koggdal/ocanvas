@@ -83,6 +83,7 @@ function Canvas(opt_properties) {
   this.boundingRectanglesWrapSelf = true;
   this.boundingRectanglesColor = 'red';
   this.boundingRectanglesThickness = 2;
+  this.boundingRectangleCulling = true;
 
   defineProperties(this, {
     width: {

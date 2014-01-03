@@ -152,6 +152,11 @@ World.prototype.render = function(canvas) {
 
     for (var i = 0, l = objects.length; i < l; i++) {
       var object = objects.get(i);
+
+      if (canvas.boundingRectangleCulling && !object.isTreeInView(canvas)) {
+        continue;
+      }
+
       context.save();
       context.translate(object.x - camera.x, object.y - camera.y);
       context.rotate(object.rotation * Math.PI / 180);
