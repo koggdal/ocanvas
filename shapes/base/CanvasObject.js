@@ -402,6 +402,62 @@ CanvasObject.prototype.renderTree = function(canvas) {
 };
 
 /**
+ * Test if the object itself (not with respect to its children) is in the view
+ * that the provided canvas will render.
+ *
+ * @param {Canvas} canvas The Canvas instance to check against. Must have a
+ *     Camera instance in the `camera` property.
+ *
+ * @return {boolean} True if the object is in view, false otherwise.
+ */
+CanvasObject.prototype.isInView = function(canvas) {
+  var camera = canvas.camera;
+  if (!camera) return false;
+
+  var rect = this.getBoundingRectangle(canvas);
+  var isLeft = rect.right < camera.x - camera.width / 2;
+  var isRight = rect.left > camera.x + camera.width / 2;
+  var isTop = rect.bottom < camera.y - camera.height / 2;
+  var isBottom = rect.top > camera.y + camera.height / 2;
+
+  // If the object is outside any of the sides, it's not visible.
+  if (isLeft || isRight || isTop || isBottom) {
+    return false;
+  }
+
+  // If it's not outside any of the sides, it is in view.
+  return true;
+};
+
+/**
+ * Test if the object or any of its children is in the view that the provided
+ * canvas will render.
+ *
+ * @param {Canvas} canvas The Canvas instance to check against. Must have a
+ *     Camera instance in the `camera` property.
+ *
+ * @return {boolean} True if the object is in view, false otherwise.
+ */
+CanvasObject.prototype.isTreeInView = function(canvas) {
+  var camera = canvas.camera;
+  if (!camera) return false;
+
+  var rect = this.getBoundingRectangleForTree(canvas);
+  var isLeft = rect.right < camera.x - camera.width / 2;
+  var isRight = rect.left > camera.x + camera.width / 2;
+  var isTop = rect.bottom < camera.y - camera.height / 2;
+  var isBottom = rect.top > camera.y + camera.height / 2;
+
+  // If the whole subtree of objects is outside the view of the camera.
+  if (isLeft || isRight || isTop || isBottom) {
+    return false;
+  }
+
+  // If it's not outside any of the sides, it is in view.
+  return true;
+};
+
+/**
  * Get a transformation matrix for this object. It will be a combined matrix
  * for all transformations (translation, rotation and scaling).
  * If the matrix cache is still valid, it will not update the matrix.
