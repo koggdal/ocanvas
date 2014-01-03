@@ -279,35 +279,35 @@ CanvasObject.prototype.initCache = function() {
     dependencies: ['globalVertices']
   });
 
-  this.cache.on('invalidate', function(event) {
+  this.cache.onInvalidate = function(unit) {
 
     // Matrices
-    if (event.unit === 'globalTransformations') {
+    if (unit === 'globalTransformations') {
       self.children.forEach(function(child) {
         child.cache.invalidate('globalTransformations');
       });
     }
-    else if (event.unit === 'globalPoint') {
+    else if (unit === 'globalPoint') {
       self.children.forEach(function(child) {
         child.cache.invalidate('globalPoint');
       });
     }
 
     // Vertices
-    else if (event.unit === 'treeVertices') {
+    else if (unit === 'treeVertices') {
       if (self.parent) self.parent.cache.invalidate('treeVertices');
     }
-    else if (event.unit === 'globalVertices') {
+    else if (unit === 'globalVertices') {
       self.children.forEach(function(child) {
         child.cache.invalidate('globalVertices');
       });
     }
 
     // Bounding Rectangles
-    else if (event.unit === 'boundingRectangleForTree') {
+    else if (unit === 'boundingRectangleForTree') {
       if (self.parent) self.parent.cache.invalidate('boundingRectangleForTree');
     }
-  });
+  };
 };
 
 /**

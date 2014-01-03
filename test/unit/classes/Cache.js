@@ -4,13 +4,6 @@ var EventEmitter = require('../../../classes/EventEmitter');
 
 describe('Cache', function() {
 
-  it('should inherit from EventEmitter', function() {
-    var cache = new Cache();
-    expect(Cache.prototype instanceof EventEmitter).to.equal(true);
-    expect(cache instanceof EventEmitter).to.equal(true);
-    expect(cache.emit).to.equal(EventEmitter.prototype.emit);
-  });
-
   describe('Cache constructor', function() {
 
     var cache = new Cache();
@@ -21,6 +14,14 @@ describe('Cache', function() {
 
     it('should set the default value of property `dependencies` to an object', function() {
       expect(typeof cache.dependencies).to.equal('object');
+    });
+
+    it('should set the default value of property `onInvalidate` to null', function() {
+      expect(cache.onInvalidate).to.equal(null);
+    });
+
+    it('should set the default value of property `onUpdate` to null', function() {
+      expect(cache.onUpdate).to.equal(null);
     });
 
   });
@@ -134,13 +135,13 @@ describe('Cache', function() {
       expect(cache.get('translation').foo).to.equal('bar');
     });
 
-    it('should emit an `update` event', function(done) {
+    it('should invoke the `onUpdate` handler function', function(done) {
       var cache = new Cache();
       cache.define('translation');
-      cache.on('update', function(event) {
-        expect(event.unit).to.equal('translation');
+      cache.onUpdate = function(unit) {
+        expect(unit).to.equal('translation');
         done();
-      });
+      };
       cache.update('translation');
     });
 
@@ -180,13 +181,13 @@ describe('Cache', function() {
       expect(cache.get('rotation').isValid).to.equal(false);
     });
 
-    it('should emit an `invalidate` event', function(done) {
+    it('should invoke the `onInvalidate` handler function', function(done) {
       var cache = new Cache();
       cache.define('translation').update('translation');
-      cache.on('invalidate', function(event) {
-        expect(event.unit).to.equal('translation');
+      cache.onInvalidate = function(unit) {
+        expect(unit).to.equal('translation');
         done();
-      });
+      };
       cache.invalidate('translation');
     });
 
@@ -194,9 +195,9 @@ describe('Cache', function() {
       var cache = new Cache();
       cache.define('translation').update('translation');
       var invalidations = 0;
-      cache.on('invalidate', function(event) {
+      cache.onInvalidate = function(unit) {
         invalidations++;
-      });
+      };
       cache.invalidate('translation');
       cache.invalidate('translation');
       setTimeout(function() {

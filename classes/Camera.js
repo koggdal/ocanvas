@@ -272,8 +272,8 @@ Camera.prototype.initCache = function() {
     dependencies: ['vertices', 'transformations']
   });
 
-  this.cache.on('invalidate', function(event) {
-    if (event.unit === 'transformations') {
+  this.cache.onInvalidate = function(unit) {
+    if (unit === 'transformations') {
       if (self.world) {
         var objects = self.world.objects;
         for (var i = 0, l = objects.length; i < l; i++) {
@@ -281,7 +281,7 @@ Camera.prototype.initCache = function() {
         }
       }
     }
-  });
+  };
 };
 
 /**

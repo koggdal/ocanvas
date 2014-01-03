@@ -3,24 +3,18 @@
  */
 'use strict';
 
-var EventEmitter = require('./EventEmitter');
-var inherit = require('../utils/inherit');
-
 /**
  * @classdesc The Cache class can be used to cache data. It allows you to
- *     invalidate the cache, which will also emit events to let you handle
- *     things automatically when the cache gets invalidated. There is also a
- *     dependency system where a cache unit can depend on other cache units
- *     and get invalidated automatically when the dependencies get invalidated.
+ *     invalidate the cache, which will also run handler functions to let you
+ *     handle things automatically when the cache gets invalidated. There is
+ *     also a dependency system where a cache unit can depend on other cache
+ *     units and get invalidated automatically when the dependencies get
+ *     invalidated.
  *
  * @property {Object} units The storage of cache units.
  * @property {Object} dependencies The storage of dependencies.
  *
- * @fires module:ocanvas/classes/Cache~Cache#invalidate
- * @fires module:ocanvas/classes/Cache~Cache#update
- *
  * @constructor
- * @augments {module:ocanvas/classes/EventEmitter~EventEmitter}
  *
  * @example
  * var cache = new Cache();
@@ -38,52 +32,11 @@ var inherit = require('../utils/inherit');
  * cache.invalidate('translation');
  */
 function Cache() {
-  EventEmitter.call(this);
-
   this.units = {};
   this.dependencies = {};
-
-  // Automatic invalidation of dependencies
-  var self = this;
-  this.on('invalidate', function(event) {
-    var dependencies = self.dependencies;
-    for (var unitName in dependencies) {
-      var deps = dependencies[unitName];
-      for (var i = 0, l = deps.length; i < l; i++) {
-        if (event.unit === deps[i]) {
-          self.invalidate(unitName);
-        }
-      }
-    }
-  });
+  this.onInvalidate = null;
+  this.onUpdate = null;
 }
-inherit(Cache, EventEmitter);
-
-/**
- * Event for notifying that a unit was invalidated.
- *
- * @event module:ocanvas/classes/Cache~Cache#invalidate
- * @property {string} unit The name of the unit that was invalidated.
- *
- * @example
- * var cache = new Cache();
- * cache.on('invalidate', function(event) {
- *   console.log(event.unit);
- * });
- */
-
-/**
- * Event for notifying that a unit was updated.
- *
- * @event module:ocanvas/classes/Cache~Cache#update
- * @property {string} unit The name of the unit that was updated.
- *
- * @example
- * var cache = new Cache();
- * cache.on('update', function(event) {
- *   console.log(event.unit);
- * });
- */
 
 /**
  * Define a new cache unit.
@@ -161,13 +114,14 @@ Cache.prototype.test = function(name) {
  * properties that already exist in the cache will be replaced and properties
  * that do not exist will be added. Properties that exist in the cache but
  * are not present in the new data will be left untouched.
+ * This will also invoke the `onUpdate` handler function if it's defined. The
+ * handler function will get called with one argument—the name of the unit
+ * being updated.
  *
  * @param {string} name The name of the cache unit.
  * @param {Object=} opt_data Optional data to set in the cache.
  *
  * @return {Cache} The Cache instance.
- *
- * @fires module:ocanvas/classes/Cache~Cache#update
  *
  * @example
  * var cache = new Cache();
@@ -184,7 +138,7 @@ Cache.prototype.update = function(name, opt_data) {
       }
     }
     unit.isValid = true;
-    this.emit('update', {unit: name});
+    if (this.onUpdate) this.onUpdate(name);
   }
 
   return this;
@@ -192,15 +146,14 @@ Cache.prototype.update = function(name, opt_data) {
 
 /**
  * Invalidate a cache unit.
- * This will also emit the event `invalidate` with an event object with a
- * property called `unit`, which is the name of the invalidated unit.
+ * This will also invoke the `onInvalidate` handler function if it's defined. The
+ * handler function will get called with one argument—the name of the unit
+ * being invalidated.
  *
  * @param {string|Array.<string>} name The name of the cache unit. Can be an
  *     array of many names.
  *
  * @return {Cache} The Cache instance.
- *
- * @fires module:ocanvas/classes/Cache~Cache#invalidate
  *
  * @example
  * var cache = new Cache();
@@ -218,7 +171,19 @@ Cache.prototype.invalidate = function(name) {
 
   if (this.units[name] && this.units[name].isValid) {
     this.units[name].isValid = false;
-    this.emit('invalidate', {unit: name});
+    if (this.onInvalidate) this.onInvalidate(name);
+
+    // Automatic invalidation of dependencies.
+    // A unit that depends on the invalidated unit should also be invalidated.
+    var dependencies = this.dependencies;
+    for (var unitName in dependencies) {
+      var deps = dependencies[unitName];
+      for (var n = 0, len = deps.length; n < len; n++) {
+        if (name === deps[n]) {
+          this.invalidate(unitName);
+        }
+      }
+    }
   }
 
   return this;
