@@ -8,10 +8,15 @@
  *     listen for custom events. Another class can also inherit from this
  *     class to get event capabilities.
  *
+ * @property {Object} listeners An object storing all added event listeners,
+ *     organized in different arrays for each event type. This object contains
+ *     properties for each added event type, and the values are arrays of
+ *     functions.
+ *
  * @constructor
  */
 function EventEmitter() {
-  this._listeners = {};
+  this.listeners = {};
 }
 
 /**
@@ -24,8 +29,8 @@ EventEmitter.prototype.on = function(events, listener) {
   events = events.split(' ');
   for (var i = 0, l = events.length, event; i < l; i++) {
     event = events[i];
-    if (!this._listeners[event]) { this._listeners[event] = []; }
-    this._listeners[event].push(listener);
+    if (!this.listeners[event]) { this.listeners[event] = []; }
+    this.listeners[event].push(listener);
   }
 };
 
@@ -40,7 +45,7 @@ EventEmitter.prototype.off = function(events, listener) {
   var i, l, event, listeners, index;
   for (i = 0, l = events.length; i < l; i++) {
     event = events[i];
-    listeners = this._listeners[event];
+    listeners = this.listeners[event];
     if (listeners) {
       index = listeners.indexOf(listener);
       if (~index) { listeners.splice(index, 1); }
@@ -63,7 +68,7 @@ EventEmitter.prototype.emit = function(events, opt_eventObject) {
     event = events[i];
     e = e || (opt_eventObject ? Object.create(opt_eventObject) : {});
     e.type = event;
-    listeners = this._listeners[event];
+    listeners = this.listeners[event];
     if (listeners) {
       for (n = 0, len = listeners.length; n < len; n++) {
         listeners[n].call(this, e);
