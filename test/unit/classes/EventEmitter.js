@@ -95,23 +95,6 @@ describe('EventEmitter', function() {
       emitter.emit('some-event');
     });
 
-    it('should call handler functions for all passed event types', function(done) {
-      var emitter = new EventEmitter();
-      var numCalls = 0;
-
-      emitter.on('some-event', function() {
-        numCalls++;
-      });
-
-      emitter.on('some-other-event', function() {
-        numCalls++;
-        if (numCalls === 2) done();
-        else done(new Error('Not all handlers were called (or they were called in the wrong order).'));
-      });
-
-      emitter.emit('some-event some-other-event');
-    });
-
     it('should call the handler function for the event with the passed event object', function(done) {
       var emitter = new EventEmitter();
 
@@ -126,20 +109,22 @@ describe('EventEmitter', function() {
     it('should call the handler function for the event with an event object with a type property', function(done) {
       var emitter = new EventEmitter();
 
+      var numCalls = 0;
+      function checkDone() {
+        if (++numCalls === 2) done();
+      }
+
       emitter.on('some-event', function(event) {
         expect(event.type).to.equal('some-event');
+        checkDone();
       });
       emitter.on('some-other-event', function(event) {
         expect(event.type).to.equal('some-other-event');
-      });
-      emitter.on('some-other-new-event', function(event) {
-        expect(event.type).to.equal('some-other-new-event');
-        done();
+        checkDone();
       });
 
       emitter.emit('some-event', {property: 'value'});
-      emitter.emit('some-event some-other-event', {property: 'value'});
-      emitter.emit('some-other-new-event');
+      emitter.emit('some-other-event');
     });
 
   });
