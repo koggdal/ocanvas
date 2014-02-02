@@ -25,6 +25,18 @@ describe('EventEmitter', function() {
       expect(emitter.listeners['some-event'][0]).to.equal(handler);
     });
 
+    it('should not add a handler function to the listener storage if it is already added', function() {
+      var emitter = new EventEmitter();
+
+      var handler = function() {};
+      emitter.on('some-event', handler);
+      emitter.on('some-event', handler);
+
+      expect(emitter.listeners['some-event']).to.be.ok();
+      expect(emitter.listeners['some-event'].length).to.equal(1);
+      expect(emitter.listeners['some-event'][0]).to.equal(handler);
+    });
+
     it('should add a handler function for an event', function(done) {
       var emitter = new EventEmitter();
 

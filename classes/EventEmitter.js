@@ -29,6 +29,11 @@ EventEmitter.prototype.on = function(name, listener) {
   if (!this.listeners[name]) {
     this.listeners[name] = [];
   }
+
+  // Don't allow the same listener to be registered multiple times for the
+  // same event name.
+  if (this.listeners[name].indexOf(listener) > -1) return;
+
   this.listeners[name].push(listener);
 };
 
