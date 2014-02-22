@@ -70,7 +70,7 @@
 						// Loop through all added objects
 						for (i = 0; i < l; i++) {
 							if (objects[i] !== undefined) {
-								objects[i].add();
+								objects[i].add(false);
 							}
 						}
 						
@@ -88,7 +88,7 @@
 						for (i = 0; i < l; i++) {
 							if (objects[i] !== undefined) {
 								// Remove the object from canvas
-								objects[i].remove();
+								objects[i].remove(false);
 							}
 						}
 						
@@ -107,7 +107,9 @@
 				}
 				this.current = name;
 				this.scenes[name].load();
-				
+
+				this.core.draw.redraw();
+
 				return this;
 			},
 			
@@ -115,7 +117,9 @@
 			unload: function (name) {
 				this.current = "none";
 				this.scenes[name].unload();
-				
+
+				this.core.draw.redraw();
+
 				return this;
 			}
 		};
