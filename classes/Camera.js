@@ -5,8 +5,9 @@
 
 var defineProperties = require('../utils/defineProperties');
 var jsonHelpers = require('../utils/json');
-var Matrix = require('../classes/Matrix');
 var Cache = require('../classes/Cache');
+var Matrix = require('../classes/Matrix');
+var matrixUtils = require('../utils/matrix');
 
 /**
  * @classdesc A camera is put inside a world and when it is connected to a
@@ -328,52 +329,30 @@ Camera.prototype.getTransformationMatrix = function() {
   var rotation = cache.get('rotation');
   var scaling = cache.get('scaling');
 
-  if (!transformations.matrix) transformations.matrix = new Matrix(3, 3, false);
-  if (!rotation.matrix) rotation.matrix = new Matrix(3, 3, false);
-  if (!scaling.matrix) scaling.matrix = new Matrix(3, 3, false);
-  if (!translation.matrix)
-      translation.matrix = new Matrix(3, 3, false);
-  if (!translation.matrixReverse)
-      translation.matrixReverse = new Matrix(3, 3, false);
-
   if (!translation.isValid) {
-    translation.matrix.setData(
-      1, 0, this.x,
-      0, 1, this.y,
-      0, 0, 1
-    );
-    translation.matrixReverse.setData(
-      1, 0, -this.x,
-      0, 1, -this.y,
-      0, 0, 1
-    );
+    var x = this.x, y = this.y;
+    translation.matrix = matrixUtils.getTranslationMatrix(x, y,
+        translation.matrix);
+    translation.matrixReverse = matrixUtils.getTranslationMatrix(-x, -y,
+        translation.matrixReverse);
     cache.update('translation');
   }
 
   if (!rotation.isValid) {
-    var rotationValue = this.rotation * Math.PI / 180;
-    rotation.matrix.setData(
-      Math.cos(rotationValue), -Math.sin(rotationValue), 0,
-      Math.sin(rotationValue), Math.cos(rotationValue), 0,
-      0, 0, 1
-    );
+    rotation.matrix = matrixUtils.getRotationMatrix(this.rotation,
+        rotation.matrix);
     cache.update('rotation');
   }
 
   if (!scaling.isValid) {
-    scaling.matrix.setData(
-      this.zoom, 0, 0,
-      0, this.zoom, 0,
-      0, 0, 1
-    );
+    scaling.matrix = matrixUtils.getScalingMatrix(this.zoom, this.zoom,
+      scaling.matrix);
     cache.update('scaling');
   }
 
-  transformations.matrix.setIdentityData();
-  transformations.matrix.multiply(
-    translation.matrix,
-    rotation.matrix,
-    scaling.matrix
+  transformations.matrix = matrixUtils.getTransformationMatrix(
+    translation.matrix, rotation.matrix, scaling.matrix,
+    transformations.matrix
   );
   cache.update('transformations');
 
@@ -408,11 +387,8 @@ Camera.prototype.getGlobalPoint = function(x, y, opt_point) {
     if (!globalPoint.matrix) globalPoint.matrix = new Matrix(3, 3, false);
 
     if (!localPoint.isValid) {
-      localPoint.matrix.setData(
-        1, 0, x,
-        0, 1, y,
-        0, 0, 1
-      );
+      localPoint.matrix = matrixUtils.getTranslationMatrix(x, y,
+          localPoint.matrix);
       localPoint.x = x;
       localPoint.y = y;
       cache.update('point');

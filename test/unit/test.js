@@ -2,6 +2,7 @@ describe('Utilities', function() {
   require('./utils/defineProperties');
   require('./utils/inherit');
   require('./utils/json');
+  require('./utils/matrix');
   require('./utils/mixin');
 });
 

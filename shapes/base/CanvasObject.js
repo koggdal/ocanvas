@@ -9,6 +9,8 @@ var jsonHelpers = require('../../utils/json');
 var Matrix = require('../../classes/Matrix');
 var Cache = require('../../classes/Cache');
 
+var matrixUtils = require('../../utils/matrix');
+
 /**
  * @classdesc The CanvasObject class is a base class that different objects
  *     can inherit from. It is generic enough to handle all different kinds
@@ -479,44 +481,27 @@ CanvasObject.prototype.getTransformationMatrix = function() {
   var rotation = cache.get('rotation');
   var scaling = cache.get('scaling');
 
-  if (!transformations.matrix) transformations.matrix = new Matrix(3, 3, false);
-  if (!translation.matrix) translation.matrix = new Matrix(3, 3, false);
-  if (!rotation.matrix) rotation.matrix = new Matrix(3, 3, false);
-  if (!scaling.matrix) scaling.matrix = new Matrix(3, 3, false);
-
   if (!translation.isValid) {
-    translation.matrix.setData(
-      1, 0, this.x,
-      0, 1, this.y,
-      0, 0, 1
-    );
+    translation.matrix = matrixUtils.getTranslationMatrix(this.x, this.y,
+        translation.matrix);
     cache.update('translation');
   }
 
   if (!rotation.isValid) {
-    var rotationValue = this.rotation * Math.PI / 180;
-    rotation.matrix.setData(
-      Math.cos(rotationValue), -Math.sin(rotationValue), 0,
-      Math.sin(rotationValue), Math.cos(rotationValue), 0,
-      0, 0, 1
-    );
+    rotation.matrix = matrixUtils.getRotationMatrix(this.rotation,
+        rotation.matrix);
     cache.update('rotation');
   }
 
   if (!scaling.isValid) {
-    scaling.matrix.setData(
-      this.scalingX, 0, 0,
-      0, this.scalingY, 0,
-      0, 0, 1
-    );
+    scaling.matrix = matrixUtils.getScalingMatrix(this.scalingX, this.scalingY,
+      scaling.matrix);
     cache.update('scaling');
   }
 
-  transformations.matrix.setIdentityData();
-  transformations.matrix.multiply(
-    translation.matrix,
-    rotation.matrix,
-    scaling.matrix
+  transformations.matrix = matrixUtils.getTransformationMatrix(
+    translation.matrix, rotation.matrix, scaling.matrix,
+    transformations.matrix
   );
   cache.update('transformations');
 
@@ -604,11 +589,8 @@ CanvasObject.prototype.getGlobalPoint = function(x, y, canvas, opt_point) {
     if (!globalPoint.matrix) globalPoint.matrix = new Matrix(3, 3, false);
 
     if (!localPoint.isValid) {
-      localPoint.matrix.setData(
-        1, 0, x,
-        0, 1, y,
-        0, 0, 1
-      );
+      localPoint.matrix = matrixUtils.getTranslationMatrix(x, y,
+          localPoint.matrix);
       localPoint.x = x;
       localPoint.y = y;
       cache.update('point');
