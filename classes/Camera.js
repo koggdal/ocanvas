@@ -286,7 +286,7 @@ Camera.prototype.initCache = function() {
       if (self.world) {
         var objects = self.world.objects;
         for (var i = 0, l = objects.length; i < l; i++) {
-          objects.get(i).cache.invalidate('globalTransformations');
+          objects.get(i).cache.invalidate('combinedTransformations');
         }
       }
     }

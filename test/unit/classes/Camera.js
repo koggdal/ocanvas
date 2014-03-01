@@ -678,7 +678,7 @@ describe('Camera', function() {
       expect(camera.cache.get('globalVertices')).to.not.equal(null);
     });
 
-    it('should invalidate globalTransformations on objects in the connected world when camera changes', function() {
+    it('should invalidate combinedTransformations on objects in the connected world when camera changes', function() {
       var camera = new Camera();
       var world = new World();
       var object = new CanvasObject();
@@ -686,13 +686,13 @@ describe('Camera', function() {
       world.cameras.add(camera);
       world.objects.add(object);
 
-      object.getGlobalTransformationMatrix({camera: camera});
+      object.getTransformationMatrix(camera);
 
-      expect(object.cache.test('globalTransformations')).to.equal(true);
+      expect(object.cache.test('combinedTransformations')).to.equal(true);
 
       camera.rotation = 45;
 
-      expect(object.cache.test('globalTransformations')).to.equal(false);
+      expect(object.cache.test('combinedTransformations')).to.equal(false);
     });
 
   });

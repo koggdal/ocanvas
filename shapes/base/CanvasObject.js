@@ -10,6 +10,7 @@ var Matrix = require('../../classes/Matrix');
 var matrixUtils = require('../../utils/matrix');
 var defineProperties = require('../../utils/defineProperties');
 var jsonHelpers = require('../../utils/json');
+var isInstanceOf = require('../../utils/isInstanceOf');
 
 /**
  * @classdesc The CanvasObject class is a base class that different objects
@@ -265,18 +266,18 @@ CanvasObject.prototype.initCache = function() {
   this.cache.define('transformations', {
     dependencies: ['translation', 'rotation', 'scaling']
   });
-  this.cache.define('globalTransformations', {
+  this.cache.define('combinedTransformations', {
     dependencies: ['transformations']
   });
   this.cache.define('point');
   this.cache.define('globalPoint', {
-    dependencies: ['point', 'globalTransformations']
+    dependencies: ['point', 'combinedTransformations']
   });
 
   // Vertices
   this.cache.define('vertices');
   this.cache.define('globalVertices', {
-    dependencies: ['vertices', 'globalTransformations']
+    dependencies: ['vertices', 'combinedTransformations']
   });
   this.cache.define('treeVertices', {
     dependencies: ['globalVertices']
@@ -293,9 +294,9 @@ CanvasObject.prototype.initCache = function() {
   this.cache.onInvalidate = function(unit) {
 
     // Matrices
-    if (unit === 'globalTransformations') {
+    if (unit === 'combinedTransformations') {
       self.children.forEach(function(child) {
-        child.cache.invalidate('globalTransformations');
+        child.cache.invalidate('combinedTransformations');
       });
     }
     else if (unit === 'globalPoint') {
@@ -479,16 +480,31 @@ CanvasObject.prototype.isTreeInView = function(canvas) {
 
 /**
  * Get a transformation matrix for this object. It will be a combined matrix
- * for all transformations (translation, rotation and scaling).
+ * for all transformations (translation, rotation and scaling). Depending on the
+ * input, it will combine transformations for all objects in the parent chain
+ * up until it reaches the reference (which is included).
  * If the matrix cache is still valid, it will not update the matrix.
+ *
+ * @param {Canvas|Camera|World|CanvasObject} reference The coordinate space the
+ *     matrix will be made for. If a canvas object is provided, it must exist in
+ *     the parent chain for this object.
  *
  * @return {Matrix} A Matrix instance representing the transformations.
  */
-CanvasObject.prototype.getTransformationMatrix = function() {
+CanvasObject.prototype.getTransformationMatrix = function(reference) {
   var cache = this.cache;
   var transformations = cache.get('transformations');
+  var combined = cache.get('combinedTransformations');
 
-  if (transformations.isValid) return transformations.matrix;
+  if (!reference) {
+    if (transformations.isValid) return transformations.matrix;
+  } else {
+    if (combined.isValid && combined.reference && combined.reference !== reference) {
+      cache.invalidate('combinedTransformations');
+    }
+    combined.reference = reference;
+    if (!combined.matrix) combined.matrix = new Matrix(3, 3, false);
+  }
 
   var translation = cache.get('translation');
   var rotation = cache.get('rotation');
@@ -518,57 +534,36 @@ CanvasObject.prototype.getTransformationMatrix = function() {
   );
   cache.update('transformations');
 
-  return transformations.matrix;
-};
-
-/**
- * Get a global transformation matrix for this object. It will be a combined
- * matrix for all transformations (translation, rotation and scaling) for all
- * objects in the parent chain for this object (including the camera as the
- * root). If the matrix cache is still valid, it will not update the matrix.
- *
- * @param {Canvas} canvas The Canvas instance to use. Needed to get the camera.
- *
- * @return {Matrix} A Matrix instance representing the transformations.
- */
-CanvasObject.prototype.getGlobalTransformationMatrix = function(canvas) {
-  var globalTransformations = this.cache.get('globalTransformations');
-
-  if (globalTransformations.isValid) return globalTransformations.matrix;
-
-  if (!globalTransformations.matrix) globalTransformations.matrix = new Matrix(3, 3, false);
-
-  if (!canvas || !canvas.camera) {
-    var message = 'The provided Canvas instance does not have a camera.';
-    var error = new Error(message);
-    error.name = 'ocanvas-needs-camera';
-    throw error;
+  if (!reference || reference === this) {
+    return transformations.matrix;
   }
 
   var matrices = [];
 
-  // If this object has a parent, get the global matrix from the parent
-  // instead. This will finally go up to the outermost object, which will
-  // not have a parent, and add the camera matrix instead. When this comes
-  // back to the initial call to this method, it will have a global
-  // transformation matrix for the whole parent chain, including the camera.
   if (this.parent instanceof CanvasObject) {
-    matrices.push(this.parent.getGlobalTransformationMatrix(canvas));
+    matrices.push(this.parent.getTransformationMatrix(reference));
+
   } else {
-    matrices.push(canvas.camera.getTransformationMatrix(canvas));
-    matrices.push(canvas.camera.cache.get('translation').matrixReverse);
+    var isCamera = isInstanceOf(reference, 'Camera');
+    var isCanvas = isInstanceOf(reference, 'Canvas');
+    if (isCamera || isCanvas) {
+      var camera = isCamera ? reference : reference.camera;
+      var canvas = isCanvas ? reference : undefined;
+      matrices.push(camera.getTransformationMatrix(canvas));
+      matrices.push(camera.cache.get('translation').matrixReverse);
+    }
   }
 
   // Also add the local matrix for this object
-  matrices.push(this.getTransformationMatrix());
+  matrices.push(transformations.matrix);
 
   // Multiplying the global matrix for the parent chain with the local matrix
   // for this object will result in a global matrix for this object.
-  globalTransformations.matrix.setIdentityData();
-  globalTransformations.matrix.multiply.apply(globalTransformations.matrix, matrices);
-  this.cache.update('globalTransformations');
+  combined.matrix.setIdentityData();
+  combined.matrix.multiply.apply(combined.matrix, matrices);
+  cache.update('combinedTransformations');
 
-  return globalTransformations.matrix;
+  return combined.matrix;
 };
 
 /*
@@ -614,7 +609,7 @@ CanvasObject.prototype.getGlobalPoint = function(x, y, canvas, opt_point) {
     // camera).
     globalPointMatrix = globalPoint.matrix;
     globalPointMatrix.setIdentityData();
-    globalPointMatrix.multiply(this.getGlobalTransformationMatrix(canvas),
+    globalPointMatrix.multiply(this.getTransformationMatrix(canvas),
         localPoint.matrix);
     cache.update('globalPoint');
 
