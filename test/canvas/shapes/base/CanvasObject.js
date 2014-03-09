@@ -1,5 +1,6 @@
 var expect = require('expect.js');
 var NodeCanvas = require('canvas');
+var getColor = require('../../../utils/getColor');
 
 var create = require('../../../../create');
 var World = require('../../../../classes/World');
@@ -270,8 +271,3 @@ describe('CanvasObject', function() {
   });
 
 });
-
-function getColor(context, x, y) {
-  var data = context.getImageData(x, y, 1, 1).data;
-  return 'rgba(' + data[0] + ', ' + data[1] + ', ' + data[2] + ', ' + data[3] + ')';
-}
