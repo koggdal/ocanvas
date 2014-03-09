@@ -3,6 +3,8 @@
  */
 'use strict';
 
+var CanvasObject = require('../shapes/base/CanvasObject');
+
 var defineProperties = require('../utils/defineProperties');
 var jsonHelpers = require('../utils/json');
 
@@ -294,29 +296,35 @@ Canvas.prototype.transformContextToObject = function(object, currentObject) {
   var x;
   var y;
   var obj;
+  var parent;
 
   obj = currentObject;
   while (obj) {
-    x = !obj.parent ? -(obj.x - camera.x) : -obj.x;
-    y = !obj.parent ? -(obj.y - camera.y) : -obj.y;
+    parent = obj.parent instanceof CanvasObject ? obj.parent : null;
+
+    x = parent ? -obj.x : -(obj.x - camera.x);
+    y = parent ? -obj.y : -(obj.y - camera.y);
+
     context.scale(1 / obj.scalingX, 1 / obj.scalingY);
     context.rotate(-obj.rotation * Math.PI / 180);
     context.translate(x, y);
-    obj = obj.parent;
+
+    obj = parent;
   }
 
   obj = object;
   var chain = [];
   while (obj) {
     chain.push(obj);
-    obj = obj.parent;
+    obj = obj.parent instanceof CanvasObject ? obj.parent : null;
   }
   chain.reverse();
 
   for (var i = 0, l = chain.length; i < l; i++) {
     obj = chain[i];
-    x = !obj.parent ? obj.x - camera.x : obj.x;
-    y = !obj.parent ? obj.y - camera.y : obj.y;
+    parent = obj.parent instanceof CanvasObject ? obj.parent : null;
+    x = parent ? obj.x : obj.x - camera.x;
+    y = parent ? obj.y : obj.y - camera.y;
     context.translate(x, y);
     context.rotate(obj.rotation * Math.PI / 180);
     context.scale(obj.scalingX, obj.scalingY);

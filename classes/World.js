@@ -28,12 +28,10 @@ var jsonHelpers = require('../utils/json');
 function World(opt_properties) {
   var self = this;
 
-  this.objects = new Collection();
-
   defineProperties(this, {
 
-    // By defining a setter for the cameras collection, we allow instantiation
-    // of the class, and at a later point set the cameras property to a new
+    // By defining a setter for the collections, we allow instantiation
+    // of the class, and at a later point set the property to a new
     // collection. With this setter, the collection is not switched out, but
     // the items are copied over to the existing collection, keeping the event
     // listeners on the collection intact.
@@ -51,6 +49,21 @@ function World(opt_properties) {
           cameras.add(item);
         });
       }
+    },
+    objects: {
+      value: new Collection(),
+      set: function(value, privateVars) {
+        var objects = privateVars.objects;
+
+        if (!(value instanceof Collection)) {
+          return objects;
+        }
+
+        objects.length = 0;
+        value.forEach(function(item) {
+          objects.add(item);
+        });
+      }
     }
   }, {enumerable: true});
 
@@ -59,6 +72,13 @@ function World(opt_properties) {
   });
   this.cameras.on('remove', function(event) {
     event.item.world = null;
+  });
+
+  this.objects.on('insert', function(event) {
+    event.item.parent = self;
+  });
+  this.objects.on('remove', function(event) {
+    event.item.parent = null;
   });
 
   if (opt_properties) {

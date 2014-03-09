@@ -20,6 +20,7 @@ var matrixUtils = require('../../utils/matrix');
  *     provides two of these middle classes: RectangularCanvasObject and
  *     RadialCanvasObject.
  *
+ * @property {CanvasObject|World} parent The parent object or world.
  * @property {number} x The x coordinate, relative to the origin of the
  *     parent object.
  * @property {number} y The y coordinate, relative to the origin of the
@@ -67,6 +68,7 @@ function CanvasObject(opt_properties) {
   this.constructorName = 'CanvasObject';
   this.fill = '';
   this.opacity = 1;
+  this.parent = null;
 
   defineProperties(this, this.propertyDescriptors, {enumerable: true});
 
@@ -297,7 +299,9 @@ CanvasObject.prototype.initCache = function() {
 
     // Vertices
     else if (unit === 'treeVertices') {
-      if (self.parent) self.parent.cache.invalidate('treeVertices');
+      if (self.parent && self.parent.cache) {
+        self.parent.cache.invalidate('treeVertices');
+      }
     }
     else if (unit === 'globalVertices') {
       self.children.forEach(function(child) {
@@ -307,7 +311,9 @@ CanvasObject.prototype.initCache = function() {
 
     // Bounding Rectangles
     else if (unit === 'boundingRectangleForTree') {
-      if (self.parent) self.parent.cache.invalidate('boundingRectangleForTree');
+      if (self.parent && self.parent.cache) {
+        self.parent.cache.invalidate('boundingRectangleForTree');
+      }
     }
   };
 };
@@ -539,7 +545,7 @@ CanvasObject.prototype.getGlobalTransformationMatrix = function(canvas) {
   // not have a parent, and add the camera matrix instead. When this comes
   // back to the initial call to this method, it will have a global
   // transformation matrix for the whole parent chain, including the camera.
-  if (this.parent) {
+  if (this.parent instanceof CanvasObject) {
     matrices.push(this.parent.getGlobalTransformationMatrix(canvas));
   } else {
     matrices.push(canvas.camera.getTransformationMatrix());

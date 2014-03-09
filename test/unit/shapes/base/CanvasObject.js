@@ -56,6 +56,10 @@ describe('CanvasObject', function() {
       expect(object.opacity).to.equal(1);
     });
 
+    it('should set the default value of property `parent` to null', function() {
+      expect(object.parent).to.equal(null);
+    });
+
     it('should set the default value of property `clippingMask` to null', function() {
       expect(object.clippingMask).to.equal(null);
     });
@@ -1614,6 +1618,24 @@ describe('CanvasObject', function() {
 
       expect(object1.cache.test('globalPoint')).to.equal(false);
       expect(object2.cache.test('globalPoint')).to.equal(false);
+    });
+
+    it('should invalidate boundingRectangleForTree on parent when boundingRectangleForTree is invalidated on this object', function() {
+      var camera = new Camera();
+      var object = new CanvasObject();
+      var parent = new CanvasObject();
+      parent.children.add(object);
+
+      parent.cache.update('boundingRectangleForTree');
+      object.cache.update('boundingRectangleForTree');
+
+      expect(parent.cache.test('boundingRectangleForTree')).to.equal(true);
+      expect(object.cache.test('boundingRectangleForTree')).to.equal(true);
+
+      object.cache.invalidate('boundingRectangleForTree');
+
+      expect(parent.cache.test('boundingRectangleForTree')).to.equal(false);
+      expect(object.cache.test('boundingRectangleForTree')).to.equal(false);
     });
 
   });

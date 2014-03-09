@@ -21,31 +21,53 @@ describe('World', function() {
       expect(world.cameras instanceof Collection).to.equal(true);
     });
 
-    it('should set up a collection of objects', function() {
-      var world = new World();
-      expect(world.objects instanceof Collection).to.equal(true);
-    });
-
-    it('should not allow setting the cameras property to something that is not a collection', function() {
+    it('should not allow setting the `cameras` property to something that is not a collection', function() {
       var world = new World();
       expect(world.cameras instanceof Collection).to.equal(true);
       world.cameras = 'foo';
       expect(world.cameras instanceof Collection).to.equal(true);
     });
 
-    it('should set up an insert event listener for the cameras collection (to set the world property)', function() {
+    it('should set up an insert event listener for the `cameras` collection (to set the `world` property)', function() {
       var world = new World();
       var dummyCamera = {};
       world.cameras.add(dummyCamera);
       expect(dummyCamera.world).to.equal(world);
     });
 
-    it('should set up a remove event listener for the cameras collection (to unset the world property)', function() {
+    it('should set up a remove event listener for the `cameras` collection (to unset the `world` property)', function() {
       var world = new World();
       var dummyCamera = {};
       world.cameras.add(dummyCamera);
       world.cameras.remove(dummyCamera);
       expect(dummyCamera.world).to.equal(null);
+    });
+
+    it('should set up a collection of objects', function() {
+      var world = new World();
+      expect(world.objects instanceof Collection).to.equal(true);
+    });
+
+    it('should not allow setting the `objects` property to something that is not a collection', function() {
+      var world = new World();
+      expect(world.objects instanceof Collection).to.equal(true);
+      world.objects = 'foo';
+      expect(world.objects instanceof Collection).to.equal(true);
+    });
+
+    it('should set up an insert event listener for the `objects` collection (to set the `parent` property)', function() {
+      var world = new World();
+      var dummyObject = {};
+      world.objects.add(dummyObject);
+      expect(dummyObject.parent).to.equal(world);
+    });
+
+    it('should set up a remove event listener for the `objects` collection (to unset the `parent` property)', function() {
+      var world = new World();
+      var dummyObject = {};
+      world.objects.add(dummyObject);
+      world.objects.remove(dummyObject);
+      expect(dummyObject.parent).to.equal(null);
     });
 
   });
