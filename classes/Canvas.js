@@ -430,19 +430,21 @@ Canvas.prototype._getViewModeValues = function() {
  * @private
  */
 Canvas.prototype._createCanvas = function() {
-  if (!this.element || !(this.element instanceof HTMLCanvasElement)) {
+  if (!this.element && global.document && document.createElement) {
     this.element = document.createElement('canvas');
   }
 
-  this.context = this.element.getContext('2d');
+  if (this.element instanceof HTMLCanvasElement) {
+    this.context = this.element.getContext('2d');
 
-  // If width/height is already set on the object, set the canvas element
-  // to that size. Otherwise, set the instance properties to the size of
-  // the canvas element.
-  if (this.width) this.element.width = this.width;
-  else this.width = this.element.width;
-  if (this.height) this.element.height = this.height;
-  else this.height = this.element.height;
+    // If width/height is already set on the object, set the canvas element
+    // to that size. Otherwise, set the instance properties to the size of
+    // the canvas element.
+    if (this.width) this.element.width = this.width;
+    else this.width = this.element.width;
+    if (this.height) this.element.height = this.height;
+    else this.height = this.element.height;
+  }
 };
 
 module.exports = Canvas;
