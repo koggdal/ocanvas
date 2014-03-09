@@ -1,4 +1,5 @@
 var expect = require('expect.js');
+var Canvas = require('../../../classes/Canvas');
 var Camera = require('../../../classes/Camera');
 var World = require('../../../classes/World');
 var CanvasObject = require('../../../shapes/base/CanvasObject');
@@ -260,7 +261,7 @@ describe('Camera', function() {
 
     it('should return a matrix that contains scaling', function() {
       var camera = new Camera({zoom: 0.5, x: 0, y: 0});
-      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
+      expect(camera.getTransformationMatrix().toArray()).to.eql([2, 0, 0, 0, 2, 0, 0, 0, 1]);
     });
 
     it('should return a matrix that combines translation, rotation and scaling', function() {
@@ -271,17 +272,39 @@ describe('Camera', function() {
       });
 
       expect(camera.getTransformationMatrix().toArray()).to.eql([
-        0.492403876506104,
-        -0.08682408883346517,
+        1.969615506024416,
+        -0.34729635533386066,
         10,
-        0.08682408883346517,
-        0.492403876506104,
+        0.34729635533386066,
+        1.969615506024416,
         20,
         0,
         0,
         1
       ]);
 
+    });
+
+    it('should return a matrix that contains rotation with changed sign if a canvas is provided', function() {
+      var camera = new Camera({rotation: 10, x: 0, y: 0});
+      var canvas = new Canvas({camera: camera});
+      expect(camera.getTransformationMatrix(canvas).toArray()).to.eql([
+        0.984807753012208,
+        0.17364817766693033,
+        0,
+        -0.17364817766693033,
+        0.984807753012208,
+        0,
+        0,
+        0,
+        1
+      ]);
+    });
+
+    it('should return a matrix that contains inverted scaling (exact zoom value) if canvas is provided', function() {
+      var camera = new Camera({zoom: 0.5, x: 0, y: 0});
+      var canvas = new Canvas({camera: camera});
+      expect(camera.getTransformationMatrix(canvas).toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
     });
 
     it('should return a cached matrix if nothing has changed', function(done) {
@@ -293,9 +316,9 @@ describe('Camera', function() {
         setDataCalled = true;
         setData.apply(this, arguments);
       };
-      expect(matrix.toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
+      expect(matrix.toArray()).to.eql([2, 0, 0, 0, 2, 0, 0, 0, 1]);
 
-      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
+      expect(camera.getTransformationMatrix().toArray()).to.eql([2, 0, 0, 0, 2, 0, 0, 0, 1]);
 
       setTimeout(function() {
         if (!setDataCalled) done();
@@ -306,15 +329,15 @@ describe('Camera', function() {
     it('should return an updated matrix when position has changed', function() {
       var camera = new Camera({zoom: 0.5, x: 0, y: 0});
 
-      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
+      expect(camera.getTransformationMatrix().toArray()).to.eql([2, 0, 0, 0, 2, 0, 0, 0, 1]);
 
       camera.x = 20;
 
-      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 20, 0, 0.5, 0, 0, 0, 1]);
+      expect(camera.getTransformationMatrix().toArray()).to.eql([2, 0, 20, 0, 2, 0, 0, 0, 1]);
 
       camera.y = 30;
 
-      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 20, 0, 0.5, 30, 0, 0, 1]);
+      expect(camera.getTransformationMatrix().toArray()).to.eql([2, 0, 20, 0, 2, 30, 0, 0, 1]);
     });
 
     it('should return an updated matrix when rotation has changed', function() {
@@ -340,11 +363,11 @@ describe('Camera', function() {
     it('should return an updated matrix when scaling has changed', function() {
       var camera = new Camera({zoom: 2, x: 0, y: 0});
 
-      expect(camera.getTransformationMatrix().toArray()).to.eql([2, 0, 0, 0, 2, 0, 0, 0, 1]);
+      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
 
       camera.zoom = 0.5;
 
-      expect(camera.getTransformationMatrix().toArray()).to.eql([0.5, 0, 0, 0, 0.5, 0, 0, 0, 1]);
+      expect(camera.getTransformationMatrix().toArray()).to.eql([2, 0, 0, 0, 2, 0, 0, 0, 1]);
     });
 
     it('should create a cached matrix for reversed translation', function() {
@@ -426,7 +449,7 @@ describe('Camera', function() {
       camera.zoom = 2;
 
       point = camera.getGlobalPoint(10, 10);
-      expect(point).to.eql({x: 170, y: 95});
+      expect(point).to.eql({x: 155, y: 80});
     });
 
     it('should return an updated global point if a different local point was passed in', function() {
@@ -543,10 +566,10 @@ describe('Camera', function() {
       });
       var vertices = camera.getGlobalVertices();
 
-      expect(vertices[0]).to.eql({x: 64.64466094067262, y: -56.06601717798212});
-      expect(vertices[1]).to.eql({x: 206.06601717798213, y: 85.35533905932736});
-      expect(vertices[2]).to.eql({x: 135.35533905932738, y: 156.06601717798213});
-      expect(vertices[3]).to.eql({x: -6.066017177982133, y: 14.644660940672637});
+      expect(vertices[0]).to.eql({x: 91.16116523516816, y: 23.48349570550447});
+      expect(vertices[1]).to.eql({x: 126.51650429449553, y: 58.838834764831844});
+      expect(vertices[2]).to.eql({x: 108.83883476483184, y: 76.51650429449553});
+      expect(vertices[3]).to.eql({x: 73.48349570550447, y: 41.161165235168156});
     });
 
     it('should return a cached array if nothing has changed', function(done) {

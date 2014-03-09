@@ -548,7 +548,7 @@ CanvasObject.prototype.getGlobalTransformationMatrix = function(canvas) {
   if (this.parent instanceof CanvasObject) {
     matrices.push(this.parent.getGlobalTransformationMatrix(canvas));
   } else {
-    matrices.push(canvas.camera.getTransformationMatrix());
+    matrices.push(canvas.camera.getTransformationMatrix(canvas));
     matrices.push(canvas.camera.cache.get('translation').matrixReverse);
   }
 

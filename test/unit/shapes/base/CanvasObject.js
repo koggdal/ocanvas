@@ -1,5 +1,6 @@
 var expect = require('expect.js');
 var CanvasObject = require('../../../../shapes/base/CanvasObject');
+var Canvas = require('../../../../classes/Canvas');
 var Camera = require('../../../../classes/Camera');
 var Collection = require('../../../../classes/Collection');
 var Cache = require('../../../../classes/Cache');
@@ -485,6 +486,7 @@ describe('CanvasObject', function() {
         width: 300, height: 300,
         x: 150, y: 150
       });
+      var canvas = new Canvas({camera: camera});
       var object = new CanvasObject({
         width: 100, height: 100,
         x: 50, y: 50
@@ -499,7 +501,7 @@ describe('CanvasObject', function() {
           height: this.height
         };
       };
-      expect(object.isInView({camera: camera})).to.equal(true);
+      expect(object.isInView(canvas)).to.equal(true);
     });
 
     it('should return false if the object is not in view', function() {
@@ -507,6 +509,7 @@ describe('CanvasObject', function() {
         width: 300, height: 300,
         x: 150, y: 150
       });
+      var canvas = new Canvas({camera: camera});
       var object = new CanvasObject({
         width: 100, height: 100,
         x: 500, y: 50
@@ -521,7 +524,7 @@ describe('CanvasObject', function() {
           height: this.height
         };
       };
-      expect(object.isInView({camera: camera})).to.equal(false);
+      expect(object.isInView(canvas)).to.equal(false);
     });
 
   });
@@ -533,6 +536,7 @@ describe('CanvasObject', function() {
         width: 300, height: 300,
         x: 150, y: 150
       });
+      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject({
         width: 100, height: 100,
         x: 500, y: 50
@@ -561,7 +565,7 @@ describe('CanvasObject', function() {
         return rect;
       };
 
-      expect(object1.isTreeInView({camera: camera})).to.equal(true);
+      expect(object1.isTreeInView(canvas)).to.equal(true);
     });
 
     it('should return false if the object and all children are not in view', function() {
@@ -569,6 +573,7 @@ describe('CanvasObject', function() {
         width: 300, height: 300,
         x: 150, y: 150
       });
+      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject({
         width: 100, height: 100,
         x: 500, y: 50
@@ -597,7 +602,7 @@ describe('CanvasObject', function() {
         return rect;
       };
 
-      expect(object1.isTreeInView({camera: camera})).to.equal(false);
+      expect(object1.isTreeInView(canvas)).to.equal(false);
     });
 
   });
@@ -747,32 +752,36 @@ describe('CanvasObject', function() {
     it('should return a matrix that contains the transformations for this object', function() {
       var camera = new Camera({x: 0, y: 0});
       var object = new CanvasObject({x: 10, y: 20});
-      var matrix = object.getGlobalTransformationMatrix({camera: camera});
+      var canvas = new Canvas({camera: camera});
+      var matrix = object.getGlobalTransformationMatrix(canvas);
       expect(matrix.toArray()).to.eql([1, 0, 10, 0, 1, 20, 0, 0, 1]);
     });
 
     it('should return a matrix that contains the transformations for the parent object', function() {
       var camera = new Camera({x: 0, y: 0});
+      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject({x: 10, y: 20});
       var object2 = new CanvasObject({x: 30, y: 50});
       object1.children.add(object2);
 
-      var matrix = object2.getGlobalTransformationMatrix({camera: camera});
+      var matrix = object2.getGlobalTransformationMatrix(canvas);
       expect(matrix.toArray()).to.eql([1, 0, 40, 0, 1, 70, 0, 0, 1]);
     });
 
     it('should return a matrix that contains the transformations for the camera', function() {
       var camera = new Camera({x: 0, y: 0, zoom: 2});
+      var canvas = new Canvas({camera: camera});
       var object = new CanvasObject({x: 10, y: 20});
 
-      var matrix = object.getGlobalTransformationMatrix({camera: camera});
+      var matrix = object.getGlobalTransformationMatrix(canvas);
       expect(matrix.toArray()).to.eql([2, 0, 20, 0, 2, 40, 0, 0, 1]);
     });
 
     it('should return a cached matrix if nothing has changed', function(done) {
       var camera = new Camera({x: 0, y: 0});
+      var canvas = new Canvas({camera: camera});
       var object = new CanvasObject({x: 10, y: 20});
-      var matrix = object.getGlobalTransformationMatrix({camera: camera});
+      var matrix = object.getGlobalTransformationMatrix(canvas);
       var setData = matrix.setData;
       var setDataCalled = false;
       matrix.setData = function() {
@@ -781,7 +790,7 @@ describe('CanvasObject', function() {
       };
       expect(matrix.toArray()).to.eql([1, 0, 10, 0, 1, 20, 0, 0, 1]);
 
-      matrix = object.getGlobalTransformationMatrix({camera: camera});
+      matrix = object.getGlobalTransformationMatrix(canvas);
       expect(matrix.toArray()).to.eql([1, 0, 10, 0, 1, 20, 0, 0, 1]);
 
       setTimeout(function() {
@@ -793,7 +802,7 @@ describe('CanvasObject', function() {
     it('should return an updated matrix when position has changed', function() {
       var camera = new Camera({x: 0, y: 0});
       var object = new CanvasObject({x: 10, y: 20});
-      var canvas = {camera: camera};
+      var canvas = new Canvas({camera: camera});
       var matrix;
 
       matrix = object.getGlobalTransformationMatrix(canvas);
@@ -813,7 +822,7 @@ describe('CanvasObject', function() {
     it('should return an updated matrix when rotation has changed', function() {
       var camera = new Camera({x: 0, y: 0});
       var object = new CanvasObject({rotation: 0});
-      var canvas = {camera: camera};
+      var canvas = new Canvas({camera: camera});
       var matrix;
 
       matrix = object.getGlobalTransformationMatrix(canvas);
@@ -838,7 +847,7 @@ describe('CanvasObject', function() {
     it('should return an updated matrix when scaling has changed', function() {
       var camera = new Camera({x: 0, y: 0});
       var object = new CanvasObject({scalingX: 2, scalingY: 0.5});
-      var canvas = {camera: camera};
+      var canvas = new Canvas({camera: camera});
       var matrix;
 
       matrix = object.getGlobalTransformationMatrix(canvas);
@@ -860,7 +869,7 @@ describe('CanvasObject', function() {
       var object1 = new CanvasObject({x: 10, y: 20});
       var object2 = new CanvasObject({x: 30, y: 50});
       object1.children.add(object2);
-      var canvas = {camera: camera};
+      var canvas = new Canvas({camera: camera});
       var matrix;
 
       matrix = object2.getGlobalTransformationMatrix(canvas);
@@ -878,22 +887,24 @@ describe('CanvasObject', function() {
 
     it('should return a point in global space', function() {
       var camera = new Camera({rotation: 45});
+      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
       object1.children.add(object2);
 
-      var point = object2.getGlobalPoint(2, 2, {camera: camera});
-      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+      var point = object2.getGlobalPoint(2, 2, canvas);
+      expect(point).to.eql({x: 135.1507575950825, y: 86.61165235168156});
     });
 
     it('should return a cached point if nothing has changed', function(done) {
       var camera = new Camera({rotation: 45});
+      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
       object1.children.add(object2);
 
-      var point = object2.getGlobalPoint(2, 2, {camera: camera});
-      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+      var point = object2.getGlobalPoint(2, 2, canvas);
+      expect(point).to.eql({x: 135.1507575950825, y: 86.61165235168156});
 
       var globalPointMatrix = object2.cache.get('globalPoint').matrix;
       var setData = globalPointMatrix.setData;
@@ -903,8 +914,8 @@ describe('CanvasObject', function() {
         setData.apply(this, arguments);
       };
 
-      point = object2.getGlobalPoint(2, 2, {camera: camera});
-      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+      point = object2.getGlobalPoint(2, 2, canvas);
+      expect(point).to.eql({x: 135.1507575950825, y: 86.61165235168156});
 
       setTimeout(function() {
         if (!setDataCalled) done();
@@ -915,97 +926,103 @@ describe('CanvasObject', function() {
 
     it('should return an updated global point if position has changed', function() {
       var camera = new Camera({rotation: 45});
+      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
       object1.children.add(object2);
 
-      var point = object2.getGlobalPoint(2, 2, {camera: camera});
-      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+      var point = object2.getGlobalPoint(2, 2, canvas);
+      expect(point).to.eql({x: 135.1507575950825, y: 86.61165235168156});
 
       object2.x = 300;
 
-      point = object2.getGlobalPoint(2, 2, {camera: camera});
-      expect(point).to.eql({x: 138.38834764831853, y: 360.1507575950825});
+      point = object2.getGlobalPoint(2, 2, canvas);
+      expect(point).to.eql({x: 435.1507575950825, y: 86.61165235168156});
 
       object2.y = 200;
 
-      point = object2.getGlobalPoint(2, 2, {camera: camera});
-      expect(point).to.eql({x: 38.3883476483185, y: 360.1507575950826});
+      point = object2.getGlobalPoint(2, 2, canvas);
+      expect(point).to.eql({x: 435.1507575950825, y: 186.61165235168156});
     });
 
     it('should return an updated global point if rotation has changed', function() {
       var camera = new Camera({rotation: 45});
+      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
       object1.children.add(object2);
 
-      var point = object2.getGlobalPoint(2, 2, {camera: camera});
-      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+      var point = object2.getGlobalPoint(2, 2, canvas);
+      expect(point).to.eql({x: 135.1507575950825, y: 86.61165235168156});
 
       object2.rotation = 0;
 
-      point = object2.getGlobalPoint(2, 2, {camera: camera});
-      expect(point).to.eql({x: 136.38834764831844, y: 59.32233047033633});
+      point = object2.getGlobalPoint(2, 2, canvas);
+      expect(point).to.eql({x: 134.3223304703363, y: 88.61165235168156});
     });
 
     it('should return an updated global point if scaling has changed', function() {
       var camera = new Camera({rotation: 45});
+      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
       object1.children.add(object2);
 
-      var point = object2.getGlobalPoint(2, 2, {camera: camera});
-      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+      var point = object2.getGlobalPoint(2, 2, canvas);
+      expect(point).to.eql({x: 135.1507575950825, y: 86.61165235168156});
 
       object2.scalingX = 2;
 
-      point = object2.getGlobalPoint(2, 2, {camera: camera});
-      expect(point).to.eql({x: 139.80256121069155, y: 61.564971157455616});
+      point = object2.getGlobalPoint(2, 2, canvas);
+      expect(point).to.eql({x: 136.5649711574556, y: 85.19743878930846});
 
       object2.scalingY = 2;
 
-      point = object2.getGlobalPoint(2, 2, {camera: camera});
-      expect(point).to.eql({x: 138.38834764831844, y: 62.97918471982871});
+      point = object2.getGlobalPoint(2, 2, canvas);
+      expect(point).to.eql({x: 137.97918471982868, y: 86.61165235168156});
     });
 
     it('should return an updated global point if a parent has changed', function() {
       var camera = new Camera({rotation: 45});
+      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
       object1.children.add(object2);
 
-      var point = object2.getGlobalPoint(2, 2, {camera: camera});
-      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+      var point = object2.getGlobalPoint(2, 2, canvas);
+      expect(point).to.eql({x: 135.1507575950825, y: 86.61165235168156});
 
       object1.rotation = 0;
 
-      point = object2.getGlobalPoint(2, 2, {camera: camera});
-      expect(point).to.eql({x: 169.67766952966372, y: 130.03300858899107});
+      point = object2.getGlobalPoint(2, 2, canvas);
+      expect(point).to.eql({x: 205.03300858899104, y: 55.32233047033631});
     });
 
     it('should return an updated global point if a different local point was passed in', function() {
       var camera = new Camera({rotation: 45});
+      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
       object1.children.add(object2);
 
-      var point = object2.getGlobalPoint(2, 2, {camera: camera});
-      expect(point).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+      var point = object2.getGlobalPoint(2, 2, canvas);
+      expect(point).to.eql({x: 135.1507575950825, y: 86.61165235168156});
 
-      point = object2.getGlobalPoint(4, 4, {camera: camera});
-      expect(point).to.eql({x: 138.38834764831844, y: 62.97918471982871});
+      point = object2.getGlobalPoint(4, 4, canvas);
+      expect(point).to.eql({x: 137.97918471982868, y: 86.61165235168156});
     });
 
     it('should return the passed in point object with correct data', function() {
       var camera = new Camera({rotation: 45});
+      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
       object1.children.add(object2);
 
       var point = {x: 0, y: 0};
-      var returnedPoint = object2.getGlobalPoint(2, 2, {camera: camera}, point);
+      var returnedPoint = object2.getGlobalPoint(2, 2, canvas, point);
       expect(returnedPoint).to.equal(point);
-      expect(returnedPoint).to.eql({x: 138.38834764831844, y: 60.150757595082524});
+      expect(returnedPoint).to.eql({x: 135.1507575950825, y: 86.61165235168156});
     });
 
   });
@@ -1050,6 +1067,7 @@ describe('CanvasObject', function() {
 
     it('should return the coordinates of all vertices of the object and its children', function() {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
 
       var object1 = new CanvasObject({
         width: 100, height: 50,
@@ -1075,7 +1093,7 @@ describe('CanvasObject', function() {
       object1.children.add(object2);
       object2.children.add(object3);
 
-      var vertices = object1.getGlobalVerticesForTree({camera: camera});
+      var vertices = object1.getGlobalVerticesForTree(canvas);
 
       expect(vertices.length).to.equal(9);
       expect(vertices[0]).to.eql({x: 100, y: 50});
@@ -1091,6 +1109,7 @@ describe('CanvasObject', function() {
 
     it('should return a cached array if nothing has changed', function(done) {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
 
       var object1 = new CanvasObject({
         width: 100, height: 50,
@@ -1108,14 +1127,14 @@ describe('CanvasObject', function() {
       });
       object1.children.add(object2);
 
-      var vertices = object1.getGlobalVerticesForTree({camera: camera});
+      var vertices = object1.getGlobalVerticesForTree(canvas);
 
       var hasAskedForNew = false;
       object1.getGlobalVertices = function() {
         hasAskedForNew = true;
       };
 
-      object1.getGlobalVerticesForTree({camera: camera});
+      object1.getGlobalVerticesForTree(canvas);
 
       setTimeout(function() {
         if (hasAskedForNew) done(new Error('The vertices were updated and did not use the cache'));
@@ -1125,6 +1144,7 @@ describe('CanvasObject', function() {
 
     it('should return an updated array if position has changed', function() {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
 
       var object = new CanvasObject({
         width: 100, height: 50,
@@ -1133,7 +1153,7 @@ describe('CanvasObject', function() {
           this.cache.update('vertices', {
             vertices: [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}]
           });
-          this.getGlobalTransformationMatrix({camera: camera});
+          this.getGlobalTransformationMatrix(canvas);
           var x = this.x;
           var y = this.y;
           var w = this.width;
@@ -1144,7 +1164,7 @@ describe('CanvasObject', function() {
         }
       });
 
-      var vertices = object.getGlobalVerticesForTree({camera: camera});
+      var vertices = object.getGlobalVerticesForTree(canvas);
 
       expect(vertices[0]).to.eql({x: 100, y: 50});
       expect(vertices[1]).to.eql({x: 200, y: 50});
@@ -1152,7 +1172,7 @@ describe('CanvasObject', function() {
       expect(vertices[3]).to.eql({x: 100, y: 100});
 
       object.x = 200;
-      vertices = object.getGlobalVerticesForTree({camera: camera});
+      vertices = object.getGlobalVerticesForTree(canvas);
 
       expect(vertices[0]).to.eql({x: 200, y: 50});
       expect(vertices[1]).to.eql({x: 300, y: 50});
@@ -1160,7 +1180,7 @@ describe('CanvasObject', function() {
       expect(vertices[3]).to.eql({x: 200, y: 100});
 
       object.y = 100;
-      vertices = object.getGlobalVerticesForTree({camera: camera});
+      vertices = object.getGlobalVerticesForTree(canvas);
 
       expect(vertices[0]).to.eql({x: 200, y: 100});
       expect(vertices[1]).to.eql({x: 300, y: 100});
@@ -1170,6 +1190,7 @@ describe('CanvasObject', function() {
 
     it('should return an updated array if rotation has changed', function(done) {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
 
       var object = new CanvasObject({
         width: 100, height: 50,
@@ -1178,14 +1199,14 @@ describe('CanvasObject', function() {
           this.cache.update('vertices', {
             vertices: [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}]
           });
-          this.getGlobalTransformationMatrix({camera: camera});
+          this.getGlobalTransformationMatrix(canvas);
           var globalVertices = [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
           this.cache.update('globalVertices', {vertices: globalVertices});
           return globalVertices;
         }
       });
 
-      var vertices = object.getGlobalVerticesForTree({camera: camera});
+      var vertices = object.getGlobalVerticesForTree(canvas);
 
       expect(vertices[0]).to.eql({x: 100, y: 50});
       expect(vertices[1]).to.eql({x: 200, y: 50});
@@ -1197,7 +1218,7 @@ describe('CanvasObject', function() {
       };
 
       object.rotation = 180;
-      object.getGlobalVerticesForTree({camera: camera});
+      object.getGlobalVerticesForTree(canvas);
 
       setTimeout(function() {
         if (hasAskedForNew) done();
@@ -1207,6 +1228,7 @@ describe('CanvasObject', function() {
 
     it('should return an updated array if scaling has changed', function(done) {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
 
       var updateCache = function(cache) {
         cache.update('vertices').update('globalVertices').update('treeVertices');
@@ -1222,7 +1244,7 @@ describe('CanvasObject', function() {
         }
       });
 
-      var vertices = object.getGlobalVerticesForTree({camera: camera});
+      var vertices = object.getGlobalVerticesForTree(canvas);
 
       expect(vertices[0]).to.eql({x: 100, y: 50});
       expect(vertices[1]).to.eql({x: 200, y: 50});
@@ -1235,9 +1257,9 @@ describe('CanvasObject', function() {
       };
 
       object.scalingX = 0.5;
-      object.getGlobalVerticesForTree({camera: camera});
+      object.getGlobalVerticesForTree(canvas);
       object.scalingY = 0.5;
-      object.getGlobalVerticesForTree({camera: camera});
+      object.getGlobalVerticesForTree(canvas);
 
       setTimeout(function() {
         if (hasAskedForNew === 2) done();
@@ -1247,6 +1269,7 @@ describe('CanvasObject', function() {
 
     it('should return an updated array if origin has changed', function(done) {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
 
       var updateCache = function(cache) {
         cache.update('vertices').update('globalVertices').update('treeVertices');
@@ -1261,7 +1284,7 @@ describe('CanvasObject', function() {
         }
       });
 
-      var vertices = object.getGlobalVerticesForTree({camera: camera});
+      var vertices = object.getGlobalVerticesForTree(canvas);
 
       expect(vertices[0]).to.eql({x: 100, y: 50});
       expect(vertices[1]).to.eql({x: 200, y: 50});
@@ -1274,9 +1297,9 @@ describe('CanvasObject', function() {
       };
 
       object.originX = 10;
-      object.getGlobalVerticesForTree({camera: camera});
+      object.getGlobalVerticesForTree(canvas);
       object.originY = 10;
-      object.getGlobalVerticesForTree({camera: camera});
+      object.getGlobalVerticesForTree(canvas);
 
       setTimeout(function() {
         if (hasAskedForNew === 2) done();
@@ -1286,6 +1309,7 @@ describe('CanvasObject', function() {
 
     it('should return an updated array if a child has changed', function(done) {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
 
       var updateCache = function(cache) {
         cache.update('vertices').update('globalVertices').update('treeVertices');
@@ -1310,7 +1334,7 @@ describe('CanvasObject', function() {
       });
       object1.children.add(object2);
 
-      var vertices = object1.getGlobalVerticesForTree({camera: camera});
+      var vertices = object1.getGlobalVerticesForTree(canvas);
 
       expect(vertices[0]).to.eql({x: 100, y: 50});
       expect(vertices[1]).to.eql({x: 200, y: 50});
@@ -1326,7 +1350,7 @@ describe('CanvasObject', function() {
       };
 
       object2.x = 10;
-      object1.getGlobalVerticesForTree({camera: camera});
+      object1.getGlobalVerticesForTree(canvas);
 
       setTimeout(function() {
         if (hasAskedForNew) done();
@@ -1336,6 +1360,7 @@ describe('CanvasObject', function() {
 
     it('should return an updated array if a parent has changed', function(done) {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
 
       var updateCache = function(cache) {
         cache.update('vertices').update('globalVertices').update('treeVertices');
@@ -1361,7 +1386,7 @@ describe('CanvasObject', function() {
       });
       object1.children.add(object2);
 
-      var vertices = object2.getGlobalVerticesForTree({camera: camera});
+      var vertices = object2.getGlobalVerticesForTree(canvas);
 
       expect(vertices[0]).to.eql({x: 200, y: 100});
       expect(vertices[1]).to.eql({x: 300, y: 100});
@@ -1374,7 +1399,7 @@ describe('CanvasObject', function() {
       };
 
       object1.x = 10;
-      object2.getGlobalVerticesForTree({camera: camera});
+      object2.getGlobalVerticesForTree(canvas);
 
       setTimeout(function() {
         if (hasAskedForNew) done();
@@ -1388,11 +1413,12 @@ describe('CanvasObject', function() {
 
     it('should return an object with data about the bounding rectangle', function() {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
       var object = new CanvasObject();
       object.getGlobalVertices = function() {
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
-      var rect = object.getBoundingRectangle({camera: camera});
+      var rect = object.getBoundingRectangle(canvas);
       expect(rect.top).to.equal(0);
       expect(rect.right).to.equal(100);
       expect(rect.bottom).to.equal(50);
@@ -1403,6 +1429,7 @@ describe('CanvasObject', function() {
 
     it('should return data only for this object, not its children', function() {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject();
       var object2 = new CanvasObject();
       object1.children.add(object2);
@@ -1412,7 +1439,7 @@ describe('CanvasObject', function() {
       object2.getGlobalVertices = function() {
         return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
       };
-      var rect = object1.getBoundingRectangle({camera: camera});
+      var rect = object1.getBoundingRectangle(canvas);
       expect(rect.top).to.equal(0);
       expect(rect.right).to.equal(100);
       expect(rect.bottom).to.equal(50);
@@ -1423,20 +1450,22 @@ describe('CanvasObject', function() {
 
     it('should return a cached rectangle if nothing has changed', function() {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
       var object = new CanvasObject();
       var numCalls = 0;
       object.getGlobalVertices = function() {
         numCalls++;
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
-      object.getBoundingRectangle({camera: camera});
-      object.getBoundingRectangle({camera: camera});
+      object.getBoundingRectangle(canvas);
+      object.getBoundingRectangle(canvas);
 
       expect(numCalls).to.equal(1);
     });
 
     it('should return an updated rectangle if something has changed', function() {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
       var object = new CanvasObject();
       var numCalls = 0;
 
@@ -1451,9 +1480,9 @@ describe('CanvasObject', function() {
         var x = this.x;
         return [{x: x, y: 0}, {x: x + 100, y: 0}, {x: x + 100, y: 50}];
       };
-      object.getBoundingRectangle({camera: camera});
+      object.getBoundingRectangle(canvas);
       object.x = 100;
-      var rect = object.getBoundingRectangle({camera: camera});
+      var rect = object.getBoundingRectangle(canvas);
 
       expect(numCalls).to.equal(2);
       expect(rect.top).to.equal(0);
@@ -1470,11 +1499,12 @@ describe('CanvasObject', function() {
 
     it('should return an object with data about the bounding rectangle', function() {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
       var object = new CanvasObject();
       object.getGlobalVerticesForTree = function() {
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
-      var rect = object.getBoundingRectangleForTree({camera: camera});
+      var rect = object.getBoundingRectangleForTree(canvas);
       expect(rect.top).to.equal(0);
       expect(rect.right).to.equal(100);
       expect(rect.bottom).to.equal(50);
@@ -1485,6 +1515,7 @@ describe('CanvasObject', function() {
 
     it('should return data for this object and its children', function() {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject();
       var object2 = new CanvasObject();
       object1.children.add(object2);
@@ -1496,7 +1527,7 @@ describe('CanvasObject', function() {
       object2.getGlobalVerticesForTree = function() {
         return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
       };
-      var rect = object1.getBoundingRectangleForTree({camera: camera});
+      var rect = object1.getBoundingRectangleForTree(canvas);
       expect(rect.top).to.equal(0);
       expect(rect.right).to.equal(200);
       expect(rect.bottom).to.equal(100);
@@ -1507,20 +1538,22 @@ describe('CanvasObject', function() {
 
     it('should return a cached rectangle if nothing has changed', function() {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
       var object = new CanvasObject();
       var numCalls = 0;
       object.getGlobalVerticesForTree = function() {
         numCalls++;
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
-      object.getBoundingRectangleForTree({camera: camera});
-      object.getBoundingRectangleForTree({camera: camera});
+      object.getBoundingRectangleForTree(canvas);
+      object.getBoundingRectangleForTree(canvas);
 
       expect(numCalls).to.equal(1);
     });
 
     it('should return an updated rectangle if something has changed', function() {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
       var object = new CanvasObject();
       var numCalls = 0;
 
@@ -1536,9 +1569,9 @@ describe('CanvasObject', function() {
         var x = this.x;
         return [{x: x, y: 0}, {x: x + 100, y: 0}, {x: x + 100, y: 50}];
       };
-      object.getBoundingRectangleForTree({camera: camera});
+      object.getBoundingRectangleForTree(canvas);
       object.x = 100;
-      var rect = object.getBoundingRectangleForTree({camera: camera});
+      var rect = object.getBoundingRectangleForTree(canvas);
 
       expect(numCalls).to.equal(2);
       expect(rect.top).to.equal(0);
@@ -1604,12 +1637,13 @@ describe('CanvasObject', function() {
 
     it('should invalidate globalPoint on children when globalPoint is invalidated on this object', function() {
       var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject();
       var object2 = new CanvasObject();
       object1.children.add(object2);
 
-      object1.getGlobalPoint(10, 10, {camera: camera});
-      object2.getGlobalPoint(10, 10, {camera: camera});
+      object1.getGlobalPoint(10, 10, canvas);
+      object2.getGlobalPoint(10, 10, canvas);
 
       expect(object1.cache.test('globalPoint')).to.equal(true);
       expect(object2.cache.test('globalPoint')).to.equal(true);

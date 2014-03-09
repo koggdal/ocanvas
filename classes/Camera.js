@@ -5,6 +5,7 @@
 
 var defineProperties = require('../utils/defineProperties');
 var jsonHelpers = require('../utils/json');
+var Canvas = require('../classes/Canvas');
 var Cache = require('../classes/Cache');
 var Matrix = require('../classes/Matrix');
 var matrixUtils = require('../utils/matrix');
@@ -305,7 +306,11 @@ Camera.prototype.render = function(canvas) {
 
   var zoom = Math.max(this.zoom, 0);
   context.scale(zoom, zoom);
-  context.rotate(this.rotation * Math.PI / 180);
+
+  // When the camera rotates clockwise, the rendered image from the camera
+  // should be rotated counterclockwise since the canvas is static and does
+  // not rotate.
+  context.rotate(-1 * this.rotation * Math.PI / 180);
 
   this.world.render(canvas);
 
@@ -317,11 +322,25 @@ Camera.prototype.render = function(canvas) {
  * for translation, rotation and scaling.
  * If the matrix cache is still valid, it will not update the matrix.
  *
+ * @param {Canvas=} opt_reference Reference to which the matrix will be created
+ *     for. If this is a Canvas instance, the matrix will be adapted for
+ *     rendering on the canvas. This means the rotation will change sign
+ *     (rotation * -1) and the scaling will use the zoom value directly.
+ *     If no reference is specified, it will use the rotation value directly,
+ *     but it will use the inverse of the zoom value (1 / zoom).
+ *
  * @return {Matrix} A Matrix instance representing the transformations.
  */
-Camera.prototype.getTransformationMatrix = function() {
+Camera.prototype.getTransformationMatrix = function(opt_reference) {
   var cache = this.cache;
   var transformations = cache.get('transformations');
+  var reference = opt_reference || null;
+
+  if (transformations.reference !== reference) {
+    cache.invalidate('transformations');
+  }
+
+  transformations.reference = reference;
 
   if (transformations.isValid) return transformations.matrix;
 
@@ -339,14 +358,24 @@ Camera.prototype.getTransformationMatrix = function() {
   }
 
   if (!rotation.isValid) {
-    rotation.matrix = matrixUtils.getRotationMatrix(this.rotation,
+    if (reference instanceof Canvas) {
+      rotation.matrix = matrixUtils.getRotationMatrix(this.rotation * -1,
         rotation.matrix);
+    } else {
+      rotation.matrix = matrixUtils.getRotationMatrix(this.rotation,
+        rotation.matrix);
+    }
     cache.update('rotation');
   }
 
   if (!scaling.isValid) {
-    scaling.matrix = matrixUtils.getScalingMatrix(this.zoom, this.zoom,
-      scaling.matrix);
+    if (reference instanceof Canvas) {
+      scaling.matrix = matrixUtils.getScalingMatrix(this.zoom, this.zoom,
+        scaling.matrix);
+    } else {
+      scaling.matrix = matrixUtils.getScalingMatrix(1 / this.zoom,
+        1 / this.zoom, scaling.matrix);
+    }
     cache.update('scaling');
   }
 
