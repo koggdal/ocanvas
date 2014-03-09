@@ -1,4 +1,5 @@
-builds
-docs
-coverage.html
-npm-debug.log
+/builds
+/docs
+/coverage.html
+/npm-debug.log
+/test/output
