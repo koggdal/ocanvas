@@ -6,4 +6,13 @@
  */
 'use strict';
 
-module.exports = require('matrixmath').Matrix;
+var Matrix = require('matrixmath').Matrix;
+
+module.exports = Matrix;
+
+/**
+ * The name of the class. Useful after minification processes etc.
+ *
+ * @type {string}
+ */
+Matrix.className = 'Matrix';

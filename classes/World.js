@@ -87,6 +87,13 @@ function World(opt_properties) {
 }
 
 /**
+ * The name of the class. Useful after minification processes etc.
+ *
+ * @type {string}
+ */
+World.className = 'World';
+
+/**
  * Properties that should be included in the plain object created by toObject.
  *
  * @type {Array}

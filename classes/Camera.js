@@ -77,6 +77,13 @@ function Camera(opt_properties) {
 }
 
 /**
+ * The name of the class. Useful after minification processes etc.
+ *
+ * @type {string}
+ */
+Camera.className = 'Camera';
+
+/**
  * Cache of camera instances.
  * Stored by ID (each camera instance has an `id` property, which is used as key
  * here in the cache).

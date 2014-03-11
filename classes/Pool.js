@@ -46,6 +46,13 @@ function Pool(opt_properties) {
 }
 
 /**
+ * The name of the class. Useful after minification processes etc.
+ *
+ * @type {string}
+ */
+Pool.className = 'Pool';
+
+/**
  * Set multiple properties at the same time.
  *
  * @param {Object} properties Object with properties and their values.

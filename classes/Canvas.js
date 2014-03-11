@@ -110,6 +110,13 @@ function Canvas(opt_properties) {
 }
 
 /**
+ * The name of the class. Useful after minification processes etc.
+ *
+ * @type {string}
+ */
+Canvas.className = 'Canvas';
+
+/**
  * Properties that should be included in the plain object created by toObject.
  *
  * @type {Array}

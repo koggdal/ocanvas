@@ -20,6 +20,13 @@ function EventEmitter() {
 }
 
 /**
+ * The name of the class. Useful after minification processes etc.
+ *
+ * @type {string}
+ */
+EventEmitter.className = 'EventEmitter';
+
+/**
  * Add a listener for an event.
  *
  * @param {string} name Event name.

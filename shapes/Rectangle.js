@@ -38,6 +38,13 @@ function Rectangle(opt_properties) {
 inherit(Rectangle, RectangularCanvasObject);
 
 /**
+ * The name of the class. Useful after minification processes etc.
+ *
+ * @type {string}
+ */
+Rectangle.className = 'Rectangle';
+
+/**
  * Create a new Rectangle instance from a plain object. This object
  * must have the structure that the toObject method creates.
  *

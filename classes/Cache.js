@@ -39,6 +39,13 @@ function Cache() {
 }
 
 /**
+ * The name of the class. Useful after minification processes etc.
+ *
+ * @type {string}
+ */
+Cache.className = 'Cache';
+
+/**
  * Define a new cache unit.
  * A unit can store cached values, which can be invalidated as one unit.
  *

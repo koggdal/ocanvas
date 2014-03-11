@@ -64,6 +64,13 @@ function Collection() {
 inherit(Collection, EventEmitter);
 
 /**
+ * The name of the class. Useful after minification processes etc.
+ *
+ * @type {string}
+ */
+Collection.className = 'Collection';
+
+/**
  * Create a new collection from a plain array.
  * If the array contains plain objects created by oCanvas JSON utils,
  * these will be expanded to their full objects.
