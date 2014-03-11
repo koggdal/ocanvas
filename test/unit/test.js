@@ -1,6 +1,8 @@
 describe('Utilities', function() {
   require('./utils/defineProperties');
+  require('./utils/getClassName');
   require('./utils/inherit');
+  require('./utils/isInstanceOf');
   require('./utils/json');
   require('./utils/matrix');
   require('./utils/mixin');
