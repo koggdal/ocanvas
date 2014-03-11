@@ -5,10 +5,10 @@
 
 var defineProperties = require('../utils/defineProperties');
 var jsonHelpers = require('../utils/json');
-var Canvas = require('../classes/Canvas');
 var Cache = require('../classes/Cache');
 var Matrix = require('../classes/Matrix');
 var matrixUtils = require('../utils/matrix');
+var isInstanceOf = require('../utils/isInstanceOf');
 
 /**
  * @classdesc A camera is put inside a world and when it is connected to a
@@ -365,7 +365,7 @@ Camera.prototype.getTransformationMatrix = function(opt_reference) {
   }
 
   if (!rotation.isValid) {
-    if (reference instanceof Canvas) {
+    if (isInstanceOf(reference, 'Canvas')) {
       rotation.matrix = matrixUtils.getRotationMatrix(this.rotation * -1,
         rotation.matrix);
     } else {
@@ -376,7 +376,7 @@ Camera.prototype.getTransformationMatrix = function(opt_reference) {
   }
 
   if (!scaling.isValid) {
-    if (reference instanceof Canvas) {
+    if (isInstanceOf(reference, 'Canvas')) {
       scaling.matrix = matrixUtils.getScalingMatrix(this.zoom, this.zoom,
         scaling.matrix);
     } else {

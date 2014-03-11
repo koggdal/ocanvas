@@ -4,12 +4,12 @@
 'use strict';
 
 var Collection = require('../../classes/Collection');
-var defineProperties = require('../../utils/defineProperties');
-var jsonHelpers = require('../../utils/json');
-var Matrix = require('../../classes/Matrix');
 var Cache = require('../../classes/Cache');
+var Matrix = require('../../classes/Matrix');
 
 var matrixUtils = require('../../utils/matrix');
+var defineProperties = require('../../utils/defineProperties');
+var jsonHelpers = require('../../utils/json');
 
 /**
  * @classdesc The CanvasObject class is a base class that different objects

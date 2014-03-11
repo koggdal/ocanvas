@@ -4,8 +4,8 @@
 'use strict';
 
 var RectangularCanvasObject = require('./base/RectangularCanvasObject');
-var Camera = require('../classes/Camera');
 var inherit = require('../utils/inherit');
+var isInstanceOf = require('../utils/isInstanceOf');
 
 /**
  * @classdesc A rectangle canvas object, used to draw a rectangle.
@@ -80,7 +80,7 @@ Rectangle.prototype.render = function(canvas) {
 
   context.beginPath();
 
-  if (this.fill instanceof Camera) {
+  if (isInstanceOf(this.fill, 'Camera')) {
     context.save();
     context.beginPath();
     context.rect(x, y, this.width, this.height);

@@ -3,10 +3,9 @@
  */
 'use strict';
 
-var CanvasObject = require('../shapes/base/CanvasObject');
-
 var defineProperties = require('../utils/defineProperties');
 var jsonHelpers = require('../utils/json');
+var isInstanceOf = require('../utils/isInstanceOf');
 
 /**
  * @classdesc A Canvas instance is connected to a canvas DOM element. It will
@@ -307,7 +306,7 @@ Canvas.prototype.transformContextToObject = function(object, currentObject) {
 
   obj = currentObject;
   while (obj) {
-    parent = obj.parent instanceof CanvasObject ? obj.parent : null;
+    parent = isInstanceOf(obj.parent, 'CanvasObject') ? obj.parent : null;
 
     x = parent ? -obj.x : -(obj.x - camera.x);
     y = parent ? -obj.y : -(obj.y - camera.y);
@@ -323,13 +322,13 @@ Canvas.prototype.transformContextToObject = function(object, currentObject) {
   var chain = [];
   while (obj) {
     chain.push(obj);
-    obj = obj.parent instanceof CanvasObject ? obj.parent : null;
+    obj = isInstanceOf(obj.parent, 'CanvasObject') ? obj.parent : null;
   }
   chain.reverse();
 
   for (var i = 0, l = chain.length; i < l; i++) {
     obj = chain[i];
-    parent = obj.parent instanceof CanvasObject ? obj.parent : null;
+    parent = isInstanceOf(obj.parent, 'CanvasObject') ? obj.parent : null;
     x = parent ? obj.x : obj.x - camera.x;
     y = parent ? obj.y : obj.y - camera.y;
     context.translate(x, y);
