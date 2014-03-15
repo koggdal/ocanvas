@@ -44,6 +44,13 @@ describe('isInstanceOf', function() {
     expect(isInstanceOf(new MyClass(), 'MyClass2')).to.equal(false);
   });
 
+  it('should return true if object is an instance of any of the passed classes', function() {
+    function MyClass() {}
+    MyClass.className = 'MyClass';
+
+    expect(isInstanceOf(new MyClass(), 'MyClass2', 'MyClass', 'MyClass3')).to.equal(true);
+  });
+
   it('should return false if input is not a function or an object', function() {
     expect(isInstanceOf(undefined, 'Object')).to.equal(false);
     expect(isInstanceOf(null, 'Object')).to.equal(false);
