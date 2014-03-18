@@ -270,7 +270,7 @@ CanvasObject.prototype.initCache = function() {
     dependencies: ['transformations']
   });
   this.cache.define('point');
-  this.cache.define('globalPoint', {
+  this.cache.define('pointInReference', {
     dependencies: ['point', 'combinedTransformations']
   });
 
@@ -299,9 +299,9 @@ CanvasObject.prototype.initCache = function() {
         child.cache.invalidate('combinedTransformations');
       });
     }
-    else if (unit === 'globalPoint') {
+    else if (unit === 'pointInReference') {
       self.children.forEach(function(child) {
-        child.cache.invalidate('globalPoint');
+        child.cache.invalidate('pointInReference');
       });
     }
 
@@ -496,6 +496,8 @@ CanvasObject.prototype.getTransformationMatrix = function(reference) {
   var transformations = cache.get('transformations');
   var combined = cache.get('combinedTransformations');
 
+  if (!combined.matrix) combined.matrix = new Matrix(3, 3, false);
+
   if (!reference) {
     if (transformations.isValid) return transformations.matrix;
   } else {
@@ -503,7 +505,6 @@ CanvasObject.prototype.getTransformationMatrix = function(reference) {
       cache.invalidate('combinedTransformations');
     }
     combined.reference = reference;
-    if (!combined.matrix) combined.matrix = new Matrix(3, 3, false);
   }
 
   var translation = cache.get('translation');
@@ -534,7 +535,13 @@ CanvasObject.prototype.getTransformationMatrix = function(reference) {
   );
   cache.update('transformations');
 
+  // If there is no reference, we should not make a combined transformation
+  // However, we need to update the cache to let other parts know that it's
+  // up to date.
   if (!reference || reference === this) {
+    combined.matrix.setIdentityData();
+    combined.matrix.multiply(transformations.matrix);
+    cache.update('combinedTransformations');
     return transformations.matrix;
   }
 
@@ -550,7 +557,6 @@ CanvasObject.prototype.getTransformationMatrix = function(reference) {
       var camera = isCamera ? reference : reference.camera;
       var canvas = isCanvas ? reference : undefined;
       matrices.push(camera.getTransformationMatrix(canvas));
-      matrices.push(camera.cache.get('translation').matrixReverse);
     }
   }
 
@@ -566,35 +572,42 @@ CanvasObject.prototype.getTransformationMatrix = function(reference) {
   return combined.matrix;
 };
 
-/*
- * Get a global point from a local point.
- * A local point is a coordinate inside this object, with no regards to any
- * transformations. The global point will take all transformations from all
- * objects in the parent chain into account, to give a point relative to the
- * world.
+/**
+ * Get the coordinates within the coordinate space of the specified reference
+ * from a point inside this object. The input point inside this object should
+ * not take any transformations into account. The return point will be
+ * transformed up to the reference object (not inclusive), to make the return
+ * point relative to the coordinate space of the reference.
  *
+ * @param {Canvas|Camera|World|CanvasObject} reference The coordinate space you
+ *     want the point in. If a canvas object is provided, it must exist in
+ *     the parent chain for this object.
  * @param {number} x The local X position.
  * @param {number} y The local Y position.
- * @param {Canvas} canvas The Canvas instance. This is needed to
- *     transform the vertices to global space.
  * @param {Object=} opt_point Optional object to put the point properties in.
  *
  * @return {Object} An object with properties x and y.
  */
-CanvasObject.prototype.getGlobalPoint = function(x, y, canvas, opt_point) {
+CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
   var cache = this.cache;
   var localPoint = cache.get('point');
-  var globalPoint = cache.get('globalPoint');
-  var globalPointMatrix;
+  var pointInReference = cache.get('pointInReference');
+  var pointInReferenceMatrix;
+
+  if (pointInReference.isValid && pointInReference.reference !== reference) {
+    cache.invalidate('pointInReference');
+  }
+  pointInReference.reference = reference;
 
   if (localPoint.x !== x || localPoint.y !== y) {
     cache.invalidate('point');
   }
 
-  if (!globalPoint.isValid) {
+  if (!pointInReference.isValid) {
 
-    if (!localPoint.matrix) localPoint.matrix = new Matrix(3, 3, false);
-    if (!globalPoint.matrix) globalPoint.matrix = new Matrix(3, 3, false);
+    if (!pointInReference.matrix) {
+      pointInReference.matrix = new Matrix(3, 3, false);
+    }
 
     if (!localPoint.isValid) {
       localPoint.matrix = matrixUtils.getTranslationMatrix(x, y,
@@ -604,24 +617,103 @@ CanvasObject.prototype.getGlobalPoint = function(x, y, canvas, opt_point) {
       cache.update('point');
     }
 
-    // Get a matrix that represents the local point in global space, after it's
-    // been transformed by all the objects in the parent chain (including the
-    // camera).
-    globalPointMatrix = globalPoint.matrix;
-    globalPointMatrix.setIdentityData();
-    globalPointMatrix.multiply(this.getTransformationMatrix(canvas),
-        localPoint.matrix);
-    cache.update('globalPoint');
+    var isCanvasObject = isInstanceOf(reference, 'CanvasObject');
+    var isWorld = isInstanceOf(reference, 'World');
+    var isCamera = isInstanceOf(reference, 'Camera');
+    var isCanvas = isInstanceOf(reference, 'Canvas');
+
+    // When we get the transformation matrix needed to transform the point,
+    // we need a matrix with the reference being one step closer than the
+    // reference passed to this method. This is because we are looking for a
+    // point within the reference, without applying the transformations of the
+    // reference.
+    var matrixReference = null;
+
+    // For objects and the world as reference, we need to find the object that
+    // is one step closer to the source object.
+    if (isCanvasObject || isWorld) {
+      var parent = this.parent;
+      while (parent && parent !== reference) {
+        matrixReference = parent;
+        parent = parent.parent;
+      }
+
+    } else if (isCamera) {
+      matrixReference = reference.world;
+
+    } else if (isCanvas) {
+      if (reference.camera) matrixReference = reference.camera.world;
+    }
+
+    var transformationMatrix;
+
+    if (matrixReference) {
+      transformationMatrix = this.getTransformationMatrix(matrixReference);
+    } else {
+      transformationMatrix = this.getTransformationMatrix();
+    }
+
+
+    // Reset the cached matrix instance for the output point
+    pointInReferenceMatrix = pointInReference.matrix;
+    pointInReferenceMatrix.setIdentityData();
+    pointInReferenceMatrix.multiply(transformationMatrix, localPoint.matrix);
+
+    if (isCamera || isCanvas) {
+      var ref = reference;
+      var camera = isCanvas ? ref.camera : ref;
+      camera.getTransformationMatrix();
+      var cameraTransformationCache = camera.cache.get('transformations');
+      var cameraTransformationMatrix = cameraTransformationCache.matrixInverted;
+
+      var i;
+
+      if (isCanvas) {
+        var cameraOriginCache = camera.cache.get('translation');
+        var cameraOriginMatrix = cameraOriginCache.matrixOrigin;
+
+        for (i = 0; i < 9; i++) {
+          cameraOriginCache[i] = cameraOriginMatrix[i];
+        }
+
+        cameraOriginMatrix.multiply(cameraTransformationMatrix,
+            pointInReferenceMatrix);
+
+        for (i = 0; i < 9; i++) {
+          pointInReferenceMatrix[i] = cameraOriginMatrix[i];
+          cameraOriginMatrix[i] = cameraOriginCache[i];
+          delete cameraOriginCache[i];
+        }
+
+      } else {
+
+        for (i = 0; i < 9; i++) {
+          cameraTransformationCache[i] = cameraTransformationMatrix[i];
+        }
+
+        cameraTransformationMatrix.multiply(pointInReferenceMatrix);
+
+        for (i = 0; i < 9; i++) {
+          pointInReferenceMatrix[i] = cameraTransformationMatrix[i];
+          cameraTransformationMatrix[i] = cameraTransformationCache[i];
+          delete cameraTransformationCache[i];
+        }
+
+      }
+
+    }
+
+    // Set cache as updated
+    cache.update('pointInReference');
 
   } else {
-    globalPointMatrix = globalPoint.matrix;
+    pointInReferenceMatrix = pointInReference.matrix;
   }
 
   var output = opt_point || {x: 0, y: 0};
-  output.x = globalPointMatrix[2];
-  output.y = globalPointMatrix[5];
+  output.x = pointInReferenceMatrix[2];
+  output.y = pointInReferenceMatrix[5];
 
-  // Extract the 2D coordinate from the matrix and return it
   return output;
 };
 

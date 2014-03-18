@@ -3,6 +3,7 @@ var CanvasObject = require('../../../../shapes/base/CanvasObject');
 var RectangularCanvasObject = require('../../../../shapes/base/RectangularCanvasObject');
 var Collection = require('../../../../classes/Collection');
 var Camera = require('../../../../classes/Camera');
+var World = require('../../../../classes/World');
 var jsonHelpers = require('../../../../utils/json');
 
 describe('RectangularCanvasObject', function() {
@@ -672,10 +673,13 @@ describe('RectangularCanvasObject', function() {
 
     it('should return an updated array if a parent has changed', function() {
       var camera = new Camera();
+      var world = new World();
+      world.cameras.add(camera);
       var object1 = new RectangularCanvasObject({
         width: 100, height: 50,
         x: 100, y: 50
       });
+      world.objects.add(object1);
       var object2 = new RectangularCanvasObject({
         width: 100, height: 50,
         x: 100, y: 50

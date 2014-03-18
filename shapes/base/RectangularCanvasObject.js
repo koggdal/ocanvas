@@ -242,10 +242,11 @@ RectangularCanvasObject.prototype.getGlobalVertices = function(canvas) {
   var bottom = localVertices[2].y;
 
   var vertices = cache.vertices;
-  vertices[0] = this.getGlobalPoint(left, top, canvas, vertices[0]);
-  vertices[1] = this.getGlobalPoint(right, top, canvas, vertices[1]);
-  vertices[2] = this.getGlobalPoint(right, bottom, canvas, vertices[2]);
-  vertices[3] = this.getGlobalPoint(left, bottom, canvas, vertices[3]);
+  var world = canvas.camera.world;
+  vertices[0] = this.getPointIn(world, left, top, vertices[0]);
+  vertices[1] = this.getPointIn(world, right, top, vertices[1]);
+  vertices[2] = this.getPointIn(world, right, bottom, vertices[2]);
+  vertices[3] = this.getPointIn(world, left, bottom, vertices[3]);
 
   this.cache.update('globalVertices');
 

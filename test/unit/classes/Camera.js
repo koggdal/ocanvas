@@ -370,11 +370,28 @@ describe('Camera', function() {
       expect(camera.getTransformationMatrix().toArray()).to.eql([2, 0, 0, 0, 2, 0, 0, 0, 1]);
     });
 
-    it('should create a cached matrix for reversed translation', function() {
-      var camera = new Camera({x: 10, y: 20});
+    it('should create a cached matrix for inverted transformations', function() {
+      var camera = new Camera({zoom: 2, x: 100, y: 200, rotation: 45});
+
       camera.getTransformationMatrix();
 
-      expect(camera.cache.get('translation').matrixReverse.toArray()).to.eql([1, 0, -10, 0, 1, -20, 0, 0, 1]);
+      var transformations = camera.cache.get('transformations');
+      var normalInverted = transformations.matrix.clone().invert().toArray();
+      var inverted = transformations.matrixInverted.toArray();
+
+      expect(inverted).to.eql(normalInverted);
+
+      expect(inverted).to.eql([
+        1.4142135623730951,
+        1.414213562373095,
+        -424.2640687119285,
+        -1.414213562373095,
+        1.4142135623730951,
+        -141.42135623730954,
+        0,
+        0,
+        1
+      ]);
     });
 
   });

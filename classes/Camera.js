@@ -357,10 +357,11 @@ Camera.prototype.getTransformationMatrix = function(opt_reference) {
 
   if (!translation.isValid) {
     var x = this.x, y = this.y;
+    var w = this.width, h = this.height;
     translation.matrix = matrixUtils.getTranslationMatrix(x, y,
         translation.matrix);
-    translation.matrixReverse = matrixUtils.getTranslationMatrix(-x, -y,
-        translation.matrixReverse);
+    translation.matrixOrigin = matrixUtils.getTranslationMatrix(w / 2, h / 2,
+        translation.matrixOrigin);
     cache.update('translation');
   }
 
@@ -390,6 +391,11 @@ Camera.prototype.getTransformationMatrix = function(opt_reference) {
     translation.matrix, rotation.matrix, scaling.matrix,
     transformations.matrix
   );
+  transformations.matrixInverted = matrixUtils.getTransformationMatrix(
+    translation.matrix, rotation.matrix, scaling.matrix,
+    transformations.matrixInverted
+  );
+  transformations.matrixInverted.invert();
   cache.update('transformations');
 
   return transformations.matrix;
