@@ -396,29 +396,44 @@ describe('Camera', function() {
 
   });
 
-  describe('#getGlobalPoint()', function() {
+  describe('#getPointIn()', function() {
 
-    it('should return a point in global space', function() {
+    it('should return a point in the reference (world)', function() {
+      var world = new World();
       var camera = new Camera({x: 150, y: 75});
-      var point = camera.getGlobalPoint(10, 10);
+      world.cameras.add(camera);
+
+      var point = camera.getPointIn(world, 10, 10);
+      expect(point).to.eql({x: 160, y: 85});
+    });
+
+    it('should return a point in the reference (canvas)', function() {
+      var world = new World();
+      var camera = new Camera({x: 500, y: 75});
+      var canvas = new Canvas({camera: camera});
+      world.cameras.add(camera);
+
+      var point = camera.getPointIn(canvas, 10, 10);
       expect(point).to.eql({x: 160, y: 85});
     });
 
     it('should return a cached point if nothing has changed', function(done) {
+      var world = new World();
       var camera = new Camera({x: 150, y: 75});
+      world.cameras.add(camera);
 
-      var point = camera.getGlobalPoint(10, 10);
+      var point = camera.getPointIn(world, 10, 10);
       expect(point).to.eql({x: 160, y: 85});
 
-      var globalPointMatrix = camera.cache.get('globalPoint').matrix;
-      var setData = globalPointMatrix.setData;
+      var pointInReferenceMatrix = camera.cache.get('pointInReference').matrix;
+      var setData = pointInReferenceMatrix.setData;
       var setDataCalled = false;
-      globalPointMatrix.setData = function() {
+      pointInReferenceMatrix.setData = function() {
         setDataCalled = true;
         setData.apply(this, arguments);
       };
 
-      point = camera.getGlobalPoint(10, 10);
+      point = camera.getPointIn(world, 10, 10);
       expect(point).to.eql({x: 160, y: 85});
 
       setTimeout(function() {
@@ -428,61 +443,86 @@ describe('Camera', function() {
 
     });
 
-    it('should return an updated global point if position has changed', function() {
+    it('should return an updated point if position has changed', function() {
+      var world = new World();
       var camera = new Camera({x: 150, y: 75});
+      world.cameras.add(camera);
 
-      var point = camera.getGlobalPoint(10, 10);
+      var point = camera.getPointIn(world, 10, 10);
       expect(point).to.eql({x: 160, y: 85});
 
       camera.x = 300;
 
-      point = camera.getGlobalPoint(10, 10);
+      point = camera.getPointIn(world, 10, 10);
       expect(point).to.eql({x: 310, y: 85});
 
       camera.y = 200;
 
-      point = camera.getGlobalPoint(10, 10);
+      point = camera.getPointIn(world, 10, 10);
       expect(point).to.eql({x: 310, y: 210});
     });
 
-    it('should return an updated global point if rotation has changed', function() {
+    it('should return an updated point if rotation has changed', function() {
+      var world = new World();
       var camera = new Camera({x: 150, y: 75});
+      world.cameras.add(camera);
 
-      var point = camera.getGlobalPoint(10, 10);
+      var point = camera.getPointIn(world, 10, 10);
       expect(point).to.eql({x: 160, y: 85});
 
       camera.rotation = 45;
 
-      point = camera.getGlobalPoint(10, 10);
+      point = camera.getPointIn(world, 10, 10);
       expect(point).to.eql({x: 150, y: 89.14213562373095});
     });
 
-    it('should return an updated global point if zoom has changed', function() {
+    it('should return an updated point if zoom has changed', function() {
+      var world = new World();
       var camera = new Camera({x: 150, y: 75});
+      world.cameras.add(camera);
 
-      var point = camera.getGlobalPoint(10, 10);
+      var point = camera.getPointIn(world, 10, 10);
       expect(point).to.eql({x: 160, y: 85});
 
       camera.zoom = 2;
 
-      point = camera.getGlobalPoint(10, 10);
+      point = camera.getPointIn(world, 10, 10);
       expect(point).to.eql({x: 155, y: 80});
     });
 
-    it('should return an updated global point if a different local point was passed in', function() {
+    it('should return an updated point if a different local point was passed in', function() {
+      var world = new World();
       var camera = new Camera({x: 150, y: 75});
+      world.cameras.add(camera);
 
-      var point = camera.getGlobalPoint(10, 10);
+      var point = camera.getPointIn(world, 10, 10);
       expect(point).to.eql({x: 160, y: 85});
 
-      point = camera.getGlobalPoint(20, 20);
+      point = camera.getPointIn(world, 20, 20);
       expect(point).to.eql({x: 170, y: 95});
     });
 
+    it('should return an updated point when a different reference is passed', function() {
+      var world = new World();
+      var camera = new Camera({x: 400, y: 75});
+      var canvas = new Canvas({camera: camera, width: 600, height: 300});
+      world.cameras.add(camera);
+
+      var point = camera.getPointIn(world, 10, 10);
+      expect(point).to.eql({x: 410, y: 85});
+
+      point = camera.getPointIn(canvas, 10, 10);
+      expect(point).to.eql({x: 320, y: 170});
+    });
+
     it('should return the passed in point object with correct data', function() {
+      var world = new World();
       var camera = new Camera({x: 150, y: 75});
+      world.cameras.add(camera);
+
       var point = {x: 0, y: 0};
-      var returnedPoint = camera.getGlobalPoint(10, 10, point);
+      var returnedPoint = camera.getPointIn(world, 10, 10, point);
+
       expect(returnedPoint).to.equal(point);
       expect(returnedPoint).to.eql({x: 160, y: 85});
     });
@@ -684,7 +724,7 @@ describe('Camera', function() {
     });
 
     it('should have a cache unit for a global point', function() {
-      expect(camera.cache.get('globalPoint')).to.not.equal(null);
+      expect(camera.cache.get('pointInReference')).to.not.equal(null);
     });
 
     it('should have a cache unit for local vertices', function() {

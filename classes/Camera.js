@@ -271,7 +271,7 @@ Camera.prototype.initCache = function() {
     dependencies: ['translation', 'rotation', 'scaling']
   });
   this.cache.define('point');
-  this.cache.define('globalPoint', {
+  this.cache.define('pointInReference', {
     dependencies: ['point', 'transformations']
   });
 
@@ -401,32 +401,39 @@ Camera.prototype.getTransformationMatrix = function(opt_reference) {
   return transformations.matrix;
 };
 
-/*
- * Get a global point from a local point.
- * A local point is a coordinate inside this camera, with no regards to any
- * transformations. The global point will take all transformations from the
- * camera into account, to give a point relative to the world.
+/**
+ * Get the coordinates within the coordinate space of the specified reference
+ * from a point inside this camera. The input point inside this camera should
+ * not take any transformations into account. The return point will be
+ * transformed up to the reference object (not inclusive), to make the return
+ * point relative to the coordinate space of the reference.
  *
+ * @param {Canvas|World} reference The coordinate space you want the point in.
  * @param {number} x The local X position.
  * @param {number} y The local Y position.
  * @param {Object=} opt_point Optional object to put the point properties in.
  *
  * @return {Object} An object with properties x and y.
  */
-Camera.prototype.getGlobalPoint = function(x, y, opt_point) {
+Camera.prototype.getPointIn = function(reference, x, y, opt_point) {
   var cache = this.cache;
   var localPoint = cache.get('point');
-  var globalPoint = cache.get('globalPoint');
-  var globalPointMatrix;
+  var pointInReference = cache.get('pointInReference');
+  var pointInReferenceMatrix;
+
+  if (pointInReference.isValid && pointInReference.reference !== reference) {
+    cache.invalidate('pointInReference');
+  }
+  pointInReference.reference = reference;
 
   if (localPoint.x !== x || localPoint.y !== y) {
     cache.invalidate('point');
   }
 
-  if (!globalPoint.isValid) {
+  if (!pointInReference.isValid) {
 
     if (!localPoint.matrix) localPoint.matrix = new Matrix(3, 3, false);
-    if (!globalPoint.matrix) globalPoint.matrix = new Matrix(3, 3, false);
+    if (!pointInReference.matrix) pointInReference.matrix = new Matrix(3, 3, false);
 
     if (!localPoint.isValid) {
       localPoint.matrix = matrixUtils.getTranslationMatrix(x, y,
@@ -436,24 +443,24 @@ Camera.prototype.getGlobalPoint = function(x, y, opt_point) {
       cache.update('point');
     }
 
-    // Get a matrix that represents the local point in global space, after it's
-    // been transformed by all the objects in the parent chain (including the
-    // camera).
-    globalPointMatrix = globalPoint.matrix;
-    globalPointMatrix.setIdentityData();
-    globalPointMatrix.multiply(this.getTransformationMatrix(),
+    pointInReferenceMatrix = pointInReference.matrix;
+    pointInReferenceMatrix.setIdentityData();
+
+    var ref = isInstanceOf(reference, 'Canvas') ? reference : this;
+
+    pointInReferenceMatrix.multiply(ref.getTransformationMatrix(),
         localPoint.matrix);
-    cache.update('globalPoint');
+
+    cache.update('pointInReference');
 
   } else {
-    globalPointMatrix = globalPoint.matrix;
+    pointInReferenceMatrix = pointInReference.matrix;
   }
 
   var output = opt_point || {x: 0, y: 0};
-  output.x = globalPointMatrix[2];
-  output.y = globalPointMatrix[5];
+  output.x = pointInReferenceMatrix[2];
+  output.y = pointInReferenceMatrix[5];
 
-  // Extract the 2D coordinate from the matrix and return it
   return output;
 };
 
@@ -519,10 +526,11 @@ Camera.prototype.getGlobalVertices = function() {
   var bottom = localVertices[2].y;
 
   var vertices = cache.vertices;
-  vertices[0] = this.getGlobalPoint(left, top);
-  vertices[1] = this.getGlobalPoint(right, top);
-  vertices[2] = this.getGlobalPoint(right, bottom);
-  vertices[3] = this.getGlobalPoint(left, bottom);
+  var world = this.world;
+  vertices[0] = this.getPointIn(world, left, top, vertices[0]);
+  vertices[1] = this.getPointIn(world, right, top, vertices[1]);
+  vertices[2] = this.getPointIn(world, right, bottom, vertices[2]);
+  vertices[3] = this.getPointIn(world, left, bottom, vertices[3]);
 
   this.cache.update('globalVertices');
 
