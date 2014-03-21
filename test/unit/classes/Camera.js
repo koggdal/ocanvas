@@ -425,7 +425,7 @@ describe('Camera', function() {
       var point = camera.getPointIn(world, 10, 10);
       expect(point).to.eql({x: 160, y: 85});
 
-      var pointInReferenceMatrix = camera.cache.get('pointInReference').matrix;
+      var pointInReferenceMatrix = camera.cache.get('getPointIn-output').matrix;
       var setData = pointInReferenceMatrix.setData;
       var setDataCalled = false;
       pointInReferenceMatrix.setData = function() {
@@ -719,12 +719,12 @@ describe('Camera', function() {
       expect(camera.cache.get('transformations')).to.not.equal(null);
     });
 
-    it('should have a cache unit for a local point', function() {
-      expect(camera.cache.get('point')).to.not.equal(null);
+    it('should have a cache unit for an input point to getPointIn', function() {
+      expect(camera.cache.get('getPointIn-input')).to.not.equal(null);
     });
 
-    it('should have a cache unit for a global point', function() {
-      expect(camera.cache.get('pointInReference')).to.not.equal(null);
+    it('should have a cache unit for an output point from getPointIn', function() {
+      expect(camera.cache.get('getPointIn-output')).to.not.equal(null);
     });
 
     it('should have a cache unit for local vertices', function() {

@@ -887,7 +887,7 @@ describe('CanvasObject', function() {
       var point = object2.getPointIn(canvas, 2, 2);
       expect(point).to.eql({x: 135.1507575950825, y: 86.61165235168156});
 
-      var pointMatrix = object2.cache.get('pointInReference').matrix;
+      var pointMatrix = object2.cache.get('getPointIn-output').matrix;
       var setData = pointMatrix.setData;
       var setDataCalled = false;
       pointMatrix.setData = function() {
@@ -1630,12 +1630,12 @@ describe('CanvasObject', function() {
       expect(object.cache.get('combinedTransformations')).to.not.equal(null);
     });
 
-    it('should have a cache unit for a local point', function() {
-      expect(object.cache.get('point')).to.not.equal(null);
+    it('should have a cache unit for an input point to getPointIn', function() {
+      expect(object.cache.get('getPointIn-input')).to.not.equal(null);
     });
 
-    it('should have a cache unit for a global point', function() {
-      expect(object.cache.get('pointInReference')).to.not.equal(null);
+    it('should have a cache unit for an output point from getPointIn', function() {
+      expect(object.cache.get('getPointIn-output')).to.not.equal(null);
     });
 
     it('should have a cache unit for local vertices', function() {
@@ -1658,7 +1658,7 @@ describe('CanvasObject', function() {
       expect(object.cache.get('boundingRectangleForTree')).to.not.equal(null);
     });
 
-    it('should invalidate pointInReference on children when pointInReference is invalidated on this object', function() {
+    it('should invalidate `getPointIn-output` on children when `getPointIn-output` is invalidated on this object', function() {
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject();
@@ -1668,13 +1668,13 @@ describe('CanvasObject', function() {
       object1.getPointIn(canvas, 10, 10);
       object2.getPointIn(canvas, 10, 10);
 
-      expect(object1.cache.test('pointInReference')).to.equal(true);
-      expect(object2.cache.test('pointInReference')).to.equal(true);
+      expect(object1.cache.test('getPointIn-output')).to.equal(true);
+      expect(object2.cache.test('getPointIn-output')).to.equal(true);
 
-      object1.cache.invalidate('pointInReference');
+      object1.cache.invalidate('getPointIn-output');
 
-      expect(object1.cache.test('pointInReference')).to.equal(false);
-      expect(object2.cache.test('pointInReference')).to.equal(false);
+      expect(object1.cache.test('getPointIn-output')).to.equal(false);
+      expect(object2.cache.test('getPointIn-output')).to.equal(false);
     });
 
     it('should invalidate boundingRectangleForTree on parent when boundingRectangleForTree is invalidated on this object', function() {

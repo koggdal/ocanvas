@@ -269,9 +269,9 @@ CanvasObject.prototype.initCache = function() {
   this.cache.define('combinedTransformations', {
     dependencies: ['transformations']
   });
-  this.cache.define('point');
-  this.cache.define('pointInReference', {
-    dependencies: ['point', 'combinedTransformations']
+  this.cache.define('getPointIn-input');
+  this.cache.define('getPointIn-output', {
+    dependencies: ['getPointIn-input', 'combinedTransformations']
   });
 
   // Vertices
@@ -299,9 +299,9 @@ CanvasObject.prototype.initCache = function() {
         child.cache.invalidate('combinedTransformations');
       });
     }
-    else if (unit === 'pointInReference') {
+    else if (unit === 'getPointIn-output') {
       self.children.forEach(function(child) {
-        child.cache.invalidate('pointInReference');
+        child.cache.invalidate('getPointIn-output');
       });
     }
 
@@ -590,31 +590,31 @@ CanvasObject.prototype.getTransformationMatrix = function(reference) {
  */
 CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
   var cache = this.cache;
-  var localPoint = cache.get('point');
-  var pointInReference = cache.get('pointInReference');
-  var pointInReferenceMatrix;
+  var inputPoint = cache.get('getPointIn-input');
+  var outputPoint = cache.get('getPointIn-output');
+  var outputPointMatrix;
 
-  if (pointInReference.isValid && pointInReference.reference !== reference) {
-    cache.invalidate('pointInReference');
+  if (outputPoint.isValid && outputPoint.reference !== reference) {
+    cache.invalidate('getPointIn-output');
   }
-  pointInReference.reference = reference;
+  outputPoint.reference = reference;
 
-  if (localPoint.x !== x || localPoint.y !== y) {
-    cache.invalidate('point');
+  if (inputPoint.x !== x || inputPoint.y !== y) {
+    cache.invalidate('getPointIn-input');
   }
 
-  if (!pointInReference.isValid) {
+  if (!outputPoint.isValid) {
 
-    if (!pointInReference.matrix) {
-      pointInReference.matrix = new Matrix(3, 3, false);
+    if (!outputPoint.matrix) {
+      outputPoint.matrix = new Matrix(3, 3, false);
     }
 
-    if (!localPoint.isValid) {
-      localPoint.matrix = matrixUtils.getTranslationMatrix(x, y,
-          localPoint.matrix);
-      localPoint.x = x;
-      localPoint.y = y;
-      cache.update('point');
+    if (!inputPoint.isValid) {
+      inputPoint.matrix = matrixUtils.getTranslationMatrix(x, y,
+          inputPoint.matrix);
+      inputPoint.x = x;
+      inputPoint.y = y;
+      cache.update('getPointIn-input');
     }
 
     var isCanvasObject = isInstanceOf(reference, 'CanvasObject');
@@ -655,9 +655,9 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
 
 
     // Reset the cached matrix instance for the output point
-    pointInReferenceMatrix = pointInReference.matrix;
-    pointInReferenceMatrix.setIdentityData();
-    pointInReferenceMatrix.multiply(transformationMatrix, localPoint.matrix);
+    outputPointMatrix = outputPoint.matrix;
+    outputPointMatrix.setIdentityData();
+    outputPointMatrix.multiply(transformationMatrix, inputPoint.matrix);
 
     if (isCamera || isCanvas) {
       var ref = reference;
@@ -677,10 +677,10 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
         }
 
         cameraOriginMatrix.multiply(cameraTransformationMatrix,
-            pointInReferenceMatrix);
+            outputPointMatrix);
 
         for (i = 0; i < 9; i++) {
-          pointInReferenceMatrix[i] = cameraOriginMatrix[i];
+          outputPointMatrix[i] = cameraOriginMatrix[i];
           cameraOriginMatrix[i] = cameraOriginCache[i];
           delete cameraOriginCache[i];
         }
@@ -691,10 +691,10 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
           cameraTransformationCache[i] = cameraTransformationMatrix[i];
         }
 
-        cameraTransformationMatrix.multiply(pointInReferenceMatrix);
+        cameraTransformationMatrix.multiply(outputPointMatrix);
 
         for (i = 0; i < 9; i++) {
-          pointInReferenceMatrix[i] = cameraTransformationMatrix[i];
+          outputPointMatrix[i] = cameraTransformationMatrix[i];
           cameraTransformationMatrix[i] = cameraTransformationCache[i];
           delete cameraTransformationCache[i];
         }
@@ -704,15 +704,15 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
     }
 
     // Set cache as updated
-    cache.update('pointInReference');
+    cache.update('getPointIn-output');
 
   } else {
-    pointInReferenceMatrix = pointInReference.matrix;
+    outputPointMatrix = outputPoint.matrix;
   }
 
   var output = opt_point || {x: 0, y: 0};
-  output.x = pointInReferenceMatrix[2];
-  output.y = pointInReferenceMatrix[5];
+  output.x = outputPointMatrix[2];
+  output.y = outputPointMatrix[5];
 
   return output;
 };
