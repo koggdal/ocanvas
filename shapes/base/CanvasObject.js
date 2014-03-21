@@ -496,8 +496,6 @@ CanvasObject.prototype.getTransformationMatrix = function(reference) {
   var transformations = cache.get('transformations');
   var combined = cache.get('combinedTransformations');
 
-  if (!combined.matrix) combined.matrix = new Matrix(3, 3, false);
-
   if (!reference) {
     if (transformations.isValid) return transformations.matrix;
   } else {
@@ -539,7 +537,7 @@ CanvasObject.prototype.getTransformationMatrix = function(reference) {
   // However, we need to update the cache to let other parts know that it's
   // up to date.
   if (!reference || reference === this) {
-    combined.matrix.setIdentityData();
+    combined.matrix = matrixUtils.getIdentityMatrix(combined.matrix);
     combined.matrix.multiply(transformations.matrix);
     cache.update('combinedTransformations');
     return transformations.matrix;
@@ -565,7 +563,7 @@ CanvasObject.prototype.getTransformationMatrix = function(reference) {
 
   // Multiplying the global matrix for the parent chain with the local matrix
   // for this object will result in a global matrix for this object.
-  combined.matrix.setIdentityData();
+  combined.matrix = matrixUtils.getIdentityMatrix(combined.matrix);
   combined.matrix.multiply.apply(combined.matrix, matrices);
   cache.update('combinedTransformations');
 
@@ -592,7 +590,7 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
   var cache = this.cache;
   var inputPoint = cache.get('getPointIn-input');
   var outputPoint = cache.get('getPointIn-output');
-  var outputPointMatrix;
+  var outputPointMatrix = outputPoint.matrix;
 
   if (outputPoint.isValid && outputPoint.reference !== reference) {
     cache.invalidate('getPointIn-output');
@@ -604,10 +602,6 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
   }
 
   if (!outputPoint.isValid) {
-
-    if (!outputPoint.matrix) {
-      outputPoint.matrix = new Matrix(3, 3, false);
-    }
 
     if (!inputPoint.isValid) {
       inputPoint.matrix = matrixUtils.getTranslationMatrix(x, y,
@@ -655,8 +649,8 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
 
 
     // Reset the cached matrix instance for the output point
+    outputPoint.matrix = matrixUtils.getIdentityMatrix(outputPoint.matrix);
     outputPointMatrix = outputPoint.matrix;
-    outputPointMatrix.setIdentityData();
     outputPointMatrix.multiply(transformationMatrix, inputPoint.matrix);
 
     if (isCamera || isCanvas) {
@@ -705,9 +699,6 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
 
     // Set cache as updated
     cache.update('getPointIn-output');
-
-  } else {
-    outputPointMatrix = outputPoint.matrix;
   }
 
   var output = opt_point || {x: 0, y: 0};
