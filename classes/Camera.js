@@ -6,7 +6,6 @@
 var defineProperties = require('../utils/defineProperties');
 var jsonHelpers = require('../utils/json');
 var Cache = require('../classes/Cache');
-var Matrix = require('../classes/Matrix');
 var matrixUtils = require('../utils/matrix');
 var isInstanceOf = require('../utils/isInstanceOf');
 
@@ -419,7 +418,7 @@ Camera.prototype.getPointIn = function(reference, x, y, opt_point) {
   var cache = this.cache;
   var inputPoint = cache.get('getPointIn-input');
   var outputPoint = cache.get('getPointIn-output');
-  var outputPointMatrix;
+  var outputPointMatrix = outputPoint.matrix;
 
   if (outputPoint.isValid && outputPoint.reference !== reference) {
     cache.invalidate('getPointIn-output');
@@ -432,8 +431,6 @@ Camera.prototype.getPointIn = function(reference, x, y, opt_point) {
 
   if (!outputPoint.isValid) {
 
-    if (!outputPoint.matrix) outputPoint.matrix = new Matrix(3, 3, false);
-
     if (!inputPoint.isValid) {
       inputPoint.matrix = matrixUtils.getTranslationMatrix(x, y,
           inputPoint.matrix);
@@ -442,8 +439,8 @@ Camera.prototype.getPointIn = function(reference, x, y, opt_point) {
       cache.update('getPointIn-input');
     }
 
+    outputPoint.matrix = matrixUtils.getIdentityMatrix(outputPoint.matrix);
     outputPointMatrix = outputPoint.matrix;
-    outputPointMatrix.setIdentityData();
 
     var ref = isInstanceOf(reference, 'Canvas') ? reference : this;
 
@@ -451,9 +448,6 @@ Camera.prototype.getPointIn = function(reference, x, y, opt_point) {
         inputPoint.matrix);
 
     cache.update('getPointIn-output');
-
-  } else {
-    outputPointMatrix = outputPoint.matrix;
   }
 
   var output = opt_point || {x: 0, y: 0};
