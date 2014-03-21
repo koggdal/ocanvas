@@ -448,7 +448,9 @@ Canvas.prototype._createCanvas = function() {
     this.element = document.createElement('canvas');
   }
 
-  if (this.element instanceof HTMLCanvasElement) {
+  var HTMLCanvasElement = global.HTMLCanvasElement;
+
+  if (HTMLCanvasElement && this.element instanceof HTMLCanvasElement) {
     this.context = this.element.getContext('2d');
 
     // If width/height is already set on the object, set the canvas element
