@@ -156,4 +156,29 @@ describe('matrix', function() {
 
   });
 
+  describe('.getIdentityMatrix()', function() {
+
+    it('should return a new Matrix instance if one is not provided', function() {
+      var matrix = matrixUtils.getIdentityMatrix();
+      expect(matrix instanceof Matrix).to.equal(true);
+    });
+
+    it('should return the same Matrix instance if one is provided', function() {
+      var matrix = new Matrix(3, 3, false);
+      var matrix2 = matrixUtils.getIdentityMatrix(matrix);
+      expect(matrix).to.equal(matrix2);
+    });
+
+    it('should set the identity matrix data on a new matrix', function() {
+      var matrix = matrixUtils.getIdentityMatrix();
+      expect(matrix.toArray()).to.eql([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    });
+
+    it('should set the identity matrix data on an existing matrix', function() {
+      var matrix = matrixUtils.getIdentityMatrix(new Matrix(3, 3, false));
+      expect(matrix.toArray()).to.eql([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    });
+
+  });
+
 });

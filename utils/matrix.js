@@ -87,3 +87,19 @@ exports.getTransformationMatrix = function(t, r, s, opt_matrix) {
 
   return matrix;
 };
+
+
+/**
+ * Get an identity matrix.
+ *
+ * @param {Matrix=} opt_matrix Optional Matrix instance to use.
+ *
+ * @return {Matrix} A Matrix instance for the identity matrix.
+ */
+exports.getIdentityMatrix = function(opt_matrix) {
+  var matrix = opt_matrix || new Matrix(3, 3, false);
+
+  matrix.setIdentityData();
+
+  return matrix;
+};
