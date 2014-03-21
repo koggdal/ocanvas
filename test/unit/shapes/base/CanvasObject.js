@@ -7,6 +7,7 @@ var Cache = require('../../../../classes/Cache');
 var World = require('../../../../classes/World');
 var Matrix = require('../../../../classes/Matrix');
 var jsonHelpers = require('../../../../utils/json');
+var round = require('../../../utils/round');
 
 describe('CanvasObject', function() {
 
@@ -799,11 +800,6 @@ describe('CanvasObject', function() {
   });
 
   describe('#getPointIn()', function() {
-
-    var round = function(num, precision) {
-      var factor = precision ? Math.pow(10, precision) : 1;
-      return Math.round(num * factor) / factor;
-    };
 
     it('should return a point relative to the immediate parent', function() {
       var parent = new CanvasObject({rotation: -45, x: 200});
