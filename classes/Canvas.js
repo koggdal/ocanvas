@@ -460,6 +460,12 @@ Canvas.prototype._createCanvas = function() {
     else this.width = this.element.width;
     if (this.height) this.element.height = this.height;
     else this.height = this.element.height;
+
+  // Set the dimensions to the default canvas element size if there is no
+  // element provided.
+  } else {
+    if (!this.width) this.width = 300;
+    if (!this.height) this.height = 150;
   }
 };
 
