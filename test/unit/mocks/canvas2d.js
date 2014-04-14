@@ -16,7 +16,7 @@ HTMLCanvasElement.prototype.getContext = function() {
 
 var doc = {
   createElement: function(tagName) {
-    return tagName === 'canvas' ? new global.HTMLCanvasElement() : null;
+    return tagName === 'canvas' ? new HTMLCanvasElement() : null;
   }
 };
 
