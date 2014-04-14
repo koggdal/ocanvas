@@ -253,6 +253,72 @@ describe('Canvas', function() {
 
   });
 
+  describe('#getTransformationMatrix()', function() {
+
+    it('should return a matrix that contains translation', function() {
+      var canvas = new Canvas({width: 400, height: 100});
+      expect(canvas.getTransformationMatrix().toArray()).to.eql([1, 0, 200, 0, 1, 50, 0, 0, 1]);
+    });
+
+    it('should return a matrix that contains scaling and translation', function() {
+      var camera = new Camera({width: 150, height: 75});
+      var canvas = new Canvas({
+        width: 300, height: 150,
+        camera: camera
+      });
+      expect(canvas.getTransformationMatrix().toArray()).to.eql([2, 0, 150, 0, 2, 75, 0, 0, 1]);
+    });
+
+    it('should return a cached matrix if nothing has changed', function(done) {
+      var camera = new Camera({width: 300, height: 150});
+      var canvas = new Canvas({camera: camera, width: 300, height: 150});
+      var matrix1 = canvas.getTransformationMatrix();
+      var setData = matrix1.setData;
+      var setDataCalled = false;
+      matrix1.setData = function() {
+        setDataCalled = true;
+        setData.apply(this, arguments);
+      };
+      expect(matrix1.toArray()).to.eql([1, 0, 150, 0, 1, 75, 0, 0, 1]);
+
+      var matrix2 = canvas.getTransformationMatrix();
+      expect(matrix2.toArray()).to.eql([1, 0, 150, 0, 1, 75, 0, 0, 1]);
+      expect(matrix1).to.equal(matrix2);
+
+      setTimeout(function() {
+        if (!setDataCalled) done();
+        else done(new Error('The matrix was updated and did not use the cache'));
+      }, 10);
+    });
+
+    it('should return an updated matrix when size has changed', function() {
+      var camera = new Camera({width: 300, height: 150});
+      var canvas = new Canvas({camera: camera, width: 300, height: 150});
+
+      expect(canvas.getTransformationMatrix().toArray()).to.eql([1, 0, 150, 0, 1, 75, 0, 0, 1]);
+
+      canvas.width = 600;
+
+      expect(canvas.getTransformationMatrix().toArray()).to.eql([1, 0, 300, 0, 1, 75, 0, 0, 1]);
+
+      canvas.height = 300;
+
+      expect(canvas.getTransformationMatrix().toArray()).to.eql([2, 0, 300, 0, 2, 150, 0, 0, 1]);
+    });
+
+    it('should return an updated matrix when viewMode has changed', function() {
+      var camera = new Camera({width: 300, height: 150});
+      var canvas = new Canvas({camera: camera, width: 600, height: 150, viewMode: 'fit'});
+
+      expect(canvas.getTransformationMatrix().toArray()).to.eql([1, 0, 300, 0, 1, 75, 0, 0, 1]);
+
+      canvas.viewMode = 'fit-x';
+
+      expect(canvas.getTransformationMatrix().toArray()).to.eql([2, 0, 300, 0, 2, 75, 0, 0, 1]);
+    });
+
+  });
+
   describe('#_getViewModeValues()', function() {
 
     var canvas;
@@ -346,6 +412,107 @@ describe('Canvas', function() {
       expect(values.scaleY).to.equal(0.75);
       expect(values.x).to.equal(0);
       expect(values.y).to.equal(0);
+    });
+
+  });
+
+  describe('#cache', function() {
+    var canvas = new Canvas();
+
+    it('should have a cache unit for translation', function() {
+      expect(canvas.cache.get('translation')).to.not.equal(null);
+    });
+
+    it('should have a cache unit for scaling', function() {
+      expect(canvas.cache.get('scaling')).to.not.equal(null);
+    });
+
+    it('should have a cache unit for combined transformations', function() {
+      expect(canvas.cache.get('transformations')).to.not.equal(null);
+    });
+
+    it('should invalidate translation when width is changed', function() {
+      var canvas = new Canvas({width: 200});
+
+      canvas.getTransformationMatrix();
+
+      expect(canvas.cache.test('translation')).to.equal(true);
+      canvas.width = 50;
+      expect(canvas.cache.test('translation')).to.equal(false);
+    });
+
+    it('should invalidate translation when height is changed', function() {
+      var canvas = new Canvas({height: 200});
+
+      canvas.getTransformationMatrix();
+
+      expect(canvas.cache.test('translation')).to.equal(true);
+      canvas.height = 50;
+      expect(canvas.cache.test('translation')).to.equal(false);
+    });
+
+    it('should invalidate scaling when width is changed', function() {
+      var canvas = new Canvas({width: 200});
+
+      canvas.getTransformationMatrix();
+
+      expect(canvas.cache.test('scaling')).to.equal(true);
+      canvas.width = 50;
+      expect(canvas.cache.test('scaling')).to.equal(false);
+    });
+
+    it('should invalidate scaling when height is changed', function() {
+      var canvas = new Canvas({height: 200});
+
+      canvas.getTransformationMatrix();
+
+      expect(canvas.cache.test('scaling')).to.equal(true);
+      canvas.height = 50;
+      expect(canvas.cache.test('scaling')).to.equal(false);
+    });
+
+    it('should invalidate scaling when viewMode is changed', function() {
+      var canvas = new Canvas({viewMode: 'fit'});
+
+      canvas.getTransformationMatrix();
+
+      expect(canvas.cache.test('scaling')).to.equal(true);
+      canvas.viewMode = 'fit-x';
+      expect(canvas.cache.test('scaling')).to.equal(false);
+    });
+
+    it('should invalidate combined transformations when translation is invalidated', function() {
+      var canvas = new Canvas();
+
+      canvas.getTransformationMatrix();
+
+      expect(canvas.cache.test('transformations')).to.equal(true);
+      canvas.cache.invalidate('translation');
+      expect(canvas.cache.test('transformations')).to.equal(false);
+    });
+
+    it('should invalidate combined transformations when scaling is invalidated', function() {
+      var canvas = new Canvas();
+
+      canvas.getTransformationMatrix();
+
+      expect(canvas.cache.test('transformations')).to.equal(true);
+      canvas.cache.invalidate('scaling');
+      expect(canvas.cache.test('transformations')).to.equal(false);
+    });
+
+    it('should invalidate transformations on the camera when transformations change on the canvas', function() {
+      var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
+
+      canvas.getTransformationMatrix();
+      camera.getTransformationMatrix(canvas);
+
+      expect(camera.cache.test('transformations')).to.equal(true);
+
+      canvas.width = 50;
+
+      expect(camera.cache.test('transformations')).to.equal(false);
     });
 
   });

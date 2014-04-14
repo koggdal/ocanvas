@@ -3,9 +3,12 @@
  */
 'use strict';
 
+var Cache = require('../classes/Cache');
+
 var defineProperties = require('../utils/defineProperties');
 var jsonHelpers = require('../utils/json');
 var isInstanceOf = require('../utils/isInstanceOf');
+var matrixUtils = require('../utils/matrix');
 
 /**
  * @classdesc A Canvas instance is connected to a canvas DOM element. It will
@@ -76,7 +79,6 @@ var isInstanceOf = require('../utils/isInstanceOf');
 function Canvas(opt_properties) {
   this.background = '';
   this.camera = null;
-  this.viewMode = 'fit';
   this.renderDepth = 0;
   this.maxRenderDepth = 5;
   this.boundingRectanglesEnabled = false;
@@ -86,17 +88,29 @@ function Canvas(opt_properties) {
   this.boundingRectanglesThickness = 2;
   this.boundingRectangleCulling = true;
 
+  this.initCache();
+
   defineProperties(this, {
     width: {
       value: 0,
       set: function(value) {
         if (this.element) this.element.width = value;
+        this.cache.invalidate('translation');
+        this.cache.invalidate('scaling');
       }
     },
     height: {
       value: 0,
       set: function(value) {
         if (this.element) this.element.height = value;
+        this.cache.invalidate('translation');
+        this.cache.invalidate('scaling');
+      }
+    },
+    viewMode: {
+      value: 'fit',
+      set: function(value) {
+        this.cache.invalidate('scaling');
       }
     }
   }, {enumerable: true});
@@ -204,6 +218,34 @@ Canvas.prototype.setProperties = function(properties) {
 };
 
 /**
+ * Initialize the cache (used for matrices etc).
+ * This should only be called once, which happens in the constructor. Calling
+ * it more times will create a new cache that replaces the old one.
+ */
+Canvas.prototype.initCache = function() {
+  var self = this;
+
+  this.cache = new Cache();
+
+  // Matrices
+  this.cache.define(['translation', 'scaling']);
+  this.cache.define('transformations', {
+    dependencies: ['translation', 'scaling']
+  });
+
+  this.cache.onInvalidate = function(unit) {
+    if (unit === 'transformations') {
+      if (self.camera) {
+        var cameraCache = self.camera.cache;
+        if (cameraCache.get('transformations').reference === self) {
+          cameraCache.invalidate('transformations');
+        }
+      }
+    }
+  };
+};
+
+/**
  * Clear the canvas surface.
  */
 Canvas.prototype.clear = function() {
@@ -281,6 +323,50 @@ Canvas.prototype.render = function() {
       context.restore();
     }
   }
+};
+
+/**
+ * Get a transformation matrix for the canvas. It will be a combined matrix
+ * for translation and scaling. Since the canvas can't be rotated, no rotation
+ * will be included. Technically, the canvas can't be scaled or translated
+ * either. However, the values used here for scaling are based on the needed
+ * scaling for the content that the camera sees, if the size of the camera does
+ * not match the size of the canvas. The translation values are based on half
+ * the width and height, to move from the center of the camera to the top left
+ * corner of the canvas.
+ * If the matrix cache is still valid, it will not update the matrix.
+ *
+ * @return {Matrix} A Matrix instance representing the transformations.
+ */
+Canvas.prototype.getTransformationMatrix = function() {
+  var cache = this.cache;
+  var transformations = cache.get('transformations');
+
+  if (transformations.isValid) return transformations.matrix;
+
+  var translation = cache.get('translation');
+  var scaling = cache.get('scaling');
+
+  if (!translation.isValid) {
+    var w = this.width, h = this.height;
+    translation.matrix = matrixUtils.getTranslationMatrix(w / 2, h / 2,
+        translation.matrix);
+    cache.update('translation');
+  }
+
+  if (!scaling.isValid) {
+    var viewModeValues = this._getViewModeValues();
+    scaling.matrix = matrixUtils.getScalingMatrix(viewModeValues.scaleX,
+      viewModeValues.scaleY, scaling.matrix);
+    cache.update('scaling');
+  }
+
+  transformations.matrix = matrixUtils.getIdentityMatrix(
+    transformations.matrix);
+  transformations.matrix.multiply(translation.matrix, scaling.matrix);
+  cache.update('transformations');
+
+  return transformations.matrix;
 };
 
 /**
@@ -392,40 +478,42 @@ Canvas.prototype._getViewModeValues = function() {
   var camera = this.camera;
   var x = 0;
   var y = 0;
-  var scaleX;
-  var scaleY;
+  var scaleX = 1;
+  var scaleY = 1;
 
-  switch (this.viewMode) {
-    case 'fit-x':
-      scaleX = scaleY = this.width / camera.width;
-      y = (this.height - (camera.height * scaleY)) / 2;
-      break;
-
-    case 'fit-y':
-      scaleX = scaleY = this.height / camera.height;
-      x = (this.width - (camera.width * scaleX)) / 2;
-      break;
-
-    case 'stretch':
-      scaleX = this.width / camera.width;
-      scaleY = this.height / camera.height;
-      break;
-
-    case 'fit':
-    default:
-
-      // Use logic for fit-x
-      if (this.width / camera.width * camera.height < this.height) {
+  if (camera) {
+    switch (this.viewMode) {
+      case 'fit-x':
         scaleX = scaleY = this.width / camera.width;
-        y = (this.height - camera.height * scaleY) / 2;
+        y = (this.height - (camera.height * scaleY)) / 2;
+        break;
 
-      // Use logic for fit-y
-      } else {
+      case 'fit-y':
         scaleX = scaleY = this.height / camera.height;
-        x = (this.width - camera.width * scaleX) / 2;
-      }
+        x = (this.width - (camera.width * scaleX)) / 2;
+        break;
 
-      break;
+      case 'stretch':
+        scaleX = this.width / camera.width;
+        scaleY = this.height / camera.height;
+        break;
+
+      case 'fit':
+      default:
+
+        // Use logic for fit-x
+        if (this.width / camera.width * camera.height < this.height) {
+          scaleX = scaleY = this.width / camera.width;
+          y = (this.height - camera.height * scaleY) / 2;
+
+        // Use logic for fit-y
+        } else {
+          scaleX = scaleY = this.height / camera.height;
+          x = (this.width - camera.width * scaleX) / 2;
+        }
+
+        break;
+    }
   }
 
   return {
