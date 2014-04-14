@@ -853,7 +853,7 @@ describe('CanvasObject', function() {
     });
 
     it('should return a point relative to the canvas', function() {
-      var canvas = new Canvas({width: 150, height: 90});
+      var canvas = new Canvas({width: 300, height: 180});
       var camera = new Camera({
         width: 150, height: 90,
         rotation: -45, x: 100, y: 100
@@ -869,8 +869,8 @@ describe('CanvasObject', function() {
       parent.children.add(object);
 
       var point = object.getPointIn(canvas, 50, 50);
-      expect(round(point.x, 3)).to.equal(95.711);
-      expect(round(point.y, 3)).to.equal(265.711);
+      expect(round(point.x, 3)).to.equal(191.421);
+      expect(round(point.y, 3)).to.equal(531.421);
     });
 
     it('should return a cached point if nothing has changed', function(done) {

@@ -647,7 +647,6 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
       transformationMatrix = this.getTransformationMatrix();
     }
 
-
     // Reset the cached matrix instance for the output point
     outputPoint.matrix = matrixUtils.getIdentityMatrix(outputPoint.matrix);
     outputPointMatrix = outputPoint.matrix;
@@ -660,39 +659,28 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
       var cameraTransformationCache = camera.cache.get('transformations');
       var cameraTransformationMatrix = cameraTransformationCache.matrixInverted;
 
-      var i;
+      var refMatrix = cameraTransformationMatrix;
 
       if (isCanvas) {
-        var cameraOriginCache = camera.cache.get('translation');
-        var cameraOriginMatrix = cameraOriginCache.matrixOrigin;
+        refMatrix = reference.getTransformationMatrix();
+      }
 
-        for (i = 0; i < 9; i++) {
-          cameraOriginCache[i] = cameraOriginMatrix[i];
-        }
+      var i;
 
-        cameraOriginMatrix.multiply(cameraTransformationMatrix,
-            outputPointMatrix);
+      for (i = 0; i < 9; i++) {
+        cameraTransformationCache[i] = refMatrix[i];
+      }
 
-        for (i = 0; i < 9; i++) {
-          outputPointMatrix[i] = cameraOriginMatrix[i];
-          cameraOriginMatrix[i] = cameraOriginCache[i];
-          delete cameraOriginCache[i];
-        }
+      if (isCanvas) {
+        refMatrix.multiply(cameraTransformationMatrix);
+      }
 
-      } else {
+      refMatrix.multiply(outputPointMatrix);
 
-        for (i = 0; i < 9; i++) {
-          cameraTransformationCache[i] = cameraTransformationMatrix[i];
-        }
-
-        cameraTransformationMatrix.multiply(outputPointMatrix);
-
-        for (i = 0; i < 9; i++) {
-          outputPointMatrix[i] = cameraTransformationMatrix[i];
-          cameraTransformationMatrix[i] = cameraTransformationCache[i];
-          delete cameraTransformationCache[i];
-        }
-
+      for (i = 0; i < 9; i++) {
+        outputPointMatrix[i] = refMatrix[i];
+        refMatrix[i] = cameraTransformationCache[i];
+        delete cameraTransformationCache[i];
       }
 
     }

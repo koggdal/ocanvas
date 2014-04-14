@@ -285,7 +285,11 @@ Camera.prototype.initCache = function() {
       if (self.world) {
         var objects = self.world.objects;
         for (var i = 0, l = objects.length; i < l; i++) {
-          objects.get(i).cache.invalidate('combinedTransformations');
+          var objectCache = objects.get(i).cache;
+          var reference = objectCache.get('combinedTransformations').reference;
+          if (reference === self || isInstanceOf(reference, 'Canvas')) {
+            objectCache.invalidate('combinedTransformations');
+          }
         }
       }
     }
@@ -359,8 +363,6 @@ Camera.prototype.getTransformationMatrix = function(opt_reference) {
     var w = this.width, h = this.height;
     translation.matrix = matrixUtils.getTranslationMatrix(x, y,
         translation.matrix);
-    translation.matrixOrigin = matrixUtils.getTranslationMatrix(w / 2, h / 2,
-        translation.matrixOrigin);
     cache.update('translation');
   }
 
