@@ -1050,6 +1050,349 @@ describe('CanvasObject', function() {
 
   });
 
+  describe('#getPointFrom()', function() {
+
+    it('should return a point from the immediate parent', function() {
+      var parent = new CanvasObject({rotation: -45, x: 200});
+      var object = new CanvasObject({rotation: 45, y: 100});
+
+      parent.children.add(object);
+
+      var point = object.getPointFrom(parent, 50, 50);
+      expect(round(point.x, 3)).to.equal(0);
+      expect(round(point.y, 3)).to.equal(-70.711);
+    });
+
+    it('should return a point from a parent further out', function() {
+      var outerMostParent = new CanvasObject({rotation: -90, x: -200});
+      var outerParent = new CanvasObject({rotation: 45, x: -100});
+      var parent = new CanvasObject({rotation: -45, x: 200});
+      var object = new CanvasObject({rotation: 45, y: 100});
+
+      outerMostParent.children.add(outerParent);
+      outerParent.children.add(parent);
+      parent.children.add(object);
+
+      var point = object.getPointFrom(outerMostParent, 50, 50);
+      expect(round(point.x, 3)).to.equal(-129.289);
+      expect(round(point.y, 3)).to.equal(-141.421);
+    });
+
+    it('should return a point from the world', function() {
+      var world = new World();
+      var parent = new CanvasObject({rotation: -45, x: 200});
+      var object = new CanvasObject({rotation: 45, y: 100});
+
+      world.objects.add(parent);
+      parent.children.add(object);
+
+      var point = object.getPointFrom(world, 50, 50);
+      expect(round(point.x, 3)).to.equal(-220.711);
+      expect(round(point.y, 3)).to.equal(-20.711);
+    });
+
+    it('should return a point from the camera', function() {
+      var world = new World();
+      var camera = new Camera({rotation: -45, x: 100, y: 100});
+      var outerParent = new CanvasObject({rotation: -45, x: 200});
+      var parent = new CanvasObject({rotation: 45, y: 100});
+      var object = new CanvasObject({rotation: 45, y: 100});
+
+      world.cameras.add(camera);
+      world.objects.add(outerParent);
+      outerParent.children.add(parent);
+      parent.children.add(object);
+
+      var point = object.getPointFrom(camera, 50, 50);
+      expect(round(point.x, 3)).to.equal(-120.711);
+      expect(round(point.y, 3)).to.equal(20.711);
+    });
+
+    it('should return a point from the canvas', function() {
+      var camera = new Camera({
+        width: 150, height: 90,
+        rotation: -45, x: 100, y: 100
+      });
+      var canvas = new Canvas({
+        width: 300, height: 180,
+        camera: camera
+      });
+      var world = new World();
+      var outerParent = new CanvasObject({rotation: -45, x: 200});
+      var parent = new CanvasObject({rotation: 45, y: 100});
+      var object = new CanvasObject({rotation: 45, y: 100});
+
+      world.cameras.add(camera);
+      world.objects.add(outerParent);
+      outerParent.children.add(parent);
+      parent.children.add(object);
+
+      var point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-120.711);
+      expect(round(point.y, 3)).to.equal(20.711);
+    });
+
+    it('should return a cached point if nothing has changed', function(done) {
+      var camera = new Camera({
+        width: 150, height: 90,
+        rotation: -45, x: 100, y: 100
+      });
+      var canvas = new Canvas({
+        width: 300, height: 180,
+        camera: camera
+      });
+      var world = new World();
+      var outerParent = new CanvasObject({rotation: -45, x: 200});
+      var parent = new CanvasObject({rotation: 45, y: 100});
+      var object = new CanvasObject({rotation: 45, y: 100});
+
+      world.cameras.add(camera);
+      world.objects.add(outerParent);
+      outerParent.children.add(parent);
+      parent.children.add(object);
+
+      var point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-120.711);
+      expect(round(point.y, 3)).to.equal(20.711);
+
+      var pointMatrix1 = object.cache.get('getPointFrom-output').matrix;
+      var setData = pointMatrix1.setData;
+      var setDataCalled = false;
+      pointMatrix1.setData = function() {
+        setDataCalled = true;
+        setData.apply(this, arguments);
+      };
+
+      point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-120.711);
+      expect(round(point.y, 3)).to.equal(20.711);
+
+      var pointMatrix2 = object.cache.get('getPointFrom-output').matrix;
+      expect(pointMatrix1).to.equal(pointMatrix2);
+
+      setTimeout(function() {
+        if (!setDataCalled) done();
+        else done(new Error('The matrix was updated and did not use the cache'));
+      }, 10);
+
+    });
+
+    it('should return an updated point if position has changed', function() {
+      var camera = new Camera({
+        width: 150, height: 90,
+        rotation: -45, x: 100, y: 100
+      });
+      var canvas = new Canvas({
+        width: 300, height: 180,
+        camera: camera
+      });
+      var world = new World();
+      var outerParent = new CanvasObject({rotation: -45, x: 200});
+      var parent = new CanvasObject({rotation: 45, y: 100});
+      var object = new CanvasObject({rotation: 45, y: 100});
+
+      world.cameras.add(camera);
+      world.objects.add(outerParent);
+      outerParent.children.add(parent);
+      parent.children.add(object);
+
+      var point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-120.711);
+      expect(round(point.y, 3)).to.equal(20.711);
+
+      object.x = 300;
+
+      point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-332.843);
+      expect(round(point.y, 3)).to.equal(232.843);
+
+      object.y = 200;
+
+      point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-403.553);
+      expect(round(point.y, 3)).to.equal(162.132);
+    });
+
+    it('should return an updated point if rotation has changed', function() {
+      var camera = new Camera({
+        width: 150, height: 90,
+        rotation: -45, x: 100, y: 100
+      });
+      var canvas = new Canvas({
+        width: 300, height: 180,
+        camera: camera
+      });
+      var world = new World();
+      var outerParent = new CanvasObject({rotation: -45, x: 200});
+      var parent = new CanvasObject({rotation: 45, y: 100});
+      var object = new CanvasObject({rotation: 45, y: 100});
+
+      world.cameras.add(camera);
+      world.objects.add(outerParent);
+      outerParent.children.add(parent);
+      parent.children.add(object);
+
+      var point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-120.711);
+      expect(round(point.y, 3)).to.equal(20.711);
+
+      object.rotation = 0;
+
+      point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-100);
+      expect(round(point.y, 3)).to.equal(-70.711);
+    });
+
+    it('should return an updated point if scaling has changed', function() {
+      var camera = new Camera({
+        width: 150, height: 90,
+        rotation: -45, x: 100, y: 100
+      });
+      var canvas = new Canvas({
+        width: 300, height: 180,
+        camera: camera
+      });
+      var world = new World();
+      var outerParent = new CanvasObject({rotation: -45, x: 200});
+      var parent = new CanvasObject({rotation: 45, y: 100});
+      var object = new CanvasObject({rotation: 45, y: 100});
+
+      world.cameras.add(camera);
+      world.objects.add(outerParent);
+      outerParent.children.add(parent);
+      parent.children.add(object);
+
+      var point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-120.711);
+      expect(round(point.y, 3)).to.equal(20.711);
+
+      object.scalingX = 2;
+
+      point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-60.355);
+      expect(round(point.y, 3)).to.equal(20.711);
+
+      object.scalingY = 2;
+
+      point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-60.355);
+      expect(round(point.y, 3)).to.equal(10.355);
+    });
+
+    it('should return an updated point if a parent has changed', function() {
+      var camera = new Camera({
+        width: 150, height: 90,
+        rotation: -45, x: 100, y: 100
+      });
+      var canvas = new Canvas({
+        width: 300, height: 180,
+        camera: camera
+      });
+      var world = new World();
+      var outerParent = new CanvasObject({rotation: -45, x: 200});
+      var parent = new CanvasObject({rotation: 45, y: 100});
+      var object = new CanvasObject({rotation: 45, y: 100});
+
+      world.cameras.add(camera);
+      world.objects.add(outerParent);
+      outerParent.children.add(parent);
+      parent.children.add(object);
+
+      var point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-120.711);
+      expect(round(point.y, 3)).to.equal(20.711);
+
+      parent.rotation = 0;
+
+      point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-170.711);
+      expect(round(point.y, 3)).to.equal(-41.421);
+    });
+
+    it('should return an updated point if a different input point was passed in', function() {
+      var camera = new Camera({
+        width: 150, height: 90,
+        rotation: -45, x: 100, y: 100
+      });
+      var canvas = new Canvas({
+        width: 300, height: 180,
+        camera: camera
+      });
+      var world = new World();
+      var outerParent = new CanvasObject({rotation: -45, x: 200});
+      var parent = new CanvasObject({rotation: 45, y: 100});
+      var object = new CanvasObject({rotation: 45, y: 100});
+
+      world.cameras.add(camera);
+      world.objects.add(outerParent);
+      outerParent.children.add(parent);
+      parent.children.add(object);
+
+      var point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-120.711);
+      expect(round(point.y, 3)).to.equal(20.711);
+
+      point = object.getPointFrom(canvas, 30, 20);
+      expect(round(point.x, 3)).to.equal(-150.711);
+      expect(round(point.y, 3)).to.equal(40.711);
+    });
+
+    it('should return an updated point when a different reference is passed', function() {
+      var camera = new Camera({
+        width: 150, height: 90,
+        rotation: -45, x: 100, y: 100
+      });
+      var canvas = new Canvas({
+        width: 300, height: 180,
+        camera: camera
+      });
+      var world = new World();
+      var outerParent = new CanvasObject({rotation: -45, x: 200});
+      var parent = new CanvasObject({rotation: 45, y: 100});
+      var object = new CanvasObject({rotation: 45, y: 100});
+
+      world.cameras.add(camera);
+      world.objects.add(outerParent);
+      outerParent.children.add(parent);
+      parent.children.add(object);
+
+      var point = object.getPointFrom(canvas, 50, 50);
+      expect(round(point.x, 3)).to.equal(-120.711);
+      expect(round(point.y, 3)).to.equal(20.711);
+
+      point = object.getPointFrom(world, 50, 50);
+      expect(round(point.x, 3)).to.equal(-241.421);
+      expect(round(point.y, 3)).to.equal(70.711);
+    });
+
+    it('should return the passed in point object with correct data', function() {
+      var camera = new Camera({
+        width: 150, height: 90,
+        rotation: -45, x: 100, y: 100
+      });
+      var canvas = new Canvas({
+        width: 300, height: 180,
+        camera: camera
+      });
+      var world = new World();
+      var outerParent = new CanvasObject({rotation: -45, x: 200});
+      var parent = new CanvasObject({rotation: 45, y: 100});
+      var object = new CanvasObject({rotation: 45, y: 100});
+
+      world.cameras.add(camera);
+      world.objects.add(outerParent);
+      outerParent.children.add(parent);
+      parent.children.add(object);
+
+      var point = {x: 0, y: 0};
+      var returnedPoint = object.getPointFrom(canvas, 50, 50, point);
+      expect(returnedPoint).to.equal(point);
+      expect(round(returnedPoint.x, 3)).to.equal(-120.711);
+      expect(round(returnedPoint.y, 3)).to.equal(20.711);
+    });
+
+  });
+
   describe('#getVertices()', function() {
 
     it('should be defined but throw an error (needs subclass implementation)', function(done) {

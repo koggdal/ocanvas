@@ -273,6 +273,10 @@ CanvasObject.prototype.initCache = function() {
   this.cache.define('getPointIn-output', {
     dependencies: ['getPointIn-input', 'combinedTransformations']
   });
+  this.cache.define('getPointFrom-input');
+  this.cache.define('getPointFrom-output', {
+    dependencies: ['getPointFrom-input', 'combinedTransformations']
+  });
 
   // Vertices
   this.cache.define('vertices');
@@ -687,6 +691,80 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
 
     // Set cache as updated
     cache.update('getPointIn-output');
+  }
+
+  var output = opt_point || {x: 0, y: 0};
+  output.x = outputPointMatrix[2];
+  output.y = outputPointMatrix[5];
+
+  return output;
+};
+
+/**
+ * Get a point inside this object from coordinates within the coordinate space
+ * of the specified reference.
+ *
+ * @param {Canvas|Camera|World|CanvasObject} reference The coordinate space the
+ *     input point is in. If a canvas object is provided, it must exist in
+ *     the parent chain for this object.
+ * @param {number} x The X position in the reference.
+ * @param {number} y The Y position in the reference.
+ * @param {Object=} opt_point Optional object to put the point properties in.
+ *
+ * @return {Object} An object with properties x and y.
+ */
+CanvasObject.prototype.getPointFrom = function(reference, x, y, opt_point) {
+  var cache = this.cache;
+  var inputPoint = cache.get('getPointFrom-input');
+  var outputPoint = cache.get('getPointFrom-output');
+  var outputPointMatrix = outputPoint.matrix;
+
+  if (outputPoint.isValid && outputPoint.reference !== reference) {
+    cache.invalidate('getPointFrom-output');
+  }
+  outputPoint.reference = reference;
+
+  if (inputPoint.x !== x || inputPoint.y !== y) {
+    cache.invalidate('getPointFrom-input');
+  }
+
+  if (!outputPoint.isValid) {
+
+    if (!inputPoint.isValid) {
+      inputPoint.matrix = matrixUtils.getTranslationMatrix(x, y,
+          inputPoint.matrix);
+      inputPoint.x = x;
+      inputPoint.y = y;
+      cache.update('getPointFrom-input');
+    }
+
+    // Collect all matrices up to the reference (canvas object or world)
+    var matrices = outputPoint.matrices || (outputPoint.matrices = []);
+    matrices.length = 0;
+    matrices.push(this.getTransformationMatrix());
+    var parent = this.parent;
+    while (parent instanceof CanvasObject && parent !== reference) {
+      matrices.push(parent.getTransformationMatrix());
+      parent = parent.parent;
+    }
+    matrices.reverse();
+
+    // Reset the cached matrix instance for the output point
+    outputPoint.matrix = matrixUtils.getIdentityMatrix(outputPoint.matrix);
+    outputPointMatrix = outputPoint.matrix;
+
+    outputPointMatrix.multiply.apply(outputPointMatrix, matrices).invert();
+
+    if (isInstanceOf(reference, 'Camera')) {
+      outputPointMatrix.multiply(reference.getTransformationMatrix());
+    } else if (isInstanceOf(reference, 'Canvas')) {
+      outputPointMatrix.multiply(reference.camera.getTransformationMatrix());
+    }
+
+    outputPointMatrix.multiply(inputPoint.matrix);
+
+    // Set cache as updated
+    cache.update('getPointFrom-output');
   }
 
   var output = opt_point || {x: 0, y: 0};
