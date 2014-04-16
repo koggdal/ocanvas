@@ -489,24 +489,24 @@ CanvasObject.prototype.isTreeInView = function(canvas) {
  * up until it reaches the reference (which is included).
  * If the matrix cache is still valid, it will not update the matrix.
  *
- * @param {Canvas|Camera|World|CanvasObject} reference The coordinate space the
- *     matrix will be made for. If a canvas object is provided, it must exist in
- *     the parent chain for this object.
+ * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ *     the matrix will be made for. If a canvas object is provided, it must
+ *     exist in the parent chain for this object.
  *
  * @return {Matrix} A Matrix instance representing the transformations.
  */
-CanvasObject.prototype.getTransformationMatrix = function(reference) {
+CanvasObject.prototype.getTransformationMatrix = function(opt_reference) {
   var cache = this.cache;
   var transformations = cache.get('transformations');
   var combined = cache.get('combinedTransformations');
 
-  if (!reference) {
+  if (!opt_reference) {
     if (transformations.isValid) return transformations.matrix;
   } else {
-    if (combined.isValid && combined.reference && combined.reference !== reference) {
+    if (combined.isValid && combined.reference !== opt_reference) {
       cache.invalidate('combinedTransformations');
     }
-    combined.reference = reference;
+    combined.reference = opt_reference;
   }
 
   var translation = cache.get('translation');
@@ -540,7 +540,7 @@ CanvasObject.prototype.getTransformationMatrix = function(reference) {
   // If there is no reference, we should not make a combined transformation
   // However, we need to update the cache to let other parts know that it's
   // up to date.
-  if (!reference || reference === this) {
+  if (!opt_reference || opt_reference === this) {
     combined.matrix = matrixUtils.getIdentityMatrix(combined.matrix);
     combined.matrix.multiply(transformations.matrix);
     cache.update('combinedTransformations');
@@ -550,14 +550,14 @@ CanvasObject.prototype.getTransformationMatrix = function(reference) {
   var matrices = [];
 
   if (this.parent instanceof CanvasObject) {
-    matrices.push(this.parent.getTransformationMatrix(reference));
+    matrices.push(this.parent.getTransformationMatrix(opt_reference));
 
-  } else {
-    var isCamera = isInstanceOf(reference, 'Camera');
-    var isCanvas = isInstanceOf(reference, 'Canvas');
+  } else if (opt_reference) {
+    var isCamera = isInstanceOf(opt_reference, 'Camera');
+    var isCanvas = isInstanceOf(opt_reference, 'Canvas');
     if (isCamera || isCanvas) {
-      var camera = isCamera ? reference : reference.camera;
-      var canvas = isCanvas ? reference : undefined;
+      var camera = isCamera ? opt_reference : opt_reference.camera;
+      var canvas = isCanvas ? opt_reference : undefined;
       matrices.push(camera.getTransformationMatrix(canvas));
     }
   }
