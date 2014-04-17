@@ -1516,7 +1516,7 @@ describe('CanvasObject', function() {
         width: 100, height: 50,
         x: 100, y: 50,
         getGlobalVertices: function() {
-          this.cache.update('vertices', {
+          this.cache.update('vertices-local', {
             vertices: [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}]
           });
           this.getTransformationMatrix(canvas);
@@ -1525,7 +1525,7 @@ describe('CanvasObject', function() {
           var w = this.width;
           var h = this.height;
           var globalVertices = [{x: x, y: y}, {x: x + w, y: y}, {x: x + w, y: y + h}, {x: x, y: y + h}];
-          this.cache.update('globalVertices', {vertices: globalVertices});
+          this.cache.update('vertices-reference', {vertices: globalVertices});
           return globalVertices;
         }
       });
@@ -1562,12 +1562,12 @@ describe('CanvasObject', function() {
         width: 100, height: 50,
         x: 100, y: 50,
         getGlobalVertices: function() {
-          this.cache.update('vertices', {
+          this.cache.update('vertices-local', {
             vertices: [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}]
           });
           this.getTransformationMatrix(canvas);
           var globalVertices = [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
-          this.cache.update('globalVertices', {vertices: globalVertices});
+          this.cache.update('vertices-reference', {vertices: globalVertices});
           return globalVertices;
         }
       });
@@ -1597,7 +1597,7 @@ describe('CanvasObject', function() {
       var canvas = new Canvas({camera: camera});
 
       var updateCache = function(cache) {
-        cache.update('vertices').update('globalVertices').update('treeVertices');
+        cache.update('vertices-local').update('vertices-reference').update('treeVertices');
         cache.update('scaling').update('transformations').update('combinedTransformations');
       };
 
@@ -1638,7 +1638,7 @@ describe('CanvasObject', function() {
       var canvas = new Canvas({camera: camera});
 
       var updateCache = function(cache) {
-        cache.update('vertices').update('globalVertices').update('treeVertices');
+        cache.update('vertices-local').update('vertices-reference').update('treeVertices');
       };
 
       var object = new CanvasObject({
@@ -1678,7 +1678,7 @@ describe('CanvasObject', function() {
       var canvas = new Canvas({camera: camera});
 
       var updateCache = function(cache) {
-        cache.update('vertices').update('globalVertices').update('treeVertices');
+        cache.update('vertices-local').update('vertices-reference').update('treeVertices');
         cache.update('translation').update('transformations').update('combinedTransformations');
       };
 
@@ -1729,7 +1729,7 @@ describe('CanvasObject', function() {
       var canvas = new Canvas({camera: camera});
 
       var updateCache = function(cache) {
-        cache.update('vertices').update('globalVertices').update('treeVertices');
+        cache.update('vertices-local').update('vertices-reference').update('treeVertices');
         cache.update('translation').update('transformations').update('combinedTransformations');
       };
 
@@ -1836,7 +1836,7 @@ describe('CanvasObject', function() {
       var numCalls = 0;
 
       var updateCache = function(cache) {
-        cache.update('globalVertices').update('treeVertices');
+        cache.update('vertices-reference').update('treeVertices');
         cache.update('translation').update('transformations').update('combinedTransformations');
       };
 
@@ -1924,7 +1924,7 @@ describe('CanvasObject', function() {
       var numCalls = 0;
 
       var updateCache = function(cache) {
-        cache.update('globalVertices').update('treeVertices');
+        cache.update('vertices-reference').update('treeVertices');
         cache.update('translation').update('transformations').update('combinedTransformations');
         cache.update('boundingRectangle').update('boundingRectangleForTree');
       };
@@ -1982,11 +1982,11 @@ describe('CanvasObject', function() {
     });
 
     it('should have a cache unit for local vertices', function() {
-      expect(object.cache.get('vertices')).to.not.equal(null);
+      expect(object.cache.get('vertices-local')).to.not.equal(null);
     });
 
-    it('should have a cache unit for global vertices', function() {
-      expect(object.cache.get('globalVertices')).to.not.equal(null);
+    it('should have a cache unit for vertices relative to the reference', function() {
+      expect(object.cache.get('vertices-reference')).to.not.equal(null);
     });
 
     it('should have a cache unit for vertices for a subtree of objects', function() {

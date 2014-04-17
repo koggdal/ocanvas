@@ -38,11 +38,11 @@ function RectangularCanvasObject(opt_properties) {
   defineProperties(this, {
     width: {
       value: 0,
-      set: function() { this.cache.invalidate('vertices'); }
+      set: function() { this.cache.invalidate('vertices-local'); }
     },
     height: {
       value: 0,
-      set: function() { this.cache.invalidate('vertices'); }
+      set: function() { this.cache.invalidate('vertices-local'); }
     }
   }, {enumerable: true});
 
@@ -165,23 +165,46 @@ RectangularCanvasObject.prototype.renderPath = function(canvas) {
 };
 
 /**
- * Get the vertices for this object. The coordinates will be relative
- * to the origin of this object and are not affected by any transformations.
+ * Get the vertices for this object. The coordinates will be relative to the
+ * coordinate space of the specified reference. If no reference is specified,
+ * the coordinates will be relative to this object, without any transformations
+ * applied.
+ *
+ * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ *     the vertices should be relative to. If a canvas object is provided, it
+ *     must exist in the parent chain for this object.
  *
  * @return {Array} Array of objects, where each object has `x` and `y`
  *     properties representing the coordinates.
  */
-RectangularCanvasObject.prototype.getVertices = function() {
-  var cache = this.cache.get('vertices');
+RectangularCanvasObject.prototype.getVertices = function(opt_reference) {
+  var cache = this.cache;
+  var localCache = cache.get('vertices-local');
+  var referenceCache = cache.get('vertices-reference');
 
-  if (cache.isValid) return cache.vertices;
+  if (!opt_reference) {
+    if (localCache.isValid) return localCache.vertices;
+  } else {
+    if (referenceCache.isValid) {
+      if (referenceCache.reference === opt_reference) {
+        return referenceCache.vertices;
+      } else {
+        cache.invalidate('vertices-reference');
+      }
+    }
+    referenceCache.reference = opt_reference;
+  }
 
-  if (!cache.vertices) {
-    cache.vertices = new Array(4);
-    cache.vertices[0] = {x: 0, y: 0};
-    cache.vertices[1] = {x: 0, y: 0};
-    cache.vertices[2] = {x: 0, y: 0};
-    cache.vertices[3] = {x: 0, y: 0};
+  if (!localCache.vertices) {
+    localCache.vertices = [
+      {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}
+    ];
+  }
+
+  if (!referenceCache.vertices) {
+    referenceCache.vertices = [
+      {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}
+    ];
   }
 
   var origin = this.calculateOrigin();
@@ -197,20 +220,31 @@ RectangularCanvasObject.prototype.getVertices = function() {
   var top = -origin.y - lineWidth;
   var bottom = top + this.height + lineWidth * 2;
 
-  var vertices = cache.vertices;
+  var localVertices = localCache.vertices;
 
-  vertices[0].x = left;
-  vertices[0].y = top;
-  vertices[1].x = right;
-  vertices[1].y = top;
-  vertices[2].x = right;
-  vertices[2].y = bottom;
-  vertices[3].x = left;
-  vertices[3].y = bottom;
+  localVertices[0].x = left;
+  localVertices[0].y = top;
+  localVertices[1].x = right;
+  localVertices[1].y = top;
+  localVertices[2].x = right;
+  localVertices[2].y = bottom;
+  localVertices[3].x = left;
+  localVertices[3].y = bottom;
 
-  this.cache.update('vertices');
+  cache.update('vertices-local');
 
-  return vertices;
+  if (!opt_reference) return localVertices;
+
+  var reference = opt_reference;
+  var referenceVertices = referenceCache.vertices;
+  this.getPointIn(reference, left, top, referenceVertices[0]);
+  this.getPointIn(reference, right, top, referenceVertices[1]);
+  this.getPointIn(reference, right, bottom, referenceVertices[2]);
+  this.getPointIn(reference, left, bottom, referenceVertices[3]);
+
+  this.cache.update('vertices-reference');
+
+  return referenceVertices;
 };
 
 /**
@@ -223,34 +257,7 @@ RectangularCanvasObject.prototype.getVertices = function() {
  *     properties representing the coordinates.
  */
 RectangularCanvasObject.prototype.getGlobalVertices = function(canvas) {
-  var cache = this.cache.get('globalVertices');
-
-  if (cache.isValid) return cache.vertices;
-
-  if (!cache.vertices) {
-    cache.vertices = new Array(4);
-    cache.vertices[0] = {x: 0, y: 0};
-    cache.vertices[1] = {x: 0, y: 0};
-    cache.vertices[2] = {x: 0, y: 0};
-    cache.vertices[3] = {x: 0, y: 0};
-  }
-
-  var localVertices = this.getVertices();
-  var left = localVertices[0].x;
-  var right = localVertices[1].x;
-  var top = localVertices[0].y;
-  var bottom = localVertices[2].y;
-
-  var vertices = cache.vertices;
-  var world = canvas.camera.world;
-  vertices[0] = this.getPointIn(world, left, top, vertices[0]);
-  vertices[1] = this.getPointIn(world, right, top, vertices[1]);
-  vertices[2] = this.getPointIn(world, right, bottom, vertices[2]);
-  vertices[3] = this.getPointIn(world, left, bottom, vertices[3]);
-
-  this.cache.update('globalVertices');
-
-  return vertices;
+  return this.getVertices(canvas.camera.world);
 };
 
 module.exports = RectangularCanvasObject;

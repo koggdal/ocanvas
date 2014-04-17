@@ -194,15 +194,15 @@ CanvasObject.prototype.propertyDescriptors = {
   },
   originX: {
     value: 0,
-    set: function() { this.cache.invalidate('vertices'); }
+    set: function() { this.cache.invalidate('vertices-local'); }
   },
   originY: {
     value: 0,
-    set: function() { this.cache.invalidate('vertices'); }
+    set: function() { this.cache.invalidate('vertices-local'); }
   },
   stroke: {
     value: '',
-    set: function() { this.cache.invalidate('vertices'); }
+    set: function() { this.cache.invalidate('vertices-local'); }
   },
 
   clippingMask: {
@@ -279,20 +279,22 @@ CanvasObject.prototype.initCache = function() {
   });
 
   // Vertices
-  this.cache.define('vertices');
-  this.cache.define('globalVertices', {
-    dependencies: ['vertices', 'combinedTransformations']
+  this.cache.define('vertices-local', {
+    dependencies: ['combinedTransformations']
+  });
+  this.cache.define('vertices-reference', {
+    dependencies: ['vertices-local', 'combinedTransformations']
   });
   this.cache.define('treeVertices', {
-    dependencies: ['globalVertices']
+    dependencies: ['vertices-reference']
   });
 
   // Bounding Rectangles
   this.cache.define('boundingRectangle', {
-    dependencies: ['globalVertices']
+    dependencies: ['vertices-reference']
   });
   this.cache.define('boundingRectangleForTree', {
-    dependencies: ['globalVertices']
+    dependencies: ['vertices-reference']
   });
 
   this.cache.onInvalidate = function(unit) {
@@ -315,9 +317,14 @@ CanvasObject.prototype.initCache = function() {
         self.parent.cache.invalidate('treeVertices');
       }
     }
-    else if (unit === 'globalVertices') {
+    else if (unit === 'vertices-reference') {
       self.children.forEach(function(child) {
-        child.cache.invalidate('globalVertices');
+        child.cache.invalidate('vertices-reference');
+      });
+    }
+    else if (unit === 'vertices-local') {
+      self.children.forEach(function(child) {
+        child.cache.invalidate('vertices-reference');
       });
     }
 
@@ -781,10 +788,14 @@ CanvasObject.prototype.getPointFrom = function(reference, x, y, opt_point) {
  * This needs implementation in a subclass. You should not call this
  * super method in the subclass.
  *
+ * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ *     the vertices should be relative to. If a canvas object is provided, it
+ *     must exist in the parent chain for this object.
+ *
  * @return {Array} Array of objects, where each object has `x` and `y`
  *     properties representing the coordinates.
  */
-CanvasObject.prototype.getVertices = function() {
+CanvasObject.prototype.getVertices = function(opt_reference) {
   var message = 'CanvasObject does not have an implementation of the ' +
       'getVertices method. Please use a subclass of ' +
       'CanvasObject that has an implementation of it.';
