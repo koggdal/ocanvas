@@ -283,10 +283,13 @@ CanvasObject.prototype.initCache = function() {
     dependencies: ['combinedTransformations']
   });
   this.cache.define('vertices-reference', {
-    dependencies: ['vertices-local', 'combinedTransformations']
+    dependencies: ['vertices-local']
   });
-  this.cache.define('treeVertices', {
-    dependencies: ['vertices-reference']
+  this.cache.define('vertices-tree-local', {
+    dependencies: ['vertices-local']
+  });
+  this.cache.define('vertices-tree-reference', {
+    dependencies: ['vertices-tree-local', 'vertices-reference']
   });
 
   // Bounding Rectangles
@@ -312,9 +315,14 @@ CanvasObject.prototype.initCache = function() {
     }
 
     // Vertices
-    else if (unit === 'treeVertices') {
+    else if (unit === 'vertices-tree-local') {
       if (self.parent && self.parent.cache) {
-        self.parent.cache.invalidate('treeVertices');
+        self.parent.cache.invalidate('vertices-tree-local');
+      }
+    }
+    else if (unit === 'vertices-tree-reference') {
+      if (self.parent && self.parent.cache) {
+        self.parent.cache.invalidate('vertices-tree-reference');
       }
     }
     else if (unit === 'vertices-reference') {
@@ -805,51 +813,51 @@ CanvasObject.prototype.getVertices = function(opt_reference) {
 };
 
 /**
- * Get the global vertices for this object. The coordinates will be relative
- * to the world.
+ * Get the vertices for this object and the tree of children. The coordinates
+ * will be relative to either this object itself (without any transformations),
+ * or to the specified reference.
  *
- * This needs implementation in a subclass. You should not call this
- * super method in the subclass.
- *
- * @param {Canvas} canvas The Canvas instance to use. Needed to get the camera.
- *
- * @return {Array} Array of objects, where each object has `x` and `y`
- *     properties representing the coordinates.
- */
-CanvasObject.prototype.getGlobalVertices = function(canvas) {
-  var message = 'CanvasObject does not have an implementation of the ' +
-      'getGlobalVertices method. Please use a subclass of ' +
-      'CanvasObject that has an implementation of it.';
-  var error = new Error(message);
-  error.name = 'ocanvas-needs-subclass';
-  throw error;
-};
-
-/**
- * Get the global vertices for this object and the tree of children. The
- * coordinates will be relative to the world.
- *
- * @param {Canvas} canvas The Canvas instance to use. Needed to get the camera.
+ * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ *     the vertices should be relative to. If a canvas object is provided, it
+ *     must exist in the parent chain for this object.
  *
  * @return {Array} Array of objects, where each object has `x` and `y`
  *     properties representing the coordinates.
  */
-CanvasObject.prototype.getGlobalVerticesForTree = function(canvas) {
-  var cache = this.cache.get('treeVertices');
+CanvasObject.prototype.getVerticesForTree = function(opt_reference) {
+  var cache = this.cache;
+  var localCache = cache.get('vertices-tree-local');
+  var referenceCache = cache.get('vertices-tree-reference');
 
-  if (cache.isValid) return cache.vertices;
+  if (!opt_reference) {
+    if (localCache.isValid) return localCache.vertices;
+  } else {
+    if (referenceCache.isValid) {
+      if (referenceCache.reference === opt_reference) {
+        return referenceCache.vertices;
+      } else {
+        cache.invalidate('vertices-tree-reference');
+      }
+    }
+    referenceCache.reference = opt_reference;
+  }
 
-  var vertices = cache.vertices || [];
+  var vertices = (opt_reference ? referenceCache : localCache).vertices || [];
   vertices.length = 0;
-  vertices.push.apply(vertices, this.getGlobalVertices(canvas));
+  vertices.push.apply(vertices, this.getVertices(opt_reference));
 
   var children = this.children;
   for (var i = 0, l = children.length; i < l; i++) {
-    vertices.push.apply(vertices, children.get(i).getGlobalVerticesForTree(canvas));
+    vertices.push.apply(vertices, children.get(i).getVerticesForTree(opt_reference || this));
   }
 
-  cache.vertices = vertices;
-  this.cache.update('treeVertices');
+  if (opt_reference) {
+    referenceCache.vertices = vertices;
+    cache.update('vertices-tree-reference');
+  } else {
+    localCache.vertices = vertices;
+    cache.update('vertices-tree-local');
+  }
 
   return vertices;
 };
@@ -870,7 +878,7 @@ CanvasObject.prototype.getBoundingRectangle = function(canvas) {
 
   if (!cache.data) cache.data = {};
 
-  var vertices = this.getGlobalVertices(canvas);
+  var vertices = this.getVertices(canvas.camera.world);
 
   var minX = Infinity;
   var maxX = -Infinity;
@@ -915,7 +923,7 @@ CanvasObject.prototype.getBoundingRectangleForTree = function(canvas) {
 
   if (!cache.data) cache.data = {};
 
-  var vertices = this.getGlobalVerticesForTree(canvas);
+  var vertices = this.getVerticesForTree(canvas.camera.world);
 
   var minX = Infinity;
   var maxX = -Infinity;

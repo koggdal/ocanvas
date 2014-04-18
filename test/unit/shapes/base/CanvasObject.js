@@ -1411,365 +1411,437 @@ describe('CanvasObject', function() {
 
   });
 
-  describe('#getGlobalVertices()', function() {
+  describe('#getVerticesForTree()', function() {
 
-    it('should be defined but throw an error (needs subclass implementation)', function(done) {
-      var object = new CanvasObject();
-
-      try {
-        object.getGlobalVertices();
-      } catch(error) {
-        if (error.name === 'ocanvas-needs-subclass') {
-          done();
-        } else {
-          done(error);
-        }
-      }
-    });
-
-  });
-
-  describe('#getGlobalVerticesForTree()', function() {
-
-    it('should return the coordinates of all vertices of the object and its children', function() {
+    it('should return the coordinates of all vertices of the object and its children, relative to itself', function() {
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
 
       var object1 = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
-        getGlobalVertices: function() {
-          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+        getVertices: function(opt_reference) {
+          expect(opt_reference).to.not.be.ok();
+          // Since no reference is passed to the outermost call to
+          // getVerticesForTree, no reference will be sent to getVertices for
+          // the first object, and thus the coordinates will be local here.
+          return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}, {x: 0, y: 50}];
         }
       });
       var object2 = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
-        getGlobalVertices: function() {
-          return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}];
+        getVertices: function(opt_reference) {
+          expect(opt_reference).to.be(object1);
+          // This is a child of the object that getVerticesForTree was called
+          // for, so object1 will be sent as reference to this object, so the
+          // coordinates will be relative to object1.
+          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}, {x: 100, y: 100}];
         }
       });
       var object3 = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
-        getGlobalVertices: function() {
-          return [{x: 300, y: 150}, {x: 400, y: 150}, {x: 400, y: 200}];
+        getVertices: function(opt_reference) {
+          expect(opt_reference).to.be(object1);
+          // This is a grand child of the object that getVerticesForTree was
+          // called for, so object1 will be sent as reference to this object, so
+          // the coordinates will be relative to object1.
+          return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}, {x: 200, y: 150}];
         }
       });
       object1.children.add(object2);
       object2.children.add(object3);
 
-      var vertices = object1.getGlobalVerticesForTree(canvas);
+      var vertices = object1.getVerticesForTree();
 
-      expect(vertices.length).to.equal(9);
-      expect(vertices[0]).to.eql({x: 100, y: 50});
-      expect(vertices[1]).to.eql({x: 200, y: 50});
-      expect(vertices[2]).to.eql({x: 200, y: 100});
-      expect(vertices[3]).to.eql({x: 200, y: 100});
-      expect(vertices[4]).to.eql({x: 300, y: 100});
-      expect(vertices[5]).to.eql({x: 300, y: 150});
-      expect(vertices[6]).to.eql({x: 300, y: 150});
-      expect(vertices[7]).to.eql({x: 400, y: 150});
-      expect(vertices[8]).to.eql({x: 400, y: 200});
+      expect(vertices.length).to.equal(12);
+      expect(vertices[0]).to.eql({x: 0, y: 0});
+      expect(vertices[1]).to.eql({x: 100, y: 0});
+      expect(vertices[2]).to.eql({x: 100, y: 50});
+      expect(vertices[3]).to.eql({x: 0, y: 50});
+      expect(vertices[4]).to.eql({x: 100, y: 50});
+      expect(vertices[5]).to.eql({x: 200, y: 50});
+      expect(vertices[6]).to.eql({x: 200, y: 100});
+      expect(vertices[7]).to.eql({x: 100, y: 100});
+      expect(vertices[8]).to.eql({x: 200, y: 100});
+      expect(vertices[9]).to.eql({x: 300, y: 100});
+      expect(vertices[10]).to.eql({x: 300, y: 150});
+      expect(vertices[11]).to.eql({x: 200, y: 150});
     });
 
-    it('should return a cached array if nothing has changed', function(done) {
-      var camera = new Camera();
-      var canvas = new Canvas({camera: camera});
+    it('should return the coordinates of all vertices of the object and its children, relative to a reference', function() {
+      var world = new World();
 
       var object1 = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
-        getGlobalVertices: function() {
-          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+        getVertices: function(opt_reference) {
+          expect(opt_reference).to.be(world);
+          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}, {x: 100, y: 100}];
         }
       });
       var object2 = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
-        getGlobalVertices: function() {
-          return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}];
+        getVertices: function(opt_reference) {
+          expect(opt_reference).to.be(world);
+          return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}, {x: 200, y: 150}];
         }
       });
-      object1.children.add(object2);
-
-      var vertices = object1.getGlobalVerticesForTree(canvas);
-
-      var hasAskedForNew = false;
-      object1.getGlobalVertices = function() {
-        hasAskedForNew = true;
-      };
-
-      object1.getGlobalVerticesForTree(canvas);
-
-      setTimeout(function() {
-        if (hasAskedForNew) done(new Error('The vertices were updated and did not use the cache'));
-        else done();
-      }, 10);
-    });
-
-    it('should return an updated array if position has changed', function() {
-      var camera = new Camera();
-      var canvas = new Canvas({camera: camera});
-
-      var object = new CanvasObject({
+      var object3 = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
-        getGlobalVertices: function() {
-          this.cache.update('vertices-local', {
-            vertices: [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}]
-          });
-          this.getTransformationMatrix(canvas);
-          var x = this.x;
-          var y = this.y;
-          var w = this.width;
-          var h = this.height;
-          var globalVertices = [{x: x, y: y}, {x: x + w, y: y}, {x: x + w, y: y + h}, {x: x, y: y + h}];
-          this.cache.update('vertices-reference', {vertices: globalVertices});
-          return globalVertices;
+        getVertices: function(opt_reference) {
+          expect(opt_reference).to.be(world);
+          return [{x: 300, y: 150}, {x: 400, y: 150}, {x: 400, y: 200}, {x: 300, y: 200}];
         }
       });
 
-      var vertices = object.getGlobalVerticesForTree(canvas);
+      world.objects.add(object1);
+      object1.children.add(object2);
+      object2.children.add(object3);
 
+      var vertices = object1.getVerticesForTree(world);
+
+      expect(vertices.length).to.equal(12);
       expect(vertices[0]).to.eql({x: 100, y: 50});
       expect(vertices[1]).to.eql({x: 200, y: 50});
       expect(vertices[2]).to.eql({x: 200, y: 100});
       expect(vertices[3]).to.eql({x: 100, y: 100});
-
-      object.x = 200;
-      vertices = object.getGlobalVerticesForTree(canvas);
-
-      expect(vertices[0]).to.eql({x: 200, y: 50});
-      expect(vertices[1]).to.eql({x: 300, y: 50});
-      expect(vertices[2]).to.eql({x: 300, y: 100});
-      expect(vertices[3]).to.eql({x: 200, y: 100});
-
-      object.y = 100;
-      vertices = object.getGlobalVerticesForTree(canvas);
-
-      expect(vertices[0]).to.eql({x: 200, y: 100});
-      expect(vertices[1]).to.eql({x: 300, y: 100});
-      expect(vertices[2]).to.eql({x: 300, y: 150});
-      expect(vertices[3]).to.eql({x: 200, y: 150});
+      expect(vertices[4]).to.eql({x: 200, y: 100});
+      expect(vertices[5]).to.eql({x: 300, y: 100});
+      expect(vertices[6]).to.eql({x: 300, y: 150});
+      expect(vertices[7]).to.eql({x: 200, y: 150});
+      expect(vertices[8]).to.eql({x: 300, y: 150});
+      expect(vertices[9]).to.eql({x: 400, y: 150});
+      expect(vertices[10]).to.eql({x: 400, y: 200});
+      expect(vertices[11]).to.eql({x: 300, y: 200});
     });
 
-    it('should return an updated array if rotation has changed', function(done) {
-      var camera = new Camera();
-      var canvas = new Canvas({camera: camera});
+    it('should return a cached array if nothing has changed', function(done) {
+      var world = new World();
+
+      var object1 = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getVertices: function(opt_reference) {
+          expect(opt_reference).to.be(world);
+          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}, {x: 100, y: 100}];
+        }
+      });
+      var object2 = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getVertices: function(opt_reference) {
+          expect(opt_reference).to.be(world);
+          return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}, {x: 200, y: 150}];
+        }
+      });
+
+      world.objects.add(object1);
+      object1.children.add(object2);
+
+      var vertices = object1.getVerticesForTree(world);
+
+      var hasAskedForNew1 = false;
+      object1.getVertices = function() {
+        hasAskedForNew1 = true;
+      };
+      var hasAskedForNew2 = false;
+      object2.getVertices = function() {
+        hasAskedForNew2 = true;
+      };
+
+      object1.getVerticesForTree(world);
+
+      setTimeout(function() {
+        if (hasAskedForNew1 || hasAskedForNew2) {
+          done(new Error('The vertices were updated and did not use the cache'));
+        } else {
+          done();
+        }
+      }, 10);
+    });
+
+    it('should return an updated array if position has changed', function(done) {
+      var world = new World();
+      var callCount = 0;
+
+      // Trigger cache updates, which will make the caches valid, which
+      // allows the caches to be invalidated when properties are changed.
+      var updateCache = function(cache) {
+        cache.update('translation').update('rotation').update('scaling');
+        cache.update('transformations').update('combinedTransformations');
+        cache.update('vertices-local').update('vertices-reference');
+        cache.update('vertices-tree-local').update('vertices-tree-reference');
+      };
 
       var object = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
-        getGlobalVertices: function() {
-          this.cache.update('vertices-local', {
-            vertices: [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}]
-          });
-          this.getTransformationMatrix(canvas);
-          var globalVertices = [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
-          this.cache.update('vertices-reference', {vertices: globalVertices});
-          return globalVertices;
+        getVertices: function(opt_reference) {
+          expect(opt_reference).to.be(world);
+          updateCache(this.cache);
+          callCount++;
+          return [];
         }
       });
 
-      var vertices = object.getGlobalVerticesForTree(canvas);
+      world.objects.add(object);
 
-      expect(vertices[0]).to.eql({x: 100, y: 50});
-      expect(vertices[1]).to.eql({x: 200, y: 50});
-      expect(vertices[2]).to.eql({x: 200, y: 100});
-
-      var hasAskedForNew = false;
-      object.getGlobalVertices = function() {
-        hasAskedForNew = true;
-      };
-
-      object.rotation = 180;
-      object.getGlobalVerticesForTree(canvas);
+      var vertices = object.getVerticesForTree(world);
+      object.x = 200;
+      vertices = object.getVerticesForTree(world);
+      object.y = 100;
+      vertices = object.getVerticesForTree(world);
 
       setTimeout(function() {
-        if (hasAskedForNew) done();
-        else done(new Error('The vertices were still cached and were not invalidated'));
+        expect(callCount).to.equal(3);
+        done();
+      }, 10);
+    });
+
+    it('should return an updated array if rotation has changed', function(done) {
+      var world = new World();
+      var callCount = 0;
+
+      // Trigger cache updates, which will make the caches valid, which
+      // allows the caches to be invalidated when properties are changed.
+      var updateCache = function(cache) {
+        cache.update('translation').update('rotation').update('scaling');
+        cache.update('transformations').update('combinedTransformations');
+        cache.update('vertices-local').update('vertices-reference');
+        cache.update('vertices-tree-local').update('vertices-tree-reference');
+      };
+
+      var object = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getVertices: function(opt_reference) {
+          expect(opt_reference).to.be(world);
+          updateCache(this.cache);
+          callCount++;
+          return [];
+        }
+      });
+
+      world.objects.add(object);
+
+      var vertices = object.getVerticesForTree(world);
+      object.rotation = 45;
+      vertices = object.getVerticesForTree(world);
+
+      setTimeout(function() {
+        expect(callCount).to.equal(2);
+        done();
       }, 10);
     });
 
     it('should return an updated array if scaling has changed', function(done) {
-      var camera = new Camera();
-      var canvas = new Canvas({camera: camera});
+      var world = new World();
+      var callCount = 0;
 
+      // Trigger cache updates, which will make the caches valid, which
+      // allows the caches to be invalidated when properties are changed.
       var updateCache = function(cache) {
-        cache.update('vertices-local').update('vertices-reference').update('treeVertices');
-        cache.update('scaling').update('transformations').update('combinedTransformations');
+        cache.update('translation').update('rotation').update('scaling');
+        cache.update('transformations').update('combinedTransformations');
+        cache.update('vertices-local').update('vertices-reference');
+        cache.update('vertices-tree-local').update('vertices-tree-reference');
       };
 
       var object = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
-        getGlobalVertices: function() {
+        getVertices: function(opt_reference) {
+          expect(opt_reference).to.be(world);
           updateCache(this.cache);
-          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+          callCount++;
+          return [];
         }
       });
 
-      var vertices = object.getGlobalVerticesForTree(canvas);
+      world.objects.add(object);
 
-      expect(vertices[0]).to.eql({x: 100, y: 50});
-      expect(vertices[1]).to.eql({x: 200, y: 50});
-      expect(vertices[2]).to.eql({x: 200, y: 100});
-
-      var hasAskedForNew = 0;
-      object.getGlobalVertices = function() {
-        hasAskedForNew++;
-        updateCache(this.cache);
-      };
-
-      object.scalingX = 0.5;
-      object.getGlobalVerticesForTree(canvas);
-      object.scalingY = 0.5;
-      object.getGlobalVerticesForTree(canvas);
+      var vertices = object.getVerticesForTree(world);
+      object.scalingX = 2;
+      vertices = object.getVerticesForTree(world);
+      object.scalingY = 2;
+      vertices = object.getVerticesForTree(world);
 
       setTimeout(function() {
-        if (hasAskedForNew === 2) done();
-        else done(new Error('The vertices were still cached and were not invalidated'));
+        expect(callCount).to.equal(3);
+        done();
       }, 10);
     });
 
     it('should return an updated array if origin has changed', function(done) {
-      var camera = new Camera();
-      var canvas = new Canvas({camera: camera});
+      var world = new World();
+      var callCount = 0;
 
+      // Trigger cache updates, which will make the caches valid, which
+      // allows the caches to be invalidated when properties are changed.
       var updateCache = function(cache) {
-        cache.update('vertices-local').update('vertices-reference').update('treeVertices');
+        cache.update('translation').update('rotation').update('scaling');
+        cache.update('transformations').update('combinedTransformations');
+        cache.update('vertices-local').update('vertices-reference');
+        cache.update('vertices-tree-local').update('vertices-tree-reference');
       };
 
       var object = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
-        getGlobalVertices: function() {
+        getVertices: function(opt_reference) {
+          expect(opt_reference).to.be(world);
           updateCache(this.cache);
-          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+          callCount++;
+          return [];
         }
       });
 
-      var vertices = object.getGlobalVerticesForTree(canvas);
+      world.objects.add(object);
 
-      expect(vertices[0]).to.eql({x: 100, y: 50});
-      expect(vertices[1]).to.eql({x: 200, y: 50});
-      expect(vertices[2]).to.eql({x: 200, y: 100});
-
-      var hasAskedForNew = 0;
-      object.getGlobalVertices = function() {
-        hasAskedForNew++;
-        updateCache(this.cache);
-      };
-
-      object.originX = 10;
-      object.getGlobalVerticesForTree(canvas);
-      object.originY = 10;
-      object.getGlobalVerticesForTree(canvas);
+      var vertices = object.getVerticesForTree(world);
+      object.originX = 2;
+      vertices = object.getVerticesForTree(world);
+      object.originY = 2;
+      vertices = object.getVerticesForTree(world);
 
       setTimeout(function() {
-        if (hasAskedForNew === 2) done();
-        else done(new Error('The vertices were still cached and were not invalidated'));
+        expect(callCount).to.equal(3);
+        done();
       }, 10);
     });
 
     it('should return an updated array if a child has changed', function(done) {
-      var camera = new Camera();
-      var canvas = new Canvas({camera: camera});
+      var callCount = 0;
 
+      // Trigger cache updates, which will make the caches valid, which
+      // allows the caches to be invalidated when properties are changed.
       var updateCache = function(cache) {
-        cache.update('vertices-local').update('vertices-reference').update('treeVertices');
-        cache.update('translation').update('transformations').update('combinedTransformations');
+        cache.update('translation').update('rotation').update('scaling');
+        cache.update('transformations').update('combinedTransformations');
+        cache.update('vertices-local').update('vertices-reference');
+        cache.update('vertices-tree-local').update('vertices-tree-reference');
       };
 
-      var object1 = new CanvasObject({
+      var object = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
-        getGlobalVertices: function() {
+        getVertices: function() {
           updateCache(this.cache);
-          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+          callCount++;
+          return [];
         }
       });
-      var object2 = new CanvasObject({
+
+      var child = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
-        getGlobalVertices: function() {
+        getVertices: function() {
           updateCache(this.cache);
-          return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}];
+          callCount++;
+          return [];
         }
       });
-      object1.children.add(object2);
 
-      var vertices = object1.getGlobalVerticesForTree(canvas);
+      object.children.add(child);
 
-      expect(vertices[0]).to.eql({x: 100, y: 50});
-      expect(vertices[1]).to.eql({x: 200, y: 50});
-      expect(vertices[2]).to.eql({x: 200, y: 100});
-      expect(vertices[3]).to.eql({x: 200, y: 100});
-      expect(vertices[4]).to.eql({x: 300, y: 100});
-      expect(vertices[5]).to.eql({x: 300, y: 150});
-
-      var hasAskedForNew = false;
-      object1.getGlobalVertices = function() {
-        hasAskedForNew = true;
-        updateCache(this.cache);
-      };
-
-      object2.x = 10;
-      object1.getGlobalVerticesForTree(canvas);
+      var vertices = object.getVerticesForTree();
+      child.x = 200;
+      vertices = object.getVerticesForTree();
 
       setTimeout(function() {
-        if (hasAskedForNew) done();
-        else done(new Error('The vertices were still cached and were not invalidated'));
+        expect(callCount).to.equal(4);
+        done();
       }, 10);
     });
 
     it('should return an updated array if a parent has changed', function(done) {
-      var camera = new Camera();
-      var canvas = new Canvas({camera: camera});
+      var callCount = 0;
 
+      // Trigger cache updates, which will make the caches valid, which
+      // allows the caches to be invalidated when properties are changed.
       var updateCache = function(cache) {
-        cache.update('vertices-local').update('vertices-reference').update('treeVertices');
-        cache.update('translation').update('transformations').update('combinedTransformations');
+        cache.update('translation').update('rotation').update('scaling');
+        cache.update('transformations').update('combinedTransformations');
+        cache.update('vertices-local').update('vertices-reference');
+        cache.update('vertices-tree-local').update('vertices-tree-reference');
       };
 
-      var object1 = new CanvasObject({
+      var object = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+
+      var child = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
-        getGlobalVertices: function() {
+        getVertices: function() {
           updateCache(this.cache);
-          return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
+          callCount++;
+          return [];
         }
       });
-      var object2 = new CanvasObject({
-        width: 100, height: 50,
-        x: 100, y: 50,
-        getGlobalVertices: function() {
-          updateCache(this.cache);
-          object1.getGlobalVertices();
-          return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}];
-        }
-      });
-      object1.children.add(object2);
 
-      var vertices = object2.getGlobalVerticesForTree(canvas);
+      object.children.add(child);
 
-      expect(vertices[0]).to.eql({x: 200, y: 100});
-      expect(vertices[1]).to.eql({x: 300, y: 100});
-      expect(vertices[2]).to.eql({x: 300, y: 150});
+      updateCache(object.cache);
 
-      var hasAskedForNew = false;
-      object2.getGlobalVertices = function() {
-        hasAskedForNew = true;
-        updateCache(this.cache);
-      };
-
-      object1.x = 10;
-      object2.getGlobalVerticesForTree(canvas);
+      var vertices = child.getVerticesForTree();
+      object.x = 200;
+      vertices = child.getVerticesForTree();
 
       setTimeout(function() {
-        if (hasAskedForNew) done();
-        else done(new Error('The vertices were still cached and were not invalidated'));
+        expect(callCount).to.equal(2);
+        done();
+      }, 10);
+    });
+
+    it('should return an updated array if a different reference is passed', function(done) {
+      var callCount = 0;
+
+      // Trigger cache updates, which will make the caches valid, which
+      // allows the caches to be invalidated when properties are changed.
+      var updateCache = function(cache) {
+        cache.update('translation').update('rotation').update('scaling');
+        cache.update('transformations').update('combinedTransformations');
+        cache.update('vertices-local').update('vertices-reference');
+        cache.update('vertices-tree-local').update('vertices-tree-reference');
+      };
+
+      var parent = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+
+      var object = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+
+      var child = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getVertices: function() {
+          updateCache(this.cache);
+          callCount++;
+          return [];
+        }
+      });
+
+      parent.children.add(object);
+      object.children.add(child);
+
+      updateCache(object.cache);
+
+      var vertices = child.getVerticesForTree(object);
+      vertices = child.getVerticesForTree(parent);
+
+      setTimeout(function() {
+        expect(callCount).to.equal(2);
+        done();
       }, 10);
     });
 
@@ -1781,7 +1853,7 @@ describe('CanvasObject', function() {
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
       var object = new CanvasObject();
-      object.getGlobalVertices = function() {
+      object.getVertices = function() {
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
       var rect = object.getBoundingRectangle(canvas);
@@ -1799,10 +1871,10 @@ describe('CanvasObject', function() {
       var object1 = new CanvasObject();
       var object2 = new CanvasObject();
       object1.children.add(object2);
-      object1.getGlobalVertices = function() {
+      object1.getVertices = function() {
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
-      object2.getGlobalVertices = function() {
+      object2.getVertices = function() {
         return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
       };
       var rect = object1.getBoundingRectangle(canvas);
@@ -1819,7 +1891,7 @@ describe('CanvasObject', function() {
       var canvas = new Canvas({camera: camera});
       var object = new CanvasObject();
       var numCalls = 0;
-      object.getGlobalVertices = function() {
+      object.getVertices = function() {
         numCalls++;
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
@@ -1836,11 +1908,13 @@ describe('CanvasObject', function() {
       var numCalls = 0;
 
       var updateCache = function(cache) {
-        cache.update('vertices-reference').update('treeVertices');
-        cache.update('translation').update('transformations').update('combinedTransformations');
+        cache.update('translation').update('rotation').update('scaling');
+        cache.update('transformations').update('combinedTransformations');
+        cache.update('vertices-local').update('vertices-reference');
+        cache.update('vertices-tree-local').update('vertices-tree-reference');
       };
 
-      object.getGlobalVertices = function() {
+      object.getVertices = function() {
         numCalls++;
         updateCache(this.cache);
         var x = this.x;
@@ -1867,7 +1941,7 @@ describe('CanvasObject', function() {
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
       var object = new CanvasObject();
-      object.getGlobalVerticesForTree = function() {
+      object.getVerticesForTree = function() {
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
       var rect = object.getBoundingRectangleForTree(canvas);
@@ -1885,12 +1959,12 @@ describe('CanvasObject', function() {
       var object1 = new CanvasObject();
       var object2 = new CanvasObject();
       object1.children.add(object2);
-      object1.getGlobalVerticesForTree = function() {
+      object1.getVerticesForTree = function() {
         var vertices = [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
-        var childVertices = object2.getGlobalVerticesForTree();
+        var childVertices = object2.getVerticesForTree();
         return vertices.concat(childVertices);
       };
-      object2.getGlobalVerticesForTree = function() {
+      object2.getVerticesForTree = function() {
         return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
       };
       var rect = object1.getBoundingRectangleForTree(canvas);
@@ -1907,7 +1981,7 @@ describe('CanvasObject', function() {
       var canvas = new Canvas({camera: camera});
       var object = new CanvasObject();
       var numCalls = 0;
-      object.getGlobalVerticesForTree = function() {
+      object.getVerticesForTree = function() {
         numCalls++;
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
@@ -1924,12 +1998,14 @@ describe('CanvasObject', function() {
       var numCalls = 0;
 
       var updateCache = function(cache) {
-        cache.update('vertices-reference').update('treeVertices');
-        cache.update('translation').update('transformations').update('combinedTransformations');
+        cache.update('translation').update('rotation').update('scaling');
+        cache.update('transformations').update('combinedTransformations');
+        cache.update('vertices-local').update('vertices-reference');
+        cache.update('vertices-tree-local').update('vertices-tree-reference');
         cache.update('boundingRectangle').update('boundingRectangleForTree');
       };
 
-      object.getGlobalVerticesForTree = function() {
+      object.getVerticesForTree = function() {
         numCalls++;
         updateCache(this.cache);
         var x = this.x;
@@ -1989,8 +2065,12 @@ describe('CanvasObject', function() {
       expect(object.cache.get('vertices-reference')).to.not.equal(null);
     });
 
-    it('should have a cache unit for vertices for a subtree of objects', function() {
-      expect(object.cache.get('treeVertices')).to.not.equal(null);
+    it('should have a cache unit for local vertices for a subtree of objects', function() {
+      expect(object.cache.get('vertices-tree-local')).to.not.equal(null);
+    });
+
+    it('should have a cache unit for vertices relative to the reference for a subtree of objects', function() {
+      expect(object.cache.get('vertices-tree-reference')).to.not.equal(null);
     });
 
     it('should have a cache unit for a bounding rectangle', function() {

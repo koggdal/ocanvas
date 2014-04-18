@@ -31,7 +31,7 @@ describe('CanvasObject', function() {
       var renderPath = function(canvas) {
         canvas.context.rect(0, 0, this.width, this.height);
       };
-      var getGlobalVertices = function() {
+      var getVertices = function() {
         return [
           {x: this.x, y: this.y},
           {x: this.x + this.width, y: this.y},
@@ -57,7 +57,7 @@ describe('CanvasObject', function() {
         height: 50,
         render: render,
         renderPath: renderPath,
-        getGlobalVertices: getGlobalVertices,
+        getVertices: getVertices,
         rotation: 20
       });
       var object = new CanvasObject({
@@ -65,7 +65,7 @@ describe('CanvasObject', function() {
         width: 100,
         height: 100,
         render: render,
-        getGlobalVertices: getGlobalVertices,
+        getVertices: getVertices,
         clippingMask: mask
       });
       world.objects.add(object);
@@ -82,7 +82,7 @@ describe('CanvasObject', function() {
         canvas.context.fillStyle = this.fill;
         canvas.context.fillRect(0, 0, this.width, this.height);
       };
-      var getGlobalVertices = function() {
+      var getVertices = function() {
         return [
           {x: this.x, y: this.y},
           {x: this.x + this.width, y: this.y},
@@ -105,7 +105,7 @@ describe('CanvasObject', function() {
         width: 100,
         height: 100,
         render: render,
-        getGlobalVertices: getGlobalVertices,
+        getVertices: getVertices,
         clippingMask: function(canvas, context) {
           expect(canvas.context).to.equal(context);
           context.save();
@@ -144,13 +144,13 @@ describe('CanvasObject', function() {
         camera: new Camera({width: 300, height: 300})
       });
 
-      var getGlobalVertices = function() {
+      var getVertices = function() {
         return [{x: this.x, y: this.y}];
       };
 
-      var object1 = new CanvasObject({getGlobalVertices: getGlobalVertices});
-      var object2 = new CanvasObject({getGlobalVertices: getGlobalVertices});
-      var object3 = new CanvasObject({getGlobalVertices: getGlobalVertices});
+      var object1 = new CanvasObject({getVertices: getVertices});
+      var object2 = new CanvasObject({getVertices: getVertices});
+      var object3 = new CanvasObject({getVertices: getVertices});
 
       var numObjectsRendered = 1;
       object2.renderTree = function(canvas) {
@@ -181,7 +181,7 @@ describe('CanvasObject', function() {
       object2.render = function() {
         hasBeenCalled = true;
       };
-      object2.getGlobalVertices = function() {
+      object2.getVertices = function() {
         return [{x: 5000, y: this.y}];
       };
 
@@ -208,7 +208,7 @@ describe('CanvasObject', function() {
       object2.render = function() {
         hasBeenCalled = true;
       };
-      object2.getGlobalVertices = function() {
+      object2.getVertices = function() {
         return [{x: 5000, y: this.y}];
       };
 
@@ -225,23 +225,23 @@ describe('CanvasObject', function() {
         element: new NodeCanvas(300, 300)
       });
 
-      var getGlobalVertices = function() {
+      var getVertices = function() {
         return [{x: this.x, y: this.y}];
       };
 
       var object1 = new CanvasObject({
-        getGlobalVertices: getGlobalVertices,
+        getVertices: getVertices,
         width: 200, height: 150,
         fill: 'red'
       });
       var object2 = new CanvasObject({
-        getGlobalVertices: getGlobalVertices,
+        getVertices: getVertices,
         width: 100, height: 50,
         scalingX: 0.5, scalingY: 2,
         fill: 'lime'
       });
       var object3 = new CanvasObject({
-        getGlobalVertices: getGlobalVertices,
+        getVertices: getVertices,
         width: 50, height: 25,
         scalingX: 2, scalingY: 0.5,
         fill: 'blue'

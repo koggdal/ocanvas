@@ -29,7 +29,7 @@ describe('World', function() {
         object.render = originalRender;
         done();
       };
-      object.getGlobalVertices = function() {
+      object.getVertices = function() {
         return [{x: this.x, y: this.y}];
       };
 
@@ -46,7 +46,7 @@ describe('World', function() {
       object.render = function() {
         hasBeenCalled = true;
       };
-      object.getGlobalVertices = function() {
+      object.getVertices = function() {
         return [{x: 5000, y: this.y}];
       };
 
@@ -70,7 +70,7 @@ describe('World', function() {
       object.render = function() {
         hasBeenCalled = true;
       };
-      object.getGlobalVertices = function() {
+      object.getVertices = function() {
         return [{x: 5000, y: this.y}];
       };
 
@@ -87,7 +87,7 @@ describe('World', function() {
 
     it('should render recursively only the number of times specified', function(done) {
       var object = new CanvasObject({
-        getGlobalVertices: function() {
+        getVertices: function() {
           return [{x: this.x, y: this.y}];
         }
       });
