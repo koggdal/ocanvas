@@ -205,21 +205,21 @@ Camera.prototype.propertyDescriptors = {
   width: {
     value: 0,
     set: function(value, privateVars) {
-      this.cache.invalidate('vertices');
+      this.cache.invalidate('vertices-local');
       privateVars.aspectRatio = privateVars.height ? (value / privateVars.height) || 1 : 1;
     }
   },
   height: {
     value: 0,
     set: function(value, privateVars) {
-      this.cache.invalidate('vertices');
+      this.cache.invalidate('vertices-local');
       privateVars.aspectRatio = value ? (privateVars.width / value) || 1 : 1;
     }
   },
   aspectRatio: {
     value: 1,
     set: function(value, privateVars) {
-      this.cache.invalidate('vertices');
+      this.cache.invalidate('vertices-local');
       privateVars.width = privateVars.height * value;
     }
   }
@@ -275,9 +275,11 @@ Camera.prototype.initCache = function() {
   });
 
   // Vertices
-  this.cache.define('vertices');
-  this.cache.define('globalVertices', {
-    dependencies: ['vertices', 'transformations']
+  this.cache.define('vertices-local', {
+    dependencies: ['transformations']
+  });
+  this.cache.define('vertices-reference', {
+    dependencies: ['vertices-local']
   });
 
   this.cache.onInvalidate = function(unit) {
@@ -463,20 +465,41 @@ Camera.prototype.getPointIn = function(reference, x, y, opt_point) {
  * Get the vertices for this camera. The coordinates will be relative
  * to the center of this camera and are not affected by any transformations.
  *
+ * @param {Canvas|World=} opt_reference The coordinate space the vertices should
+ *     be relative to. If a canvas object is provided, it must exist in the
+ *     parent chain for this object.
+ *
  * @return {Array} Array of objects, where each object has `x` and `y`
  *     properties representing the coordinates.
  */
-Camera.prototype.getVertices = function() {
-  var cache = this.cache.get('vertices');
+Camera.prototype.getVertices = function(opt_reference) {
+  var cache = this.cache;
+  var localCache = cache.get('vertices-local');
+  var referenceCache = cache.get('vertices-reference');
 
-  if (cache.isValid) return cache.vertices;
+  if (!opt_reference) {
+    if (localCache.isValid) return localCache.vertices;
+  } else {
+    if (referenceCache.isValid) {
+      if (referenceCache.reference === opt_reference) {
+        return referenceCache.vertices;
+      } else {
+        cache.invalidate('vertices-reference');
+      }
+    }
+    referenceCache.reference = opt_reference;
+  }
 
-  if (!cache.vertices) {
-    cache.vertices = new Array(4);
-    cache.vertices[0] = {x: 0, y: 0};
-    cache.vertices[1] = {x: 0, y: 0};
-    cache.vertices[2] = {x: 0, y: 0};
-    cache.vertices[3] = {x: 0, y: 0};
+  if (!localCache.vertices) {
+    localCache.vertices = [
+      {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}
+    ];
+  }
+
+  if (!referenceCache.vertices) {
+    referenceCache.vertices = [
+      {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}
+    ];
   }
 
   var right = this.width / 2;
@@ -484,52 +507,31 @@ Camera.prototype.getVertices = function() {
   var bottom = this.height / 2;
   var top = -bottom;
 
-  var vertices = cache.vertices;
+  var localVertices = localCache.vertices;
 
-  vertices[0].x = left;
-  vertices[0].y = top;
-  vertices[1].x = right;
-  vertices[1].y = top;
-  vertices[2].x = right;
-  vertices[2].y = bottom;
-  vertices[3].x = left;
-  vertices[3].y = bottom;
+  localVertices[0].x = left;
+  localVertices[0].y = top;
+  localVertices[1].x = right;
+  localVertices[1].y = top;
+  localVertices[2].x = right;
+  localVertices[2].y = bottom;
+  localVertices[3].x = left;
+  localVertices[3].y = bottom;
 
-  this.cache.update('vertices');
+  cache.update('vertices-local');
 
-  return vertices;
-};
+  if (!opt_reference) return localVertices;
 
-/**
- * Get the global vertices for this camera. The coordinates will be relative
- * to the world.
- *
- * @return {Array} Array of objects, where each object has `x` and `y`
- *     properties representing the coordinates.
- */
-Camera.prototype.getGlobalVertices = function() {
-  var cache = this.cache.get('globalVertices');
+  var reference = opt_reference;
+  var referenceVertices = referenceCache.vertices;
+  this.getPointIn(reference, left, top, referenceVertices[0]);
+  this.getPointIn(reference, right, top, referenceVertices[1]);
+  this.getPointIn(reference, right, bottom, referenceVertices[2]);
+  this.getPointIn(reference, left, bottom, referenceVertices[3]);
 
-  if (cache.isValid) return cache.vertices;
+  this.cache.update('vertices-reference');
 
-  if (!cache.vertices) cache.vertices = new Array(4);
-
-  var localVertices = this.getVertices();
-  var left = localVertices[0].x;
-  var right = localVertices[1].x;
-  var top = localVertices[0].y;
-  var bottom = localVertices[2].y;
-
-  var vertices = cache.vertices;
-  var world = this.world;
-  vertices[0] = this.getPointIn(world, left, top, vertices[0]);
-  vertices[1] = this.getPointIn(world, right, top, vertices[1]);
-  vertices[2] = this.getPointIn(world, right, bottom, vertices[2]);
-  vertices[3] = this.getPointIn(world, left, bottom, vertices[3]);
-
-  this.cache.update('globalVertices');
-
-  return vertices;
+  return referenceVertices;
 };
 
 module.exports = Camera;

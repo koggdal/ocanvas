@@ -610,18 +610,17 @@ describe('Camera', function() {
       expect(vertices[3]).to.eql({x: -50, y: 50});
     });
 
-  });
-
-  describe('#getGlobalVertices()', function() {
-
-    it('should return the coordinates of all vertices of the camera', function() {
+    it('should return the coordinates of all vertices relative to the reference set to the world', function() {
+      var world = new World();
       var camera = new Camera({
         width: 100, height: 50,
         x: 100, y: 50,
         rotation: 45,
         zoom: 2
       });
-      var vertices = camera.getGlobalVertices();
+      world.cameras.add(camera);
+
+      var vertices = camera.getVertices(world);
 
       expect(vertices[0]).to.eql({x: 91.16116523516816, y: 23.48349570550447});
       expect(vertices[1]).to.eql({x: 126.51650429449553, y: 58.838834764831844});
@@ -629,26 +628,50 @@ describe('Camera', function() {
       expect(vertices[3]).to.eql({x: 73.48349570550447, y: 41.161165235168156});
     });
 
-    it('should return a cached array if nothing has changed', function(done) {
+    it('should return the coordinates of all vertices relative to the reference set to the canvas', function() {
+      var world = new World();
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        rotation: 45,
+        zoom: 2
+      });
+      var canvas = new Canvas({
+        camera: camera,
+        width: 200, height: 100
+      });
+      world.cameras.add(camera);
+
+      var vertices = camera.getVertices(canvas);
+
+      expect(vertices[0]).to.eql({x: 0, y: 0});
+      expect(vertices[1]).to.eql({x: 200, y: 0});
+      expect(vertices[2]).to.eql({x: 200, y: 100});
+      expect(vertices[3]).to.eql({x: 0, y: 100});
+    });
+
+    it('should return a cached array for the reference if nothing has changed', function(done) {
+      var world = new World();
       var camera = new Camera({
         width: 100, height: 50,
         x: 100, y: 50
       });
-      var vertices = camera.getGlobalVertices();
+      world.cameras.add(camera);
+      var vertices = camera.getVertices(world);
 
       expect(vertices[0]).to.eql({x: 50, y: 25});
 
       var hasBeenSet = false;
-      var zero = vertices[0];
-      Object.defineProperty(vertices, '0', {
-        get: function() { return zero; },
+      var x = vertices[0].x;
+      Object.defineProperty(vertices[0], 'x', {
+        get: function() { return x; },
         set: function(value) {
-          zero = value;
+          x = value;
           hasBeenSet = true;
         }
       });
 
-      camera.getGlobalVertices();
+      camera.getVertices(world);
 
       setTimeout(function() {
         if (hasBeenSet) done(new Error('The vertex was updated and did not use the cache'));
@@ -656,12 +679,44 @@ describe('Camera', function() {
       }, 10);
     });
 
-    it('should return an updated array if width has changed', function() {
+    it('should return an updated array for the reference if the reference has changed', function(done) {
+      var world = new World();
       var camera = new Camera({
         width: 100, height: 50,
         x: 100, y: 50
       });
-      var vertices = camera.getGlobalVertices();
+      var canvas = new Canvas({camera: camera});
+      world.cameras.add(camera);
+      var vertices = camera.getVertices(world);
+
+      expect(vertices[0]).to.eql({x: 50, y: 25});
+
+      var hasBeenSet = false;
+      var x = vertices[0].x;
+      Object.defineProperty(vertices[0], 'x', {
+        get: function() { return x; },
+        set: function(value) {
+          x = value;
+          hasBeenSet = true;
+        }
+      });
+
+      camera.getVertices(canvas);
+
+      setTimeout(function() {
+        if (!hasBeenSet) done(new Error('The vertex was not updated and used the cache'));
+        else done();
+      }, 10);
+    });
+
+    it('should return an updated array for the reference if width has changed', function() {
+      var world = new World();
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+      world.cameras.add(camera);
+      var vertices = camera.getVertices(world);
 
       expect(vertices[0]).to.eql({x: 50, y: 25});
       expect(vertices[1]).to.eql({x: 150, y: 25});
@@ -669,7 +724,7 @@ describe('Camera', function() {
       expect(vertices[3]).to.eql({x: 50, y: 75});
 
       camera.width = 200;
-      vertices = camera.getGlobalVertices();
+      vertices = camera.getVertices(world);
 
       expect(vertices[0]).to.eql({x: 0, y: 25});
       expect(vertices[1]).to.eql({x: 200, y: 25});
@@ -678,11 +733,13 @@ describe('Camera', function() {
     });
 
     it('should return an updated array if height has changed', function() {
+      var world = new World();
       var camera = new Camera({
         width: 100, height: 50,
         x: 100, y: 50
       });
-      var vertices = camera.getGlobalVertices();
+      world.cameras.add(camera);
+      var vertices = camera.getVertices(world);
 
       expect(vertices[0]).to.eql({x: 50, y: 25});
       expect(vertices[1]).to.eql({x: 150, y: 25});
@@ -690,7 +747,7 @@ describe('Camera', function() {
       expect(vertices[3]).to.eql({x: 50, y: 75});
 
       camera.height = 100;
-      vertices = camera.getGlobalVertices();
+      vertices = camera.getVertices(world);
 
       expect(vertices[0]).to.eql({x: 50, y: 0});
       expect(vertices[1]).to.eql({x: 150, y: 0});
@@ -728,11 +785,11 @@ describe('Camera', function() {
     });
 
     it('should have a cache unit for local vertices', function() {
-      expect(camera.cache.get('vertices')).to.not.equal(null);
+      expect(camera.cache.get('vertices-local')).to.not.equal(null);
     });
 
-    it('should have a cache unit for global vertices', function() {
-      expect(camera.cache.get('globalVertices')).to.not.equal(null);
+    it('should have a cache unit for vertices relative to the reference', function() {
+      expect(camera.cache.get('vertices-reference')).to.not.equal(null);
     });
 
     it('should invalidate combinedTransformations on objects in the connected world when camera changes', function() {
