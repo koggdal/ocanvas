@@ -6,6 +6,8 @@ var CanvasObject = require('../../../shapes/base/CanvasObject');
 var Matrix = require('../../../classes/Matrix');
 var Cache = require('../../../classes/Cache');
 
+var round = require('../../utils/round');
+
 describe('Camera', function() {
 
   describe('Camera constructor', function() {
@@ -802,6 +804,198 @@ describe('Camera', function() {
       expect(vertices[1]).to.eql({x: 150, y: 0});
       expect(vertices[2]).to.eql({x: 150, y: 100});
       expect(vertices[3]).to.eql({x: 50, y: 100});
+    });
+
+  });
+
+  describe('#getBoundingRectangle()', function() {
+
+    it('should return an object with data about the bounding rectangle, with no reference', function() {
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        rotation: 45,
+        zoom: 2
+      });
+
+      var rect = camera.getBoundingRectangle();
+
+      expect(rect.top).to.equal(-25);
+      expect(rect.right).to.equal(50);
+      expect(rect.bottom).to.equal(25);
+      expect(rect.left).to.equal(-50);
+      expect(rect.width).to.equal(100);
+      expect(rect.height).to.equal(50);
+    });
+
+    it('should return an object with data about the bounding rectangle, with reference set to the world', function() {
+      var world = new World();
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        rotation: 45,
+        zoom: 2
+      });
+      world.cameras.add(camera);
+
+      var rect = camera.getBoundingRectangle(world);
+
+      expect(round(rect.top, 3)).to.equal(23.483);
+      expect(round(rect.right, 3)).to.equal(126.517);
+      expect(round(rect.bottom, 3)).to.equal(76.517);
+      expect(round(rect.left, 3)).to.equal(73.483);
+      expect(round(rect.width, 3)).to.equal(53.033);
+      expect(round(rect.height, 3)).to.equal(53.033);
+    });
+
+    it('should return an object with data about the bounding rectangle, with reference set to the canvas', function() {
+      var world = new World();
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        rotation: 45,
+        zoom: 2
+      });
+      world.cameras.add(camera);
+      var canvas = new Canvas({
+        width: 200, height: 100,
+        camera: camera
+      });
+
+      var rect = camera.getBoundingRectangle(canvas);
+
+      expect(rect.top).to.equal(0);
+      expect(rect.right).to.equal(canvas.width);
+      expect(rect.bottom).to.equal(canvas.height);
+      expect(rect.left).to.equal(0);
+      expect(rect.width).to.equal(canvas.width);
+      expect(rect.height).to.equal(canvas.height);
+    });
+
+    it('should respect the `zoom` mode', function() {
+      var world = new World();
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        rotation: 45,
+        zoom: 2
+      });
+      world.cameras.add(camera);
+
+      var rect = camera.getBoundingRectangle(world, 'zoom');
+
+      expect(round(rect.top, 3)).to.equal(36.742);
+      expect(round(rect.right, 3)).to.equal(113.258);
+      expect(round(rect.bottom, 3)).to.equal(63.258);
+      expect(round(rect.left, 3)).to.equal(86.742);
+      expect(round(rect.width, 3)).to.equal(26.517);
+      expect(round(rect.height, 3)).to.equal(26.517);
+    });
+
+    it('should respect the `size` mode', function() {
+      var world = new World();
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        rotation: 45,
+        zoom: 2
+      });
+      world.cameras.add(camera);
+
+      var rect = camera.getBoundingRectangle(world, 'size');
+
+      expect(round(rect.top, 3)).to.equal(23.483);
+      expect(round(rect.right, 3)).to.equal(126.517);
+      expect(round(rect.bottom, 3)).to.equal(76.517);
+      expect(round(rect.left, 3)).to.equal(73.483);
+      expect(round(rect.width, 3)).to.equal(53.033);
+      expect(round(rect.height, 3)).to.equal(53.033);
+    });
+
+    it('should return a cached rectangle if nothing has changed', function() {
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+
+      var numCalls = 0;
+      camera.getVertices = function() {
+        numCalls++;
+        this.cache.update('vertices-local').update('vertices-reference');
+        return [];
+      };
+
+      camera.getBoundingRectangle();
+      camera.getBoundingRectangle();
+
+      expect(numCalls).to.equal(1);
+    });
+
+    it('should return an updated rectangle if something has changed', function() {
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+
+      var numCalls = 0;
+      camera.getVertices = function() {
+        numCalls++;
+        this.cache.update('vertices-local').update('vertices-reference');
+        return [];
+      };
+
+      camera.getBoundingRectangle();
+      camera.width = 200;
+      camera.getBoundingRectangle();
+
+      expect(numCalls).to.equal(2);
+    });
+
+    it('should return a cached rectangle if the reference is the same', function() {
+      var world = new World();
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+      world.cameras.add(camera);
+
+      var numCalls = 0;
+      camera.getVertices = function() {
+        numCalls++;
+        this.cache.update('vertices-local').update('vertices-reference');
+        return [];
+      };
+
+      camera.getBoundingRectangle(world);
+      camera.getBoundingRectangle(world);
+
+      expect(numCalls).to.equal(1);
+    });
+
+    it('should return an updared rectangle if a different reference is passed', function() {
+      var world = new World();
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+      world.cameras.add(camera);
+
+      var canvas = new Canvas({
+        width: 200, height: 100,
+        camera: camera
+      });
+
+      var numCalls = 0;
+      camera.getVertices = function() {
+        numCalls++;
+        this.cache.update('vertices-local').update('vertices-reference');
+        return [];
+      };
+
+      camera.getBoundingRectangle(world);
+      camera.getBoundingRectangle(canvas);
+
+      expect(numCalls).to.equal(2);
     });
 
   });

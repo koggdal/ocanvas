@@ -282,6 +282,14 @@ Camera.prototype.initCache = function() {
     dependencies: ['vertices-local']
   });
 
+  // Bounding Rectangles
+  this.cache.define('bounds-local', {
+    dependencies: ['vertices-local']
+  });
+  this.cache.define('bounds-reference', {
+    dependencies: ['vertices-reference']
+  });
+
   this.cache.onInvalidate = function(unit) {
     if (unit === 'transformations') {
       if (self.world) {
@@ -540,6 +548,76 @@ Camera.prototype.getVertices = function(opt_reference, opt_mode) {
   this.cache.update('vertices-reference');
 
   return referenceVertices;
+};
+
+/**
+ * Get the bounding rectangle for this camera.
+ *
+ * @param {Canvas|World=} opt_reference The coordinate space the coordinates
+ *     will be relative to. If not specified, the coordinates will be relative
+ *     to the object itself, without any transformations applied.
+ * @param {string=} opt_mode Get vertices for the size of the camera, or for the
+ *     the zoom of the camera. Values: 'size' or 'zoom'. Default: 'size'.
+ *
+ * @return {Object} An object with data about the bounding rectangle. The
+ *     properties of the returned object are: top, right, bottom, left, width,
+ *     height.
+ */
+Camera.prototype.getBoundingRectangle = function(opt_reference, opt_mode) {
+  var mode = (opt_mode !== 'size' && opt_mode !== 'zoom') ? 'size' : opt_mode;
+  var cache = this.cache;
+  var localCache = cache.get('bounds-local');
+  var referenceCache = cache.get('bounds-reference');
+
+  if (!opt_reference) {
+    if (localCache.isValid) return localCache.data;
+  } else {
+    if (referenceCache.isValid) {
+      if (referenceCache.reference === opt_reference) {
+        return referenceCache.data;
+      } else {
+        cache.invalidate('bounds-reference');
+      }
+    }
+    referenceCache.reference = opt_reference;
+  }
+
+  if (!localCache.data && !opt_reference) localCache.data = {};
+  if (!referenceCache.data && opt_reference) referenceCache.data = {};
+
+  var vertices = this.getVertices(opt_reference, mode);
+
+  var minX = Infinity;
+  var maxX = -Infinity;
+  var minY = Infinity;
+  var maxY = -Infinity;
+  var vertex;
+
+  for (var i = 0, l = vertices.length; i < l; i++) {
+    vertex = vertices[i];
+
+    if (vertex.x < minX) minX = vertex.x;
+    if (vertex.x > maxX) maxX = vertex.x;
+    if (vertex.y < minY) minY = vertex.y;
+    if (vertex.y > maxY) maxY = vertex.y;
+  }
+
+  var data = opt_reference ? referenceCache.data : localCache.data;
+
+  data.top = minY;
+  data.right = maxX;
+  data.bottom = maxY;
+  data.left = minX;
+  data.width = maxX - minX;
+  data.height = maxY - minY;
+
+  if (opt_reference) {
+    cache.update('bounds-reference');
+  } else {
+    cache.update('bounds-local');
+  }
+
+  return data;
 };
 
 module.exports = Camera;
