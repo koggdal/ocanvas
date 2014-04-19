@@ -46,7 +46,7 @@ describe('Canvas', function() {
       var world = new World();
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
-        camera: new Camera()
+        camera: new Camera({width: 300, height: 300})
       });
       world.cameras.add(canvas.camera);
 
@@ -150,7 +150,7 @@ describe('Canvas', function() {
       var world = new World();
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
-        camera: new Camera()
+        camera: new Camera({width: 300, height: 300})
       });
       world.cameras.add(canvas.camera);
 

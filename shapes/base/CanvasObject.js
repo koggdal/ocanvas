@@ -299,7 +299,10 @@ CanvasObject.prototype.initCache = function() {
   this.cache.define('bounds-reference', {
     dependencies: ['vertices-reference']
   });
-  this.cache.define('boundingRectangleForTree', {
+  this.cache.define('bounds-tree-local', {
+    dependencies: ['vertices-local']
+  });
+  this.cache.define('bounds-tree-reference', {
     dependencies: ['vertices-reference']
   });
 
@@ -340,9 +343,14 @@ CanvasObject.prototype.initCache = function() {
     }
 
     // Bounding Rectangles
-    else if (unit === 'boundingRectangleForTree') {
+    else if (unit === 'bounds-tree-local') {
       if (self.parent && self.parent.cache) {
-        self.parent.cache.invalidate('boundingRectangleForTree');
+        self.parent.cache.invalidate('bounds-tree-local');
+      }
+    }
+    else if (unit === 'bounds-tree-reference') {
+      if (self.parent && self.parent.cache) {
+        self.parent.cache.invalidate('bounds-tree-reference');
       }
     }
   };
@@ -936,20 +944,38 @@ CanvasObject.prototype.getBoundingRectangle = function(opt_reference) {
 /**
  * Get the bounding rectangle for this object and all its children.
  *
- * @param {Canvas} canvas A Canvas instance. Needed to get global coordinates.
+ * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ *     the coordinates will be relative to. If a canvas object is provided, it
+ *     must exist in the parent chain for this object. If not specified, the
+ *     coordinates will be relative to the object itself, without any
+ *     transformations applied.
  *
  * @return {Object} An object with data about the bounding rectangle. The
  *     positions are global and relative to the world. The properties of the
  *     returned object are: top, right, bottom, left, width, height
  */
-CanvasObject.prototype.getBoundingRectangleForTree = function(canvas) {
-  var cache = this.cache.get('boundingRectangleForTree');
+CanvasObject.prototype.getBoundingRectangleForTree = function(opt_reference) {
+  var cache = this.cache;
+  var localCache = cache.get('bounds-tree-local');
+  var referenceCache = cache.get('bounds-tree-reference');
 
-  if (cache.isValid) return cache.data;
+  if (!opt_reference) {
+    if (localCache.isValid) return localCache.data;
+  } else {
+    if (referenceCache.isValid) {
+      if (referenceCache.reference === opt_reference) {
+        return referenceCache.data;
+      } else {
+        cache.invalidate('bounds-tree-reference');
+      }
+    }
+    referenceCache.reference = opt_reference;
+  }
 
-  if (!cache.data) cache.data = {};
+  if (!localCache.data) localCache.data = {};
+  if (!referenceCache.data) referenceCache.data = {};
 
-  var vertices = this.getVerticesForTree(canvas.camera.world);
+  var vertices = this.getVerticesForTree(opt_reference);
 
   var minX = Infinity;
   var maxX = -Infinity;
@@ -966,16 +992,22 @@ CanvasObject.prototype.getBoundingRectangleForTree = function(canvas) {
     if (vertex.y > maxY) maxY = vertex.y;
   }
 
-  cache.data.top = minY;
-  cache.data.right = maxX;
-  cache.data.bottom = maxY;
-  cache.data.left = minX;
-  cache.data.width = maxX - minX;
-  cache.data.height = maxY - minY;
+  var data = opt_reference ? referenceCache.data : localCache.data;
 
-  this.cache.update('boundingRectangleForTree');
+  data.top = minY;
+  data.right = maxX;
+  data.bottom = maxY;
+  data.left = minX;
+  data.width = maxX - minX;
+  data.height = maxY - minY;
 
-  return cache.data;
+  if (opt_reference) {
+    cache.update('bounds-tree-reference');
+  } else {
+    cache.update('bounds-tree-local');
+  }
+
+  return data;
 };
 
 module.exports = CanvasObject;
