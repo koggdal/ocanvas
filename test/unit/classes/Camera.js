@@ -541,6 +541,26 @@ describe('Camera', function() {
       expect(vertices[3]).to.eql({x: -50, y: 25});
     });
 
+    it('should respect the `zoom` mode', function() {
+      var camera = new Camera({width: 100, height: 50, zoom: 2});
+      var vertices = camera.getVertices(null, 'zoom');
+
+      expect(vertices[0]).to.eql({x: -25, y: -12.5});
+      expect(vertices[1]).to.eql({x: 25, y: -12.5});
+      expect(vertices[2]).to.eql({x: 25, y: 12.5});
+      expect(vertices[3]).to.eql({x: -25, y: 12.5});
+    });
+
+    it('should respect the `size` mode', function() {
+      var camera = new Camera({width: 100, height: 50, zoom: 2});
+      var vertices = camera.getVertices(null, 'size');
+
+      expect(vertices[0]).to.eql({x: -50, y: -25});
+      expect(vertices[1]).to.eql({x: 50, y: -25});
+      expect(vertices[2]).to.eql({x: 50, y: 25});
+      expect(vertices[3]).to.eql({x: -50, y: 25});
+    });
+
     it('should return a cached array if nothing has changed', function(done) {
       var camera = new Camera({
         width: 100,
@@ -702,6 +722,35 @@ describe('Camera', function() {
       });
 
       camera.getVertices(canvas);
+
+      setTimeout(function() {
+        if (!hasBeenSet) done(new Error('The vertex was not updated and used the cache'));
+        else done();
+      }, 10);
+    });
+
+    it('should return an updated array for the reference if the mode has changed', function(done) {
+      var world = new World();
+      var camera = new Camera({
+        width: 100, height: 50,
+        x: 100, y: 50
+      });
+      world.cameras.add(camera);
+      var vertices = camera.getVertices(world);
+
+      expect(vertices[0]).to.eql({x: 50, y: 25});
+
+      var hasBeenSet = false;
+      var x = vertices[0].x;
+      Object.defineProperty(vertices[0], 'x', {
+        get: function() { return x; },
+        set: function(value) {
+          x = value;
+          hasBeenSet = true;
+        }
+      });
+
+      camera.getVertices(world, 'zoom');
 
       setTimeout(function() {
         if (!hasBeenSet) done(new Error('The vertex was not updated and used the cache'));

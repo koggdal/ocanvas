@@ -463,16 +463,20 @@ Camera.prototype.getPointIn = function(reference, x, y, opt_point) {
 
 /**
  * Get the vertices for this camera. The coordinates will be relative
- * to the center of this camera and are not affected by any transformations.
+ * to the specified reference. If no reference is specified, the coordinates
+ * will be relative to the center of this camera and not affected by any
+ * transformations.
  *
  * @param {Canvas|World=} opt_reference The coordinate space the vertices should
- *     be relative to. If a canvas object is provided, it must exist in the
- *     parent chain for this object.
+ *     be relative to.
+ * @param {string=} opt_mode Get vertices for the size of the camera, or for the
+ *     the zoom of the camera. Values: 'size' or 'zoom'. Default: 'size'.
  *
  * @return {Array} Array of objects, where each object has `x` and `y`
  *     properties representing the coordinates.
  */
-Camera.prototype.getVertices = function(opt_reference) {
+Camera.prototype.getVertices = function(opt_reference, opt_mode) {
+  var mode = (opt_mode !== 'size' && opt_mode !== 'zoom') ? 'size' : opt_mode;
   var cache = this.cache;
   var localCache = cache.get('vertices-local');
   var referenceCache = cache.get('vertices-reference');
@@ -481,13 +485,16 @@ Camera.prototype.getVertices = function(opt_reference) {
     if (localCache.isValid) return localCache.vertices;
   } else {
     if (referenceCache.isValid) {
-      if (referenceCache.reference === opt_reference) {
+      var sameReference = referenceCache.reference === opt_reference;
+      var sameMode = referenceCache.mode === mode;
+      if (sameReference && sameMode) {
         return referenceCache.vertices;
       } else {
         cache.invalidate('vertices-reference');
       }
     }
     referenceCache.reference = opt_reference;
+    referenceCache.mode = mode;
   }
 
   if (!localCache.vertices) {
@@ -496,15 +503,16 @@ Camera.prototype.getVertices = function(opt_reference) {
     ];
   }
 
-  if (!referenceCache.vertices) {
+  if (!referenceCache.vertices && opt_reference) {
     referenceCache.vertices = [
       {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}
     ];
   }
 
-  var right = this.width / 2;
+  var zoomFactor = mode === 'zoom' ? 1 / this.zoom : 1;
+  var right = this.width / 2 * zoomFactor;
   var left = -right;
-  var bottom = this.height / 2;
+  var bottom = this.height / 2 * zoomFactor;
   var top = -bottom;
 
   var localVertices = localCache.vertices;
