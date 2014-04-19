@@ -454,22 +454,23 @@ CanvasObject.prototype.renderTree = function(canvas) {
 
 /**
  * Test if the object itself (not with respect to its children) is in the view
- * that the provided canvas will render.
+ * that the provided camera sees.
  *
- * @param {Canvas} canvas The Canvas instance to check against. Must have a
- *     Camera instance in the `camera` property.
+ * @param {Camera} camera The Camera instance to check against.
  *
  * @return {boolean} True if the object is in view, false otherwise.
  */
-CanvasObject.prototype.isInView = function(canvas) {
-  var camera = canvas.camera;
-  if (!camera) return false;
+CanvasObject.prototype.isInView = function(camera) {
+  var world = camera.world;
+  if (!world) return false;
 
-  var rect = this.getBoundingRectangle(canvas);
-  var isLeft = rect.right < camera.x - camera.width / 2;
-  var isRight = rect.left > camera.x + camera.width / 2;
-  var isTop = rect.bottom < camera.y - camera.height / 2;
-  var isBottom = rect.top > camera.y + camera.height / 2;
+  var objectRect = this.getBoundingRectangle(world);
+  var cameraRect = camera.getBoundingRectangle(world, 'zoom');
+
+  var isLeft = objectRect.right < cameraRect.left;
+  var isRight = objectRect.left > cameraRect.right;
+  var isTop = objectRect.bottom < cameraRect.top;
+  var isBottom = objectRect.top > cameraRect.bottom;
 
   // If the object is outside any of the sides, it's not visible.
   if (isLeft || isRight || isTop || isBottom) {

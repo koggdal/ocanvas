@@ -484,16 +484,19 @@ describe('CanvasObject', function() {
   describe('#isInView()', function() {
 
     it('should return true if the object is in view', function() {
+      var world = new World();
       var camera = new Camera({
         width: 300, height: 300,
         x: 150, y: 150
       });
-      var canvas = new Canvas({camera: camera});
+      world.cameras.add(camera);
       var object = new CanvasObject({
         width: 100, height: 100,
         x: 50, y: 50
       });
-      object.getBoundingRectangle = function() {
+      world.objects.add(object);
+      object.getBoundingRectangle = function(opt_reference) {
+        expect(opt_reference).to.equal(world);
         return {
           top: this.y,
           right: this.x + this.width,
@@ -503,20 +506,23 @@ describe('CanvasObject', function() {
           height: this.height
         };
       };
-      expect(object.isInView(canvas)).to.equal(true);
+      expect(object.isInView(camera)).to.equal(true);
     });
 
     it('should return false if the object is not in view', function() {
+      var world = new World();
       var camera = new Camera({
         width: 300, height: 300,
         x: 150, y: 150
       });
-      var canvas = new Canvas({camera: camera});
+      world.cameras.add(camera);
       var object = new CanvasObject({
         width: 100, height: 100,
         x: 500, y: 50
       });
-      object.getBoundingRectangle = function() {
+      world.objects.add(object);
+      object.getBoundingRectangle = function(opt_reference) {
+        expect(opt_reference).to.equal(world);
         return {
           top: this.y,
           right: this.x + this.width,
@@ -526,7 +532,46 @@ describe('CanvasObject', function() {
           height: this.height
         };
       };
-      expect(object.isInView(canvas)).to.equal(false);
+      expect(object.isInView(camera)).to.equal(false);
+    });
+
+    it('should return false if the camera is not connected to a world', function() {
+      var camera = new Camera({
+        width: 300, height: 300,
+        x: 150, y: 150
+      });
+      var object = new CanvasObject({
+        width: 100, height: 100,
+        x: 500, y: 50
+      });
+      expect(object.isInView(camera)).to.equal(false);
+    });
+
+    it('should take camera zoom into account', function() {
+      var world = new World();
+      var camera = new Camera({
+        width: 300, height: 300,
+        x: 150, y: 150,
+        zoom: 2
+      });
+      world.cameras.add(camera);
+      var object = new CanvasObject({
+        width: 10, height: 10,
+        x: 0, y: 0
+      });
+      world.objects.add(object);
+      object.getBoundingRectangle = function(opt_reference) {
+        expect(opt_reference).to.equal(world);
+        return {
+          top: this.y,
+          right: this.x + this.width,
+          bottom: this.y + this.height,
+          left: this.x,
+          width: this.width,
+          height: this.height
+        };
+      };
+      expect(object.isInView(camera)).to.equal(false);
     });
 
   });
