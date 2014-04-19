@@ -1849,13 +1849,142 @@ describe('CanvasObject', function() {
 
   describe('#getBoundingRectangle()', function() {
 
-    it('should return an object with data about the bounding rectangle', function() {
-      var camera = new Camera();
-      var canvas = new Canvas({camera: camera});
+    it('should return an object with data about the bounding rectangle, with no reference', function() {
       var object = new CanvasObject();
-      object.getVertices = function() {
+      object.getVertices = function(opt_reference) {
+        expect(opt_reference).to.not.be.ok();
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
+      var rect = object.getBoundingRectangle();
+      expect(rect.top).to.equal(0);
+      expect(rect.right).to.equal(100);
+      expect(rect.bottom).to.equal(50);
+      expect(rect.left).to.equal(0);
+      expect(rect.width).to.equal(100);
+      expect(rect.height).to.equal(50);
+    });
+
+    it('should return an object with data about the bounding rectangle, with reference set to the immediate parent', function() {
+      var parent = new CanvasObject();
+      var object = new CanvasObject();
+
+      // Since getVertices is not implemented in this base class, we need to
+      // fake it, and because of that, we can't do all the work to transform
+      // the coordinates to the reference. However, we check that the reference
+      // passed to getVertices is the expected one.
+      object.getVertices = function(opt_reference) {
+        expect(opt_reference).to.equal(parent);
+        return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
+      };
+      parent.children.add(object);
+
+      var rect = object.getBoundingRectangle(parent);
+      expect(rect.top).to.equal(0);
+      expect(rect.right).to.equal(100);
+      expect(rect.bottom).to.equal(50);
+      expect(rect.left).to.equal(0);
+      expect(rect.width).to.equal(100);
+      expect(rect.height).to.equal(50);
+    });
+
+    it('should return an object with data about the bounding rectangle, with reference set to a parent further out', function() {
+      var outerParent = new CanvasObject();
+      var parent = new CanvasObject();
+      var object = new CanvasObject();
+
+      // Since getVertices is not implemented in this base class, we need to
+      // fake it, and because of that, we can't do all the work to transform
+      // the coordinates to the reference. However, we check that the reference
+      // passed to getVertices is the expected one.
+      object.getVertices = function(opt_reference) {
+        expect(opt_reference).to.equal(outerParent);
+        return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
+      };
+      outerParent.children.add(parent);
+      parent.children.add(object);
+
+      var rect = object.getBoundingRectangle(outerParent);
+      expect(rect.top).to.equal(0);
+      expect(rect.right).to.equal(100);
+      expect(rect.bottom).to.equal(50);
+      expect(rect.left).to.equal(0);
+      expect(rect.width).to.equal(100);
+      expect(rect.height).to.equal(50);
+    });
+
+    it('should return an object with data about the bounding rectangle, with reference set to the world', function() {
+      var world = new World();
+      var parent = new CanvasObject();
+      var object = new CanvasObject();
+
+      // Since getVertices is not implemented in this base class, we need to
+      // fake it, and because of that, we can't do all the work to transform
+      // the coordinates to the reference. However, we check that the reference
+      // passed to getVertices is the expected one.
+      object.getVertices = function(opt_reference) {
+        expect(opt_reference).to.equal(world);
+        return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
+      };
+      world.objects.add(parent);
+      parent.children.add(object);
+
+      var rect = object.getBoundingRectangle(world);
+      expect(rect.top).to.equal(0);
+      expect(rect.right).to.equal(100);
+      expect(rect.bottom).to.equal(50);
+      expect(rect.left).to.equal(0);
+      expect(rect.width).to.equal(100);
+      expect(rect.height).to.equal(50);
+    });
+
+    it('should return an object with data about the bounding rectangle, with reference set to the camera', function() {
+      var world = new World();
+      var camera = new Camera();
+      world.cameras.add(camera);
+
+      var parent = new CanvasObject();
+      var object = new CanvasObject();
+
+      // Since getVertices is not implemented in this base class, we need to
+      // fake it, and because of that, we can't do all the work to transform
+      // the coordinates to the reference. However, we check that the reference
+      // passed to getVertices is the expected one.
+      object.getVertices = function(opt_reference) {
+        expect(opt_reference).to.equal(camera);
+        return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
+      };
+      world.objects.add(parent);
+      parent.children.add(object);
+
+      var rect = object.getBoundingRectangle(camera);
+      expect(rect.top).to.equal(0);
+      expect(rect.right).to.equal(100);
+      expect(rect.bottom).to.equal(50);
+      expect(rect.left).to.equal(0);
+      expect(rect.width).to.equal(100);
+      expect(rect.height).to.equal(50);
+    });
+
+    it('should return an object with data about the bounding rectangle, with reference set to the canvas', function() {
+      var world = new World();
+      var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
+      world.cameras.add(camera);
+
+      var parent = new CanvasObject();
+      var object = new CanvasObject();
+
+      // Since getVertices is not implemented in this base class, we need to
+      // fake it, and because of that, we can't do all the work to transform
+      // the coordinates to the reference. However, we check that the reference
+      // passed to getVertices is the expected one.
+      object.getVertices = function(opt_reference) {
+        expect(opt_reference).to.equal(canvas);
+        return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
+      };
+      world.objects.add(parent);
+      parent.children.add(object);
+
       var rect = object.getBoundingRectangle(canvas);
       expect(rect.top).to.equal(0);
       expect(rect.right).to.equal(100);
@@ -1866,8 +1995,6 @@ describe('CanvasObject', function() {
     });
 
     it('should return data only for this object, not its children', function() {
-      var camera = new Camera();
-      var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject();
       var object2 = new CanvasObject();
       object1.children.add(object2);
@@ -1877,7 +2004,7 @@ describe('CanvasObject', function() {
       object2.getVertices = function() {
         return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}];
       };
-      var rect = object1.getBoundingRectangle(canvas);
+      var rect = object1.getBoundingRectangle();
       expect(rect.top).to.equal(0);
       expect(rect.right).to.equal(100);
       expect(rect.bottom).to.equal(50);
@@ -1887,23 +2014,19 @@ describe('CanvasObject', function() {
     });
 
     it('should return a cached rectangle if nothing has changed', function() {
-      var camera = new Camera();
-      var canvas = new Canvas({camera: camera});
       var object = new CanvasObject();
       var numCalls = 0;
       object.getVertices = function() {
         numCalls++;
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
-      object.getBoundingRectangle(canvas);
-      object.getBoundingRectangle(canvas);
+      object.getBoundingRectangle();
+      object.getBoundingRectangle();
 
       expect(numCalls).to.equal(1);
     });
 
     it('should return an updated rectangle if something has changed', function() {
-      var camera = new Camera();
-      var canvas = new Canvas({camera: camera});
       var object = new CanvasObject();
       var numCalls = 0;
 
@@ -1920,9 +2043,9 @@ describe('CanvasObject', function() {
         var x = this.x;
         return [{x: x, y: 0}, {x: x + 100, y: 0}, {x: x + 100, y: 50}];
       };
-      object.getBoundingRectangle(canvas);
+      object.getBoundingRectangle();
       object.x = 100;
-      var rect = object.getBoundingRectangle(canvas);
+      var rect = object.getBoundingRectangle();
 
       expect(numCalls).to.equal(2);
       expect(rect.top).to.equal(0);
@@ -1931,6 +2054,40 @@ describe('CanvasObject', function() {
       expect(rect.left).to.equal(100);
       expect(rect.width).to.equal(100);
       expect(rect.height).to.equal(50);
+    });
+
+    it('should return a cached rectangle if the reference is the same', function() {
+      var parent = new CanvasObject();
+      var object = new CanvasObject();
+      parent.children.add(object);
+
+      var numCalls = 0;
+      object.getVertices = function() {
+        numCalls++;
+        return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
+      };
+      object.getBoundingRectangle(parent);
+      object.getBoundingRectangle(parent);
+
+      expect(numCalls).to.equal(1);
+    });
+
+    it('should return an updared rectangle if a different reference is passed', function() {
+      var outerParent = new CanvasObject();
+      var parent = new CanvasObject();
+      var object = new CanvasObject();
+      outerParent.children.add(parent);
+      parent.children.add(object);
+
+      var numCalls = 0;
+      object.getVertices = function() {
+        numCalls++;
+        return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
+      };
+      object.getBoundingRectangle(parent);
+      object.getBoundingRectangle(outerParent);
+
+      expect(numCalls).to.equal(2);
     });
 
   });
@@ -2073,8 +2230,12 @@ describe('CanvasObject', function() {
       expect(object.cache.get('vertices-tree-reference')).to.not.equal(null);
     });
 
-    it('should have a cache unit for a bounding rectangle', function() {
-      expect(object.cache.get('boundingRectangle')).to.not.equal(null);
+    it('should have a cache unit for a local bounding rectangle', function() {
+      expect(object.cache.get('bounds-local')).to.not.equal(null);
+    });
+
+    it('should have a cache unit for a bounding rectangle relative to a reference', function() {
+      expect(object.cache.get('bounds-reference')).to.not.equal(null);
     });
 
     it('should have a cache unit for a bounding rectangle for a subtree of objects', function() {

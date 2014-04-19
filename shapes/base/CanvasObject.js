@@ -293,7 +293,10 @@ CanvasObject.prototype.initCache = function() {
   });
 
   // Bounding Rectangles
-  this.cache.define('boundingRectangle', {
+  this.cache.define('bounds-local', {
+    dependencies: ['vertices-local']
+  });
+  this.cache.define('bounds-reference', {
     dependencies: ['vertices-reference']
   });
   this.cache.define('boundingRectangleForTree', {
@@ -865,20 +868,37 @@ CanvasObject.prototype.getVerticesForTree = function(opt_reference) {
 /**
  * Get the bounding rectangle for this object.
  *
- * @param {Canvas} canvas A Canvas instance. Needed to get global coordinates.
+ * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ *     the coordinates will be relative to. If a canvas object is provided, it
+ *     must exist in the parent chain for this object. If not specified, the
+ *     coordinates will be relative to the object itself, without any
+ *     transformations applied.
  *
- * @return {Object} An object with data about the bounding rectangle. The
- *     positions are global and relative to the world. The properties of the
+ * @return {Object} An object with data about the bounding rectangle. The properties of the
  *     returned object are: top, right, bottom, left, width, height
  */
-CanvasObject.prototype.getBoundingRectangle = function(canvas) {
-  var cache = this.cache.get('boundingRectangle');
+CanvasObject.prototype.getBoundingRectangle = function(opt_reference) {
+  var cache = this.cache;
+  var localCache = cache.get('bounds-local');
+  var referenceCache = cache.get('bounds-reference');
 
-  if (cache.isValid) return cache.data;
+  if (!opt_reference) {
+    if (localCache.isValid) return localCache.data;
+  } else {
+    if (referenceCache.isValid) {
+      if (referenceCache.reference === opt_reference) {
+        return referenceCache.data;
+      } else {
+        cache.invalidate('bounds-reference');
+      }
+    }
+    referenceCache.reference = opt_reference;
+  }
 
-  if (!cache.data) cache.data = {};
+  if (!localCache.data) localCache.data = {};
+  if (!referenceCache.data) referenceCache.data = {};
 
-  var vertices = this.getVertices(canvas.camera.world);
+  var vertices = this.getVertices(opt_reference);
 
   var minX = Infinity;
   var maxX = -Infinity;
@@ -895,16 +915,22 @@ CanvasObject.prototype.getBoundingRectangle = function(canvas) {
     if (vertex.y > maxY) maxY = vertex.y;
   }
 
-  cache.data.top = minY;
-  cache.data.right = maxX;
-  cache.data.bottom = maxY;
-  cache.data.left = minX;
-  cache.data.width = maxX - minX;
-  cache.data.height = maxY - minY;
+  var data = opt_reference ? referenceCache.data : localCache.data;
 
-  this.cache.update('boundingRectangle');
+  data.top = minY;
+  data.right = maxX;
+  data.bottom = maxY;
+  data.left = minX;
+  data.width = maxX - minX;
+  data.height = maxY - minY;
 
-  return cache.data;
+  if (opt_reference) {
+    cache.update('bounds-reference');
+  } else {
+    cache.update('bounds-local');
+  }
+
+  return data;
 };
 
 /**
