@@ -428,6 +428,7 @@ CanvasObject.prototype.renderPath = function(canvas) {
  */
 CanvasObject.prototype.renderTree = function(canvas) {
   var context = canvas.context;
+  var camera = canvas.camera;
 
   // If the opacity is 0, it's not necessary to render this object or
   // any of its children, since they won't be visible anyway.
@@ -439,7 +440,7 @@ CanvasObject.prototype.renderTree = function(canvas) {
   for (var i = 0, l = children.length; i < l; i++) {
     var object = children.get(i);
 
-    if (canvas.boundingRectangleCulling && !object.isTreeInView(canvas)) {
+    if (canvas.boundingRectangleCulling && !object.isTreeInView(camera)) {
       continue;
     }
 
@@ -483,22 +484,23 @@ CanvasObject.prototype.isInView = function(camera) {
 
 /**
  * Test if the object or any of its children is in the view that the provided
- * canvas will render.
+ * camera sees.
  *
- * @param {Canvas} canvas The Canvas instance to check against. Must have a
- *     Camera instance in the `camera` property.
+ * @param {Camera} camera The Camera instance to check against.
  *
  * @return {boolean} True if the object is in view, false otherwise.
  */
-CanvasObject.prototype.isTreeInView = function(canvas) {
-  var camera = canvas.camera;
-  if (!camera) return false;
+CanvasObject.prototype.isTreeInView = function(camera) {
+  var world = camera.world;
+  if (!world) return false;
 
-  var rect = this.getBoundingRectangleForTree(canvas);
-  var isLeft = rect.right < camera.x - camera.width / 2;
-  var isRight = rect.left > camera.x + camera.width / 2;
-  var isTop = rect.bottom < camera.y - camera.height / 2;
-  var isBottom = rect.top > camera.y + camera.height / 2;
+  var objectRect = this.getBoundingRectangleForTree(world);
+  var cameraRect = camera.getBoundingRectangle(world, 'zoom');
+
+  var isLeft = objectRect.right < cameraRect.left;
+  var isRight = objectRect.left > cameraRect.right;
+  var isTop = objectRect.bottom < cameraRect.top;
+  var isBottom = objectRect.top > cameraRect.bottom;
 
   // If the whole subtree of objects is outside the view of the camera.
   if (isLeft || isRight || isTop || isBottom) {

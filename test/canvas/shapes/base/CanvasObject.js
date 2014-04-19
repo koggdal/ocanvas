@@ -139,9 +139,12 @@ describe('CanvasObject', function() {
     });
 
     it('should call the renderTree method of all children', function(done) {
+      var world = new World();
+      var camera = new Camera({width: 300, height: 300});
+      world.cameras.add(camera);
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
-        camera: new Camera({width: 300, height: 300})
+        camera: camera
       });
 
       var getVertices = function() {

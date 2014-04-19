@@ -579,15 +579,17 @@ describe('CanvasObject', function() {
   describe('#isTreeInView()', function() {
 
     it('should return true if a child is in view', function() {
+      var world = new World();
       var camera = new Camera({
         width: 300, height: 300,
         x: 150, y: 150
       });
-      var canvas = new Canvas({camera: camera});
+      world.cameras.add(camera);
       var object1 = new CanvasObject({
         width: 100, height: 100,
         x: 500, y: 50
       });
+      world.objects.add(object1);
       var object2 = new CanvasObject({
         width: 100, height: 100,
         x: -500, y: 50
@@ -612,19 +614,22 @@ describe('CanvasObject', function() {
         return rect;
       };
 
-      expect(object1.isTreeInView(canvas)).to.equal(true);
+      expect(object1.isTreeInView(camera)).to.equal(true);
     });
 
     it('should return false if the object and all children are not in view', function() {
+      var world = new World();
       var camera = new Camera({
         width: 300, height: 300,
         x: 150, y: 150
       });
+      world.cameras.add(camera);
       var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject({
         width: 100, height: 100,
         x: 500, y: 50
       });
+      world.objects.add(object1);
       var object2 = new CanvasObject({
         width: 100, height: 100,
         x: 0, y: 50
@@ -649,7 +654,47 @@ describe('CanvasObject', function() {
         return rect;
       };
 
-      expect(object1.isTreeInView(canvas)).to.equal(false);
+      expect(object1.isTreeInView(camera)).to.equal(false);
+    });
+
+    it('should take camera zoom into account', function() {
+      var world = new World();
+      var camera = new Camera({
+        width: 300, height: 300,
+        x: 150, y: 150,
+        zoom: 2
+      });
+      world.cameras.add(camera);
+      var object1 = new CanvasObject({
+        width: 100, height: 100,
+        x: 500, y: 50
+      });
+      world.objects.add(object1);
+      var object2 = new CanvasObject({
+        width: 100, height: 100,
+        x: -290, y: 50
+      });
+      object1.children.add(object2);
+
+      object1.getBoundingRectangleForTree = function() {
+        var child = this.children.get(0);
+        var x = this.x; var y = this.y;
+        var w = this.width; var h = this.height;
+        var cx = child.x; var cy = child.y;
+        var cw = child.width; var ch = child.height;
+        var rect = {
+          top: Math.min(y, y + cy),
+          right: Math.max(x + w, x + w + cx + cw),
+          bottom: Math.max(y + h, y + h + cy + ch),
+          left: Math.min(x, x + cx)
+        };
+        rect.width = rect.right - rect.left;
+        rect.height = rect.bottom - rect.top;
+
+        return rect;
+      };
+
+      expect(object1.isTreeInView(camera)).to.equal(false);
     });
 
   });

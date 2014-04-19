@@ -180,7 +180,7 @@ World.prototype.render = function(canvas) {
     for (var i = 0, l = objects.length; i < l; i++) {
       var object = objects.get(i);
 
-      if (canvas.boundingRectangleCulling && !object.isTreeInView(canvas)) {
+      if (canvas.boundingRectangleCulling && !object.isTreeInView(camera)) {
         continue;
       }
 
