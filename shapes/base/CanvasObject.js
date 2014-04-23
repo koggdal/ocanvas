@@ -512,6 +512,36 @@ CanvasObject.prototype.isTreeInView = function(camera) {
 };
 
 /**
+ * Test if the provided point is inside this object (disregarding any children).
+ *
+ * @param {number} x The X coordinate.
+ * @param {number} y The Y coordinate.
+ * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ *     the provided point is in. If a canvas object is provided, it must exist
+ *     in the parent chain for this object. If no reference is specified, the
+ *     point should be relative to the object itself, without any
+ *     transformations applied.
+ *
+ * @return {boolean} True if the point is inside the object, false otherwise.
+ */
+CanvasObject.prototype.isPointInside = function(x, y, opt_reference) {
+  var rect = this.getBoundingRectangle(opt_reference);
+
+  var isLeft = rect.right < x;
+  var isRight = rect.left > x;
+  var isTop = rect.bottom < y;
+  var isBottom = rect.top > y;
+
+  // If the object is outside any of the sides, the point is not inside.
+  if (isLeft || isRight || isTop || isBottom) {
+    return false;
+  }
+
+  // If it's not outside any of the sides, the point is inside the object.
+  return true;
+};
+
+/**
  * Get a transformation matrix for this object. It will be a combined matrix
  * for all transformations (translation, rotation and scaling). Depending on the
  * input, it will combine transformations for all objects in the parent chain
