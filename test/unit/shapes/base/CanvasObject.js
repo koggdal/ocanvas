@@ -903,6 +903,266 @@ describe('CanvasObject', function() {
 
   });
 
+  describe('#isPointInsideTree()', function() {
+
+    it('should return true if the point is inside the object, with no reference', function() {
+      var object = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      object.getBoundingRectangleForTree = function(opt_reference) {
+        expect(opt_reference).to.not.be.ok();
+        return {
+          top: 0,
+          right: this.width,
+          bottom: this.height,
+          left: 0,
+          width: this.width,
+          height: this.height
+        };
+      };
+      expect(object.isPointInsideTree(20, 20)).to.equal(true);
+    });
+
+    it('should return false if the point is not inside the object, with no reference', function() {
+      var object = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      object.getBoundingRectangleForTree = function(opt_reference) {
+        expect(opt_reference).to.not.be.ok();
+        return {
+          top: 0,
+          right: this.width,
+          bottom: this.height,
+          left: 0,
+          width: this.width,
+          height: this.height
+        };
+      };
+      expect(object.isPointInsideTree(20, 120)).to.equal(false);
+    });
+
+    it('should return true if the point is inside a child of this object, with no reference', function() {
+      var object = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      var child = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      object.children.add(child);
+
+      object.getBoundingRectangleForTree = function(opt_reference) {
+        expect(opt_reference).to.not.be.ok();
+        var width = Math.max(child.x + child.width, this.width);
+        var height = Math.max(child.y + child.height, this.height);
+        return {
+          top: 0,
+          right: width,
+          bottom: height,
+          left: 0,
+          width: width,
+          height: height
+        };
+      };
+
+      expect(object.isPointInsideTree(120, 120)).to.equal(true);
+    });
+
+    it('should return false if the point is not inside the object or its children, with no reference', function() {
+      var object = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      var child = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      object.children.add(child);
+
+      object.getBoundingRectangleForTree = function(opt_reference) {
+        expect(opt_reference).to.not.be.ok();
+        var width = Math.max(child.x + child.width, this.width);
+        var height = Math.max(child.y + child.height, this.height);
+        return {
+          top: 0,
+          right: width,
+          bottom: height,
+          left: 0,
+          width: width,
+          height: height
+        };
+      };
+
+      expect(object.isPointInsideTree(160, 160)).to.equal(false);
+    });
+
+    it('should return true if the point is inside the object, with reference set to the immediate parent', function() {
+      var parent = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      var object = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      parent.children.add(object);
+
+      object.getBoundingRectangleForTree = function(opt_reference) {
+        expect(opt_reference).to.equal(parent);
+        return {
+          top: this.y,
+          right: this.x + this.width,
+          bottom: this.y + this.height,
+          left: this.x,
+          width: this.width,
+          height: this.height
+        };
+      };
+      expect(object.isPointInsideTree(60, 60, parent)).to.equal(true);
+    });
+
+    it('should return true if the point is inside the object, with reference set to a parent further out', function() {
+      var outerParent = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      var parent = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      var object = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      outerParent.children.add(parent);
+      parent.children.add(object);
+
+      object.getBoundingRectangleForTree = function(opt_reference) {
+        expect(opt_reference).to.equal(outerParent);
+        return {
+          top: this.y + this.parent.y,
+          right: this.x + this.parent.x + this.width,
+          bottom: this.y + this.parent.y + this.height,
+          left: this.x + this.parent.x,
+          width: this.width,
+          height: this.height
+        };
+      };
+      expect(object.isPointInsideTree(120, 120, outerParent)).to.equal(true);
+    });
+
+    it('should return true if the point is inside the object, with reference set to the world', function() {
+      var world = new World();
+      var parent = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      var object = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      world.objects.add(parent);
+      parent.children.add(object);
+
+      object.getBoundingRectangleForTree = function(opt_reference) {
+        expect(opt_reference).to.equal(world);
+        var xInWorld = this.x + this.parent.x;
+        var yInWorld = this.y + this.parent.y;
+        return {
+          top: yInWorld,
+          right: xInWorld + this.width,
+          bottom: yInWorld + this.height,
+          left: xInWorld,
+          width: this.width,
+          height: this.height
+        };
+      };
+      expect(object.isPointInsideTree(120, 120, world)).to.equal(true);
+    });
+
+    it('should return true if the point is inside the object, with reference set to the camera', function() {
+      var camera = new Camera({
+        width: 300, height: 300,
+        x: 150, y: 150
+      });
+      var world = new World();
+      var parent = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      var object = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+
+      world.cameras.add(camera);
+      world.objects.add(parent);
+      parent.children.add(object);
+
+      object.getBoundingRectangleForTree = function(opt_reference) {
+        expect(opt_reference).to.equal(camera);
+        var xInWorld = this.x + this.parent.x;
+        var yInWorld = this.y + this.parent.y;
+        var cameraOffsetX = camera.x;
+        var cameraOffsetY = camera.y;
+        return {
+          top: yInWorld - cameraOffsetY,
+          right: xInWorld - cameraOffsetX + this.width,
+          bottom: yInWorld - cameraOffsetY + this.height,
+          left: xInWorld - cameraOffsetX,
+          width: this.width,
+          height: this.height
+        };
+      };
+      expect(object.isPointInsideTree(20, 20, camera)).to.equal(true);
+    });
+
+    it('should return true if the point is inside the object, with reference set to the canvas', function() {
+      var camera = new Camera({
+        width: 300, height: 300,
+        x: 150, y: 150
+      });
+      var canvas = new Canvas({
+        width: 300, height: 300,
+        camera: camera
+      });
+      var world = new World();
+      var parent = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+      var object = new CanvasObject({
+        width: 100, height: 100,
+        x: 50, y: 50
+      });
+
+      world.cameras.add(camera);
+      world.objects.add(parent);
+      parent.children.add(object);
+
+      object.getBoundingRectangleForTree = function(opt_reference) {
+        expect(opt_reference).to.equal(canvas);
+        var xInWorld = this.x + this.parent.x;
+        var yInWorld = this.y + this.parent.y;
+        var cameraOffsetX = camera.x - camera.width / 2;
+        var cameraOffsetY = camera.y - camera.height / 2;
+        return {
+          top: yInWorld - cameraOffsetY,
+          right: xInWorld - cameraOffsetX + this.width,
+          bottom: yInWorld - cameraOffsetY + this.height,
+          left: xInWorld - cameraOffsetX,
+          width: this.width,
+          height: this.height
+        };
+      };
+      expect(object.isPointInsideTree(170, 170, canvas)).to.equal(true);
+    });
+
+  });
+
   describe('#setProperties()', function() {
 
     it('should set any properties passed in', function() {
