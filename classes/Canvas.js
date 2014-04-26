@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var Cache = require('../classes/Cache');
+var Cache = require('./Cache');
 
 var defineProperties = require('../utils/defineProperties');
 var jsonHelpers = require('../utils/json');
