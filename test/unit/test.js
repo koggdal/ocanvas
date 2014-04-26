@@ -16,6 +16,7 @@ describe('Classes', function() {
   require('./classes/ObjectEvent');
   require('./classes/ObjectEventEmitter');
   require('./classes/Collection');
+  require('./classes/PointerEvent');
   require('./classes/Pool');
   require('./classes/World');
 });
