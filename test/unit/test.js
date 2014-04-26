@@ -13,6 +13,7 @@ describe('Classes', function() {
   require('./classes/Canvas');
   require('./classes/Camera');
   require('./classes/EventEmitter');
+  require('./classes/ObjectEvent');
   require('./classes/Collection');
   require('./classes/Pool');
   require('./classes/World');
