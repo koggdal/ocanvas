@@ -5,7 +5,6 @@
 
 var Collection = require('../../classes/Collection');
 var Cache = require('../../classes/Cache');
-var Matrix = require('../../classes/Matrix');
 
 var matrixUtils = require('../../utils/matrix');
 var defineProperties = require('../../utils/defineProperties');
