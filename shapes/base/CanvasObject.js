@@ -20,7 +20,7 @@ var isInstanceOf = require('../../utils/isInstanceOf');
  *     provides two of these middle classes: RectangularCanvasObject and
  *     RadialCanvasObject.
  *
- * @property {CanvasObject|World} parent The parent object or world.
+ * @property {CanvasObject|World?} parent The parent object or world.
  * @property {number} x The x coordinate, relative to the origin of the
  *     parent object.
  * @property {number} y The y coordinate, relative to the origin of the
