@@ -4,9 +4,11 @@
 'use strict';
 
 var Collection = require('../../classes/Collection');
+var ObjectEventEmitter = require('../../classes/ObjectEventEmitter');
 var Cache = require('../../classes/Cache');
 
 var matrixUtils = require('../../utils/matrix');
+var inherit = require('../../utils/inherit');
 var defineProperties = require('../../utils/defineProperties');
 var jsonHelpers = require('../../utils/json');
 var isInstanceOf = require('../../utils/isInstanceOf');
@@ -52,6 +54,7 @@ var isInstanceOf = require('../../utils/isInstanceOf');
  *     vertices to speed up calculations.
  *
  * @constructor
+ * @augments {module:ocanvas/classes/ObjectEventEmitter~ObjectEventEmitter}
  *
  * @example
  * var CanvasObject = require('ocanvas/shapes/base/CanvasObject');
@@ -63,6 +66,8 @@ var isInstanceOf = require('../../utils/isInstanceOf');
  * inherit(MyObject, CanvasObject);
  */
 function CanvasObject(opt_properties) {
+  ObjectEventEmitter.call(this);
+
   var self = this;
 
   this.constructorName = 'CanvasObject';
@@ -87,6 +92,7 @@ function CanvasObject(opt_properties) {
     this.setProperties(opt_properties);
   }
 }
+inherit(CanvasObject, ObjectEventEmitter);
 
 /**
  * The name of the class. Useful after minification processes etc.

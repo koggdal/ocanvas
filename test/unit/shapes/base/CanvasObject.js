@@ -1,6 +1,7 @@
 var expect = require('expect.js');
 var CanvasObject = require('../../../../shapes/base/CanvasObject');
 var Canvas = require('../../../../classes/Canvas');
+var ObjectEventEmitter = require('../../../../classes/ObjectEventEmitter');
 var Camera = require('../../../../classes/Camera');
 var Collection = require('../../../../classes/Collection');
 var Cache = require('../../../../classes/Cache');
@@ -10,6 +11,12 @@ var jsonHelpers = require('../../../../utils/json');
 var round = require('../../../utils/round');
 
 describe('CanvasObject', function() {
+
+  it('should inherit from ObjectEventEmitter', function() {
+    var object = new CanvasObject();
+    expect(CanvasObject.prototype instanceof ObjectEventEmitter).to.equal(true);
+    expect(object instanceof ObjectEventEmitter).to.equal(true);
+  });
 
   describe('CanvasObject constructor', function() {
 

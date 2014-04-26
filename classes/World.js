@@ -3,7 +3,10 @@
  */
 'use strict';
 
+var ObjectEventEmitter = require('./ObjectEventEmitter');
 var Collection = require('./Collection');
+
+var inherit = require('../utils/inherit');
 var defineProperties = require('../utils/defineProperties');
 var jsonHelpers = require('../utils/json');
 
@@ -18,6 +21,7 @@ var jsonHelpers = require('../utils/json');
  *     this world.
  *
  * @constructor
+ * @augments {module:ocanvas/classes/ObjectEventEmitter~ObjectEventEmitter}
  *
  * @param {Object=} opt_properties Properties to initially set on the instance.
  *
@@ -26,6 +30,8 @@ var jsonHelpers = require('../utils/json');
  * world.objects.add(object);
  */
 function World(opt_properties) {
+  ObjectEventEmitter.call(this);
+
   var self = this;
 
   defineProperties(this, {
@@ -85,6 +91,7 @@ function World(opt_properties) {
     this.setProperties(opt_properties);
   }
 }
+inherit(World, ObjectEventEmitter);
 
 /**
  * The name of the class. Useful after minification processes etc.

@@ -1,5 +1,6 @@
 var expect = require('expect.js');
 var Canvas = require('../../../classes/Canvas');
+var ObjectEventEmitter = require('../../../classes/ObjectEventEmitter');
 var Camera = require('../../../classes/Camera');
 var jsonHelpers = require('../../../utils/json');
 var canvasMock = require('../mocks/canvas2d');
@@ -12,6 +13,12 @@ describe('Canvas', function() {
 
   after(function() {
     canvasMock.off();
+  });
+
+  it('should inherit from ObjectEventEmitter', function() {
+    var canvas = new Canvas();
+    expect(Canvas.prototype instanceof ObjectEventEmitter).to.equal(true);
+    expect(canvas instanceof ObjectEventEmitter).to.equal(true);
   });
 
   describe('Canvas constructor', function() {

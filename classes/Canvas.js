@@ -4,7 +4,9 @@
 'use strict';
 
 var Cache = require('./Cache');
+var ObjectEventEmitter = require('./ObjectEventEmitter');
 
+var inherit = require('../utils/inherit');
 var defineProperties = require('../utils/defineProperties');
 var jsonHelpers = require('../utils/json');
 var isInstanceOf = require('../utils/isInstanceOf');
@@ -69,6 +71,7 @@ var matrixUtils = require('../utils/matrix');
  *     the bounding rectangle stroke. Default is 2.
  *
  * @constructor
+ * @augments {module:ocanvas/classes/ObjectEventEmitter~ObjectEventEmitter}
  *
  * @param {Object=} opt_properties Optional object with properties to set.
  *
@@ -77,6 +80,8 @@ var matrixUtils = require('../utils/matrix');
  * document.body.appendChild(canvas.element);
  */
 function Canvas(opt_properties) {
+  ObjectEventEmitter.call(this);
+
   this.background = '';
   this.camera = null;
   this.renderDepth = 0;
@@ -121,6 +126,7 @@ function Canvas(opt_properties) {
 
   this._createCanvas();
 }
+inherit(Canvas, ObjectEventEmitter);
 
 /**
  * The name of the class. Useful after minification processes etc.

@@ -1,11 +1,18 @@
 var expect = require('expect.js');
 var World = require('../../../classes/World');
+var ObjectEventEmitter = require('../../../classes/ObjectEventEmitter');
 var Collection = require('../../../classes/Collection');
 var Camera = require('../../../classes/Camera');
 var CanvasObject = require('../../../shapes/base/CanvasObject');
 var jsonHelpers = require('../../../utils/json');
 
 describe('World', function() {
+
+  it('should inherit from ObjectEventEmitter', function() {
+    var world = new World();
+    expect(World.prototype instanceof ObjectEventEmitter).to.equal(true);
+    expect(world instanceof ObjectEventEmitter).to.equal(true);
+  });
 
   describe('World constructor', function() {
 
