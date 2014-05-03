@@ -6,6 +6,10 @@
 		// Return an object when instantiated
 		return oCanvas.extend({
 			core: thecore,
+
+			_: oCanvas.extend({}, thecore.displayObject._, {
+				hasBeenDrawn: false
+			}),
 			
 			shapeType: "rectangular",
 			loaded: false,
@@ -57,7 +61,7 @@
 					_this.tile_width = (_this.tile_width === 0) ? _this.width : _this.tile_width;
 					_this.tile_height = (_this.tile_height === 0) ? _this.height : _this.tile_height;
 					_this.core.canvasElement.removeChild(this);
-					_this.core.redraw();
+					if (_this._.hasBeenDrawn) _this.core.redraw();
 				};
 				
 				// Set the path to the image if a string was passed in
@@ -138,6 +142,8 @@
 						_this.draw();
 					}, 100);
 				}
+
+				this._.hasBeenDrawn = true;
 				
 				return this;
 			}

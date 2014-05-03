@@ -26,6 +26,7 @@
 			align: "start",
 			baseline: "top",
 			_: oCanvas.extend({}, thecore.displayObject._, {
+				hasBeenDrawn: false,
 				font: "normal normal normal 16px/1 sans-serif",
 				style: "normal",
 				variant: "normal",
@@ -183,6 +184,7 @@
 			// Method for initializing a web font.
 			// Sometimes the font needs to be used once first to trigger it, before using it for the real text
 			initWebFont: function () {
+				var self = this;
 				var core = this.core,
 					dummy;
 				
@@ -197,7 +199,7 @@
 				// Also redraw the canvas so text that didn't show before now appears
 				setTimeout(function () {
 					document.body.removeChild(dummy);
-					core.redraw();
+					if (self._.hasBeenDrawn) core.redraw();
 				}, 1000);
 			},
 
@@ -270,6 +272,8 @@
 				}
 				
 				canvas.closePath();
+
+				this._.hasBeenDrawn = true;
 				
 				return this;
 			}
