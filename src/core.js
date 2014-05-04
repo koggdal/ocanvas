@@ -4,7 +4,7 @@
 	var oCanvas = {
 	    
 		// Version number of this oCanvas release.
-		version: "2.7.0",
+		version: "2.7.1",
 		
 		// Array containing all canvases created by oCanvas on the current page
 		canvasList: [],
