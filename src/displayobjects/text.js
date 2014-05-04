@@ -1,5 +1,7 @@
 (function(oCanvas, window, document, undefined){
 
+	var loadedFonts = [];
+
 	// Define the class
 	var text = function (settings, thecore) {
 	
@@ -184,13 +186,18 @@
 			// Method for initializing a web font.
 			// Sometimes the font needs to be used once first to trigger it, before using it for the real text
 			initWebFont: function () {
+				var font = this.style + " " + this.variant + " " + this.weight + " 0px " + this.family;
+
+				if (loadedFonts.indexOf(font) > -1) return;
+				loadedFonts.push(font);
+
 				var self = this;
 				var core = this.core,
 					dummy;
 				
 				// Create a dummy element and set the current font
 				dummy = document.createElement("span");
-				dummy.style.font = this.style + " " + this.variant + " " + this.weight + " 0px " + this.family;
+				dummy.style.font = font;
 
 				// Append it to the DOM. This will trigger the web font to be used and available to the canvas
 				document.body.appendChild(dummy);
