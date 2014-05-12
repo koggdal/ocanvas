@@ -21,6 +21,10 @@ describe('Classes', function() {
   require('./classes/World');
 });
 
+describe('Pointers', function() {
+  require('./pointers/PointerData');
+});
+
 describe('Shapes', function() {
   require('./shapes/base/CanvasObject');
   require('./shapes/base/RectangularCanvasObject');
