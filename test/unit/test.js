@@ -23,6 +23,7 @@ describe('Classes', function() {
 
 describe('Pointers', function() {
   require('./pointers/PointerData');
+  require('./pointers/scene');
 });
 
 describe('Shapes', function() {
