@@ -24,6 +24,7 @@ describe('Classes', function() {
 describe('Pointers', function() {
   require('./pointers/PointerData');
   require('./pointers/scene');
+  require('./pointers/state');
 });
 
 describe('Shapes', function() {
