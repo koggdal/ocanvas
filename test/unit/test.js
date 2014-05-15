@@ -26,6 +26,7 @@ describe('Pointers', function() {
   require('./pointers/scene');
   require('./pointers/state');
   require('./pointers/positions');
+  require('./pointers/emitter');
 });
 
 describe('Shapes', function() {
