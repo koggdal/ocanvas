@@ -29,6 +29,7 @@ describe('Pointers', function() {
   require('./pointers/emitter');
   require('./pointers/controller');
   require('./pointers/normalizer');
+  require('./pointers/index');
 });
 
 describe('Shapes', function() {
