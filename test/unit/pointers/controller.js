@@ -5,7 +5,7 @@ var PointerData = require('../../../pointers/PointerData');
 var CanvasObject = require('../../../shapes/base/CanvasObject');
 var Canvas = require('../../../classes/Canvas');
 var Camera = require('../../../classes/Camera');
-var World = require('../../../classes/World');
+var Scene = require('../../../classes/Scene');
 
 var domPointers = require('../../utils/dompointers');
 var DOMMouseEvent = domPointers.DOMMouseEvent;
@@ -73,12 +73,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       expect(state.getPressedObject(pointers[0])).to.equal(null);
 
@@ -87,23 +87,23 @@ describe('pointers/controller', function() {
       expect(state.getPressedObject(pointers[0])).to.equal(object);
     });
 
-    it('should set the pointer to be pressed down on the world if no front object was detected', function() {
+    it('should set the pointer to be pressed down on the scene if no front object was detected', function() {
       var event = new DOMMouseEvent('mousedown', 100, 100);
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(100, 100, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       expect(state.getPressedObject(pointers[0])).to.equal(null);
 
       controller.handlePointerDown(pointers[0], canvas);
 
-      expect(state.getPressedObject(pointers[0])).to.equal(world);
+      expect(state.getPressedObject(pointers[0])).to.equal(scene);
     });
 
     it('should store the front object for the pointer', function() {
@@ -111,12 +111,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       expect(state.getFrontObject(pointers[0])).to.equal(null);
 
@@ -130,12 +130,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       expect(state.hasEnteredCanvas(pointers[0])).to.equal(false);
 
@@ -149,12 +149,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       var count = 0;
 
@@ -164,8 +164,8 @@ describe('pointers/controller', function() {
         expect(count).to.equal(1);
       });
 
-      world.on('pointerenter', function handler() {
-        world.off('pointerenter', handler);
+      scene.on('pointerenter', function handler() {
+        scene.off('pointerenter', handler);
         count++;
         expect(count).to.equal(2);
       });
@@ -180,17 +180,17 @@ describe('pointers/controller', function() {
       controller.handlePointerDown(pointers[0], canvas);
     });
 
-    it('should emit enter events on world and canvas if no front object was found and not entered before', function(done) {
+    it('should emit enter events on scene and canvas if no front object was found and not entered before', function(done) {
       var event = new DOMMouseEvent('mousedown', 100, 100);
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(100, 100, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       var count = 0;
 
@@ -204,7 +204,7 @@ describe('pointers/controller', function() {
         count++;
         expect(count).to.equal(2);
       };
-      world.on('pointerenter', handler2);
+      scene.on('pointerenter', handler2);
 
       var handler3 = function() {
         count++;
@@ -215,7 +215,7 @@ describe('pointers/controller', function() {
 
       setTimeout(function() {
         canvas.off('pointerenter', handler1);
-        world.off('pointerenter', handler2);
+        scene.off('pointerenter', handler2);
         object.off('pointerenter', handler3);
 
         expect(count).to.equal(2);
@@ -223,18 +223,18 @@ describe('pointers/controller', function() {
       }, 10);
     });
 
-    it('should emit enter events only on objects if already entered world and canvas', function(done) {
+    it('should emit enter events only on objects if already entered scene and canvas', function(done) {
       var event = new DOMMouseEvent('mousedown', 100, 100);
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object1 = createObject(0, 0, 300, 150);
       var object2 = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       state.enterCanvas(pointers[0]);
@@ -245,7 +245,7 @@ describe('pointers/controller', function() {
       canvas.on('pointerenter', handler1);
 
       var handler2 = function() { count++; };
-      world.on('pointerenter', handler2);
+      scene.on('pointerenter', handler2);
 
       var handler3 = function() {
         count++;
@@ -263,7 +263,7 @@ describe('pointers/controller', function() {
 
       setTimeout(function() {
         canvas.off('pointerenter', handler1);
-        world.off('pointerenter', handler2);
+        scene.off('pointerenter', handler2);
         object1.off('pointerenter', handler3);
         object2.off('pointerenter', handler4);
 
@@ -278,12 +278,12 @@ describe('pointers/controller', function() {
       var canvas = createCanvas();
       var object1 = createObject(100, 100, 300, 150);
       var object2 = createObject(100, 100, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       state.setFrontObject(pointers[0], object2);
@@ -319,12 +319,12 @@ describe('pointers/controller', function() {
       var canvas = createCanvas();
       var object1 = createObject(0, 0, 300, 150);
       var object2 = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       state.enterCanvas(pointers[0]);
@@ -336,7 +336,7 @@ describe('pointers/controller', function() {
       canvas.on('pointerenter', handler1);
 
       var handler2 = function() { count++; };
-      world.on('pointerenter', handler2);
+      scene.on('pointerenter', handler2);
 
       var handler3 = function() { count++; };
       object1.on('pointerenter', handler3);
@@ -351,7 +351,7 @@ describe('pointers/controller', function() {
 
       setTimeout(function() {
         canvas.off('pointerenter', handler1);
-        world.off('pointerenter', handler2);
+        scene.off('pointerenter', handler2);
         object1.off('pointerenter', handler3);
         object2.off('pointerenter', handler4);
 
@@ -366,12 +366,12 @@ describe('pointers/controller', function() {
       var canvas = createCanvas();
       var object1 = createObject(0, 0, 300, 150);
       var object2 = createObject(2000, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       state.enterCanvas(pointers[0]);
@@ -383,7 +383,7 @@ describe('pointers/controller', function() {
       canvas.on('pointerleave', handler1);
 
       var handler2 = function() { count++; };
-      world.on('pointerleave', handler2);
+      scene.on('pointerleave', handler2);
 
       var handler3 = function() { count++; };
       object1.on('pointerleave', handler3);
@@ -398,7 +398,7 @@ describe('pointers/controller', function() {
 
       setTimeout(function() {
         canvas.off('pointerleave', handler1);
-        world.off('pointerleave', handler2);
+        scene.off('pointerleave', handler2);
         object1.off('pointerleave', handler3);
         object2.off('pointerleave', handler4);
 
@@ -416,12 +416,12 @@ describe('pointers/controller', function() {
       var object1_2 = createObject(0, 0, 300, 150);
       var object2_1 = createObject(0, 0, 300, 150);
       var object2_2 = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(parent);
+      scene.cameras.add(camera);
+      scene.objects.add(parent);
       parent.children.add(object1_1);
       object1_1.children.add(object1_2);
       parent.children.add(object2_1);
@@ -435,7 +435,7 @@ describe('pointers/controller', function() {
       var countHandler = function() { count++; };
 
       canvas.on('pointerleave', countHandler);
-      world.on('pointerleave', countHandler);
+      scene.on('pointerleave', countHandler);
       parent.on('pointerleave', countHandler);
       object2_1.on('pointerleave', countHandler);
       object2_2.on('pointerleave', countHandler);
@@ -456,7 +456,7 @@ describe('pointers/controller', function() {
 
       setTimeout(function() {
         canvas.off('pointerleave', countHandler);
-        world.off('pointerleave', countHandler);
+        scene.off('pointerleave', countHandler);
         parent.off('pointerleave', countHandler);
         object2_1.off('pointerleave', countHandler);
         object2_2.off('pointerleave', countHandler);
@@ -477,12 +477,12 @@ describe('pointers/controller', function() {
       var object1_2 = createObject(0, 0, 300, 150);
       var object2_1 = createObject(0, 0, 300, 150);
       var object2_2 = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(parent);
+      scene.cameras.add(camera);
+      scene.objects.add(parent);
       parent.children.add(object1_1);
       object1_1.children.add(object1_2);
       parent.children.add(object2_1);
@@ -496,7 +496,7 @@ describe('pointers/controller', function() {
       var countHandler = function() { count++; };
 
       canvas.on('pointerenter', countHandler);
-      world.on('pointerenter', countHandler);
+      scene.on('pointerenter', countHandler);
       parent.on('pointerenter', countHandler);
       object1_1.on('pointerenter', countHandler);
       object1_2.on('pointerenter', countHandler);
@@ -517,7 +517,7 @@ describe('pointers/controller', function() {
 
       setTimeout(function() {
         canvas.off('pointerenter', countHandler);
-        world.off('pointerenter', countHandler);
+        scene.off('pointerenter', countHandler);
         parent.off('pointerenter', countHandler);
         object1_1.off('pointerenter', countHandler);
         object1_2.off('pointerenter', countHandler);
@@ -534,12 +534,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       object.on('pointerdown', function handler() {
         object.off('pointerdown', handler);
@@ -549,18 +549,18 @@ describe('pointers/controller', function() {
       controller.handlePointerDown(pointers[0], canvas);
     });
 
-    it('should emit a down event for the world if no front object is found', function(done) {
+    it('should emit a down event for the scene if no front object is found', function(done) {
       var event = new DOMMouseEvent('mousedown', 100, 100);
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
-      world.on('pointerdown', function handler() {
-        world.off('pointerdown', handler);
+      scene.on('pointerdown', function handler() {
+        scene.off('pointerdown', handler);
         done();
       });
 
@@ -576,12 +576,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       expect(state.getFrontObject(pointers[0])).to.equal(null);
 
@@ -595,12 +595,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       expect(state.hasEnteredCanvas(pointers[0])).to.equal(false);
 
@@ -614,12 +614,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       var count = 0;
 
@@ -629,8 +629,8 @@ describe('pointers/controller', function() {
         expect(count).to.equal(1);
       });
 
-      world.on('pointerenter', function handler() {
-        world.off('pointerenter', handler);
+      scene.on('pointerenter', function handler() {
+        scene.off('pointerenter', handler);
         count++;
         expect(count).to.equal(2);
       });
@@ -645,17 +645,17 @@ describe('pointers/controller', function() {
       controller.handlePointerMove(pointers[0], canvas);
     });
 
-    it('should emit enter events on world and canvas if no front object was found and not entered before', function(done) {
+    it('should emit enter events on scene and canvas if no front object was found and not entered before', function(done) {
       var event = new DOMMouseEvent('mousemove', 100, 100);
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(100, 100, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       var count = 0;
 
@@ -669,7 +669,7 @@ describe('pointers/controller', function() {
         count++;
         expect(count).to.equal(2);
       };
-      world.on('pointerenter', handler2);
+      scene.on('pointerenter', handler2);
 
       var handler3 = function() {
         count++;
@@ -680,7 +680,7 @@ describe('pointers/controller', function() {
 
       setTimeout(function() {
         canvas.off('pointerenter', handler1);
-        world.off('pointerenter', handler2);
+        scene.off('pointerenter', handler2);
         object.off('pointerenter', handler3);
 
         expect(count).to.equal(2);
@@ -688,18 +688,18 @@ describe('pointers/controller', function() {
       }, 10);
     });
 
-    it('should emit enter events only on objects if already entered world and canvas', function(done) {
+    it('should emit enter events only on objects if already entered scene and canvas', function(done) {
       var event = new DOMMouseEvent('mousemove', 100, 100);
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object1 = createObject(0, 0, 300, 150);
       var object2 = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       state.enterCanvas(pointers[0]);
@@ -710,7 +710,7 @@ describe('pointers/controller', function() {
       canvas.on('pointerenter', handler1);
 
       var handler2 = function() { count++; };
-      world.on('pointerenter', handler2);
+      scene.on('pointerenter', handler2);
 
       var handler3 = function() {
         count++;
@@ -728,7 +728,7 @@ describe('pointers/controller', function() {
 
       setTimeout(function() {
         canvas.off('pointerenter', handler1);
-        world.off('pointerenter', handler2);
+        scene.off('pointerenter', handler2);
         object1.off('pointerenter', handler3);
         object2.off('pointerenter', handler4);
 
@@ -743,12 +743,12 @@ describe('pointers/controller', function() {
       var canvas = createCanvas();
       var object1 = createObject(100, 100, 300, 150);
       var object2 = createObject(100, 100, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       state.setFrontObject(pointers[0], object2);
@@ -784,12 +784,12 @@ describe('pointers/controller', function() {
       var canvas = createCanvas();
       var object1 = createObject(0, 0, 300, 150);
       var object2 = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       state.enterCanvas(pointers[0]);
@@ -801,7 +801,7 @@ describe('pointers/controller', function() {
       canvas.on('pointerenter', handler1);
 
       var handler2 = function() { count++; };
-      world.on('pointerenter', handler2);
+      scene.on('pointerenter', handler2);
 
       var handler3 = function() { count++; };
       object1.on('pointerenter', handler3);
@@ -816,7 +816,7 @@ describe('pointers/controller', function() {
 
       setTimeout(function() {
         canvas.off('pointerenter', handler1);
-        world.off('pointerenter', handler2);
+        scene.off('pointerenter', handler2);
         object1.off('pointerenter', handler3);
         object2.off('pointerenter', handler4);
 
@@ -831,12 +831,12 @@ describe('pointers/controller', function() {
       var canvas = createCanvas();
       var object1 = createObject(0, 0, 300, 150);
       var object2 = createObject(2000, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       state.enterCanvas(pointers[0]);
@@ -848,7 +848,7 @@ describe('pointers/controller', function() {
       canvas.on('pointerleave', handler1);
 
       var handler2 = function() { count++; };
-      world.on('pointerleave', handler2);
+      scene.on('pointerleave', handler2);
 
       var handler3 = function() { count++; };
       object1.on('pointerleave', handler3);
@@ -863,7 +863,7 @@ describe('pointers/controller', function() {
 
       setTimeout(function() {
         canvas.off('pointerleave', handler1);
-        world.off('pointerleave', handler2);
+        scene.off('pointerleave', handler2);
         object1.off('pointerleave', handler3);
         object2.off('pointerleave', handler4);
 
@@ -881,12 +881,12 @@ describe('pointers/controller', function() {
       var object1_2 = createObject(0, 0, 300, 150);
       var object2_1 = createObject(0, 0, 300, 150);
       var object2_2 = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(parent);
+      scene.cameras.add(camera);
+      scene.objects.add(parent);
       parent.children.add(object1_1);
       object1_1.children.add(object1_2);
       parent.children.add(object2_1);
@@ -900,7 +900,7 @@ describe('pointers/controller', function() {
       var countHandler = function() { count++; };
 
       canvas.on('pointerleave', countHandler);
-      world.on('pointerleave', countHandler);
+      scene.on('pointerleave', countHandler);
       parent.on('pointerleave', countHandler);
       object2_1.on('pointerleave', countHandler);
       object2_2.on('pointerleave', countHandler);
@@ -921,7 +921,7 @@ describe('pointers/controller', function() {
 
       setTimeout(function() {
         canvas.off('pointerleave', countHandler);
-        world.off('pointerleave', countHandler);
+        scene.off('pointerleave', countHandler);
         parent.off('pointerleave', countHandler);
         object2_1.off('pointerleave', countHandler);
         object2_2.off('pointerleave', countHandler);
@@ -942,12 +942,12 @@ describe('pointers/controller', function() {
       var object1_2 = createObject(0, 0, 300, 150);
       var object2_1 = createObject(0, 0, 300, 150);
       var object2_2 = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(parent);
+      scene.cameras.add(camera);
+      scene.objects.add(parent);
       parent.children.add(object1_1);
       object1_1.children.add(object1_2);
       parent.children.add(object2_1);
@@ -961,7 +961,7 @@ describe('pointers/controller', function() {
       var countHandler = function() { count++; };
 
       canvas.on('pointerenter', countHandler);
-      world.on('pointerenter', countHandler);
+      scene.on('pointerenter', countHandler);
       parent.on('pointerenter', countHandler);
       object1_1.on('pointerenter', countHandler);
       object1_2.on('pointerenter', countHandler);
@@ -982,7 +982,7 @@ describe('pointers/controller', function() {
 
       setTimeout(function() {
         canvas.off('pointerenter', countHandler);
-        world.off('pointerenter', countHandler);
+        scene.off('pointerenter', countHandler);
         parent.off('pointerenter', countHandler);
         object1_1.off('pointerenter', countHandler);
         object1_2.off('pointerenter', countHandler);
@@ -999,12 +999,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       object.on('pointermove', function handler() {
         object.off('pointermove', handler);
@@ -1014,18 +1014,18 @@ describe('pointers/controller', function() {
       controller.handlePointerMove(pointers[0], canvas);
     });
 
-    it('should emit a move event for the world if no front object is found', function(done) {
+    it('should emit a move event for the scene if no front object is found', function(done) {
       var event = new DOMMouseEvent('mousemove', 100, 100);
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
-      world.on('pointermove', function handler() {
-        world.off('pointermove', handler);
+      scene.on('pointermove', function handler() {
+        scene.off('pointermove', handler);
         done();
       });
 
@@ -1037,12 +1037,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.pressPointer(pointers[0], object);
 
@@ -1054,20 +1054,20 @@ describe('pointers/controller', function() {
       controller.handlePointerMove(pointers[0], canvas);
     });
 
-    it('should emit a downmove event for the world if no front object is found and the pointer is pressed', function(done) {
+    it('should emit a downmove event for the scene if no front object is found and the pointer is pressed', function(done) {
       var event = new DOMMouseEvent('mousemove', 100, 100);
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
-      state.pressPointer(pointers[0], world);
+      state.pressPointer(pointers[0], scene);
 
-      world.on('pointerdownmove', function handler() {
-        world.off('pointerdownmove', handler);
+      scene.on('pointerdownmove', function handler() {
+        scene.off('pointerdownmove', handler);
         done();
       });
 
@@ -1083,12 +1083,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.registerClick(pointers[0], object);
 
@@ -1111,12 +1111,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.registerClick(pointers[0], object);
       state.registerClick(pointers[0], object);
@@ -1134,12 +1134,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.registerClick(pointers[0], object);
       state.registerClick(pointers[0], object);
@@ -1156,12 +1156,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.registerClick(pointers[0], object);
 
@@ -1177,12 +1177,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(2000, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.registerClick(pointers[0], object);
       state.registerClick(pointers[0], object);
@@ -1204,12 +1204,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.pressPointer(pointers[0], object);
 
@@ -1225,12 +1225,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.enterCanvas(pointers[0]);
       state.setFrontObject(pointers[0], object);
@@ -1244,22 +1244,22 @@ describe('pointers/controller', function() {
       controller.handlePointerUp(pointers[0], canvas);
     });
 
-    it('should emit an up event for the world if no front object is found', function(done) {
+    it('should emit an up event for the scene if no front object is found', function(done) {
       var event = new DOMMouseEvent('mouseup', 100, 100);
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       state.enterCanvas(pointers[0]);
       state.setFrontObject(pointers[0], null);
-      state.pressPointer(pointers[0], world);
+      state.pressPointer(pointers[0], scene);
 
-      world.on('pointerup', function handler() {
-        world.off('pointerup', handler);
+      scene.on('pointerup', function handler() {
+        scene.off('pointerup', handler);
         done();
       });
 
@@ -1271,12 +1271,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.enterCanvas(pointers[0]);
       state.setFrontObject(pointers[0], object);
@@ -1294,12 +1294,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.enterCanvas(pointers[0]);
       state.setFrontObject(pointers[0], object);
@@ -1317,12 +1317,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.enterCanvas(pointers[0]);
       state.setFrontObject(pointers[0], object);
@@ -1336,8 +1336,8 @@ describe('pointers/controller', function() {
         expect(count).to.equal(1);
       });
 
-      world.on('pointerleave', function handler() {
-        world.off('pointerleave', handler);
+      scene.on('pointerleave', function handler() {
+        scene.off('pointerleave', handler);
         count++;
         expect(count).to.equal(2);
       });
@@ -1352,24 +1352,24 @@ describe('pointers/controller', function() {
       controller.handlePointerUp(pointers[0], canvas);
     });
 
-    it('should emit leave events for the world and canvas if the pointer type is touch and no front object', function(done) {
+    it('should emit leave events for the scene and canvas if the pointer type is touch and no front object', function(done) {
       var event = new DOMTouchEvent('touchend', [{x: 100, y: 100}]);
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       state.enterCanvas(pointers[0]);
       state.setFrontObject(pointers[0], null);
-      state.pressPointer(pointers[0], world);
+      state.pressPointer(pointers[0], scene);
 
       var count = 0;
 
-      world.on('pointerleave', function handler() {
-        world.off('pointerleave', handler);
+      scene.on('pointerleave', function handler() {
+        scene.off('pointerleave', handler);
         count++;
         expect(count).to.equal(1);
       });
@@ -1389,12 +1389,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.enterCanvas(pointers[0]);
       state.setFrontObject(pointers[0], object);
@@ -1414,13 +1414,13 @@ describe('pointers/controller', function() {
       var canvas = createCanvas();
       var object1 = createObject(0, 0, 300, 150);
       var object2 = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object1);
-      world.objects.add(object2);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
+      scene.objects.add(object2);
 
       state.enterCanvas(pointers[0]);
       state.setFrontObject(pointers[0], object1);
@@ -1447,12 +1447,12 @@ describe('pointers/controller', function() {
       var canvas = createCanvas();
       var object1 = createObject(0, 0, 300, 150);
       var object2 = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       state.enterCanvas(pointers[0]);
@@ -1484,12 +1484,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.enterCanvas(pointers[0]);
       state.setFrontObject(pointers[0], object);
@@ -1515,12 +1515,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.enterCanvas(pointers[0]);
       state.pressPointer(pointers[0], object);
@@ -1537,12 +1537,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.enterCanvas(pointers[0]);
       state.setFrontObject(pointers[0], object);
@@ -1559,12 +1559,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.enterCanvas(pointers[0]);
 
@@ -1575,24 +1575,24 @@ describe('pointers/controller', function() {
       expect(state.hasEnteredCanvas(pointers[0])).to.equal(false);
     });
 
-    it('should emit leave events for world and canvas', function(done) {
+    it('should emit leave events for scene and canvas', function(done) {
       var event = new DOMPointerEvent('pointercancel', 100, 100);
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.enterCanvas(pointers[0]);
 
       var count = 0;
 
-      world.on('pointerleave', function handler() {
-        world.off('pointerleave', handler);
+      scene.on('pointerleave', function handler() {
+        scene.off('pointerleave', handler);
         count++;
         expect(count).to.equal(1);
       });
@@ -1607,18 +1607,18 @@ describe('pointers/controller', function() {
       controller.handlePointerCancel(pointers[0], canvas);
     });
 
-    it('should emit leave events for objects, world and canvas', function(done) {
+    it('should emit leave events for objects, scene and canvas', function(done) {
       var event = new DOMPointerEvent('pointercancel', 100, 100);
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object1 = createObject(0, 0, 300, 150);
       var object2 = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       state.enterCanvas(pointers[0]);
@@ -1638,8 +1638,8 @@ describe('pointers/controller', function() {
         expect(count).to.equal(2);
       });
 
-      world.on('pointerleave', function handler() {
-        world.off('pointerleave', handler);
+      scene.on('pointerleave', function handler() {
+        scene.off('pointerleave', handler);
         count++;
         expect(count).to.equal(3);
       });
@@ -1663,12 +1663,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.enterCanvas(pointers[0]);
       state.setFrontObject(pointers[0], object);
@@ -1685,12 +1685,12 @@ describe('pointers/controller', function() {
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.enterCanvas(pointers[0]);
 
@@ -1701,24 +1701,24 @@ describe('pointers/controller', function() {
       expect(state.hasEnteredCanvas(pointers[0])).to.equal(false);
     });
 
-    it('should emit leave events for world and canvas', function(done) {
+    it('should emit leave events for scene and canvas', function(done) {
       var event = new DOMMouseEvent('mouseout', 100, 100);
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object);
+      scene.cameras.add(camera);
+      scene.objects.add(object);
 
       state.enterCanvas(pointers[0]);
 
       var count = 0;
 
-      world.on('pointerleave', function handler() {
-        world.off('pointerleave', handler);
+      scene.on('pointerleave', function handler() {
+        scene.off('pointerleave', handler);
         count++;
         expect(count).to.equal(1);
       });
@@ -1733,18 +1733,18 @@ describe('pointers/controller', function() {
       controller.handlePointerOut(pointers[0], canvas);
     });
 
-    it('should emit leave events for objects, world and canvas', function(done) {
+    it('should emit leave events for objects, scene and canvas', function(done) {
       var event = new DOMMouseEvent('mouseout', 100, 100);
       var pointers = controller.getPointers(event);
       var canvas = createCanvas();
       var object1 = createObject(0, 0, 300, 150);
       var object2 = createObject(0, 0, 300, 150);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       state.enterCanvas(pointers[0]);
@@ -1764,8 +1764,8 @@ describe('pointers/controller', function() {
         expect(count).to.equal(2);
       });
 
-      world.on('pointerleave', function handler() {
-        world.off('pointerleave', handler);
+      scene.on('pointerleave', function handler() {
+        scene.off('pointerleave', handler);
         count++;
         expect(count).to.equal(3);
       });

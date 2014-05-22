@@ -1,7 +1,7 @@
 var expect = require('expect.js');
 var Camera = require('../../classes/Camera');
 var Canvas = require('../../classes/Canvas');
-var World = require('../../classes/World');
+var Scene = require('../../classes/Scene');
 var create = require('../../create');
 var canvasMock = require('./mocks/canvas2d');
 
@@ -19,14 +19,14 @@ describe('create', function() {
     var setup = create();
     expect(setup.camera instanceof Camera).to.equal(true);
     expect(setup.canvas instanceof Canvas).to.equal(true);
-    expect(setup.world instanceof World).to.equal(true);
+    expect(setup.scene instanceof Scene).to.equal(true);
 
     expect(setup.canvas.element).to.be.ok();
     expect(setup.camera.width).to.equal(setup.canvas.width);
     expect(setup.camera.height).to.equal(setup.canvas.height);
-    expect(setup.world.cameras.length).to.equal(1);
-    expect(setup.world.cameras.get(0)).to.equal(setup.camera);
-    expect(setup.camera.world).to.equal(setup.world);
+    expect(setup.scene.cameras.length).to.equal(1);
+    expect(setup.scene.cameras.get(0)).to.equal(setup.camera);
+    expect(setup.camera.scene).to.equal(setup.scene);
     expect(setup.camera.x).to.equal(setup.canvas.width / 2);
     expect(setup.camera.y).to.equal(setup.canvas.height / 2);
   });
@@ -39,9 +39,9 @@ describe('create', function() {
     expect(setup.camera).to.equal(camera);
     expect(setup.camera.width).to.equal(setup.canvas.width);
     expect(setup.camera.height).to.equal(setup.canvas.height);
-    expect(setup.world.cameras.length).to.equal(1);
-    expect(setup.world.cameras.get(0)).to.equal(setup.camera);
-    expect(setup.camera.world).to.equal(setup.world);
+    expect(setup.scene.cameras.length).to.equal(1);
+    expect(setup.scene.cameras.get(0)).to.equal(setup.camera);
+    expect(setup.camera.scene).to.equal(setup.scene);
     expect(setup.camera.x).to.equal(setup.canvas.width / 2);
     expect(setup.camera.y).to.equal(setup.canvas.height / 2);
   });
@@ -54,14 +54,14 @@ describe('create', function() {
     expect(setup.canvas).to.equal(canvas);
   });
 
-  it('should use the passed in world if provided', function() {
-    var world = new World();
-    var setup = create({world: world});
-    expect(setup.world instanceof World).to.equal(true);
+  it('should use the passed in scene if provided', function() {
+    var scene = new Scene();
+    var setup = create({scene: scene});
+    expect(setup.scene instanceof Scene).to.equal(true);
 
-    expect(setup.world).to.equal(world);
-    expect(setup.world.cameras.length).to.equal(1);
-    expect(setup.world.cameras.get(0)).to.equal(setup.camera);
+    expect(setup.scene).to.equal(scene);
+    expect(setup.scene.cameras.length).to.equal(1);
+    expect(setup.scene.cameras.get(0)).to.equal(setup.camera);
   });
 
   it('should use the passed in width', function() {

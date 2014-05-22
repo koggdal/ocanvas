@@ -22,7 +22,7 @@ var isInstanceOf = require('../../utils/isInstanceOf');
  *     provides two of these middle classes: RectangularCanvasObject and
  *     RadialCanvasObject.
  *
- * @property {CanvasObject|World?} parent The parent object or world.
+ * @property {CanvasObject|Scene?} parent The parent object or scene.
  * @property {number} x The x coordinate, relative to the origin of the
  *     parent object.
  * @property {number} y The y coordinate, relative to the origin of the
@@ -467,11 +467,11 @@ CanvasObject.prototype.renderTree = function(canvas) {
  * @return {boolean} True if the object is in view, false otherwise.
  */
 CanvasObject.prototype.isInView = function(camera) {
-  var world = camera.world;
-  if (!world) return false;
+  var scene = camera.scene;
+  if (!scene) return false;
 
-  var objectRect = this.getBoundingRectangle(world);
-  var cameraRect = camera.getBoundingRectangle(world, 'zoom');
+  var objectRect = this.getBoundingRectangle(scene);
+  var cameraRect = camera.getBoundingRectangle(scene, 'zoom');
 
   var isLeft = objectRect.right < cameraRect.left;
   var isRight = objectRect.left > cameraRect.right;
@@ -496,11 +496,11 @@ CanvasObject.prototype.isInView = function(camera) {
  * @return {boolean} True if the object is in view, false otherwise.
  */
 CanvasObject.prototype.isTreeInView = function(camera) {
-  var world = camera.world;
-  if (!world) return false;
+  var scene = camera.scene;
+  if (!scene) return false;
 
-  var objectRect = this.getBoundingRectangleForTree(world);
-  var cameraRect = camera.getBoundingRectangle(world, 'zoom');
+  var objectRect = this.getBoundingRectangleForTree(scene);
+  var cameraRect = camera.getBoundingRectangle(scene, 'zoom');
 
   var isLeft = objectRect.right < cameraRect.left;
   var isRight = objectRect.left > cameraRect.right;
@@ -521,7 +521,7 @@ CanvasObject.prototype.isTreeInView = function(camera) {
  *
  * @param {number} x The X coordinate.
  * @param {number} y The Y coordinate.
- * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ * @param {Canvas|Camera|Scene|CanvasObject=} opt_reference The coordinate space
  *     the provided point is in. If a canvas object is provided, it must exist
  *     in the parent chain for this object. If no reference is specified, the
  *     point should be relative to the object itself, without any
@@ -551,7 +551,7 @@ CanvasObject.prototype.isPointInside = function(x, y, opt_reference) {
  *
  * @param {number} x The X coordinate.
  * @param {number} y The Y coordinate.
- * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ * @param {Canvas|Camera|Scene|CanvasObject=} opt_reference The coordinate space
  *     the provided point is in. If a canvas object is provided, it must exist
  *     in the parent chain for this object. If no reference is specified, the
  *     point should be relative to the object itself, without any
@@ -583,7 +583,7 @@ CanvasObject.prototype.isPointInsideTree = function(x, y, opt_reference) {
  * up until it reaches the reference (which is included).
  * If the matrix cache is still valid, it will not update the matrix.
  *
- * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ * @param {Canvas|Camera|Scene|CanvasObject=} opt_reference The coordinate space
  *     the matrix will be made for. If a canvas object is provided, it must
  *     exist in the parent chain for this object.
  *
@@ -675,7 +675,7 @@ CanvasObject.prototype.getTransformationMatrix = function(opt_reference) {
  * transformed up to the reference object (not inclusive), to make the return
  * point relative to the coordinate space of the reference.
  *
- * @param {Canvas|Camera|World|CanvasObject} reference The coordinate space you
+ * @param {Canvas|Camera|Scene|CanvasObject} reference The coordinate space you
  *     want the point in. If a canvas object is provided, it must exist in
  *     the parent chain for this object.
  * @param {number} x The local X position.
@@ -710,7 +710,7 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
     }
 
     var isCanvasObject = isInstanceOf(reference, 'CanvasObject');
-    var isWorld = isInstanceOf(reference, 'World');
+    var isScene = isInstanceOf(reference, 'Scene');
     var isCamera = isInstanceOf(reference, 'Camera');
     var isCanvas = isInstanceOf(reference, 'Canvas');
 
@@ -721,9 +721,9 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
     // reference.
     var matrixReference = null;
 
-    // For objects and the world as reference, we need to find the object that
+    // For objects and the scene as reference, we need to find the object that
     // is one step closer to the source object.
-    if (isCanvasObject || isWorld) {
+    if (isCanvasObject || isScene) {
       var parent = this.parent;
       while (parent && parent !== reference) {
         matrixReference = parent;
@@ -731,10 +731,10 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
       }
 
     } else if (isCamera) {
-      matrixReference = reference.world;
+      matrixReference = reference.scene;
 
     } else if (isCanvas) {
-      if (reference.camera) matrixReference = reference.camera.world;
+      if (reference.camera) matrixReference = reference.camera.scene;
     }
 
     var transformationMatrix;
@@ -798,7 +798,7 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
  * Get a point inside this object from coordinates within the coordinate space
  * of the specified reference.
  *
- * @param {Canvas|Camera|World|CanvasObject} reference The coordinate space the
+ * @param {Canvas|Camera|Scene|CanvasObject} reference The coordinate space the
  *     input point is in. If a canvas object is provided, it must exist in
  *     the parent chain for this object.
  * @param {number} x The X position in the reference.
@@ -832,7 +832,7 @@ CanvasObject.prototype.getPointFrom = function(reference, x, y, opt_point) {
       cache.update('getPointFrom-input');
     }
 
-    // Collect all matrices up to the reference (canvas object or world)
+    // Collect all matrices up to the reference (canvas object or scene)
     var matrices = outputPoint.matrices || (outputPoint.matrices = []);
     matrices.length = 0;
     matrices.push(this.getTransformationMatrix());
@@ -875,7 +875,7 @@ CanvasObject.prototype.getPointFrom = function(reference, x, y, opt_point) {
  * This needs implementation in a subclass. You should not call this
  * super method in the subclass.
  *
- * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ * @param {Canvas|Camera|Scene|CanvasObject=} opt_reference The coordinate space
  *     the vertices should be relative to. If a canvas object is provided, it
  *     must exist in the parent chain for this object.
  *
@@ -896,7 +896,7 @@ CanvasObject.prototype.getVertices = function(opt_reference) {
  * will be relative to either this object itself (without any transformations),
  * or to the specified reference.
  *
- * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ * @param {Canvas|Camera|Scene|CanvasObject=} opt_reference The coordinate space
  *     the vertices should be relative to. If a canvas object is provided, it
  *     must exist in the parent chain for this object.
  *
@@ -944,7 +944,7 @@ CanvasObject.prototype.getVerticesForTree = function(opt_reference) {
 /**
  * Get the bounding rectangle for this object.
  *
- * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ * @param {Canvas|Camera|Scene|CanvasObject=} opt_reference The coordinate space
  *     the coordinates will be relative to. If a canvas object is provided, it
  *     must exist in the parent chain for this object. If not specified, the
  *     coordinates will be relative to the object itself, without any
@@ -1012,14 +1012,14 @@ CanvasObject.prototype.getBoundingRectangle = function(opt_reference) {
 /**
  * Get the bounding rectangle for this object and all its children.
  *
- * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ * @param {Canvas|Camera|Scene|CanvasObject=} opt_reference The coordinate space
  *     the coordinates will be relative to. If a canvas object is provided, it
  *     must exist in the parent chain for this object. If not specified, the
  *     coordinates will be relative to the object itself, without any
  *     transformations applied.
  *
  * @return {Object} An object with data about the bounding rectangle. The
- *     positions are global and relative to the world. The properties of the
+ *     positions are global and relative to the scene. The properties of the
  *     returned object are: top, right, bottom, left, width, height
  */
 CanvasObject.prototype.getBoundingRectangleForTree = function(opt_reference) {

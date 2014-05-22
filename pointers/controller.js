@@ -6,7 +6,7 @@
 
 var PointerData = require('./PointerData');
 var state = require('./state');
-var scene = require('./scene');
+var sceneUtils = require('./scene');
 var positions = require('./positions');
 var emitter = require('./emitter');
 
@@ -90,20 +90,20 @@ function handlePointerCancel(pointer, canvas) {
  * @param {Canvas} canvas The canvas instance the event is for.
  */
 function handlePointerDown(pointer, canvas) {
-  var world = canvas.camera && canvas.camera.world;
+  var scene = canvas.camera && canvas.camera.scene;
   var currentFrontObject = state.getFrontObject(pointer);
 
   var canvasPosition = positions.getForCanvas(pointer, canvas);
-  var frontObject = scene.findFrontObjectInCanvas(canvas, canvasPosition.x,
+  var frontObject = sceneUtils.findFrontObjectInCanvas(canvas, canvasPosition.x,
       canvasPosition.y);
 
-  state.pressPointer(pointer, frontObject || world);
+  state.pressPointer(pointer, frontObject || scene);
 
   if (!frontObject || frontObject !== currentFrontObject) {
     setNewFrontObject(frontObject, pointer, canvas);
   }
 
-  emitter.emitForTarget('down', pointer, canvas, frontObject || world);
+  emitter.emitForTarget('down', pointer, canvas, frontObject || scene);
 }
 
 /**
@@ -114,22 +114,22 @@ function handlePointerDown(pointer, canvas) {
  */
 function handlePointerUp(pointer, canvas) {
   var currentFrontObject = state.getFrontObject(pointer);
-  var world = canvas.camera && canvas.camera.world;
+  var scene = canvas.camera && canvas.camera.scene;
 
   var canvasPosition = positions.getForCanvas(pointer, canvas);
-  var frontObject = scene.findFrontObjectInCanvas(canvas, canvasPosition.x,
+  var frontObject = sceneUtils.findFrontObjectInCanvas(canvas, canvasPosition.x,
       canvasPosition.y);
 
-  var target = frontObject || world;
+  var target = frontObject || scene;
   var pressedObject = state.getPressedObject(pointer);
   var shouldTriggerClick = pressedObject === target;
   if (!shouldTriggerClick && frontObject && pressedObject) {
-    shouldTriggerClick = scene.isParentOf(pressedObject, frontObject);
+    shouldTriggerClick = sceneUtils.isParentOf(pressedObject, frontObject);
   }
 
   state.releasePointer(pointer);
 
-  emitter.emitForTarget('up', pointer, canvas, frontObject || world);
+  emitter.emitForTarget('up', pointer, canvas, frontObject || scene);
 
   // Touch pointers will always leave their target when they're released,
   // as opposed to mouse pointers that are still within the target when the
@@ -138,7 +138,7 @@ function handlePointerUp(pointer, canvas) {
     state.setFrontObject(pointer, null);
     state.leaveCanvas(pointer);
 
-    emitter.emitFromObject('leave', pointer, canvas, currentFrontObject || world);
+    emitter.emitFromObject('leave', pointer, canvas, currentFrontObject || scene);
   }
 
   if (shouldTriggerClick) {
@@ -167,20 +167,20 @@ function handlePointerUp(pointer, canvas) {
  * @param {Canvas} canvas The canvas instance the event is for.
  */
 function handlePointerMove(pointer, canvas) {
-  var world = canvas.camera && canvas.camera.world;
+  var scene = canvas.camera && canvas.camera.scene;
   var currentFrontObject = state.getFrontObject(pointer);
 
   var canvasPosition = positions.getForCanvas(pointer, canvas);
-  var frontObject = scene.findFrontObjectInCanvas(canvas, canvasPosition.x,
+  var frontObject = sceneUtils.findFrontObjectInCanvas(canvas, canvasPosition.x,
       canvasPosition.y);
 
   if (!frontObject || frontObject !== currentFrontObject) {
     setNewFrontObject(frontObject, pointer, canvas);
   }
 
-  emitter.emitForTarget('move', pointer, canvas, frontObject || world);
+  emitter.emitForTarget('move', pointer, canvas, frontObject || scene);
   if (state.getPressedObject(pointer) !== null) {
-    emitter.emitForTarget('downmove', pointer, canvas, frontObject || world);
+    emitter.emitForTarget('downmove', pointer, canvas, frontObject || scene);
   }
 }
 
@@ -204,17 +204,17 @@ function handlePointerOut(pointer, canvas) {
  *
  * @param {PointerData} pointer Pointer object.
  * @param {Canvas} canvas The canvas instance the event is for.
- * @param {CanvasObject|World=} opt_target Optional target object. If not
+ * @param {CanvasObject|Scene=} opt_target Optional target object. If not
  *     provided, it will be calculated based on the pointer position.
  */
 function handlePointerDblClick(pointer, canvas, opt_target) {
-  var world = canvas.camera && canvas.camera.world;
+  var scene = canvas.camera && canvas.camera.scene;
 
   var canvasPosition = positions.getForCanvas(pointer, canvas);
-  var frontObject = opt_target || scene.findFrontObjectInCanvas(canvas,
+  var frontObject = opt_target || sceneUtils.findFrontObjectInCanvas(canvas,
       canvasPosition.x, canvasPosition.y);
 
-  var object = frontObject || world;
+  var object = frontObject || scene;
   var clickCount = state.getClickCount(object);
   if (clickCount >= 2) {
     state.clearClicks(object);
@@ -244,7 +244,7 @@ function makePointerLeaveCanvas(pointer, canvas) {
  * @param {Canvas} canvas The canvas instance the event is for.
  */
 function setNewFrontObject(object, pointer, canvas) {
-  var world = canvas.camera && canvas.camera.world;
+  var scene = canvas.camera && canvas.camera.scene;
   var currentFrontObject = state.getFrontObject(pointer);
 
   if (object) {
@@ -256,29 +256,29 @@ function setNewFrontObject(object, pointer, canvas) {
   if (currentFrontObject) {
     if (object) {
 
-      if (scene.isParentOf(currentFrontObject, object)) {
+      if (sceneUtils.isParentOf(currentFrontObject, object)) {
         emitter.emitBetweenObjects('enter', pointer, canvas, object,
             currentFrontObject);
 
-      } else if (scene.isParentOf(object, currentFrontObject)) {
+      } else if (sceneUtils.isParentOf(object, currentFrontObject)) {
         emitter.emitBetweenObjects('leave', pointer, canvas, currentFrontObject,
             object);
 
       } else {
-        var parent = scene.findSharedParent(currentFrontObject, object);
-        if (!parent) parent = world;
+        var parent = sceneUtils.findSharedParent(currentFrontObject, object);
+        if (!parent) parent = scene;
         emitter.emitBetweenObjects('leave', pointer, canvas, currentFrontObject,
             parent);
         emitter.emitBetweenObjects('enter', pointer, canvas, object, parent);
       }
     } else {
       emitter.emitBetweenObjects('leave', pointer, canvas, currentFrontObject,
-          world);
+          scene);
     }
   } else {
     if (state.hasEnteredCanvas(pointer)) {
       if (object) {
-        emitter.emitBetweenObjects('enter', pointer, canvas, object, world);
+        emitter.emitBetweenObjects('enter', pointer, canvas, object, scene);
       }
     } else {
       state.enterCanvas(pointer);

@@ -42,11 +42,11 @@ describe('PointerEvent', function() {
       expect(event.position.canvas.y).to.equal(0);
     });
 
-    it('should give the `position` object `world` coordinates', function() {
+    it('should give the `position` object `scene` coordinates', function() {
       var event = new PointerEvent();
-      expect(typeof event.position.world).to.equal('object');
-      expect(event.position.world.x).to.equal(0);
-      expect(event.position.world.y).to.equal(0);
+      expect(typeof event.position.scene).to.equal('object');
+      expect(event.position.scene.x).to.equal(0);
+      expect(event.position.scene.y).to.equal(0);
     });
 
     it('should give the `position` object `target` coordinates', function() {

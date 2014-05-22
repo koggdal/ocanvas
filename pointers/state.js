@@ -5,7 +5,7 @@
 'use strict';
 
 var isInstanceOf = require('../utils/isInstanceOf');
-var scene = require('./scene');
+var sceneUtils = require('./scene');
 
 var pointersEnteredCanvas = {};
 var frontObjects = {};
@@ -16,7 +16,7 @@ var clickedObjects = [];
  * Save what the current front object is for the pointer.
  *
  * @param {PointerData} pointer Pointer object.
- * @param {CanvasObject|World=} opt_object A canvas object.
+ * @param {CanvasObject|Scene=} opt_object A canvas object.
  */
 function setFrontObject(pointer, opt_object) {
   if (opt_object) {
@@ -31,7 +31,7 @@ function setFrontObject(pointer, opt_object) {
  *
  * @param {PointerData} pointer Pointer object.
  *
- * @return {CanvasObject|World?} An object or null if not found.
+ * @return {CanvasObject|Scene?} An object or null if not found.
  */
 function getFrontObject(pointer) {
   return frontObjects[pointer.id] || null;
@@ -76,7 +76,7 @@ function hasEnteredCanvas(pointer) {
 function getPointerCountForObject(object) {
   var counter = 0;
 
-  if (isInstanceOf(object, 'Canvas', 'World')) {
+  if (isInstanceOf(object, 'Canvas', 'Scene')) {
     for (var x in pointersEnteredCanvas) {
       counter++;
     }
@@ -85,7 +85,7 @@ function getPointerCountForObject(object) {
     for (var id in frontObjects) {
       if (frontObjects[id] === object) {
         counter++;
-      } else if (scene.isParentOf(object, frontObjects[id])) {
+      } else if (sceneUtils.isParentOf(object, frontObjects[id])) {
         counter++;
       }
     }
@@ -98,7 +98,7 @@ function getPointerCountForObject(object) {
  * Save the state for a specific pointer as being pressed.
  *
  * @param {PointerData} pointer Pointer object.
- * @param {CanvasObject|World} object A canvas object.
+ * @param {CanvasObject|Scene} object A canvas object.
  */
 function pressPointer(pointer, object) {
   pressedObjects[pointer.id] = object;
@@ -117,7 +117,7 @@ function releasePointer(pointer) {
  * Get which object the pointer is currently pressed on.
  *
  * @param {PointerData} pointer Pointer object.
- * @return {CanvasObject|World?} A canvas object or null if not pressed on any object.
+ * @return {CanvasObject|Scene?} A canvas object or null if not pressed on any object.
  */
 function getPressedObject(pointer) {
   return pressedObjects[pointer.id] || null;
@@ -166,7 +166,7 @@ function registerClick(pointer, object) {
 /**
  * Get metadata about the currently clicked canvas object.
  *
- * @param {CanvasObject|World} object A canvas object.
+ * @param {CanvasObject|Scene} object A canvas object.
  *
  * @return {Object?} An object of data, or null if not found.
  */
@@ -182,7 +182,7 @@ function getClickData(object) {
 /**
  * Get the number of clicks that have happened recently on the specified object.
  *
- * @param {CanvasObject|World} object A canvas object.
+ * @param {CanvasObject|Scene} object A canvas object.
  *
  * @return {number} The number of clicks.
  */
@@ -194,7 +194,7 @@ function getClickCount(object) {
 /**
  * Clear clicks for an object.
  *
- * @param {CanvasObject|World} object A canvas object.
+ * @param {CanvasObject|Scene} object A canvas object.
  */
 function clearClicks(object) {
   for (var i = 0, l = clickedObjects.length; i < l; i++) {

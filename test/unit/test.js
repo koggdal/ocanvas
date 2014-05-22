@@ -18,7 +18,7 @@ describe('Classes', function() {
   require('./classes/Collection');
   require('./classes/PointerEvent');
   require('./classes/Pool');
-  require('./classes/World');
+  require('./classes/Scene');
 });
 
 describe('Pointers', function() {

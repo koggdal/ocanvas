@@ -4,7 +4,7 @@ var pointers = require('../../../pointers');
 var CanvasObject = require('../../../shapes/base/CanvasObject');
 var Canvas = require('../../../classes/Canvas');
 var Camera = require('../../../classes/Camera');
-var World = require('../../../classes/World');
+var Scene = require('../../../classes/Scene');
 
 var domPointers = require('../../utils/dompointers');
 var DOMMouseEvent = domPointers.DOMMouseEvent;
@@ -17,7 +17,7 @@ describe('pointers', function() {
 
     it('should set up DOM pointer event listeners and hook it up with oCanvas events', function(done) {
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
       var target = createObject(0, 0, 300, 150);
 
@@ -29,8 +29,8 @@ describe('pointers', function() {
       };
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(target);
+      scene.cameras.add(camera);
+      scene.objects.add(target);
 
       target.on('pointerdown', function handler(event) {
         target.off('pointerdown', handler);
@@ -56,7 +56,7 @@ describe('pointers', function() {
 
     it('should remove DOM pointer event listeners and disconnect it from oCanvas events', function(done) {
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
       var target = createObject(0, 0, 300, 150);
 
@@ -68,8 +68,8 @@ describe('pointers', function() {
       };
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(target);
+      scene.cameras.add(camera);
+      scene.objects.add(target);
 
       // Enable
       pointers.enableForCanvas(canvas);

@@ -2,7 +2,7 @@ var expect = require('expect.js');
 var NodeCanvas = require('canvas');
 var getColor = require('../../utils/getColor');
 
-var World = require('../../../classes/World');
+var Scene = require('../../../classes/Scene');
 var Canvas = require('../../../classes/Canvas');
 var Camera = require('../../../classes/Camera');
 
@@ -12,7 +12,7 @@ describe('Camera', function() {
 
   describe('#render()', function() {
 
-    it('should throw an error if a world is not set', function(done) {
+    it('should throw an error if a scene is not set', function(done) {
       var camera = new Camera();
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
@@ -22,7 +22,7 @@ describe('Camera', function() {
       try {
         camera.render(canvas);
       } catch(error) {
-        if (error.name === 'ocanvas-no-world') {
+        if (error.name === 'ocanvas-no-scene') {
           done();
         } else {
           done(error);
@@ -30,17 +30,17 @@ describe('Camera', function() {
       }
     });
 
-    it('should tell the world to render all objects', function(done) {
+    it('should tell the scene to render all objects', function(done) {
       var camera = new Camera();
-      var world = new World();
-      world.cameras.add(camera);
+      var scene = new Scene();
+      scene.cameras.add(camera);
 
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
         camera: camera
       });
 
-      world.render = function() {
+      scene.render = function() {
         done();
       };
 
@@ -52,8 +52,8 @@ describe('Camera', function() {
         width: 300, height: 300,
         rotation: 20
       });
-      var world = new World();
-      world.cameras.add(camera);
+      var scene = new Scene();
+      scene.cameras.add(camera);
 
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
@@ -61,7 +61,7 @@ describe('Camera', function() {
       });
       var ctx = canvas.context;
 
-      world.render = function() {
+      scene.render = function() {
         ctx.translate(-camera.x, -camera.y);
         ctx.fillStyle = 'red';
         ctx.fillRect(0, 0, canvas.width, canvas.height);

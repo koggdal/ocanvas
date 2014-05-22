@@ -10,16 +10,16 @@ var matrixUtils = require('../utils/matrix');
 var isInstanceOf = require('../utils/isInstanceOf');
 
 /**
- * @classdesc A camera is put inside a world and when it is connected to a
- *     canvas, it will render what the camera sees in the world to that canvas.
+ * @classdesc A camera is put inside a scene and when it is connected to a
+ *     canvas, it will render what the camera sees in the scene to that canvas.
  *
- * @property {World?} world An instance of World.
+ * @property {Scene?} scene An instance of Scene.
  * @property {number} x The x coordinate, referencing the center.
  * @property {number} y The y coordinate, referencing the center.
  * @property {number} rotation The rotation, around the center.
  * @property {number} zoom The zoom level. Default zoom is 1. Number between
- *     0 and 1 will zoom out (world gets smaller), and larger number will
- *     zoom in (world gets bigger).
+ *     0 and 1 will zoom out (scene gets smaller), and larger number will
+ *     zoom in (scene gets bigger).
  * @property {number} width The width of the camera in pixels. If the zoom
  *     value is something else than 0, the actual width will not be this
  *     width, but rather the width after taking zoom into account. Setting
@@ -50,7 +50,7 @@ function Camera(opt_properties) {
   }
   Camera.cache[this.id] = this;
 
-  this.world = null;
+  this.scene = null;
 
   defineProperties(this, this.propertyDescriptors, {enumerable: true});
 
@@ -292,8 +292,8 @@ Camera.prototype.initCache = function() {
 
   this.cache.onInvalidate = function(unit) {
     if (unit === 'transformations') {
-      if (self.world) {
-        var objects = self.world.objects;
+      if (self.scene) {
+        var objects = self.scene.objects;
         for (var i = 0, l = objects.length; i < l; i++) {
           var objectCache = objects.get(i).cache;
           var reference = objectCache.get('combinedTransformations').reference;
@@ -312,11 +312,11 @@ Camera.prototype.initCache = function() {
  * @param {Canvas} canvas The canvas instance to draw to.
  */
 Camera.prototype.render = function(canvas) {
-  if (!this.world) {
-    var message = 'You must set a world on the camera instance to render.';
-    message += ' This is done by `world.cameras.add(camera)`.';
+  if (!this.scene) {
+    var message = 'You must set a scene on the camera instance to render.';
+    message += ' This is done by `scene.cameras.add(camera)`.';
     var error = new Error(message);
-    error.name = 'ocanvas-no-world';
+    error.name = 'ocanvas-no-scene';
     throw error;
   }
 
@@ -332,7 +332,7 @@ Camera.prototype.render = function(canvas) {
   // not rotate.
   context.rotate(-1 * this.rotation * Math.PI / 180);
 
-  this.world.render(canvas);
+  this.scene.render(canvas);
 
   context.restore();
 };
@@ -419,7 +419,7 @@ Camera.prototype.getTransformationMatrix = function(opt_reference) {
  * transformed up to the reference object (not inclusive), to make the return
  * point relative to the coordinate space of the reference.
  *
- * @param {Canvas|World} reference The coordinate space you want the point in.
+ * @param {Canvas|Scene} reference The coordinate space you want the point in.
  * @param {number} x The local X position.
  * @param {number} y The local Y position.
  * @param {Object=} opt_point Optional object to put the point properties in.
@@ -475,7 +475,7 @@ Camera.prototype.getPointIn = function(reference, x, y, opt_point) {
  * will be relative to the center of this camera and not affected by any
  * transformations.
  *
- * @param {Canvas|World=} opt_reference The coordinate space the vertices should
+ * @param {Canvas|Scene=} opt_reference The coordinate space the vertices should
  *     be relative to.
  * @param {string=} opt_mode Get vertices for the size of the camera, or for the
  *     the zoom of the camera. Values: 'size' or 'zoom'. Default: 'size'.
@@ -553,7 +553,7 @@ Camera.prototype.getVertices = function(opt_reference, opt_mode) {
 /**
  * Get the bounding rectangle for this camera.
  *
- * @param {Canvas|World=} opt_reference The coordinate space the coordinates
+ * @param {Canvas|Scene=} opt_reference The coordinate space the coordinates
  *     will be relative to. If not specified, the coordinates will be relative
  *     to the object itself, without any transformations applied.
  * @param {string=} opt_mode Get vertices for the size of the camera, or for the

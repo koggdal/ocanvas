@@ -14,7 +14,7 @@ var matrixUtils = require('../utils/matrix');
 
 /**
  * @classdesc A Canvas instance is connected to a canvas DOM element. It will
- *     render what a connected camera sees in a world.
+ *     render what a connected camera sees in a scene.
  *
  * @property {number} width The width of the canvas in pixels. This will be set
  *     automatically by the canvas element. If the property is provided in
@@ -50,9 +50,9 @@ var matrixUtils = require('../utils/matrix');
  *         it.</li>
  *     </ul>
  * @property {number} renderDepth Current render depth in the rendering phase.
- * @property {number} maxRenderDepth The maximum number of times the world
+ * @property {number} maxRenderDepth The maximum number of times the scene
  *     will be rendered recursively (a shape with a camera fill will trigger
- *     the world to be rendered recursively one step).
+ *     the scene to be rendered recursively one step).
  * @property {boolean} boundingRectanglesEnabled Whether the render method
  *     should render bounding rectangles for all objects as well. Default
  *     is false.
@@ -309,7 +309,7 @@ Canvas.prototype.render = function() {
 
   context.restore();
 
-  if (camera.world) {
+  if (camera.scene) {
     var bRectEnabled = this.boundingRectanglesEnabled;
     var bRectThickness = this.boundingRectanglesThickness;
 
@@ -321,7 +321,7 @@ Canvas.prototype.render = function() {
       context.strokeStyle = this.boundingRectanglesColor;
       context.lineWidth = this.boundingRectanglesThickness;
 
-      var objects = camera.world.objects;
+      var objects = camera.scene.objects;
       for (var i = 0, l = objects.length; i < l; i++) {
         this.renderBoundingRectangleForObject(objects.get(i));
       }

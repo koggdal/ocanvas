@@ -42,8 +42,8 @@ function findFrontObject(canvas, x, y, objects) {
  */
 function findFrontObjectInCanvas(canvas, x, y) {
   var camera = canvas.camera;
-  var world = camera && camera.world;
-  var objects = world && world.objects;
+  var scene = camera && camera.scene;
+  var objects = scene && scene.objects;
 
   if (!objects) return null;
 
@@ -78,8 +78,8 @@ function isParentOf(parentCandidate, object) {
  *     included in the final output array. If not provided, the array will
  *     contain all objects until there is no more parent.
  *
- * @return {Array.<CanvasObject|World>} An array of canvas objects and in most
- *     cases a World instance as the last object.
+ * @return {Array.<CanvasObject|Scene>} An array of canvas objects and in most
+ *     cases a Scene instance as the last object.
  */
 function getParentChain(object, opt_outerParent) {
   var chain = [];
@@ -100,7 +100,7 @@ function getParentChain(object, opt_outerParent) {
  * @param {CanvasObject} object1 The first canvas object.
  * @param {CanvasObject} object2 The second canvas object.
  *
- * @return {CanvasObject|World?} The object (or World instance) that both objects
+ * @return {CanvasObject|Scene?} The object (or Scene instance) that both objects
  *     share. If nothing that matches is found, null is returned.
  */
 function findSharedParent(object1, object2) {

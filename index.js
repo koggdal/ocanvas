@@ -10,7 +10,7 @@
  * @property {Object} Canvas The Canvas class.
  * @property {Object} Collection The Collection class.
  * @property {Object} EventEmitter The EventEmitter class.
- * @property {Object} World The World class.
+ * @property {Object} Scene The Scene class.
  */
 exports.classes = {
   Camera: require('./classes/Camera'),
@@ -19,7 +19,7 @@ exports.classes = {
   EventEmitter: require('./classes/EventEmitter'),
   Matrix: require('./classes/Matrix'),
   Pool: require('./classes/Pool'),
-  World: require('./classes/World')
+  Scene: require('./classes/Scene')
 };
 
 /**

@@ -2,7 +2,7 @@ var expect = require('expect.js');
 var NodeCanvas = require('canvas');
 var getColor = require('../../utils/getColor');
 
-var World = require('../../../classes/World');
+var Scene = require('../../../classes/Scene');
 var Canvas = require('../../../classes/Canvas');
 var Camera = require('../../../classes/Camera');
 var Rectangle = require('../../../shapes/Rectangle');
@@ -43,12 +43,12 @@ describe('Canvas', function() {
   describe('#renderBoundingRectangleForObject()', function() {
 
     it('should render the bounding rectangle for an object', function() {
-      var world = new World();
+      var scene = new Scene();
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
         camera: new Camera({width: 300, height: 300})
       });
-      world.cameras.add(canvas.camera);
+      scene.cameras.add(canvas.camera);
 
       var object = new Rectangle({
         x: 100, y: 100,
@@ -58,7 +58,7 @@ describe('Canvas', function() {
         fill: '#0f0',
         rotation: 45
       });
-      world.objects.add(object);
+      scene.objects.add(object);
 
       canvas.context.strokeStyle = 'red';
       canvas.context.lineWidth = 2;
@@ -74,12 +74,12 @@ describe('Canvas', function() {
     });
 
     it('should render the bounding rectangle for an object and its children', function() {
-      var world = new World();
+      var scene = new Scene();
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
         camera: new Camera({width: 300, height: 300})
       });
-      world.cameras.add(canvas.camera);
+      scene.cameras.add(canvas.camera);
 
       var object1 = new Rectangle({
         x: 10, y: 10,
@@ -91,7 +91,7 @@ describe('Canvas', function() {
         width: 100, height: 50,
         fill: '#0f0'
       });
-      world.objects.add(object1);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       canvas.context.strokeStyle = 'red';
@@ -110,12 +110,12 @@ describe('Canvas', function() {
     });
 
     it('should render the bounding rectangle for an object, but not its children if not specified', function() {
-      var world = new World();
+      var scene = new Scene();
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
         camera: new Camera({width: 300, height: 300})
       });
-      world.cameras.add(canvas.camera);
+      scene.cameras.add(canvas.camera);
 
       var object1 = new Rectangle({
         x: 10, y: 10,
@@ -127,7 +127,7 @@ describe('Canvas', function() {
         width: 100, height: 50,
         fill: '#0f0'
       });
-      world.objects.add(object1);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       canvas.boundingRectanglesWrapChildren = false;
@@ -147,12 +147,12 @@ describe('Canvas', function() {
     });
 
     it('should not render the bounding rectangle for an object, only its children, if specified', function() {
-      var world = new World();
+      var scene = new Scene();
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
         camera: new Camera({width: 300, height: 300})
       });
-      world.cameras.add(canvas.camera);
+      scene.cameras.add(canvas.camera);
 
       var object1 = new Rectangle({
         x: 10, y: 10,
@@ -164,7 +164,7 @@ describe('Canvas', function() {
         width: 100, height: 50,
         fill: '#0f0'
       });
-      world.objects.add(object1);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       canvas.boundingRectanglesWrapSelf = false;
@@ -188,12 +188,12 @@ describe('Canvas', function() {
   describe('#render()', function() {
 
     it('should first clear the canvas', function(done) {
-      var world = new World();
+      var scene = new Scene();
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
         camera: new Camera()
       });
-      world.cameras.add(canvas.camera);
+      scene.cameras.add(canvas.camera);
       var originalClear = canvas.clear;
       canvas.clear = function() {
         canvas.clear = originalClear;
@@ -220,13 +220,13 @@ describe('Canvas', function() {
     });
 
     it('should draw the background color of the canvas', function() {
-      var world = new World();
+      var scene = new Scene();
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
         camera: new Camera(),
         background: 'red'
       });
-      world.cameras.add(canvas.camera);
+      scene.cameras.add(canvas.camera);
 
       canvas.render();
 
@@ -256,12 +256,12 @@ describe('Canvas', function() {
     });
 
     it('should render the bounding rectangles for all objects if specified', function() {
-      var world = new World();
+      var scene = new Scene();
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
         camera: new Camera({width: 300, height: 300})
       });
-      world.cameras.add(canvas.camera);
+      scene.cameras.add(canvas.camera);
 
       var object = new Rectangle({
         x: 100, y: 100,
@@ -271,7 +271,7 @@ describe('Canvas', function() {
         fill: '#0f0',
         rotation: 45
       });
-      world.objects.add(object);
+      scene.objects.add(object);
 
       canvas.boundingRectanglesEnabled = true;
       canvas.boundingRectanglesColor = '#00f';
@@ -300,14 +300,14 @@ describe('Canvas', function() {
       var camera = new Camera({width: canvas.width, height: canvas.height});
       canvas.camera = camera;
 
-      var world = new World();
-      world.cameras.add(canvas.camera);
+      var scene = new Scene();
+      scene.cameras.add(canvas.camera);
 
       var obj1 = new Rectangle({
         width: 100, height: 100,
         fill: '#f00'
       });
-      world.objects.add(obj1);
+      scene.objects.add(obj1);
       var obj2 = new Rectangle({
         x: 10, y: 15,
         width: 50, height: 50,
@@ -320,7 +320,7 @@ describe('Canvas', function() {
         width: 30, height: 30,
         fill: '#00f'
       });
-      world.objects.add(obj3);
+      scene.objects.add(obj3);
       var obj4 = new Rectangle({
         x: 30, y: 35,
         width: 30, height: 30,

@@ -13,10 +13,10 @@ var isInstanceOf = require('../utils/isInstanceOf');
  * @constructor
  *
  * @example
- * var World = require('ocanvas/classes/World');
+ * var Scene = require('ocanvas/classes/Scene');
  * var Rectangle = require('ocanvas/classes/Rectangle');
  *
- * var world = new World();
+ * var scene = new Scene();
  * var rectangle = new Rectangle({
  *   x: 30,
  *   y: 30,
@@ -24,7 +24,7 @@ var isInstanceOf = require('../utils/isInstanceOf');
  *   height: 50,
  *   fill: 'red'
  * });
- * world.objects.add(rectangle);
+ * scene.objects.add(rectangle);
  */
 function Rectangle(opt_properties) {
   RectangularCanvasObject.call(this);

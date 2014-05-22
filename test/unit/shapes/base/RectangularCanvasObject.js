@@ -5,7 +5,7 @@ var CanvasObject = require('../../../../shapes/base/CanvasObject');
 var RectangularCanvasObject = require('../../../../shapes/base/RectangularCanvasObject');
 var Collection = require('../../../../classes/Collection');
 var Camera = require('../../../../classes/Camera');
-var World = require('../../../../classes/World');
+var Scene = require('../../../../classes/Scene');
 var Canvas = require('../../../../classes/Canvas');
 var jsonHelpers = require('../../../../utils/json');
 
@@ -483,7 +483,7 @@ describe('RectangularCanvasObject', function() {
     });
 
     it('should return an updated array if a parent moves', function() {
-      var world = new World();
+      var scene = new Scene();
 
       var parent = new RectangularCanvasObject({
         width: 100,
@@ -494,10 +494,10 @@ describe('RectangularCanvasObject', function() {
         height: 50
       });
 
-      world.objects.add(parent);
+      scene.objects.add(parent);
       parent.children.add(object);
 
-      var vertices = object.getVertices(world);
+      var vertices = object.getVertices(scene);
 
       expect(vertices[0]).to.eql({x: 0, y: 0});
       expect(vertices[1]).to.eql({x: 100, y: 0});
@@ -505,7 +505,7 @@ describe('RectangularCanvasObject', function() {
       expect(vertices[3]).to.eql({x: 0, y: 50});
 
       parent.x = 100;
-      vertices = object.getVertices(world);
+      vertices = object.getVertices(scene);
 
       expect(vertices[0]).to.eql({x: 100, y: 0});
       expect(vertices[1]).to.eql({x: 200, y: 0});
@@ -568,8 +568,8 @@ describe('RectangularCanvasObject', function() {
       expect(round(vertices[3].y, 3)).to.equal(156.066);
     });
 
-    it('should return the coordinates of all vertices relative to the reference set to the world', function() {
-      var world = new World();
+    it('should return the coordinates of all vertices relative to the reference set to the scene', function() {
+      var scene = new Scene();
       var parent = new RectangularCanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
@@ -581,10 +581,10 @@ describe('RectangularCanvasObject', function() {
         rotation: 45
       });
 
-      world.objects.add(parent);
+      scene.objects.add(parent);
       parent.children.add(object);
 
-      var vertices = object.getVertices(world);
+      var vertices = object.getVertices(scene);
 
       expect(round(vertices[0].x, 3)).to.equal(135.355);
       expect(round(vertices[0].y, 3)).to.equal(156.066);
@@ -597,14 +597,14 @@ describe('RectangularCanvasObject', function() {
     });
 
     it('should return the coordinates of all vertices relative to the reference set to the camera', function() {
-      var world = new World();
+      var scene = new Scene();
 
       var camera = new Camera({
         width: 400, height: 300,
         x: -100, y: 150,
         rotation: 45
       });
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       var parent = new RectangularCanvasObject({
         width: 100, height: 50,
@@ -617,7 +617,7 @@ describe('RectangularCanvasObject', function() {
         rotation: 45
       });
 
-      world.objects.add(parent);
+      scene.objects.add(parent);
       parent.children.add(object);
 
       var vertices = object.getVertices(camera);
@@ -633,14 +633,14 @@ describe('RectangularCanvasObject', function() {
     });
 
     it('should return the coordinates of all vertices relative to the reference set to the canvas', function() {
-      var world = new World();
+      var scene = new Scene();
 
       var camera = new Camera({
         width: 400, height: 300,
         x: 100, y: 150,
         rotation: 45
       });
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       var canvas = new Canvas({
         width: 400, height: 300,
@@ -658,7 +658,7 @@ describe('RectangularCanvasObject', function() {
         rotation: 45
       });
 
-      world.objects.add(parent);
+      scene.objects.add(parent);
       parent.children.add(object);
 
       var vertices = object.getVertices(canvas);
@@ -674,15 +674,15 @@ describe('RectangularCanvasObject', function() {
     });
 
     it('should return a cached array for reference if nothing has changed', function(done) {
-      var world = new World();
+      var scene = new Scene();
       var object = new RectangularCanvasObject({
         width: 100, height: 50,
         x: 100, y: 50
       });
 
-      world.objects.add(object);
+      scene.objects.add(object);
 
-      var vertices = object.getVertices(world);
+      var vertices = object.getVertices(scene);
 
       expect(vertices[0]).to.eql({x: 100, y: 50});
 
@@ -696,7 +696,7 @@ describe('RectangularCanvasObject', function() {
         }
       });
 
-      object.getVertices(world);
+      object.getVertices(scene);
 
       setTimeout(function() {
         if (hasBeenSet) done(new Error('The vertex was updated and did not use the cache'));
@@ -705,15 +705,15 @@ describe('RectangularCanvasObject', function() {
     });
 
     it('should return an updated array if width has changed', function() {
-      var world = new World();
+      var scene = new Scene();
       var object = new RectangularCanvasObject({
         width: 100, height: 50,
         x: 100, y: 50
       });
 
-      world.objects.add(object);
+      scene.objects.add(object);
 
-      var vertices = object.getVertices(world);
+      var vertices = object.getVertices(scene);
 
       expect(vertices[0]).to.eql({x: 100, y: 50});
       expect(vertices[1]).to.eql({x: 200, y: 50});
@@ -721,7 +721,7 @@ describe('RectangularCanvasObject', function() {
       expect(vertices[3]).to.eql({x: 100, y: 100});
 
       object.width = 200;
-      vertices = object.getVertices(world);
+      vertices = object.getVertices(scene);
 
       expect(vertices[0]).to.eql({x: 100, y: 50});
       expect(vertices[1]).to.eql({x: 300, y: 50});
@@ -730,7 +730,7 @@ describe('RectangularCanvasObject', function() {
     });
 
     it('should return an updated array if a different reference is passed', function() {
-      var world = new World();
+      var scene = new Scene();
       var outerParent = new RectangularCanvasObject({
         width: 100, height: 50,
         x: 100, y: 50
@@ -744,7 +744,7 @@ describe('RectangularCanvasObject', function() {
         x: 100, y: 50
       });
 
-      world.objects.add(outerParent);
+      scene.objects.add(outerParent);
       outerParent.children.add(parent);
       parent.children.add(object);
 
@@ -755,7 +755,7 @@ describe('RectangularCanvasObject', function() {
       expect(vertices[2]).to.eql({x: 200, y: 100});
       expect(vertices[3]).to.eql({x: 100, y: 100});
 
-      vertices = object.getVertices(world);
+      vertices = object.getVertices(scene);
 
       expect(vertices[0]).to.eql({x: 300, y: 150});
       expect(vertices[1]).to.eql({x: 400, y: 150});

@@ -170,7 +170,7 @@ RectangularCanvasObject.prototype.renderPath = function(canvas) {
  * the coordinates will be relative to this object, without any transformations
  * applied.
  *
- * @param {Canvas|Camera|World|CanvasObject=} opt_reference The coordinate space
+ * @param {Canvas|Camera|Scene|CanvasObject=} opt_reference The coordinate space
  *     the vertices should be relative to. If a canvas object is provided, it
  *     must exist in the parent chain for this object.
  *

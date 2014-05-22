@@ -3,7 +3,7 @@ var positions = require('../../../pointers/positions');
 var PointerData = require('../../../pointers/PointerData');
 var Canvas = require('../../../classes/Canvas');
 var Camera = require('../../../classes/Camera');
-var World = require('../../../classes/World');
+var Scene = require('../../../classes/Scene');
 var CanvasObject = require('../../../shapes/base/CanvasObject');
 
 describe('pointers/positions', function() {
@@ -71,14 +71,14 @@ describe('pointers/positions', function() {
 
   });
 
-  describe('.getForWorld()', function() {
+  describe('.getForScene()', function() {
 
-    it('should get the pointer position relative to the world', function() {
+    it('should get the pointer position relative to the scene', function() {
       var canvas = createCanvas(600, 300);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
       canvas.camera = camera;
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       // Apply some transformations to the camera to make sure the code really
       // uses all the transformations without shortcuts.
@@ -87,7 +87,7 @@ describe('pointers/positions', function() {
       camera.rotation = 90;
 
       var pointer = new PointerData({x: 100, y: 75});
-      var pos = positions.getForWorld(pointer, canvas);
+      var pos = positions.getForScene(pointer, canvas);
 
       expect(pos).to.be.an('object');
       expect(pos.x).to.equal(1060);
@@ -96,10 +96,10 @@ describe('pointers/positions', function() {
 
     it('should take an optional canvas position for speed optimizations', function() {
       var canvas = createCanvas(600, 300);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
       canvas.camera = camera;
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       // Apply some transformations to the camera to make sure the code really
       // uses all the transformations without shortcuts.
@@ -109,7 +109,7 @@ describe('pointers/positions', function() {
 
       var pointer = new PointerData({x: 100, y: 75});
       var canvasPosition = {x: 100, y: 50};
-      var pos = positions.getForWorld(pointer, canvas, canvasPosition);
+      var pos = positions.getForScene(pointer, canvas, canvasPosition);
 
       expect(pos).to.be.an('object');
       expect(pos.x).to.equal(1100);
@@ -122,10 +122,10 @@ describe('pointers/positions', function() {
 
     it('should get the pointer position relative to the specified target', function() {
       var canvas = createCanvas(600, 300);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
       canvas.camera = camera;
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       // Apply some transformations to the camera to make sure the code really
       // uses all the transformations without shortcuts.
@@ -134,7 +134,7 @@ describe('pointers/positions', function() {
       camera.rotation = 90;
 
       var target = new CanvasObject({x: 200, y: 100});
-      world.objects.add(target);
+      scene.objects.add(target);
 
       var pointer = new PointerData({x: 100, y: 75});
       var pos = positions.getForTarget(pointer, canvas, target);
@@ -144,19 +144,19 @@ describe('pointers/positions', function() {
       expect(pos.y).to.equal(180);
     });
 
-    it('should take an optional world position for speed optimizations', function() {
+    it('should take an optional scene position for speed optimizations', function() {
       var canvas = createCanvas(600, 300);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
       canvas.camera = camera;
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       var target = new CanvasObject({x: 200, y: 100});
-      world.objects.add(target);
+      scene.objects.add(target);
 
       var pointer = new PointerData({x: 100, y: 75});
-      var worldPosition = {x: 100, y: 50};
-      var pos = positions.getForTarget(pointer, canvas, target, worldPosition);
+      var scenePosition = {x: 100, y: 50};
+      var pos = positions.getForTarget(pointer, canvas, target, scenePosition);
 
       expect(pos).to.be.an('object');
       expect(pos.x).to.equal(-100);
@@ -171,10 +171,10 @@ describe('pointers/positions', function() {
 
     before(function() {
       var canvas = createCanvas(600, 300);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
       canvas.camera = camera;
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       // Apply some transformations to the camera to make sure the code really
       // uses all the transformations without shortcuts.
@@ -183,7 +183,7 @@ describe('pointers/positions', function() {
       camera.rotation = 90;
 
       var target = new CanvasObject({x: 200, y: 100});
-      world.objects.add(target);
+      scene.objects.add(target);
 
       var pointer = new PointerData({x: 100, y: 75});
       allPositions = positions.get(pointer, canvas, target);
@@ -192,7 +192,7 @@ describe('pointers/positions', function() {
     it('should get an object with the four reference properties', function() {
       expect(allPositions.element).to.be.an('object');
       expect(allPositions.canvas).to.be.an('object');
-      expect(allPositions.world).to.be.an('object');
+      expect(allPositions.scene).to.be.an('object');
       expect(allPositions.target).to.be.an('object');
     });
 
@@ -208,10 +208,10 @@ describe('pointers/positions', function() {
       expect(allPositions.canvas.y).to.equal(90);
     });
 
-    it('should get the position in the world', function() {
-      expect(allPositions.world).to.be.an('object');
-      expect(allPositions.world.x).to.equal(1060);
-      expect(allPositions.world.y).to.equal(280);
+    it('should get the position in the scene', function() {
+      expect(allPositions.scene).to.be.an('object');
+      expect(allPositions.scene.x).to.equal(1060);
+      expect(allPositions.scene.y).to.equal(280);
     });
 
     it('should get the position in the target', function() {
@@ -222,10 +222,10 @@ describe('pointers/positions', function() {
 
     it('should set the target position to be the canvas position if target is canvas', function() {
       var canvas = createCanvas(600, 300);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
       canvas.camera = camera;
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       // Apply some transformations to the camera to make sure the code really
       // uses all the transformations without shortcuts.
@@ -246,12 +246,12 @@ describe('pointers/positions', function() {
       expect(allPositions.target.y).to.equal(90);
     });
 
-    it('should set the target position to be the world position if target is world', function() {
+    it('should set the target position to be the scene position if target is scene', function() {
       var canvas = createCanvas(600, 300);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
       canvas.camera = camera;
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       // Apply some transformations to the camera to make sure the code really
       // uses all the transformations without shortcuts.
@@ -259,15 +259,15 @@ describe('pointers/positions', function() {
       camera.y = 500;
       camera.rotation = 90;
 
-      var target = world;
+      var target = scene;
 
       var pointer = new PointerData({x: 100, y: 75});
       var allPositions = positions.get(pointer, canvas, target);
 
       expect(allPositions.target).to.be.an('object');
-      expect(allPositions.world).to.be.an('object');
-      expect(allPositions.target.x).to.equal(allPositions.world.x);
-      expect(allPositions.target.y).to.equal(allPositions.world.y);
+      expect(allPositions.scene).to.be.an('object');
+      expect(allPositions.target.x).to.equal(allPositions.scene.x);
+      expect(allPositions.target.y).to.equal(allPositions.scene.y);
       expect(allPositions.target.x).to.equal(1060);
       expect(allPositions.target.y).to.equal(280);
     });

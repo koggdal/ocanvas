@@ -11,30 +11,30 @@ var isInstanceOf = require('../utils/isInstanceOf');
  *
  * @param {PointerData} pointer Pointer object.
  * @param {Canvas} canvas Canvas instance.
- * @param {CanvasObject|World|Canvas} target The target object of the pointer.
+ * @param {CanvasObject|Scene|Canvas} target The target object of the pointer.
  *
  * @return {Object} An object with the coordinate objects (each having `x` and
- *     `y` properties): `element`, `canvas`, `world`, `target`.
+ *     `y` properties): `element`, `canvas`, `scene`, `target`.
  */
 function getPositions(pointer, canvas, target) {
   var elementPosition = getPositionForCanvasElement(pointer, canvas);
   var canvasPosition = getPositionForCanvas(pointer, canvas, elementPosition);
-  var worldPosition = getPositionForWorld(pointer, canvas, canvasPosition);
+  var scenePosition = getPositionForScene(pointer, canvas, canvasPosition);
   var targetPosition;
 
   if (isInstanceOf(target, 'Canvas')) {
     targetPosition = canvasPosition;
-  } else if (isInstanceOf(target, 'World')) {
-    targetPosition = worldPosition;
+  } else if (isInstanceOf(target, 'Scene')) {
+    targetPosition = scenePosition;
   } else {
     targetPosition = getPositionForTarget(pointer, canvas, target,
-        worldPosition);
+        scenePosition);
   }
 
   return {
     element: elementPosition,
     canvas: canvasPosition,
-    world: worldPosition,
+    scene: scenePosition,
     target: targetPosition
   };
 }
@@ -100,7 +100,7 @@ function getPositionForCanvas(pointer, canvas, opt_elementPosition) {
 }
 
 /**
- * Get data about the pointer position in the coordinate space of the world.
+ * Get data about the pointer position in the coordinate space of the scene.
  *
  * @param {PointerData} pointer Pointer object.
  * @param {Canvas} canvas Canvas instance.
@@ -109,25 +109,25 @@ function getPositionForCanvas(pointer, canvas, opt_elementPosition) {
  *
  * @return {Object} An object with `x` and `y` properties.
  */
-function getPositionForWorld(pointer, canvas, opt_canvasPosition) {
+function getPositionForScene(pointer, canvas, opt_canvasPosition) {
   var element = canvas.element;
   var canvasPosition = opt_canvasPosition;
   if (!canvasPosition) {
     canvasPosition = getPositionForCanvas(pointer, canvas);
   }
 
-  // Calculate the position in world coordinate space
+  // Calculate the position in scene coordinate space
   var camera = canvas.camera;
   var positionInCameraX = canvasPosition.x - element.width / 2;
   var positionInCameraY = canvasPosition.y - element.height / 2;
-  var positionInWorld = camera.getPointIn(camera.world, positionInCameraX,
+  var positionInScene = camera.getPointIn(camera.scene, positionInCameraX,
       positionInCameraY);
 
-  return positionInWorld;
+  return positionInScene;
 }
 
 /**
- * Get data about the pointer position in the coordinate space of the world.
+ * Get data about the pointer position in the coordinate space of the scene.
  *
  * @param {PointerData} pointer Pointer object.
  * @param {Canvas} canvas Canvas instance.
@@ -137,17 +137,17 @@ function getPositionForWorld(pointer, canvas, opt_canvasPosition) {
  *
  * @return {Object} An object with `x` and `y` properties.
  */
-function getPositionForTarget(pointer, canvas, target, opt_worldPosition) {
-  var world = canvas.camera.world;
-  var worldPosition = opt_worldPosition;
-  if (!worldPosition) {
-    worldPosition = getPositionForWorld(pointer, canvas);
+function getPositionForTarget(pointer, canvas, target, opt_scenePosition) {
+  var scene = canvas.camera.scene;
+  var scenePosition = opt_scenePosition;
+  if (!scenePosition) {
+    scenePosition = getPositionForScene(pointer, canvas);
   }
-  return target.getPointFrom(world, worldPosition.x, worldPosition.y);
+  return target.getPointFrom(scene, scenePosition.x, scenePosition.y);
 }
 
 exports.get = getPositions;
 exports.getForCanvasElement = getPositionForCanvasElement;
 exports.getForCanvas = getPositionForCanvas;
-exports.getForWorld = getPositionForWorld;
+exports.getForScene = getPositionForScene;
 exports.getForTarget = getPositionForTarget;

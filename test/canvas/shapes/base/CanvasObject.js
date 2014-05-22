@@ -3,7 +3,7 @@ var NodeCanvas = require('canvas');
 var getColor = require('../../../utils/getColor');
 
 var create = require('../../../../create');
-var World = require('../../../../classes/World');
+var Scene = require('../../../../classes/Scene');
 var Canvas = require('../../../../classes/Canvas');
 var Camera = require('../../../../classes/Camera');
 var CanvasObject = require('../../../../shapes/base/CanvasObject');
@@ -46,8 +46,8 @@ describe('CanvasObject', function() {
       var camera = new Camera({width: canvas.width, height: canvas.height});
       canvas.camera = camera;
 
-      var world = new World();
-      world.cameras.add(canvas.camera);
+      var scene = new Scene();
+      scene.cameras.add(canvas.camera);
 
       var mask = new CanvasObject({
         fill: '#0f0',
@@ -68,7 +68,7 @@ describe('CanvasObject', function() {
         getVertices: getVertices,
         clippingMask: mask
       });
-      world.objects.add(object);
+      scene.objects.add(object);
       canvas.render();
 
       var context = canvas.context;
@@ -97,8 +97,8 @@ describe('CanvasObject', function() {
       var camera = new Camera({width: canvas.width, height: canvas.height});
       canvas.camera = camera;
 
-      var world = new World();
-      world.cameras.add(canvas.camera);
+      var scene = new Scene();
+      scene.cameras.add(canvas.camera);
 
       var object = new CanvasObject({
         fill: '#f00',
@@ -115,7 +115,7 @@ describe('CanvasObject', function() {
           context.restore();
         }
       });
-      world.objects.add(object);
+      scene.objects.add(object);
       canvas.render();
 
       var context = canvas.context;
@@ -139,9 +139,9 @@ describe('CanvasObject', function() {
     });
 
     it('should call the renderTree method of all children', function(done) {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera({width: 300, height: 300});
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),
         camera: camera
@@ -250,7 +250,7 @@ describe('CanvasObject', function() {
         fill: 'blue'
       });
 
-      setup.world.objects.add(object1);
+      setup.scene.objects.add(object1);
       object1.children.add(object2);
       object2.children.add(object3);
 

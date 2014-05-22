@@ -1,7 +1,7 @@
 describe('Classes', function() {
   require('./classes/Camera');
   require('./classes/Canvas');
-  require('./classes/World');
+  require('./classes/Scene');
 });
 
 describe('Shapes', function() {

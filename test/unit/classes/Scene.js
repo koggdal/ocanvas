@@ -1,79 +1,79 @@
 var expect = require('expect.js');
-var World = require('../../../classes/World');
+var Scene = require('../../../classes/Scene');
 var ObjectEventEmitter = require('../../../classes/ObjectEventEmitter');
 var Collection = require('../../../classes/Collection');
 var Camera = require('../../../classes/Camera');
 var CanvasObject = require('../../../shapes/base/CanvasObject');
 var jsonHelpers = require('../../../utils/json');
 
-describe('World', function() {
+describe('Scene', function() {
 
   it('should inherit from ObjectEventEmitter', function() {
-    var world = new World();
-    expect(World.prototype instanceof ObjectEventEmitter).to.equal(true);
-    expect(world instanceof ObjectEventEmitter).to.equal(true);
+    var scene = new Scene();
+    expect(Scene.prototype instanceof ObjectEventEmitter).to.equal(true);
+    expect(scene instanceof ObjectEventEmitter).to.equal(true);
   });
 
-  describe('World constructor', function() {
+  describe('Scene constructor', function() {
 
     it('should set any properties passed in', function() {
-      var world = new World({
-        name: 'World'
+      var scene = new Scene({
+        name: 'Scene'
       });
-      expect(world.name).to.equal('World');
+      expect(scene.name).to.equal('Scene');
     });
 
     it('should set up a collection of cameras', function() {
-      var world = new World();
-      expect(world.cameras instanceof Collection).to.equal(true);
+      var scene = new Scene();
+      expect(scene.cameras instanceof Collection).to.equal(true);
     });
 
     it('should not allow setting the `cameras` property to something that is not a collection', function() {
-      var world = new World();
-      expect(world.cameras instanceof Collection).to.equal(true);
-      world.cameras = 'foo';
-      expect(world.cameras instanceof Collection).to.equal(true);
+      var scene = new Scene();
+      expect(scene.cameras instanceof Collection).to.equal(true);
+      scene.cameras = 'foo';
+      expect(scene.cameras instanceof Collection).to.equal(true);
     });
 
-    it('should set up an insert event listener for the `cameras` collection (to set the `world` property)', function() {
-      var world = new World();
+    it('should set up an insert event listener for the `cameras` collection (to set the `scene` property)', function() {
+      var scene = new Scene();
       var dummyCamera = {};
-      world.cameras.add(dummyCamera);
-      expect(dummyCamera.world).to.equal(world);
+      scene.cameras.add(dummyCamera);
+      expect(dummyCamera.scene).to.equal(scene);
     });
 
-    it('should set up a remove event listener for the `cameras` collection (to unset the `world` property)', function() {
-      var world = new World();
+    it('should set up a remove event listener for the `cameras` collection (to unset the `scene` property)', function() {
+      var scene = new Scene();
       var dummyCamera = {};
-      world.cameras.add(dummyCamera);
-      world.cameras.remove(dummyCamera);
-      expect(dummyCamera.world).to.equal(null);
+      scene.cameras.add(dummyCamera);
+      scene.cameras.remove(dummyCamera);
+      expect(dummyCamera.scene).to.equal(null);
     });
 
     it('should set up a collection of objects', function() {
-      var world = new World();
-      expect(world.objects instanceof Collection).to.equal(true);
+      var scene = new Scene();
+      expect(scene.objects instanceof Collection).to.equal(true);
     });
 
     it('should not allow setting the `objects` property to something that is not a collection', function() {
-      var world = new World();
-      expect(world.objects instanceof Collection).to.equal(true);
-      world.objects = 'foo';
-      expect(world.objects instanceof Collection).to.equal(true);
+      var scene = new Scene();
+      expect(scene.objects instanceof Collection).to.equal(true);
+      scene.objects = 'foo';
+      expect(scene.objects instanceof Collection).to.equal(true);
     });
 
     it('should set up an insert event listener for the `objects` collection (to set the `parent` property)', function() {
-      var world = new World();
+      var scene = new Scene();
       var dummyObject = {};
-      world.objects.add(dummyObject);
-      expect(dummyObject.parent).to.equal(world);
+      scene.objects.add(dummyObject);
+      expect(dummyObject.parent).to.equal(scene);
     });
 
     it('should set up a remove event listener for the `objects` collection (to unset the `parent` property)', function() {
-      var world = new World();
+      var scene = new Scene();
       var dummyObject = {};
-      world.objects.add(dummyObject);
-      world.objects.remove(dummyObject);
+      scene.objects.add(dummyObject);
+      scene.objects.remove(dummyObject);
       expect(dummyObject.parent).to.equal(null);
     });
 
@@ -82,8 +82,8 @@ describe('World', function() {
   describe('.objectProperties', function() {
 
     it('should be an array of property names', function() {
-      expect(Array.isArray(World.objectProperties)).to.equal(true);
-      expect(typeof World.objectProperties[0]).to.equal('string');
+      expect(Array.isArray(Scene.objectProperties)).to.equal(true);
+      expect(typeof Scene.objectProperties[0]).to.equal('string');
     });
 
   });
@@ -91,14 +91,14 @@ describe('World', function() {
   describe('.fromObject()', function() {
 
     jsonHelpers.registerClasses({
-      'World': World,
+      'Scene': Scene,
       'Collection': Collection,
       'Camera': Camera,
       'CanvasObject': CanvasObject
     });
 
     var data = {
-      __class__: 'World',
+      __class__: 'Scene',
       cameras: {
         __class__: 'Collection',
         items: [
@@ -119,17 +119,17 @@ describe('World', function() {
       }
     };
 
-    it('should create a World instance from a data object', function() {
-      var world = World.fromObject(data);
+    it('should create a Scene instance from a data object', function() {
+      var scene = Scene.fromObject(data);
 
-      expect(world instanceof World).to.equal(true);
-      expect(world.cameras instanceof Collection).to.equal(true);
-      expect(world.objects instanceof Collection).to.equal(true);
-      expect(world.cameras.get(0) instanceof Camera).to.equal(true);
-      expect(world.objects.get(0) instanceof CanvasObject).to.equal(true);
-      expect(world.cameras.get(0).x).to.equal(35);
-      expect(world.objects.get(0).x).to.equal(73);
-      expect(world.cameras.get(0).world).to.equal(world);
+      expect(scene instanceof Scene).to.equal(true);
+      expect(scene.cameras instanceof Collection).to.equal(true);
+      expect(scene.objects instanceof Collection).to.equal(true);
+      expect(scene.cameras.get(0) instanceof Camera).to.equal(true);
+      expect(scene.objects.get(0) instanceof CanvasObject).to.equal(true);
+      expect(scene.cameras.get(0).x).to.equal(35);
+      expect(scene.objects.get(0).x).to.equal(73);
+      expect(scene.cameras.get(0).scene).to.equal(scene);
     });
 
   });
@@ -137,14 +137,14 @@ describe('World', function() {
   describe('.fromJSON()', function() {
 
     jsonHelpers.registerClasses({
-      'World': World,
+      'Scene': Scene,
       'Collection': Collection,
       'Camera': Camera,
       'CanvasObject': CanvasObject
     });
 
     var data = {
-      __class__: 'World',
+      __class__: 'Scene',
       cameras: {
         __class__: 'Collection',
         items: [
@@ -166,17 +166,17 @@ describe('World', function() {
     };
     var json = JSON.stringify(data);
 
-    it('should create a World instance from a data object', function() {
-      var world = World.fromJSON(json);
+    it('should create a Scene instance from a data object', function() {
+      var scene = Scene.fromJSON(json);
 
-      expect(world instanceof World).to.equal(true);
-      expect(world.cameras instanceof Collection).to.equal(true);
-      expect(world.objects instanceof Collection).to.equal(true);
-      expect(world.cameras.get(0) instanceof Camera).to.equal(true);
-      expect(world.objects.get(0) instanceof CanvasObject).to.equal(true);
-      expect(world.cameras.get(0).x).to.equal(35);
-      expect(world.objects.get(0).x).to.equal(73);
-      expect(world.cameras.get(0).world).to.equal(world);
+      expect(scene instanceof Scene).to.equal(true);
+      expect(scene.cameras instanceof Collection).to.equal(true);
+      expect(scene.objects instanceof Collection).to.equal(true);
+      expect(scene.cameras.get(0) instanceof Camera).to.equal(true);
+      expect(scene.objects.get(0) instanceof CanvasObject).to.equal(true);
+      expect(scene.cameras.get(0).x).to.equal(35);
+      expect(scene.objects.get(0).x).to.equal(73);
+      expect(scene.cameras.get(0).scene).to.equal(scene);
     });
 
   });
@@ -184,22 +184,22 @@ describe('World', function() {
   describe('#toObject()', function() {
 
     it('should create a data object from all specified properties', function() {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
       var canvasObject = new CanvasObject();
 
-      world.cameras.add(camera);
-      world.objects.add(canvasObject);
+      scene.cameras.add(camera);
+      scene.objects.add(canvasObject);
 
-      var data = world.toObject();
+      var data = scene.toObject();
 
-      var props = World.objectProperties;
+      var props = Scene.objectProperties;
       for (var i = 0, l = props.length; i < l; i++) {
         if (data[props[i]] && data[props[i]].__class__) continue;
-        expect(data[props[i]]).to.equal(world[props[i]]);
+        expect(data[props[i]]).to.equal(scene[props[i]]);
       }
 
-      expect(data.__class__).to.equal('World');
+      expect(data.__class__).to.equal('Scene');
 
       expect(typeof data.cameras).to.equal('object');
       expect(typeof data.objects).to.equal('object');
@@ -222,23 +222,23 @@ describe('World', function() {
   describe('#toJSON()', function() {
 
     it('should create a JSON string from all specified properties', function() {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
       var canvasObject = new CanvasObject();
 
-      world.cameras.add(camera);
-      world.objects.add(canvasObject);
+      scene.cameras.add(camera);
+      scene.objects.add(canvasObject);
 
-      var json = world.toJSON();
+      var json = scene.toJSON();
       var data = JSON.parse(json);
 
-      var props = World.objectProperties;
+      var props = Scene.objectProperties;
       for (var i = 0, l = props.length; i < l; i++) {
         if (data[props[i]] && data[props[i]].__class__) continue;
-        expect(data[props[i]]).to.equal(world[props[i]]);
+        expect(data[props[i]]).to.equal(scene[props[i]]);
       }
 
-      expect(data.__class__).to.equal('World');
+      expect(data.__class__).to.equal('Scene');
 
       expect(typeof data.cameras).to.equal('object');
       expect(typeof data.objects).to.equal('object');
@@ -261,12 +261,12 @@ describe('World', function() {
   describe('#setProperties()', function() {
 
     it('should set any properties passed in', function() {
-      var world = new World();
-      expect(world.name).to.equal(undefined);
-      world.setProperties({
-        name: 'World'
+      var scene = new Scene();
+      expect(scene.name).to.equal(undefined);
+      scene.setProperties({
+        name: 'Scene'
       });
-      expect(world.name).to.equal('World');
+      expect(scene.name).to.equal('Scene');
     });
 
   });

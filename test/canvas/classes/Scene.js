@@ -1,27 +1,27 @@
 var expect = require('expect.js');
 var NodeCanvas = require('canvas');
 
-var World = require('../../../classes/World');
+var Scene = require('../../../classes/Scene');
 var Canvas = require('../../../classes/Canvas');
 var Camera = require('../../../classes/Camera');
 var CanvasObject = require('../../../shapes/base/CanvasObject');
 
 global.HTMLCanvasElement = NodeCanvas;
 
-describe('World', function() {
+describe('Scene', function() {
 
   var canvas = new Canvas({
     element: new NodeCanvas(300, 300),
     camera: new Camera({width: 300, height: 300})
   });
-  var world = new World();
-  world.cameras.add(canvas.camera);
+  var scene = new Scene();
+  scene.cameras.add(canvas.camera);
 
   describe('#render()', function() {
 
-    it('should render all objects added to the world', function(done) {
+    it('should render all objects added to the scene', function(done) {
       var object = new CanvasObject();
-      world.objects.add(object);
+      scene.objects.add(object);
 
       var originalRender = object.render;
       object.render = function() {
@@ -33,14 +33,14 @@ describe('World', function() {
         return [{x: this.x, y: this.y}];
       };
 
-      world.render(canvas);
+      scene.render(canvas);
 
-      world.objects.remove(object);
+      scene.objects.remove(object);
     });
 
     it('should not render objects that are not in view', function(done) {
       var object = new CanvasObject();
-      world.objects.add(object);
+      scene.objects.add(object);
 
       var hasBeenCalled = false;
       object.render = function() {
@@ -50,19 +50,19 @@ describe('World', function() {
         return [{x: 5000, y: this.y}];
       };
 
-      world.render(canvas);
+      scene.render(canvas);
 
       setTimeout(function() {
         if (hasBeenCalled) done(new Error('The object was rendered even if it was not in view'));
         else done();
       }, 10);
 
-      world.objects.remove(object);
+      scene.objects.remove(object);
     });
 
     it('should render objects that are not in view if the setting says so', function(done) {
       var object = new CanvasObject();
-      world.objects.add(object);
+      scene.objects.add(object);
 
       canvas.boundingRectangleCulling = false;
 
@@ -74,7 +74,7 @@ describe('World', function() {
         return [{x: 5000, y: this.y}];
       };
 
-      world.render(canvas);
+      scene.render(canvas);
 
       setTimeout(function() {
         if (hasBeenCalled) done();
@@ -82,7 +82,7 @@ describe('World', function() {
       }, 10);
 
       canvas.boundingRectangleCulling = true;
-      world.objects.remove(object);
+      scene.objects.remove(object);
     });
 
     it('should render recursively only the number of times specified', function(done) {
@@ -91,7 +91,7 @@ describe('World', function() {
           return [{x: this.x, y: this.y}];
         }
       });
-      world.objects.add(object);
+      scene.objects.add(object);
 
       var originalRender = object.render;
       var numCalls = 0;
@@ -112,16 +112,16 @@ describe('World', function() {
             object.fill = originalFill;
             done();
           } else if (numCalls > canvas.maxRenderDepth) {
-            done(new Error('The world is rendered too many times recursively.'));
+            done(new Error('The scene is rendered too many times recursively.'));
           }
         }, 30);
 
-        world.render(canvas);
+        scene.render(canvas);
       };
 
-      world.render(canvas);
+      scene.render(canvas);
 
-      world.objects.remove(object);
+      scene.objects.remove(object);
     });
 
   });

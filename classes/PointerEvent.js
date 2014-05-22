@@ -13,7 +13,7 @@ var ObjectEvent = require('./ObjectEvent');
  *     currently active on the target object.
  * @property {Object} position Object for pointer coordinates. This object has
  *     coordinate objects for different coordinate spaces: `canvasElement` (CSS
- *     pixels), `canvas` (canvas pixels), `world` (relative to the world, no
+ *     pixels), `canvas` (canvas pixels), `scene` (relative to the scene, no
  *     matter the camera rotation) and `target` (relative to the target object,
  *     no matter the transformations of all objects).
  * @property {Object} buttons Object containing flags for whether different
@@ -44,7 +44,7 @@ function PointerEvent(opt_properties) {
   this.position = properties.position || {
     element: {x: 0, y: 0},
     canvas: {x: 0, y: 0},
-    world: {x: 0, y: 0},
+    scene: {x: 0, y: 0},
     target: {x: 0, y: 0}
   };
 

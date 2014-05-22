@@ -4,11 +4,11 @@
 
 var Camera = require('./classes/Camera');
 var Canvas = require('./classes/Canvas');
-var World = require('./classes/World');
+var Scene = require('./classes/Scene');
 
 /**
  * Create the instances needed for a basic scene.
- * This includes a Camera, Canvas and World, as well
+ * This includes a Camera, Canvas and Scene, as well
  * as setting sizes to fit the camera in the canvas.
  *
  * @param {Object=} opt_options Options:
@@ -22,12 +22,12 @@ var World = require('./classes/World');
  *         if not provided.</li>
  *       <li><b>canvas:</b> The Canvas instance to use. A new will be created
  *         if not provided.</li>
- *       <li><b>world:</b> The World instance to use. A new will be created
+ *       <li><b>scene:</b> The Scene instance to use. A new will be created
  *         if not provided.</li>
  *     </ul>
  *
  * @return {Object} An object with three properties:
- *     `camera`, `canvas` and `world`.
+ *     `camera`, `canvas` and `scene`.
  *
  * @example
  * var create = require('ocanvas/create');
@@ -39,7 +39,7 @@ var World = require('./classes/World');
  *
  * var camera = setup.camera;
  * var canvas = setup.canvas;
- * var world = setup.world;
+ * var scene = setup.scene;
  *
  * @example
  * var create = require('ocanvas/create');
@@ -47,7 +47,7 @@ var World = require('./classes/World');
  * var setup = create();
  * var camera = setup.camera;
  * var canvas = setup.canvas;
- * var world = setup.world;
+ * var scene = setup.scene;
  *
  * var element = canvas.element;
  * document.body.appendChild(element);
@@ -75,12 +75,12 @@ module.exports = function(opt_options) {
   }
   canvas.camera = camera;
 
-  var world = options.world || new World();
-  world.cameras.add(camera);
+  var scene = options.scene || new Scene();
+  scene.cameras.add(camera);
 
   return {
     camera: camera,
     canvas: canvas,
-    world: world
+    scene: scene
   };
 };

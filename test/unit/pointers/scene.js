@@ -3,7 +3,7 @@ var sceneUtils = require('../../../pointers/scene');
 
 var Camera = require('../../../classes/Camera');
 var Canvas = require('../../../classes/Canvas');
-var World = require('../../../classes/World');
+var Scene = require('../../../classes/Scene');
 var CanvasObject = require('../../../shapes/base/CanvasObject');
 var Collection = require('../../../classes/Collection');
 
@@ -14,19 +14,19 @@ describe('pointers/scene', function() {
     it('should handle when there is only one object with no children', function() {
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
-      var world = new World();
-      world.cameras.add(camera);
+      var scene = new Scene();
+      scene.cameras.add(camera);
 
       var object1 = new CanvasObject({
         width: 100, height: 100,
         x: 50, y: 50
       });
 
-      world.objects.add(object1);
+      scene.objects.add(object1);
 
       addBoundingRectangle(object1, canvas);
 
-      var frontObject = sceneUtils.findFrontObject(canvas, 100, 100, world.objects);
+      var frontObject = sceneUtils.findFrontObject(canvas, 100, 100, scene.objects);
 
       expect(frontObject).to.equal(object1);
     });
@@ -34,8 +34,8 @@ describe('pointers/scene', function() {
     it('should handle when there is one object with a child', function() {
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
-      var world = new World();
-      world.cameras.add(camera);
+      var scene = new Scene();
+      scene.cameras.add(camera);
 
       var object1 = new CanvasObject({
         width: 100, height: 100,
@@ -46,13 +46,13 @@ describe('pointers/scene', function() {
         x: 50, y: 50
       });
 
-      world.objects.add(object1);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       addBoundingRectangle(object1, canvas);
       addBoundingRectangle(object2, canvas);
 
-      var frontObject = sceneUtils.findFrontObject(canvas, 125, 125, world.objects);
+      var frontObject = sceneUtils.findFrontObject(canvas, 125, 125, scene.objects);
 
       expect(frontObject).to.equal(object2);
     });
@@ -60,8 +60,8 @@ describe('pointers/scene', function() {
     it('should handle when there is one object with a child, and the front object is the outer object', function() {
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
-      var world = new World();
-      world.cameras.add(camera);
+      var scene = new Scene();
+      scene.cameras.add(camera);
 
       var object1 = new CanvasObject({
         width: 100, height: 100,
@@ -72,13 +72,13 @@ describe('pointers/scene', function() {
         x: 50, y: 50
       });
 
-      world.objects.add(object1);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       addBoundingRectangle(object1, canvas);
       addBoundingRectangle(object2, canvas);
 
-      var frontObject = sceneUtils.findFrontObject(canvas, 90, 90, world.objects);
+      var frontObject = sceneUtils.findFrontObject(canvas, 90, 90, scene.objects);
 
       expect(frontObject).to.equal(object1);
     });
@@ -86,8 +86,8 @@ describe('pointers/scene', function() {
     it('should handle when there are many objects', function() {
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
-      var world = new World();
-      world.cameras.add(camera);
+      var scene = new Scene();
+      scene.cameras.add(camera);
 
       var object1 = new CanvasObject({
         width: 100, height: 100,
@@ -98,13 +98,13 @@ describe('pointers/scene', function() {
         x: 70, y: 70
       });
 
-      world.objects.add(object1);
-      world.objects.add(object2);
+      scene.objects.add(object1);
+      scene.objects.add(object2);
 
       addBoundingRectangle(object1, canvas);
       addBoundingRectangle(object2, canvas);
 
-      var frontObject = sceneUtils.findFrontObject(canvas, 110, 110, world.objects);
+      var frontObject = sceneUtils.findFrontObject(canvas, 110, 110, scene.objects);
 
       expect(frontObject).to.equal(object2);
     });
@@ -112,19 +112,19 @@ describe('pointers/scene', function() {
     it('should return null if there is no front object for the specified position', function() {
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
-      var world = new World();
-      world.cameras.add(camera);
+      var scene = new Scene();
+      scene.cameras.add(camera);
 
       var object1 = new CanvasObject({
         width: 100, height: 100,
         x: 50, y: 50
       });
 
-      world.objects.add(object1);
+      scene.objects.add(object1);
 
       addBoundingRectangle(object1, canvas);
 
-      var frontObject = sceneUtils.findFrontObject(canvas, 40, 40, world.objects);
+      var frontObject = sceneUtils.findFrontObject(canvas, 40, 40, scene.objects);
 
       expect(frontObject).to.equal(null);
     });
@@ -136,15 +136,15 @@ describe('pointers/scene', function() {
     it('should handle when there is only one object with no children', function() {
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
-      var world = new World();
-      world.cameras.add(camera);
+      var scene = new Scene();
+      scene.cameras.add(camera);
 
       var object1 = new CanvasObject({
         width: 100, height: 100,
         x: 50, y: 50
       });
 
-      world.objects.add(object1);
+      scene.objects.add(object1);
 
       addBoundingRectangle(object1, canvas);
 
@@ -156,8 +156,8 @@ describe('pointers/scene', function() {
     it('should handle when there is one object with a child', function() {
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
-      var world = new World();
-      world.cameras.add(camera);
+      var scene = new Scene();
+      scene.cameras.add(camera);
 
       var object1 = new CanvasObject({
         width: 100, height: 100,
@@ -168,7 +168,7 @@ describe('pointers/scene', function() {
         x: 50, y: 50
       });
 
-      world.objects.add(object1);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       addBoundingRectangle(object1, canvas);
@@ -182,8 +182,8 @@ describe('pointers/scene', function() {
     it('should handle when there is one object with a child, and the front object is the outer object', function() {
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
-      var world = new World();
-      world.cameras.add(camera);
+      var scene = new Scene();
+      scene.cameras.add(camera);
 
       var object1 = new CanvasObject({
         width: 100, height: 100,
@@ -194,7 +194,7 @@ describe('pointers/scene', function() {
         x: 50, y: 50
       });
 
-      world.objects.add(object1);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       addBoundingRectangle(object1, canvas);
@@ -208,8 +208,8 @@ describe('pointers/scene', function() {
     it('should handle when there are many objects', function() {
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
-      var world = new World();
-      world.cameras.add(camera);
+      var scene = new Scene();
+      scene.cameras.add(camera);
 
       var object1 = new CanvasObject({
         width: 100, height: 100,
@@ -220,8 +220,8 @@ describe('pointers/scene', function() {
         x: 70, y: 70
       });
 
-      world.objects.add(object1);
-      world.objects.add(object2);
+      scene.objects.add(object1);
+      scene.objects.add(object2);
 
       addBoundingRectangle(object1, canvas);
       addBoundingRectangle(object2, canvas);
@@ -234,15 +234,15 @@ describe('pointers/scene', function() {
     it('should return null if there is no front object for the specified position', function() {
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
-      var world = new World();
-      world.cameras.add(camera);
+      var scene = new Scene();
+      scene.cameras.add(camera);
 
       var object1 = new CanvasObject({
         width: 100, height: 100,
         x: 50, y: 50
       });
 
-      world.objects.add(object1);
+      scene.objects.add(object1);
 
       addBoundingRectangle(object1, canvas);
 
@@ -290,7 +290,7 @@ describe('pointers/scene', function() {
 
   describe('.getParentChain()', function() {
 
-    it('should return an array of all objects up to the world, if no second object is passed', function() {
+    it('should return an array of all objects up to the scene, if no second object is passed', function() {
       var object1 = new CanvasObject();
       var object2 = new CanvasObject();
       var object3 = new CanvasObject();
@@ -381,7 +381,7 @@ function addBoundingRectangle(object, reference, positions) {
     var left = this.x;
     var parent = object.parent;
     while (parent) {
-      if (parent === reference || parent instanceof World) {
+      if (parent === reference || parent instanceof Scene) {
         break;
       }
       top += parent.y;

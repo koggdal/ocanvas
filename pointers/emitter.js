@@ -6,7 +6,7 @@
 
 var PointerEvent = require('../classes/PointerEvent');
 var state = require('./state');
-var scene = require('./scene');
+var sceneUtils = require('./scene');
 var positions = require('./positions');
 
 /**
@@ -16,7 +16,7 @@ var positions = require('./positions');
  * @param {string} type The public event type.
  * @param {PointerData} pointer Pointer object.
  * @param {Canvas} canvas Canvas instance.
- * @param {CanvasObject|World|Canvas} target The target object.
+ * @param {CanvasObject|Scene|Canvas} target The target object.
  */
 function emitEvent(type, pointer, canvas, target) {
   var event = new PointerEvent({
@@ -56,13 +56,13 @@ function emitEventForChain(type, pointer, canvas, chain) {
  * @param {string} type The public event type.
  * @param {PointerData} pointer Pointer object.
  * @param {Canvas} canvas Canvas instance.
- * @param {CanvasObject|World|Canvas} target The target object.
- * @param {CanvasObject|World|Canvas} outerObject The outer object to stop at.
+ * @param {CanvasObject|Scene|Canvas} target The target object.
+ * @param {CanvasObject|Scene|Canvas} outerObject The outer object to stop at.
  *     This object will not be included in the chain of objects to emit the
  *     event for.
  */
 function emitEventBetweenObjects(type, pointer, canvas, target, outerObject) {
-  var chain = scene.getParentChain(target, outerObject);
+  var chain = sceneUtils.getParentChain(target, outerObject);
   emitEventForChain(type, pointer, canvas, chain);
 }
 
@@ -72,24 +72,24 @@ function emitEventBetweenObjects(type, pointer, canvas, target, outerObject) {
  * @param {string} type The public event type.
  * @param {PointerData} pointer Pointer object.
  * @param {Canvas} canvas Canvas instance.
- * @param {CanvasObject|World|Canvas} target The target object. Included in the
+ * @param {CanvasObject|Scene|Canvas} target The target object. Included in the
  *     chain of objects to emit the event for.
  */
 function emitEventFromObject(type, pointer, canvas, target) {
-  var chain = scene.getParentChain(target);
+  var chain = sceneUtils.getParentChain(target);
   chain.push(canvas);
   emitEventForChain(type, pointer, canvas, chain);
 }
 
 /**
- * Emit an event on the canvas and the world associated with it.
+ * Emit an event on the canvas and the scene associated with it.
  *
  * @param {string} type The public event type.
  * @param {PointerData} pointer Pointer object.
  * @param {Canvas} canvas Canvas instance.
  */
 function emitEventForCanvas(type, pointer, canvas) {
-  emitEventForChain(type, pointer, canvas, [canvas.camera.world, canvas]);
+  emitEventForChain(type, pointer, canvas, [canvas.camera.scene, canvas]);
 }
 
 /**
@@ -98,7 +98,7 @@ function emitEventForCanvas(type, pointer, canvas) {
  * @param {string} type The public event type.
  * @param {PointerData} pointer Pointer object.
  * @param {Canvas} canvas Canvas instance.
- * @param {CanvasObject|World|Canvas} target The target object.
+ * @param {CanvasObject|Scene|Canvas} target The target object.
  */
 function emitEventForTarget(type, pointer, canvas, target) {
   type = getPointerEventType(type);

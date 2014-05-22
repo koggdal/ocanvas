@@ -3,7 +3,7 @@ var state = require('../../../pointers/state');
 var PointerData = require('../../../pointers/PointerData');
 var CanvasObject = require('../../../shapes/base/CanvasObject');
 var Canvas = require('../../../classes/Canvas');
-var World = require('../../../classes/World');
+var Scene = require('../../../classes/Scene');
 
 describe('pointers/state', function() {
 
@@ -130,15 +130,15 @@ describe('pointers/state', function() {
       expect(state.getPointerCountForObject(canvas)).to.equal(2);
     });
 
-    it('should return the number of pointers that have the passed object as front object, if object is a world', function() {
+    it('should return the number of pointers that have the passed object as front object, if object is a scene', function() {
       var pointer1 = new PointerData({id: (++id).toString(36)});
       var pointer2 = new PointerData({id: (++id).toString(36)});
-      var world = new World();
+      var scene = new Scene();
 
-      state.setFrontObject(pointer1, world);
-      state.setFrontObject(pointer2, world);
+      state.setFrontObject(pointer1, scene);
+      state.setFrontObject(pointer2, scene);
 
-      expect(state.getPointerCountForObject(world)).to.equal(2);
+      expect(state.getPointerCountForObject(scene)).to.equal(2);
     });
 
     it('should return the number of pointers that have a child of the passed object as front object', function() {

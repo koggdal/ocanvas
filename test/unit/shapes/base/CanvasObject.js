@@ -5,7 +5,7 @@ var ObjectEventEmitter = require('../../../../classes/ObjectEventEmitter');
 var Camera = require('../../../../classes/Camera');
 var Collection = require('../../../../classes/Collection');
 var Cache = require('../../../../classes/Cache');
-var World = require('../../../../classes/World');
+var Scene = require('../../../../classes/Scene');
 var Matrix = require('../../../../classes/Matrix');
 var jsonHelpers = require('../../../../utils/json');
 var round = require('../../../utils/round');
@@ -491,19 +491,19 @@ describe('CanvasObject', function() {
   describe('#isInView()', function() {
 
     it('should return true if the object is in view', function() {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera({
         width: 300, height: 300,
         x: 150, y: 150
       });
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
       var object = new CanvasObject({
         width: 100, height: 100,
         x: 50, y: 50
       });
-      world.objects.add(object);
+      scene.objects.add(object);
       object.getBoundingRectangle = function(opt_reference) {
-        expect(opt_reference).to.equal(world);
+        expect(opt_reference).to.equal(scene);
         return {
           top: this.y,
           right: this.x + this.width,
@@ -517,19 +517,19 @@ describe('CanvasObject', function() {
     });
 
     it('should return false if the object is not in view', function() {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera({
         width: 300, height: 300,
         x: 150, y: 150
       });
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
       var object = new CanvasObject({
         width: 100, height: 100,
         x: 500, y: 50
       });
-      world.objects.add(object);
+      scene.objects.add(object);
       object.getBoundingRectangle = function(opt_reference) {
-        expect(opt_reference).to.equal(world);
+        expect(opt_reference).to.equal(scene);
         return {
           top: this.y,
           right: this.x + this.width,
@@ -542,7 +542,7 @@ describe('CanvasObject', function() {
       expect(object.isInView(camera)).to.equal(false);
     });
 
-    it('should return false if the camera is not connected to a world', function() {
+    it('should return false if the camera is not connected to a scene', function() {
       var camera = new Camera({
         width: 300, height: 300,
         x: 150, y: 150
@@ -555,20 +555,20 @@ describe('CanvasObject', function() {
     });
 
     it('should take camera zoom into account', function() {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera({
         width: 300, height: 300,
         x: 150, y: 150,
         zoom: 2
       });
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
       var object = new CanvasObject({
         width: 10, height: 10,
         x: 0, y: 0
       });
-      world.objects.add(object);
+      scene.objects.add(object);
       object.getBoundingRectangle = function(opt_reference) {
-        expect(opt_reference).to.equal(world);
+        expect(opt_reference).to.equal(scene);
         return {
           top: this.y,
           right: this.x + this.width,
@@ -586,17 +586,17 @@ describe('CanvasObject', function() {
   describe('#isTreeInView()', function() {
 
     it('should return true if a child is in view', function() {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera({
         width: 300, height: 300,
         x: 150, y: 150
       });
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
       var object1 = new CanvasObject({
         width: 100, height: 100,
         x: 500, y: 50
       });
-      world.objects.add(object1);
+      scene.objects.add(object1);
       var object2 = new CanvasObject({
         width: 100, height: 100,
         x: -500, y: 50
@@ -625,18 +625,18 @@ describe('CanvasObject', function() {
     });
 
     it('should return false if the object and all children are not in view', function() {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera({
         width: 300, height: 300,
         x: 150, y: 150
       });
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
       var canvas = new Canvas({camera: camera});
       var object1 = new CanvasObject({
         width: 100, height: 100,
         x: 500, y: 50
       });
-      world.objects.add(object1);
+      scene.objects.add(object1);
       var object2 = new CanvasObject({
         width: 100, height: 100,
         x: 0, y: 50
@@ -665,18 +665,18 @@ describe('CanvasObject', function() {
     });
 
     it('should take camera zoom into account', function() {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera({
         width: 300, height: 300,
         x: 150, y: 150,
         zoom: 2
       });
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
       var object1 = new CanvasObject({
         width: 100, height: 100,
         x: 500, y: 50
       });
-      world.objects.add(object1);
+      scene.objects.add(object1);
       var object2 = new CanvasObject({
         width: 100, height: 100,
         x: -290, y: 50
@@ -801,8 +801,8 @@ describe('CanvasObject', function() {
       expect(object.isPointInside(120, 120, outerParent)).to.equal(true);
     });
 
-    it('should return true if the point is inside the object, with reference set to the world', function() {
-      var world = new World();
+    it('should return true if the point is inside the object, with reference set to the scene', function() {
+      var scene = new Scene();
       var parent = new CanvasObject({
         width: 100, height: 100,
         x: 50, y: 50
@@ -811,23 +811,23 @@ describe('CanvasObject', function() {
         width: 100, height: 100,
         x: 50, y: 50
       });
-      world.objects.add(parent);
+      scene.objects.add(parent);
       parent.children.add(object);
 
       object.getBoundingRectangle = function(opt_reference) {
-        expect(opt_reference).to.equal(world);
-        var xInWorld = this.x + this.parent.x;
-        var yInWorld = this.y + this.parent.y;
+        expect(opt_reference).to.equal(scene);
+        var xInScene = this.x + this.parent.x;
+        var yInScene = this.y + this.parent.y;
         return {
-          top: yInWorld,
-          right: xInWorld + this.width,
-          bottom: yInWorld + this.height,
-          left: xInWorld,
+          top: yInScene,
+          right: xInScene + this.width,
+          bottom: yInScene + this.height,
+          left: xInScene,
           width: this.width,
           height: this.height
         };
       };
-      expect(object.isPointInside(120, 120, world)).to.equal(true);
+      expect(object.isPointInside(120, 120, scene)).to.equal(true);
     });
 
     it('should return true if the point is inside the object, with reference set to the camera', function() {
@@ -835,7 +835,7 @@ describe('CanvasObject', function() {
         width: 300, height: 300,
         x: 150, y: 150
       });
-      var world = new World();
+      var scene = new Scene();
       var parent = new CanvasObject({
         width: 100, height: 100,
         x: 50, y: 50
@@ -845,21 +845,21 @@ describe('CanvasObject', function() {
         x: 50, y: 50
       });
 
-      world.cameras.add(camera);
-      world.objects.add(parent);
+      scene.cameras.add(camera);
+      scene.objects.add(parent);
       parent.children.add(object);
 
       object.getBoundingRectangle = function(opt_reference) {
         expect(opt_reference).to.equal(camera);
-        var xInWorld = this.x + this.parent.x;
-        var yInWorld = this.y + this.parent.y;
+        var xInScene = this.x + this.parent.x;
+        var yInScene = this.y + this.parent.y;
         var cameraOffsetX = camera.x;
         var cameraOffsetY = camera.y;
         return {
-          top: yInWorld - cameraOffsetY,
-          right: xInWorld - cameraOffsetX + this.width,
-          bottom: yInWorld - cameraOffsetY + this.height,
-          left: xInWorld - cameraOffsetX,
+          top: yInScene - cameraOffsetY,
+          right: xInScene - cameraOffsetX + this.width,
+          bottom: yInScene - cameraOffsetY + this.height,
+          left: xInScene - cameraOffsetX,
           width: this.width,
           height: this.height
         };
@@ -876,7 +876,7 @@ describe('CanvasObject', function() {
         width: 300, height: 300,
         camera: camera
       });
-      var world = new World();
+      var scene = new Scene();
       var parent = new CanvasObject({
         width: 100, height: 100,
         x: 50, y: 50
@@ -886,21 +886,21 @@ describe('CanvasObject', function() {
         x: 50, y: 50
       });
 
-      world.cameras.add(camera);
-      world.objects.add(parent);
+      scene.cameras.add(camera);
+      scene.objects.add(parent);
       parent.children.add(object);
 
       object.getBoundingRectangle = function(opt_reference) {
         expect(opt_reference).to.equal(canvas);
-        var xInWorld = this.x + this.parent.x;
-        var yInWorld = this.y + this.parent.y;
+        var xInScene = this.x + this.parent.x;
+        var yInScene = this.y + this.parent.y;
         var cameraOffsetX = camera.x - camera.width / 2;
         var cameraOffsetY = camera.y - camera.height / 2;
         return {
-          top: yInWorld - cameraOffsetY,
-          right: xInWorld - cameraOffsetX + this.width,
-          bottom: yInWorld - cameraOffsetY + this.height,
-          left: xInWorld - cameraOffsetX,
+          top: yInScene - cameraOffsetY,
+          right: xInScene - cameraOffsetX + this.width,
+          bottom: yInScene - cameraOffsetY + this.height,
+          left: xInScene - cameraOffsetX,
           width: this.width,
           height: this.height
         };
@@ -1061,8 +1061,8 @@ describe('CanvasObject', function() {
       expect(object.isPointInsideTree(120, 120, outerParent)).to.equal(true);
     });
 
-    it('should return true if the point is inside the object, with reference set to the world', function() {
-      var world = new World();
+    it('should return true if the point is inside the object, with reference set to the scene', function() {
+      var scene = new Scene();
       var parent = new CanvasObject({
         width: 100, height: 100,
         x: 50, y: 50
@@ -1071,23 +1071,23 @@ describe('CanvasObject', function() {
         width: 100, height: 100,
         x: 50, y: 50
       });
-      world.objects.add(parent);
+      scene.objects.add(parent);
       parent.children.add(object);
 
       object.getBoundingRectangleForTree = function(opt_reference) {
-        expect(opt_reference).to.equal(world);
-        var xInWorld = this.x + this.parent.x;
-        var yInWorld = this.y + this.parent.y;
+        expect(opt_reference).to.equal(scene);
+        var xInScene = this.x + this.parent.x;
+        var yInScene = this.y + this.parent.y;
         return {
-          top: yInWorld,
-          right: xInWorld + this.width,
-          bottom: yInWorld + this.height,
-          left: xInWorld,
+          top: yInScene,
+          right: xInScene + this.width,
+          bottom: yInScene + this.height,
+          left: xInScene,
           width: this.width,
           height: this.height
         };
       };
-      expect(object.isPointInsideTree(120, 120, world)).to.equal(true);
+      expect(object.isPointInsideTree(120, 120, scene)).to.equal(true);
     });
 
     it('should return true if the point is inside the object, with reference set to the camera', function() {
@@ -1095,7 +1095,7 @@ describe('CanvasObject', function() {
         width: 300, height: 300,
         x: 150, y: 150
       });
-      var world = new World();
+      var scene = new Scene();
       var parent = new CanvasObject({
         width: 100, height: 100,
         x: 50, y: 50
@@ -1105,21 +1105,21 @@ describe('CanvasObject', function() {
         x: 50, y: 50
       });
 
-      world.cameras.add(camera);
-      world.objects.add(parent);
+      scene.cameras.add(camera);
+      scene.objects.add(parent);
       parent.children.add(object);
 
       object.getBoundingRectangleForTree = function(opt_reference) {
         expect(opt_reference).to.equal(camera);
-        var xInWorld = this.x + this.parent.x;
-        var yInWorld = this.y + this.parent.y;
+        var xInScene = this.x + this.parent.x;
+        var yInScene = this.y + this.parent.y;
         var cameraOffsetX = camera.x;
         var cameraOffsetY = camera.y;
         return {
-          top: yInWorld - cameraOffsetY,
-          right: xInWorld - cameraOffsetX + this.width,
-          bottom: yInWorld - cameraOffsetY + this.height,
-          left: xInWorld - cameraOffsetX,
+          top: yInScene - cameraOffsetY,
+          right: xInScene - cameraOffsetX + this.width,
+          bottom: yInScene - cameraOffsetY + this.height,
+          left: xInScene - cameraOffsetX,
           width: this.width,
           height: this.height
         };
@@ -1136,7 +1136,7 @@ describe('CanvasObject', function() {
         width: 300, height: 300,
         camera: camera
       });
-      var world = new World();
+      var scene = new Scene();
       var parent = new CanvasObject({
         width: 100, height: 100,
         x: 50, y: 50
@@ -1146,21 +1146,21 @@ describe('CanvasObject', function() {
         x: 50, y: 50
       });
 
-      world.cameras.add(camera);
-      world.objects.add(parent);
+      scene.cameras.add(camera);
+      scene.objects.add(parent);
       parent.children.add(object);
 
       object.getBoundingRectangleForTree = function(opt_reference) {
         expect(opt_reference).to.equal(canvas);
-        var xInWorld = this.x + this.parent.x;
-        var yInWorld = this.y + this.parent.y;
+        var xInScene = this.x + this.parent.x;
+        var yInScene = this.y + this.parent.y;
         var cameraOffsetX = camera.x - camera.width / 2;
         var cameraOffsetY = camera.y - camera.height / 2;
         return {
-          top: yInWorld - cameraOffsetY,
-          right: xInWorld - cameraOffsetX + this.width,
-          bottom: yInWorld - cameraOffsetY + this.height,
-          left: xInWorld - cameraOffsetX,
+          top: yInScene - cameraOffsetY,
+          right: xInScene - cameraOffsetX + this.width,
+          bottom: yInScene - cameraOffsetY + this.height,
+          left: xInScene - cameraOffsetX,
           width: this.width,
           height: this.height
         };
@@ -1384,23 +1384,23 @@ describe('CanvasObject', function() {
       expect(round(point.y, 3)).to.equal(220.711);
     });
 
-    it('should return a point relative to the world', function() {
-      var world = new World();
+    it('should return a point relative to the scene', function() {
+      var scene = new Scene();
       var outerParent = new CanvasObject({rotation: -45, x: 200});
       var parent = new CanvasObject({rotation: 45, y: 100});
       var object = new CanvasObject({rotation: 45, y: 100});
       outerParent.children.add(parent);
       parent.children.add(object);
 
-      var point = object.getPointIn(world, 50, 50);
+      var point = object.getPointIn(scene, 50, 50);
       expect(round(point.x, 3)).to.equal(270.711);
       expect(round(point.y, 3)).to.equal(241.421);
     });
 
     it('should return a point relative to the camera', function() {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera({rotation: -45, x: 100, y: 100});
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       var outerParent = new CanvasObject({rotation: -45, x: 200});
       var parent = new CanvasObject({rotation: 45, y: 100});
@@ -1420,8 +1420,8 @@ describe('CanvasObject', function() {
         rotation: -45, x: 100, y: 100
       });
       canvas.camera = camera;
-      var world = new World();
-      world.cameras.add(camera);
+      var scene = new Scene();
+      scene.cameras.add(camera);
 
       var outerParent = new CanvasObject({rotation: -45, x: 200});
       var parent = new CanvasObject({rotation: 45, y: 100});
@@ -1437,12 +1437,12 @@ describe('CanvasObject', function() {
     it('should return a cached point if nothing has changed', function(done) {
       var camera = new Camera({rotation: 45});
       var canvas = new Canvas({camera: camera});
-      var world = new World();
+      var scene = new Scene();
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       var point = object2.getPointIn(canvas, 2, 2);
@@ -1469,12 +1469,12 @@ describe('CanvasObject', function() {
     it('should return an updated point if position has changed', function() {
       var camera = new Camera({rotation: 45});
       var canvas = new Canvas({camera: camera});
-      var world = new World();
+      var scene = new Scene();
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       var point = object2.getPointIn(canvas, 2, 2);
@@ -1494,12 +1494,12 @@ describe('CanvasObject', function() {
     it('should return an updated point if rotation has changed', function() {
       var camera = new Camera({rotation: 45});
       var canvas = new Canvas({camera: camera});
-      var world = new World();
+      var scene = new Scene();
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       var point = object2.getPointIn(canvas, 2, 2);
@@ -1514,12 +1514,12 @@ describe('CanvasObject', function() {
     it('should return an updated point if scaling has changed', function() {
       var camera = new Camera({rotation: 45});
       var canvas = new Canvas({camera: camera});
-      var world = new World();
+      var scene = new Scene();
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       var point = object2.getPointIn(canvas, 2, 2);
@@ -1539,12 +1539,12 @@ describe('CanvasObject', function() {
     it('should return an updated point if a parent has changed', function() {
       var camera = new Camera({rotation: 45});
       var canvas = new Canvas({camera: camera});
-      var world = new World();
+      var scene = new Scene();
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       var point = object2.getPointIn(canvas, 2, 2);
@@ -1559,12 +1559,12 @@ describe('CanvasObject', function() {
     it('should return an updated point if a different local point was passed in', function() {
       var camera = new Camera({rotation: 45});
       var canvas = new Canvas({camera: camera});
-      var world = new World();
+      var scene = new Scene();
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       var point = object2.getPointIn(canvas, 2, 2);
@@ -1577,12 +1577,12 @@ describe('CanvasObject', function() {
     it('should return an updated point when a different reference is passed', function() {
       var camera = new Camera({rotation: 45});
       var canvas = new Canvas({camera: camera});
-      var world = new World();
+      var scene = new Scene();
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       var point = object2.getPointIn(canvas, 2, 2);
@@ -1595,12 +1595,12 @@ describe('CanvasObject', function() {
     it('should return the passed in point object with correct data', function() {
       var camera = new Camera({rotation: 45});
       var canvas = new Canvas({camera: camera});
-      var world = new World();
+      var scene = new Scene();
       var object1 = new CanvasObject({rotation: 45, x: 200});
       var object2 = new CanvasObject({rotation: -45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
       var point = {x: 0, y: 0};
@@ -1639,28 +1639,28 @@ describe('CanvasObject', function() {
       expect(round(point.y, 3)).to.equal(-141.421);
     });
 
-    it('should return a point from the world', function() {
-      var world = new World();
+    it('should return a point from the scene', function() {
+      var scene = new Scene();
       var parent = new CanvasObject({rotation: -45, x: 200});
       var object = new CanvasObject({rotation: 45, y: 100});
 
-      world.objects.add(parent);
+      scene.objects.add(parent);
       parent.children.add(object);
 
-      var point = object.getPointFrom(world, 50, 50);
+      var point = object.getPointFrom(scene, 50, 50);
       expect(round(point.x, 3)).to.equal(-220.711);
       expect(round(point.y, 3)).to.equal(-20.711);
     });
 
     it('should return a point from the camera', function() {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera({rotation: -45, x: 100, y: 100});
       var outerParent = new CanvasObject({rotation: -45, x: 200});
       var parent = new CanvasObject({rotation: 45, y: 100});
       var object = new CanvasObject({rotation: 45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(outerParent);
+      scene.cameras.add(camera);
+      scene.objects.add(outerParent);
       outerParent.children.add(parent);
       parent.children.add(object);
 
@@ -1678,13 +1678,13 @@ describe('CanvasObject', function() {
         width: 300, height: 180,
         camera: camera
       });
-      var world = new World();
+      var scene = new Scene();
       var outerParent = new CanvasObject({rotation: -45, x: 200});
       var parent = new CanvasObject({rotation: 45, y: 100});
       var object = new CanvasObject({rotation: 45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(outerParent);
+      scene.cameras.add(camera);
+      scene.objects.add(outerParent);
       outerParent.children.add(parent);
       parent.children.add(object);
 
@@ -1702,13 +1702,13 @@ describe('CanvasObject', function() {
         width: 300, height: 180,
         camera: camera
       });
-      var world = new World();
+      var scene = new Scene();
       var outerParent = new CanvasObject({rotation: -45, x: 200});
       var parent = new CanvasObject({rotation: 45, y: 100});
       var object = new CanvasObject({rotation: 45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(outerParent);
+      scene.cameras.add(camera);
+      scene.objects.add(outerParent);
       outerParent.children.add(parent);
       parent.children.add(object);
 
@@ -1747,13 +1747,13 @@ describe('CanvasObject', function() {
         width: 300, height: 180,
         camera: camera
       });
-      var world = new World();
+      var scene = new Scene();
       var outerParent = new CanvasObject({rotation: -45, x: 200});
       var parent = new CanvasObject({rotation: 45, y: 100});
       var object = new CanvasObject({rotation: 45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(outerParent);
+      scene.cameras.add(camera);
+      scene.objects.add(outerParent);
       outerParent.children.add(parent);
       parent.children.add(object);
 
@@ -1783,13 +1783,13 @@ describe('CanvasObject', function() {
         width: 300, height: 180,
         camera: camera
       });
-      var world = new World();
+      var scene = new Scene();
       var outerParent = new CanvasObject({rotation: -45, x: 200});
       var parent = new CanvasObject({rotation: 45, y: 100});
       var object = new CanvasObject({rotation: 45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(outerParent);
+      scene.cameras.add(camera);
+      scene.objects.add(outerParent);
       outerParent.children.add(parent);
       parent.children.add(object);
 
@@ -1813,13 +1813,13 @@ describe('CanvasObject', function() {
         width: 300, height: 180,
         camera: camera
       });
-      var world = new World();
+      var scene = new Scene();
       var outerParent = new CanvasObject({rotation: -45, x: 200});
       var parent = new CanvasObject({rotation: 45, y: 100});
       var object = new CanvasObject({rotation: 45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(outerParent);
+      scene.cameras.add(camera);
+      scene.objects.add(outerParent);
       outerParent.children.add(parent);
       parent.children.add(object);
 
@@ -1849,13 +1849,13 @@ describe('CanvasObject', function() {
         width: 300, height: 180,
         camera: camera
       });
-      var world = new World();
+      var scene = new Scene();
       var outerParent = new CanvasObject({rotation: -45, x: 200});
       var parent = new CanvasObject({rotation: 45, y: 100});
       var object = new CanvasObject({rotation: 45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(outerParent);
+      scene.cameras.add(camera);
+      scene.objects.add(outerParent);
       outerParent.children.add(parent);
       parent.children.add(object);
 
@@ -1879,13 +1879,13 @@ describe('CanvasObject', function() {
         width: 300, height: 180,
         camera: camera
       });
-      var world = new World();
+      var scene = new Scene();
       var outerParent = new CanvasObject({rotation: -45, x: 200});
       var parent = new CanvasObject({rotation: 45, y: 100});
       var object = new CanvasObject({rotation: 45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(outerParent);
+      scene.cameras.add(camera);
+      scene.objects.add(outerParent);
       outerParent.children.add(parent);
       parent.children.add(object);
 
@@ -1907,13 +1907,13 @@ describe('CanvasObject', function() {
         width: 300, height: 180,
         camera: camera
       });
-      var world = new World();
+      var scene = new Scene();
       var outerParent = new CanvasObject({rotation: -45, x: 200});
       var parent = new CanvasObject({rotation: 45, y: 100});
       var object = new CanvasObject({rotation: 45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(outerParent);
+      scene.cameras.add(camera);
+      scene.objects.add(outerParent);
       outerParent.children.add(parent);
       parent.children.add(object);
 
@@ -1921,7 +1921,7 @@ describe('CanvasObject', function() {
       expect(round(point.x, 3)).to.equal(-120.711);
       expect(round(point.y, 3)).to.equal(20.711);
 
-      point = object.getPointFrom(world, 50, 50);
+      point = object.getPointFrom(scene, 50, 50);
       expect(round(point.x, 3)).to.equal(-241.421);
       expect(round(point.y, 3)).to.equal(70.711);
     });
@@ -1935,13 +1935,13 @@ describe('CanvasObject', function() {
         width: 300, height: 180,
         camera: camera
       });
-      var world = new World();
+      var scene = new Scene();
       var outerParent = new CanvasObject({rotation: -45, x: 200});
       var parent = new CanvasObject({rotation: 45, y: 100});
       var object = new CanvasObject({rotation: 45, y: 100});
 
-      world.cameras.add(camera);
-      world.objects.add(outerParent);
+      scene.cameras.add(camera);
+      scene.objects.add(outerParent);
       outerParent.children.add(parent);
       parent.children.add(object);
 
@@ -2032,13 +2032,13 @@ describe('CanvasObject', function() {
     });
 
     it('should return the coordinates of all vertices of the object and its children, relative to a reference', function() {
-      var world = new World();
+      var scene = new Scene();
 
       var object1 = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
         getVertices: function(opt_reference) {
-          expect(opt_reference).to.be(world);
+          expect(opt_reference).to.be(scene);
           return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}, {x: 100, y: 100}];
         }
       });
@@ -2046,7 +2046,7 @@ describe('CanvasObject', function() {
         width: 100, height: 50,
         x: 100, y: 50,
         getVertices: function(opt_reference) {
-          expect(opt_reference).to.be(world);
+          expect(opt_reference).to.be(scene);
           return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}, {x: 200, y: 150}];
         }
       });
@@ -2054,16 +2054,16 @@ describe('CanvasObject', function() {
         width: 100, height: 50,
         x: 100, y: 50,
         getVertices: function(opt_reference) {
-          expect(opt_reference).to.be(world);
+          expect(opt_reference).to.be(scene);
           return [{x: 300, y: 150}, {x: 400, y: 150}, {x: 400, y: 200}, {x: 300, y: 200}];
         }
       });
 
-      world.objects.add(object1);
+      scene.objects.add(object1);
       object1.children.add(object2);
       object2.children.add(object3);
 
-      var vertices = object1.getVerticesForTree(world);
+      var vertices = object1.getVerticesForTree(scene);
 
       expect(vertices.length).to.equal(12);
       expect(vertices[0]).to.eql({x: 100, y: 50});
@@ -2081,13 +2081,13 @@ describe('CanvasObject', function() {
     });
 
     it('should return a cached array if nothing has changed', function(done) {
-      var world = new World();
+      var scene = new Scene();
 
       var object1 = new CanvasObject({
         width: 100, height: 50,
         x: 100, y: 50,
         getVertices: function(opt_reference) {
-          expect(opt_reference).to.be(world);
+          expect(opt_reference).to.be(scene);
           return [{x: 100, y: 50}, {x: 200, y: 50}, {x: 200, y: 100}, {x: 100, y: 100}];
         }
       });
@@ -2095,15 +2095,15 @@ describe('CanvasObject', function() {
         width: 100, height: 50,
         x: 100, y: 50,
         getVertices: function(opt_reference) {
-          expect(opt_reference).to.be(world);
+          expect(opt_reference).to.be(scene);
           return [{x: 200, y: 100}, {x: 300, y: 100}, {x: 300, y: 150}, {x: 200, y: 150}];
         }
       });
 
-      world.objects.add(object1);
+      scene.objects.add(object1);
       object1.children.add(object2);
 
-      var vertices = object1.getVerticesForTree(world);
+      var vertices = object1.getVerticesForTree(scene);
 
       var hasAskedForNew1 = false;
       object1.getVertices = function() {
@@ -2114,7 +2114,7 @@ describe('CanvasObject', function() {
         hasAskedForNew2 = true;
       };
 
-      object1.getVerticesForTree(world);
+      object1.getVerticesForTree(scene);
 
       setTimeout(function() {
         if (hasAskedForNew1 || hasAskedForNew2) {
@@ -2126,7 +2126,7 @@ describe('CanvasObject', function() {
     });
 
     it('should return an updated array if position has changed', function(done) {
-      var world = new World();
+      var scene = new Scene();
       var callCount = 0;
 
       // Trigger cache updates, which will make the caches valid, which
@@ -2142,20 +2142,20 @@ describe('CanvasObject', function() {
         width: 100, height: 50,
         x: 100, y: 50,
         getVertices: function(opt_reference) {
-          expect(opt_reference).to.be(world);
+          expect(opt_reference).to.be(scene);
           updateCache(this.cache);
           callCount++;
           return [];
         }
       });
 
-      world.objects.add(object);
+      scene.objects.add(object);
 
-      var vertices = object.getVerticesForTree(world);
+      var vertices = object.getVerticesForTree(scene);
       object.x = 200;
-      vertices = object.getVerticesForTree(world);
+      vertices = object.getVerticesForTree(scene);
       object.y = 100;
-      vertices = object.getVerticesForTree(world);
+      vertices = object.getVerticesForTree(scene);
 
       setTimeout(function() {
         expect(callCount).to.equal(3);
@@ -2164,7 +2164,7 @@ describe('CanvasObject', function() {
     });
 
     it('should return an updated array if rotation has changed', function(done) {
-      var world = new World();
+      var scene = new Scene();
       var callCount = 0;
 
       // Trigger cache updates, which will make the caches valid, which
@@ -2180,18 +2180,18 @@ describe('CanvasObject', function() {
         width: 100, height: 50,
         x: 100, y: 50,
         getVertices: function(opt_reference) {
-          expect(opt_reference).to.be(world);
+          expect(opt_reference).to.be(scene);
           updateCache(this.cache);
           callCount++;
           return [];
         }
       });
 
-      world.objects.add(object);
+      scene.objects.add(object);
 
-      var vertices = object.getVerticesForTree(world);
+      var vertices = object.getVerticesForTree(scene);
       object.rotation = 45;
-      vertices = object.getVerticesForTree(world);
+      vertices = object.getVerticesForTree(scene);
 
       setTimeout(function() {
         expect(callCount).to.equal(2);
@@ -2200,7 +2200,7 @@ describe('CanvasObject', function() {
     });
 
     it('should return an updated array if scaling has changed', function(done) {
-      var world = new World();
+      var scene = new Scene();
       var callCount = 0;
 
       // Trigger cache updates, which will make the caches valid, which
@@ -2216,20 +2216,20 @@ describe('CanvasObject', function() {
         width: 100, height: 50,
         x: 100, y: 50,
         getVertices: function(opt_reference) {
-          expect(opt_reference).to.be(world);
+          expect(opt_reference).to.be(scene);
           updateCache(this.cache);
           callCount++;
           return [];
         }
       });
 
-      world.objects.add(object);
+      scene.objects.add(object);
 
-      var vertices = object.getVerticesForTree(world);
+      var vertices = object.getVerticesForTree(scene);
       object.scalingX = 2;
-      vertices = object.getVerticesForTree(world);
+      vertices = object.getVerticesForTree(scene);
       object.scalingY = 2;
-      vertices = object.getVerticesForTree(world);
+      vertices = object.getVerticesForTree(scene);
 
       setTimeout(function() {
         expect(callCount).to.equal(3);
@@ -2238,7 +2238,7 @@ describe('CanvasObject', function() {
     });
 
     it('should return an updated array if origin has changed', function(done) {
-      var world = new World();
+      var scene = new Scene();
       var callCount = 0;
 
       // Trigger cache updates, which will make the caches valid, which
@@ -2254,20 +2254,20 @@ describe('CanvasObject', function() {
         width: 100, height: 50,
         x: 100, y: 50,
         getVertices: function(opt_reference) {
-          expect(opt_reference).to.be(world);
+          expect(opt_reference).to.be(scene);
           updateCache(this.cache);
           callCount++;
           return [];
         }
       });
 
-      world.objects.add(object);
+      scene.objects.add(object);
 
-      var vertices = object.getVerticesForTree(world);
+      var vertices = object.getVerticesForTree(scene);
       object.originX = 2;
-      vertices = object.getVerticesForTree(world);
+      vertices = object.getVerticesForTree(scene);
       object.originY = 2;
-      vertices = object.getVerticesForTree(world);
+      vertices = object.getVerticesForTree(scene);
 
       setTimeout(function() {
         expect(callCount).to.equal(3);
@@ -2473,8 +2473,8 @@ describe('CanvasObject', function() {
       expect(rect.height).to.equal(50);
     });
 
-    it('should return an object with data about the bounding rectangle, with reference set to the world', function() {
-      var world = new World();
+    it('should return an object with data about the bounding rectangle, with reference set to the scene', function() {
+      var scene = new Scene();
       var parent = new CanvasObject();
       var object = new CanvasObject();
 
@@ -2483,13 +2483,13 @@ describe('CanvasObject', function() {
       // the coordinates to the reference. However, we check that the reference
       // passed to getVertices is the expected one.
       object.getVertices = function(opt_reference) {
-        expect(opt_reference).to.equal(world);
+        expect(opt_reference).to.equal(scene);
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
-      world.objects.add(parent);
+      scene.objects.add(parent);
       parent.children.add(object);
 
-      var rect = object.getBoundingRectangle(world);
+      var rect = object.getBoundingRectangle(scene);
       expect(rect.top).to.equal(0);
       expect(rect.right).to.equal(100);
       expect(rect.bottom).to.equal(50);
@@ -2499,9 +2499,9 @@ describe('CanvasObject', function() {
     });
 
     it('should return an object with data about the bounding rectangle, with reference set to the camera', function() {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       var parent = new CanvasObject();
       var object = new CanvasObject();
@@ -2514,7 +2514,7 @@ describe('CanvasObject', function() {
         expect(opt_reference).to.equal(camera);
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
-      world.objects.add(parent);
+      scene.objects.add(parent);
       parent.children.add(object);
 
       var rect = object.getBoundingRectangle(camera);
@@ -2527,10 +2527,10 @@ describe('CanvasObject', function() {
     });
 
     it('should return an object with data about the bounding rectangle, with reference set to the canvas', function() {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
       var canvas = new Canvas({camera: camera});
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       var parent = new CanvasObject();
       var object = new CanvasObject();
@@ -2543,7 +2543,7 @@ describe('CanvasObject', function() {
         expect(opt_reference).to.equal(canvas);
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
-      world.objects.add(parent);
+      scene.objects.add(parent);
       parent.children.add(object);
 
       var rect = object.getBoundingRectangle(canvas);
@@ -2717,8 +2717,8 @@ describe('CanvasObject', function() {
       expect(rect.height).to.equal(50);
     });
 
-    it('should return an object with data about the bounding rectangle, with reference set to the world', function() {
-      var world = new World();
+    it('should return an object with data about the bounding rectangle, with reference set to the scene', function() {
+      var scene = new Scene();
       var parent = new CanvasObject();
       var object = new CanvasObject();
 
@@ -2727,13 +2727,13 @@ describe('CanvasObject', function() {
       // the coordinates to the reference. However, we check that the reference
       // passed to getVertices is the expected one.
       object.getVerticesForTree = function(opt_reference) {
-        expect(opt_reference).to.equal(world);
+        expect(opt_reference).to.equal(scene);
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
-      world.objects.add(parent);
+      scene.objects.add(parent);
       parent.children.add(object);
 
-      var rect = object.getBoundingRectangleForTree(world);
+      var rect = object.getBoundingRectangleForTree(scene);
       expect(rect.top).to.equal(0);
       expect(rect.right).to.equal(100);
       expect(rect.bottom).to.equal(50);
@@ -2743,9 +2743,9 @@ describe('CanvasObject', function() {
     });
 
     it('should return an object with data about the bounding rectangle, with reference set to the camera', function() {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       var parent = new CanvasObject();
       var object = new CanvasObject();
@@ -2758,7 +2758,7 @@ describe('CanvasObject', function() {
         expect(opt_reference).to.equal(camera);
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
-      world.objects.add(parent);
+      scene.objects.add(parent);
       parent.children.add(object);
 
       var rect = object.getBoundingRectangleForTree(camera);
@@ -2771,9 +2771,9 @@ describe('CanvasObject', function() {
     });
 
     it('should return an object with data about the bounding rectangle, with reference set to the canvas', function() {
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
       var canvas = new Canvas({camera: camera});
 
       var parent = new CanvasObject();
@@ -2787,7 +2787,7 @@ describe('CanvasObject', function() {
         expect(opt_reference).to.equal(canvas);
         return [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 50}];
       };
-      world.objects.add(parent);
+      scene.objects.add(parent);
       parent.children.add(object);
 
       var rect = object.getBoundingRectangleForTree(canvas);

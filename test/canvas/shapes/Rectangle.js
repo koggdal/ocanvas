@@ -2,7 +2,7 @@ var expect = require('expect.js');
 var NodeCanvas = require('canvas');
 var getColor = require('../../utils/getColor');
 
-var World = require('../../../classes/World');
+var Scene = require('../../../classes/Scene');
 var Canvas = require('../../../classes/Canvas');
 var Camera = require('../../../classes/Camera');
 var RectangularCanvasObject = require('../../../shapes/base/RectangularCanvasObject');

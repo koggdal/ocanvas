@@ -5,7 +5,7 @@ var PointerData = require('../../../pointers/PointerData');
 var CanvasObject = require('../../../shapes/base/CanvasObject');
 var Canvas = require('../../../classes/Canvas');
 var Camera = require('../../../classes/Camera');
-var World = require('../../../classes/World');
+var Scene = require('../../../classes/Scene');
 var PointerEvent = require('../../../classes/PointerEvent');
 
 describe('pointers/emitter', function() {
@@ -88,12 +88,12 @@ describe('pointers/emitter', function() {
       var pointer = new PointerData({x: 100, y: 75});
       var target = new CanvasObject();
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(target);
+      scene.cameras.add(camera);
+      scene.objects.add(target);
 
       target.on('pointerdown', function handler(event) {
         target.off('pointerdown', handler);
@@ -110,12 +110,12 @@ describe('pointers/emitter', function() {
       var pointer = new PointerData({x: 100, y: 75});
       var target = new CanvasObject();
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(target);
+      scene.cameras.add(camera);
+      scene.objects.add(target);
 
       target.on('pointerdown', function handler(event) {
         target.off('pointerdown', handler);
@@ -134,12 +134,12 @@ describe('pointers/emitter', function() {
       var pointer3 = new PointerData({x: 100, y: 75, id: 'p3'});
       var target = new CanvasObject();
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(target);
+      scene.cameras.add(camera);
+      scene.objects.add(target);
 
       state.setFrontObject(pointer1, target);
       state.setFrontObject(pointer2, target);
@@ -160,12 +160,12 @@ describe('pointers/emitter', function() {
       var pointer = new PointerData({x: 100, y: 75, id: 'p1'});
       var target = new CanvasObject({x: 60, y: 20});
       var canvas = createCanvas(600, 300);
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera({x: 350, y: 250});
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(target);
+      scene.cameras.add(camera);
+      scene.objects.add(target);
 
       state.setFrontObject(pointer, target);
 
@@ -175,15 +175,15 @@ describe('pointers/emitter', function() {
         expect(event.position).to.be.an('object');
         expect(event.position.element).to.be.an('object');
         expect(event.position.canvas).to.be.an('object');
-        expect(event.position.world).to.be.an('object');
+        expect(event.position.scene).to.be.an('object');
         expect(event.position.target).to.be.an('object');
 
         expect(event.position.element.x).to.equal(40);
         expect(event.position.element.y).to.equal(45);
         expect(event.position.canvas.x).to.equal(80);
         expect(event.position.canvas.y).to.equal(90);
-        expect(event.position.world.x).to.equal(130);
-        expect(event.position.world.y).to.equal(190);
+        expect(event.position.scene.x).to.equal(130);
+        expect(event.position.scene.y).to.equal(190);
         expect(event.position.target.x).to.equal(70);
         expect(event.position.target.y).to.equal(170);
 
@@ -197,15 +197,15 @@ describe('pointers/emitter', function() {
       var pointer = new PointerData({x: 100, y: 75, id: 'p1'});
       var target = new CanvasObject();
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       pointer.keys.shift = true;
       pointer.keys.count = 1;
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(target);
+      scene.cameras.add(camera);
+      scene.objects.add(target);
 
       state.setFrontObject(pointer, target);
 
@@ -229,15 +229,15 @@ describe('pointers/emitter', function() {
       var pointer = new PointerData({x: 100, y: 75, id: 'p1'});
       var target = new CanvasObject();
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       pointer.buttons.primary = true;
       pointer.buttons.count = 1;
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(target);
+      scene.cameras.add(camera);
+      scene.objects.add(target);
 
       state.setFrontObject(pointer, target);
 
@@ -267,12 +267,12 @@ describe('pointers/emitter', function() {
       var pointer = new PointerData({x: 100, y: 75});
       var target = new CanvasObject();
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(target);
+      scene.cameras.add(camera);
+      scene.objects.add(target);
 
       target.on('pointerdown', function handler(event) {
         target.off('pointerdown', handler);
@@ -293,13 +293,13 @@ describe('pointers/emitter', function() {
       var pointer = new PointerData({x: 100, y: 75});
       var chain = [new CanvasObject(), new CanvasObject()];
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(chain[0]);
-      world.objects.add(chain[1]);
+      scene.cameras.add(camera);
+      scene.objects.add(chain[0]);
+      scene.objects.add(chain[1]);
 
       var count = 0;
 
@@ -320,13 +320,13 @@ describe('pointers/emitter', function() {
       var pointer = new PointerData({x: 100, y: 75});
       var chain = [new CanvasObject(), new CanvasObject()];
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(chain[0]);
-      world.objects.add(chain[1]);
+      scene.cameras.add(camera);
+      scene.objects.add(chain[0]);
+      scene.objects.add(chain[1]);
 
       var count = 0;
 
@@ -350,13 +350,13 @@ describe('pointers/emitter', function() {
       var pointer = new PointerData({x: 100, y: 75});
       var chain = [new CanvasObject(), new CanvasObject()];
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(chain[0]);
-      world.objects.add(chain[1]);
+      scene.cameras.add(camera);
+      scene.objects.add(chain[0]);
+      scene.objects.add(chain[1]);
 
       var count = 0;
 
@@ -380,18 +380,18 @@ describe('pointers/emitter', function() {
 
   describe('.emitForCanvas()', function() {
 
-    it('should emit an event for the world and the canvas', function(done) {
+    it('should emit an event for the scene and the canvas', function(done) {
       var pointer = new PointerData({x: 100, y: 75});
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
+      scene.cameras.add(camera);
 
       var count = 0;
 
-      world.on('pointerleave', function handler(event) {
+      scene.on('pointerleave', function handler(event) {
         canvas.off('pointerleave', handler);
         count++;
       });
@@ -410,18 +410,18 @@ describe('pointers/emitter', function() {
 
   describe('.emitFromObject()', function() {
 
-    it('should emit an event for an object and all objects in its parent chain, including world and canvas', function(done) {
+    it('should emit an event for an object and all objects in its parent chain, including scene and canvas', function(done) {
       var pointer = new PointerData({x: 100, y: 75});
       var object1 = new CanvasObject();
       var object2 = new CanvasObject();
       var object3 = new CanvasObject();
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
       object2.children.add(object3);
 
@@ -442,8 +442,8 @@ describe('pointers/emitter', function() {
         count++;
       });
 
-      world.on('pointerleave', function handler(event) {
-        world.off('pointerleave', handler);
+      scene.on('pointerleave', function handler(event) {
+        scene.off('pointerleave', handler);
         count++;
       });
 
@@ -468,12 +468,12 @@ describe('pointers/emitter', function() {
       var object2 = new CanvasObject();
       var object3 = new CanvasObject();
       var canvas = createCanvas();
-      var world = new World();
+      var scene = new Scene();
       var camera = new Camera();
 
       canvas.camera = camera;
-      world.cameras.add(camera);
-      world.objects.add(object1);
+      scene.cameras.add(camera);
+      scene.objects.add(object1);
       object1.children.add(object2);
       object2.children.add(object3);
 
@@ -484,7 +484,7 @@ describe('pointers/emitter', function() {
       object3.on('pointerleave', handler);
       object2.on('pointerleave', handler);
       object1.on('pointerleave', handler);
-      world.on('pointerleave', handler);
+      scene.on('pointerleave', handler);
       canvas.on('pointerleave', handler);
 
       emitter.emitBetweenObjects('leave', pointer, canvas, object3, object1);
@@ -493,7 +493,7 @@ describe('pointers/emitter', function() {
         object3.off('pointerleave', handler);
         object2.off('pointerleave', handler);
         object1.off('pointerleave', handler);
-        world.off('pointerleave', handler);
+        scene.off('pointerleave', handler);
         canvas.off('pointerleave', handler);
 
         expect(count).to.equal(2);
