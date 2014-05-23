@@ -22,9 +22,8 @@ module.exports = function(grunt) {
             'test/canvas/test.js'
           ];
           var commands = [
-            'mocha ' + mochaTests.join(' ') + ' --require blanket -R html-cov | sed \'s?\'`pwd`\'/??g\' > coverage.html',
-            'echo "\nCoverage: `sed -n \'s/.*<\\/a><\\/.*id="stats".*"percentage">\\(.*\\)<\\/.*"sloc".*files.*/\\1/p\' coverage.html`"',
-            'echo "\nOpen coverage.html in your browser to see the full results for code coverage."'
+            './node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha ' + mochaTests.join(' '),
+            'echo "\nOpen coverage/lcov-report/index.html in your browser to see the full results for code coverage."'
           ];
           return commands.join(' && ');
         }

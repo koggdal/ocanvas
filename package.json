@@ -26,15 +26,6 @@
     "quickstart": "~0.7.2",
     "mocha": "~1.15.1",
     "expect.js": "~0.2.0",
-    "blanket": "~1.1.5"
-  },
-  "scripts": {
-    "blanket": {
-      "pattern": ".",
-      "data-cover-never": [
-        "node_modules",
-        "test"
-      ]
-    }
+    "istanbul": "~0.2.10"
   }
 }
