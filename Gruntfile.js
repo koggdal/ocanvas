@@ -30,13 +30,13 @@ module.exports = function(grunt) {
       },
       'test-unit': {
         cmd: function() {
-          return 'mocha test/unit/test.js -R spec';
+          return './node_modules/.bin/mocha test/unit/test.js -R spec';
         }
       },
       'test-canvas': {
         cmd: function() {
           var condition = '[ -e node_modules/canvas ]';
-          var tests = 'mocha test/canvas/test.js -R spec';
+          var tests = './node_modules/.bin/mocha test/canvas/test.js -R spec';
           var canvasMessage = 'echo "\nNOTE: node-canvas is not installed, so no tests were run.\n"';
           return condition + ' && (' + tests + ' || echo "") || ' + canvasMessage;
         }
@@ -44,8 +44,8 @@ module.exports = function(grunt) {
       'test': {
         cmd: function() {
           var condition = '[ -e node_modules/canvas ]';
-          var all = 'mocha test/unit/test.js test/canvas/test.js -R spec';
-          var unit = 'mocha test/unit/test.js -R spec';
+          var all = './node_modules/.bin/mocha test/unit/test.js test/canvas/test.js -R spec';
+          var unit = './node_modules/.bin/mocha test/unit/test.js -R spec';
           var canvasMessage = 'echo "\nNOTE: node-canvas is not installed, so only normal unit tests were run.\n"';
           return condition + ' && (' + all + ' || echo "") || (' + unit + ' && ' + canvasMessage + ')';
         }
@@ -53,8 +53,8 @@ module.exports = function(grunt) {
       'test-simple': {
         cmd: function() {
           var condition = '[ -e node_modules/canvas ]';
-          var all = 'mocha test/unit/test.js test/canvas/test.js';
-          var unit = 'mocha test/unit/test.js';
+          var all = './node_modules/.bin/mocha test/unit/test.js test/canvas/test.js';
+          var unit = './node_modules/.bin/mocha test/unit/test.js';
           var canvasMessage = 'echo "\nNOTE: node-canvas is not installed, so only normal unit tests were run.\n"';
           return condition + ' && (' + all + ' || echo "") || (' + unit + ' && ' + canvasMessage + ')';
         }
