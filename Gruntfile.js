@@ -5,16 +5,8 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
 
     exec: {
-      'quickstart-dev': {
-        cmd: function() {
-          return 'mkdir -p ./builds && ./node_modules/quickstart/quickstart --main browser.js > ./builds/ocanvas.js';
-        }
-      },
-      'quickstart-prod': {
-        cmd: function() {
-          return 'mkdir -p ./builds && ./node_modules/quickstart/quickstart --main browser.js --compress > ./builds/ocanvas.min.js';
-        }
-      },
+      'quickstart-dev': 'mkdir -p ./builds && ./node_modules/quickstart/quickstart --main browser.js > ./builds/ocanvas.js',
+      'quickstart-prod': 'mkdir -p ./builds && ./node_modules/quickstart/quickstart --main browser.js --compress > ./builds/ocanvas.min.js',
       'coverage': {
         cmd: function() {
           var mochaTests = [
@@ -28,11 +20,7 @@ module.exports = function(grunt) {
           return commands.join(' && ');
         }
       },
-      'test-unit': {
-        cmd: function() {
-          return './node_modules/.bin/mocha test/unit/test.js -R spec';
-        }
-      },
+      'test-unit': './node_modules/.bin/mocha test/unit/test.js -R spec',
       'test-canvas': {
         cmd: function() {
           var condition = '[ -e node_modules/canvas ]';
