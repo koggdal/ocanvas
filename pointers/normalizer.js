@@ -170,7 +170,7 @@ function genericHandler(event) {
  *     MSPointerCancel.
  *
  * @return {string} Normalized event type. One of 'down', 'up', 'move', 'out',
- *     'dblclick' and 'cancel'.
+ *     'dblclick' and 'cancel'. Empty string if unrecognized type was passed in.
  */
 function normalizeType(type) {
   type = type.toLowerCase();
@@ -193,6 +193,8 @@ function normalizeType(type) {
   if (/dblclick/.test(type)) {
     return 'dblclick';
   }
+
+  return '';
 }
 
 exports.handlers = handlers;

@@ -69,10 +69,8 @@ Pool.prototype.setProperties = function(properties) {
  * @param {number} num The number of objects to add.
  */
 Pool.prototype.add = function(num) {
-  if (typeof num === 'number') {
-    for (var i = 0; i < num; i++) {
-      this.objects.push(this.createFunction());
-    }
+  for (var i = 0; i < num; i++) {
+    this.objects.push(this.createFunction());
   }
 };
 
@@ -82,9 +80,7 @@ Pool.prototype.add = function(num) {
  * @param {number} num The number of objects to remove.
  */
 Pool.prototype.remove = function(num) {
-  if (typeof num === 'number') {
-    this.objects.splice(this.objects.length - num, num);
-  }
+  this.objects.splice(this.objects.length - num, num);
 };
 
 /**
@@ -95,7 +91,6 @@ Pool.prototype.remove = function(num) {
  */
 Pool.prototype.get = function() {
   if (this.objects.length === 0) {
-    if (this.refillAmount <= 0) return;
     this.add(this.refillAmount);
   }
 

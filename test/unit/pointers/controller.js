@@ -125,6 +125,29 @@ describe('pointers/controller', function() {
       expect(state.getFrontObject(pointers[0])).to.equal(object);
     });
 
+    it('should handle when the new front object is the same as the current front object', function() {
+      var event = new DOMMouseEvent('mousedown', 100, 100);
+      var pointers = controller.getPointers(event);
+      var canvas = createCanvas();
+      var object = createObject(0, 0, 300, 150);
+      var scene = new Scene();
+      var camera = new Camera();
+
+      canvas.camera = camera;
+      scene.cameras.add(camera);
+      scene.objects.add(object);
+
+      expect(state.getFrontObject(pointers[0])).to.equal(null);
+
+      controller.handlePointerDown(pointers[0], canvas);
+
+      expect(state.getFrontObject(pointers[0])).to.equal(object);
+
+      controller.handlePointerDown(pointers[0], canvas);
+
+      expect(state.getFrontObject(pointers[0])).to.equal(object);
+    });
+
     it('should store that the pointer has entered the canvas if not entered before', function() {
       var event = new DOMMouseEvent('mousedown', 100, 100);
       var pointers = controller.getPointers(event);
@@ -584,6 +607,29 @@ describe('pointers/controller', function() {
       scene.objects.add(object);
 
       expect(state.getFrontObject(pointers[0])).to.equal(null);
+
+      controller.handlePointerMove(pointers[0], canvas);
+
+      expect(state.getFrontObject(pointers[0])).to.equal(object);
+    });
+
+    it('should handle when the new front object is the same as the current front object', function() {
+      var event = new DOMMouseEvent('mousemove', 100, 100);
+      var pointers = controller.getPointers(event);
+      var canvas = createCanvas();
+      var object = createObject(0, 0, 300, 150);
+      var scene = new Scene();
+      var camera = new Camera();
+
+      canvas.camera = camera;
+      scene.cameras.add(camera);
+      scene.objects.add(object);
+
+      expect(state.getFrontObject(pointers[0])).to.equal(null);
+
+      controller.handlePointerMove(pointers[0], canvas);
+
+      expect(state.getFrontObject(pointers[0])).to.equal(object);
 
       controller.handlePointerMove(pointers[0], canvas);
 
@@ -1193,6 +1239,27 @@ describe('pointers/controller', function() {
       });
 
       controller.handlePointerDblClick(pointers[0], canvas, object);
+    });
+
+    it('should fall back to the scene if no front object is found', function(done) {
+      var event = new DOMMouseEvent('dblclick', 100, 100);
+      var pointers = controller.getPointers(event);
+      var canvas = createCanvas();
+      var scene = new Scene();
+      var camera = new Camera();
+
+      canvas.camera = camera;
+      scene.cameras.add(camera);
+
+      state.registerClick(pointers[0], scene);
+      state.registerClick(pointers[0], scene);
+
+      scene.on('pointerdblclick', function handler() {
+        scene.off('pointerdblclick', handler);
+        done();
+      });
+
+      controller.handlePointerDblClick(pointers[0], canvas);
     });
 
   });
@@ -1907,6 +1974,14 @@ describe('pointers/controller', function() {
       controller.handleEvent('move', event, canvas);
 
       controller.handlePointerMove = backup;
+    });
+
+    it('should handle unknown event types without throwing errors', function(done) {
+      var event = new DOMPointerEvent('pointersomething', 100, 100);
+
+      controller.handleEvent('something', event, createCanvas());
+
+      done();
     });
 
   });

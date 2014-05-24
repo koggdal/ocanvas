@@ -127,7 +127,7 @@ function getPressedObject(pointer) {
  * Register a click for the specific pointer.
  *
  * @param {PointerData} pointer Pointer object.
- * @param {CanvasOject} object A canvas object.
+ * @param {CanvasOject|Scene} object A canvas object or a scene.
  *
  * @return {number} The click count after this click has been registered.
  */

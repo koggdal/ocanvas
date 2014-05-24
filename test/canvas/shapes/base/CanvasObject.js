@@ -196,6 +196,27 @@ describe('CanvasObject', function() {
       }, 10);
     });
 
+    it('should not render objects that have opacity set to 0', function(done) {
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: new Camera({width: 300, height: 300})
+      });
+
+      var object = new CanvasObject({opacity: 0});
+
+      var hasBeenCalled = false;
+      object.render = function() {
+        hasBeenCalled = true;
+      };
+
+      object.renderTree(canvas);
+
+      setTimeout(function() {
+        if (hasBeenCalled) done(new Error('The object was rendered even if it had zero opacity'));
+        else done();
+      }, 10);
+    });
+
     it('should render child objects that are not in view if the setting says so', function(done) {
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300),

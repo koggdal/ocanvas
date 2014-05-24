@@ -183,6 +183,39 @@ describe('Canvas', function() {
       expect(getColor(ctx, 60, 30)).to.equal('rgba(0, 0, 0, 0)');
     });
 
+    it('should not render the bounding rectangle for an object if settings are off for wrapping', function() {
+      var scene = new Scene();
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: new Camera({width: 300, height: 300})
+      });
+      scene.cameras.add(canvas.camera);
+
+      var object = new Rectangle({
+        x: 100, y: 100,
+        width: 100, height: 50,
+        originX: 'center',
+        originY: 'center',
+        fill: '#0f0',
+        rotation: 45
+      });
+      scene.objects.add(object);
+
+      canvas.boundingRectanglesWrapChildren = false;
+      canvas.boundingRectanglesWrapSelf = false;
+      canvas.boundingRectanglesColor = 'red';
+      canvas.boundingRectanglesThickness = 2;
+      canvas.renderBoundingRectangleForObject(object);
+
+      var ctx = canvas.context;
+
+      expect(getColor(ctx, 46, 46)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 153, 46)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 153, 153)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 46, 153)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 100, 100)).to.equal('rgba(0, 0, 0, 0)');
+    });
+
   });
 
   describe('#render()', function() {

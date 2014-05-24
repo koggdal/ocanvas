@@ -333,6 +333,24 @@ describe('pointers/state', function() {
       expect(state.getClickCount(object2)).to.equal(1);
     });
 
+    it('should not do anything if the object is not in the storage', function() {
+      var pointer = new PointerData({id: (++id).toString(36)});
+      var object1 = new CanvasObject();
+      var object2 = new CanvasObject();
+
+      state.clickedObjects.length = 0;
+
+      state.registerClick(pointer, object1);
+
+      expect(state.getClickCount(object1)).to.equal(1);
+      expect(state.getClickCount(object2)).to.equal(0);
+
+      state.clearClicks(object2);
+
+      expect(state.getClickCount(object1)).to.equal(1);
+      expect(state.getClickCount(object2)).to.equal(0);
+    });
+
   });
 
   describe('.reset()', function() {

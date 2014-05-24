@@ -1258,6 +1258,15 @@ describe('CanvasObject', function() {
       expect(matrix.toArray()).to.eql([2, 0, 20, 0, 2, 40, 0, 0, 1]);
     });
 
+    it('should return a local matrix for the object itself if no parent is found and no reference is passed', function() {
+      var camera = new Camera({x: 0, y: 0, zoom: 2});
+      var canvas = new Canvas({camera: camera});
+      var object = new CanvasObject({x: 10, y: 20});
+
+      var matrix = object.getTransformationMatrix();
+      expect(matrix.toArray()).to.eql([1, 0, 10, 0, 1, 20, 0, 0, 1]);
+    });
+
     it('should return a cached matrix if nothing has changed', function(done) {
       var object = new CanvasObject({x: 10, y: 20});
       var matrix = object.getTransformationMatrix();
@@ -1432,6 +1441,20 @@ describe('CanvasObject', function() {
       var point = object.getPointIn(canvas, 50, 50);
       expect(round(point.x, 3)).to.equal(191.421);
       expect(round(point.y, 3)).to.equal(531.421);
+    });
+
+    it('should return the input point if an invalid reference was passed', function() {
+      var object = new CanvasObject({rotation: 45, y: 100});
+
+      var point1 = object.getPointIn({}, 50, 50);
+      expect(point1.x).to.equal(50);
+      expect(point1.y).to.equal(50);
+
+      var point2var = {};
+      var point2 = object.getPointIn({}, 50, 50, point2var);
+      expect(point2.x).to.equal(50);
+      expect(point2.y).to.equal(50);
+      expect(point2).to.equal(point2var);
     });
 
     it('should return a cached point if nothing has changed', function(done) {
@@ -2118,6 +2141,34 @@ describe('CanvasObject', function() {
 
       setTimeout(function() {
         if (hasAskedForNew1 || hasAskedForNew2) {
+          done(new Error('The vertices were updated and did not use the cache'));
+        } else {
+          done();
+        }
+      }, 10);
+    });
+
+    it('should return a cached array if nothing has changed, with no reference', function(done) {
+      var object = new CanvasObject({
+        width: 100, height: 50,
+        x: 100, y: 50,
+        getVertices: function(opt_reference) {
+          expect(opt_reference).to.not.be.ok();
+          return [{x: 100, y: 50}];
+        }
+      });
+
+      object.getVerticesForTree();
+
+      var hasAskedForNew = false;
+      object.getVertices = function() {
+        hasAskedForNew = true;
+      };
+
+      object.getVerticesForTree();
+
+      setTimeout(function() {
+        if (hasAskedForNew) {
           done(new Error('The vertices were updated and did not use the cache'));
         } else {
           done();

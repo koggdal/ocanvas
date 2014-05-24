@@ -23,4 +23,13 @@ describe('getClassName', function() {
     expect(getClassName(MyClass)).to.equal('MyClass');
   });
 
+  it('should return an empty string if the stringified function is not in the normal format', function() {
+    var MyClass = {
+      toString: function() {
+        return '[object Function]';
+      }
+    };
+    expect(getClassName(MyClass)).to.equal('');
+  });
+
 });

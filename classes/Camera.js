@@ -63,9 +63,8 @@ function Camera(opt_properties) {
   // camera can also be rendered to multiple canvases at once.
   // Setting the values here will invoke the setters above and set the
   // default position of the camera as well (to the center).
-  if (!opt_properties || !opt_properties.aspectRatio) this.aspectRatio = this.height ? (this.width / this.height) || 1 : 1;
-  if (!opt_properties || !opt_properties.width) this.width = 300;
-  if (!opt_properties || !opt_properties.height) this.height = 150;
+  if (!opt_properties || !('width' in opt_properties)) this.width = 300;
+  if (!opt_properties || !('height' in opt_properties)) this.height = 150;
 
   if (opt_properties) {
     this.setProperties(opt_properties);
@@ -206,14 +205,14 @@ Camera.prototype.propertyDescriptors = {
     value: 0,
     set: function(value, privateVars) {
       this.cache.invalidate('vertices-local');
-      privateVars.aspectRatio = privateVars.height ? (value / privateVars.height) || 1 : 1;
+      privateVars.aspectRatio = privateVars.height ? value / privateVars.height : 1;
     }
   },
   height: {
     value: 0,
     set: function(value, privateVars) {
       this.cache.invalidate('vertices-local');
-      privateVars.aspectRatio = value ? (privateVars.width / value) || 1 : 1;
+      privateVars.aspectRatio = value ? privateVars.width / value : 1;
     }
   },
   aspectRatio: {

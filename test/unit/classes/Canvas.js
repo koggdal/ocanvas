@@ -324,6 +324,66 @@ describe('Canvas', function() {
       expect(canvas.getTransformationMatrix().toArray()).to.eql([2, 0, 300, 0, 2, 75, 0, 0, 1]);
     });
 
+    it('should return an updated matrix when the translation cache is invalidated', function(done) {
+      var camera = new Camera({width: 300, height: 150});
+      var canvas = new Canvas({camera: camera, width: 300, height: 150});
+
+      canvas.getTransformationMatrix();
+      canvas.cache.invalidate('translation');
+
+      var updated = false;
+      canvas.cache.onUpdate = function(name) {
+        if (name === 'translation') updated = true;
+      };
+
+      canvas.getTransformationMatrix();
+
+      setTimeout(function() {
+        expect(updated).to.equal(true);
+        done();
+      }, 10);
+    });
+
+    it('should return an updated matrix when the scaling cache is invalidated', function(done) {
+      var camera = new Camera({width: 300, height: 150});
+      var canvas = new Canvas({camera: camera, width: 300, height: 150});
+
+      canvas.getTransformationMatrix();
+      canvas.cache.invalidate('scaling');
+
+      var updated = false;
+      canvas.cache.onUpdate = function(name) {
+        if (name === 'scaling') updated = true;
+      };
+
+      canvas.getTransformationMatrix();
+
+      setTimeout(function() {
+        expect(updated).to.equal(true);
+        done();
+      }, 10);
+    });
+
+    it('should return an updated matrix when the transformations cache is invalidated', function(done) {
+      var camera = new Camera({width: 300, height: 150});
+      var canvas = new Canvas({camera: camera, width: 300, height: 150});
+
+      canvas.getTransformationMatrix();
+      canvas.cache.invalidate('transformations');
+
+      var updated = false;
+      canvas.cache.onUpdate = function(name) {
+        if (name === 'transformations') updated = true;
+      };
+
+      canvas.getTransformationMatrix();
+
+      setTimeout(function() {
+        expect(updated).to.equal(true);
+        done();
+      }, 10);
+    });
+
   });
 
   describe('#_getViewModeValues()', function() {

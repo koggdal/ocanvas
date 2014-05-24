@@ -81,6 +81,10 @@ describe('pointers/normalizer', function() {
       expect(normalizer.normalizeType('touchcancel')).to.equal('cancel');
     });
 
+    it('should convert an unknown type to an empty string', function() {
+      expect(normalizer.normalizeType('myrandomtype')).to.equal('');
+    });
+
   });
 
   describe('.genericHandler()', function() {
@@ -508,6 +512,20 @@ describe('pointers/normalizer', function() {
 
       normalizer.removeListeners(element);
       expect(normalizer.handlers[0]).to.not.be.ok();
+    });
+
+    it('should not do anything if the element was not found in storage', function() {
+      normalizer.elements.length = 2;
+      normalizer.handlers.length = 2;
+
+      var element = {
+        removeEventListener: function() {}
+      };
+
+      normalizer.removeListeners(element);
+
+      expect(normalizer.elements.length).to.equal(2);
+      expect(normalizer.handlers.length).to.equal(2);
     });
 
     it('should remove a listener for dblclick', function(done) {

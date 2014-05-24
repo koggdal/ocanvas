@@ -44,6 +44,29 @@ describe('pointers/positions', function() {
       expect(pos.y).to.equal(45);
     });
 
+    it('should get the pointer position relative to the canvas element, with scrolling taken into consideration', function() {
+      var offset = {x: 100, y: 1000};
+
+      if (!global.window) {
+        global.window = {pageXOffset: offset.x, pageYOffset: offset.y, fake: true};
+      } else {
+        global.window.pageXOffset = offset.x;
+        global.window.pageYOffset = offset.y;
+      }
+
+      var pointer = new PointerData({x: 100 + offset.x, y: 75 + offset.y});
+      var canvas = createCanvas(600, 300);
+      var pos = positions.getForCanvasElement(pointer, canvas);
+
+      if (global.window && global.window.fake) {
+        delete global.window;
+      }
+
+      expect(pos).to.be.an('object');
+      expect(pos.x).to.equal(40);
+      expect(pos.y).to.equal(45);
+    });
+
   });
 
   describe('.getForCanvas()', function() {

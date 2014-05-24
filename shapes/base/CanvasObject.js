@@ -392,15 +392,19 @@ CanvasObject.prototype.render = function(canvas) {
 
   context.globalAlpha *= this.opacity;
 
-  if (this.clippingMask) {
+  var mask = this.clippingMask;
+  var isMaskObject = mask instanceof CanvasObject;
+  var isMaskFunction = isMaskObject ? false : (typeof mask === 'function');
+
+  if (isMaskObject || isMaskFunction) {
     context.beginPath();
-    if (this.clippingMask instanceof CanvasObject) {
+    if (isMaskObject) {
       context.save();
-      canvas.transformContextToObject(this.clippingMask, this);
-      this.clippingMask.renderPath(canvas);
+      canvas.transformContextToObject(mask, this);
+      mask.renderPath(canvas);
       context.restore();
-    } else if (typeof this.clippingMask === 'function') {
-      this.clippingMask(canvas, context);
+    } else {
+      mask(canvas, context);
     }
     context.closePath();
     context.clip();
@@ -642,16 +646,17 @@ CanvasObject.prototype.getTransformationMatrix = function(opt_reference) {
   }
 
   var matrices = [];
+  var reference = opt_reference;
 
   if (this.parent instanceof CanvasObject) {
-    matrices.push(this.parent.getTransformationMatrix(opt_reference));
+    matrices.push(this.parent.getTransformationMatrix(reference));
 
-  } else if (opt_reference) {
-    var isCamera = isInstanceOf(opt_reference, 'Camera');
-    var isCanvas = isInstanceOf(opt_reference, 'Canvas');
+  } else {
+    var isCamera = isInstanceOf(reference, 'Camera');
+    var isCanvas = isInstanceOf(reference, 'Canvas');
     if (isCamera || isCanvas) {
-      var camera = isCamera ? opt_reference : opt_reference.camera;
-      var canvas = isCanvas ? opt_reference : undefined;
+      var camera = isCamera ? reference : reference.camera;
+      var canvas = isCanvas ? reference : undefined;
       matrices.push(camera.getTransformationMatrix(canvas));
     }
   }
@@ -719,7 +724,7 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
     // reference passed to this method. This is because we are looking for a
     // point within the reference, without applying the transformations of the
     // reference.
-    var matrixReference = null;
+    var matrixReference;
 
     // For objects and the scene as reference, we need to find the object that
     // is one step closer to the source object.
@@ -734,7 +739,12 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
       matrixReference = reference.scene;
 
     } else if (isCanvas) {
-      if (reference.camera) matrixReference = reference.camera.scene;
+      matrixReference = reference.camera && reference.camera.scene;
+    } else {
+      var point = opt_point || {x: 0, y: 0};
+      point.x = x;
+      point.y = y;
+      return point;
     }
 
     var transformationMatrix;

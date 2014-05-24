@@ -92,15 +92,12 @@ describe('ObjectEventEmitter', function() {
       expect(emitter.listeners.bubble['some-event'].length).to.equal(0);
     });
 
-    it('should remove a handler function from the listener storage for the capture phase if specified', function() {
+    it('should handle a call to remove a handler for an event type that has no registered handlers', function() {
       var emitter = new ObjectEventEmitter();
 
-      var handler = function() {};
-      emitter.on('some-event', handler, true);
-      emitter.off('some-event', handler, true);
+      emitter.off('some-event', function() {}, true);
 
-      expect(emitter.listeners.capture['some-event']).to.be.ok();
-      expect(emitter.listeners.capture['some-event'].length).to.equal(0);
+      expect(emitter.listeners.capture['some-event']).to.not.be.ok();
     });
 
   });
@@ -370,6 +367,36 @@ describe('ObjectEventEmitter', function() {
 
       setTimeout(function() {
         expect(num).to.equal(2);
+        done();
+      }, 16);
+
+      object3.emit('some-event');
+    });
+
+    it('should not run the bubble phase if event.stopPropagation() was called in capture phase', function(done) {
+      var object1 = new ObjectEventEmitter();
+      var object2 = new ObjectEventEmitter();
+      var object3 = new ObjectEventEmitter();
+
+      object3.parent = object2;
+      object2.parent = object1;
+
+      var called = false;
+      object1.on('some-event', function(event) {
+        expect(event.phase).to.equal('capture');
+        event.stopPropagation();
+        called = true;
+      }, true);
+
+      var num = 0;
+      function count(event) { num++; }
+
+      object2.on('some-event', count, false);
+      object3.on('some-event', count, false);
+
+      setTimeout(function() {
+        expect(num).to.equal(0);
+        expect(called).to.equal(true);
         done();
       }, 16);
 

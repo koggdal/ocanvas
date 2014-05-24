@@ -127,6 +127,24 @@ describe('json', function() {
       global.console.warn = originalConsoleWarn;
     });
 
+    it('should return the same object if data has a class that\'s not registered and console is not there', function() {
+      var data = {
+        object: {
+          __class__: 'ObjectClass',
+          x: 10
+        }
+      };
+
+      var originalConsole = global.console;
+      delete global.console;
+
+      var object = jsonHelpers.fromObject(data);
+
+      global.console = originalConsole;
+
+      expect(object).to.equal(data);
+    });
+
   });
 
   describe('.fromJSON()', function() {

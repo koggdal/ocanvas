@@ -41,4 +41,18 @@ describe('mixin', function() {
     expect(target.foobar).to.equal(source3.foobar);
   });
 
+  it('should only take properties from a source object\'s own properties, not from the prototype', function() {
+    var target = {};
+    var proto = {baz: 'baz'};
+    var source = Object.create(proto);
+    source.foo = 'foo';
+    source.bar = 'bar';
+
+    mixin(target, source);
+
+    expect(target.foo).to.equal(source.foo);
+    expect(target.bar).to.equal(source.bar);
+    expect(target.baz).to.not.be.ok();
+  });
+
 });

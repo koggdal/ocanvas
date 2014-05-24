@@ -45,8 +45,6 @@ function findFrontObjectInCanvas(canvas, x, y) {
   var scene = camera && camera.scene;
   var objects = scene && scene.objects;
 
-  if (!objects) return null;
-
   return findFrontObject(canvas, x, y, objects);
 }
 

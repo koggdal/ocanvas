@@ -58,10 +58,13 @@ describe('Camera', function() {
     it('should set the value of property `aspectRatio` correctly based on the options', function() {
       var camera1 = new Camera({width: 600});
       expect(camera1.aspectRatio).to.equal(4);
+
       var camera2 = new Camera({height: 100});
       expect(camera2.aspectRatio).to.equal(3);
+
       var camera3 = new Camera({width: 200, height: 100});
       expect(camera3.aspectRatio).to.equal(2);
+
       var camera4 = new Camera({aspectRatio: 6});
       expect(camera4.aspectRatio).to.equal(6);
       expect(camera4.width).to.equal(900);
@@ -70,6 +73,16 @@ describe('Camera', function() {
 
     it('should set the default value of property `cache` to a Cache instance', function() {
       expect(camera.cache instanceof Cache).to.equal(true);
+    });
+
+    it('should set the value of property `width` to 0 if passed', function() {
+      var camera1 = new Camera({width: 0});
+      expect(camera1.width).to.equal(0);
+    });
+
+    it('should set the value of property `height` to 0 if passed', function() {
+      var camera1 = new Camera({height: 0});
+      expect(camera1.height).to.equal(0);
     });
 
   });
@@ -1050,6 +1063,42 @@ describe('Camera', function() {
       camera.rotation = 45;
 
       expect(object.cache.test('combinedTransformations')).to.equal(false);
+    });
+
+    it('should invalidate combinedTransformations on objects in the connected scene when camera changes and reference is a Canvas', function() {
+      var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
+      var scene = new Scene();
+      var object = new CanvasObject();
+
+      scene.cameras.add(camera);
+      scene.objects.add(object);
+
+      object.getTransformationMatrix(canvas);
+
+      expect(object.cache.test('combinedTransformations')).to.equal(true);
+
+      camera.rotation = 45;
+
+      expect(object.cache.test('combinedTransformations')).to.equal(false);
+    });
+
+    it('should not invalidate combinedTransformations on objects in the connected scene when camera changes and the matrix has no reference', function() {
+      var camera = new Camera();
+      var scene = new Scene();
+      var object = new CanvasObject();
+
+      scene.cameras.add(camera);
+      scene.objects.add(object);
+
+      camera.getTransformationMatrix();
+      object.getTransformationMatrix();
+
+      expect(object.cache.test('combinedTransformations')).to.equal(true);
+
+      camera.rotation = 45;
+
+      expect(object.cache.test('combinedTransformations')).to.equal(true);
     });
 
   });

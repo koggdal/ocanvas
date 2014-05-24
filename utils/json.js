@@ -24,9 +24,7 @@ exports.registeredClasses = {};
  */
 exports.registerClasses = function(classes) {
   for (var className in classes) {
-    if (classes.hasOwnProperty(className)) {
-      exports.registeredClasses[className] = classes[className];
-    }
+    exports.registeredClasses[className] = classes[className];
   }
 };
 

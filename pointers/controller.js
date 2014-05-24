@@ -266,7 +266,6 @@ function setNewFrontObject(object, pointer, canvas) {
 
       } else {
         var parent = sceneUtils.findSharedParent(currentFrontObject, object);
-        if (!parent) parent = scene;
         emitter.emitBetweenObjects('leave', pointer, canvas, currentFrontObject,
             parent);
         emitter.emitBetweenObjects('enter', pointer, canvas, object, parent);

@@ -62,6 +62,27 @@ describe('EventEmitter', function() {
       expect(emitter.listeners['some-event'].length).to.equal(0);
     });
 
+    it('should handle removing a handler for an event type that has not been added', function() {
+      var emitter = new EventEmitter();
+
+      emitter.off('some-event', function() {});
+
+      expect(emitter.listeners['some-event']).to.not.be.ok();
+    });
+
+    it('should handle removing a handler that has not been added', function() {
+      var emitter = new EventEmitter();
+
+      var handler1 = function() {};
+      var handler2 = function() {};
+      emitter.on('some-event', handler1);
+      emitter.off('some-event', handler2);
+
+      expect(emitter.listeners['some-event']).to.be.ok();
+      expect(emitter.listeners['some-event'].length).to.equal(1);
+      expect(emitter.listeners['some-event'][0]).to.equal(handler1);
+    });
+
     it('should remove a handler function for an event', function(done) {
       var emitter = new EventEmitter();
       var hasBeenCalled = false;

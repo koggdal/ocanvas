@@ -356,15 +356,20 @@ describe('Collection', function() {
       var collection = new Collection();
 
       collection.add('String 1');
-      collection.add('String 1');
+      collection.add('String 2');
+      collection.add('String 2');
 
       expect(collection.items[0]).to.equal('String 1');
-      expect(collection.items[1]).to.equal('String 1');
+      expect(collection.items[1]).to.equal('String 2');
+      expect(collection.items[2]).to.equal('String 2');
 
-      collection.remove('String 1');
+      collection.remove('String 2');
 
-      expect(collection.items[0]).to.equal(undefined);
+      expect(collection.length).to.equal(1);
+      expect(collection.items.length).to.equal(1);
+      expect(collection.items[0]).to.equal('String 1');
       expect(collection.items[1]).to.equal(undefined);
+      expect(collection.items[2]).to.equal(undefined);
     });
 
     it('should emit a `remove` event when something is removed', function(done) {
@@ -395,6 +400,22 @@ describe('Collection', function() {
       collection.removeAt(0);
 
       expect(collection.items[0]).to.equal(undefined);
+    });
+
+    it('should not remove anything from the collection if the specified index was not found', function() {
+      var collection = new Collection();
+
+      collection.add('String 1');
+
+      expect(collection.length).to.equal(1);
+      expect(collection.items.length).to.equal(1);
+      expect(collection.items[0]).to.equal('String 1');
+
+      collection.removeAt(1);
+
+      expect(collection.length).to.equal(1);
+      expect(collection.items.length).to.equal(1);
+      expect(collection.items[0]).to.equal('String 1');
     });
 
     it('should emit a `remove` event when something is removed', function(done) {
