@@ -322,6 +322,40 @@ describe('Canvas', function() {
       expect(getColor(ctx, 100, 100)).to.equal('rgba(0, 255, 0, 255)');
     });
 
+    it('should render the bounding rectangles in the correct place when camera is moved', function() {
+      var scene = new Scene();
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: new Camera({width: 300, height: 300, x: 50})
+      });
+      scene.cameras.add(canvas.camera);
+
+      var object = new Rectangle({
+        x: 100, y: 100,
+        width: 100, height: 50,
+        originX: 'center',
+        originY: 'center',
+        fill: '#0f0',
+        rotation: 45
+      });
+      scene.objects.add(object);
+
+      canvas.boundingRectanglesEnabled = true;
+      canvas.boundingRectanglesColor = '#00f';
+      canvas.boundingRectanglesThickness = 10;
+      canvas.render();
+
+      var ctx = canvas.context;
+
+      expect(getColor(ctx, 137, 37)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 146, 46)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 148, 48)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 251, 151)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 253, 153)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 262, 162)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 200, 100)).to.equal('rgba(0, 255, 0, 255)');
+    });
+
   });
 
   describe('#transformContextToObject()', function() {

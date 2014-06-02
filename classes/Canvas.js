@@ -315,9 +315,6 @@ Canvas.prototype.render = function() {
 
     if (bRectEnabled && bRectThickness > 0) {
       context.save();
-      context.translate(this.width / 2, this.height / 2);
-      context.scale(viewModeValues.scaleX, viewModeValues.scaleY);
-      context.translate(-camera.x, -camera.y);
       context.strokeStyle = this.boundingRectanglesColor;
       context.lineWidth = this.boundingRectanglesThickness;
 
