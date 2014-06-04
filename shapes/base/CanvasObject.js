@@ -12,6 +12,7 @@ var inherit = require('../../utils/inherit');
 var defineProperties = require('../../utils/defineProperties');
 var jsonHelpers = require('../../utils/json');
 var isInstanceOf = require('../../utils/isInstanceOf');
+var getClassName = require('../../utils/getClassName');
 
 /**
  * @classdesc The CanvasObject class is a base class that different objects
@@ -70,7 +71,6 @@ function CanvasObject(opt_properties) {
 
   var self = this;
 
-  this.constructorName = 'CanvasObject';
   this.fill = '';
   this.opacity = 1;
   this.parent = null;
@@ -152,7 +152,7 @@ CanvasObject.fromJSON = function(json) {
  * @return {Object} An object that represents this canvas object.
  */
 CanvasObject.prototype.toObject = function() {
-  return jsonHelpers.toObject(this, CanvasObject.objectProperties, this.constructorName);
+  return jsonHelpers.toObject(this, CanvasObject.objectProperties, getClassName(this.constructor));
 };
 
 /**
@@ -167,7 +167,7 @@ CanvasObject.prototype.toObject = function() {
  * @return {string} A JSON string.
  */
 CanvasObject.prototype.toJSON = function(opt_space) {
-  return jsonHelpers.toJSON(this, CanvasObject.objectProperties, this.constructorName, opt_space);
+  return jsonHelpers.toJSON(this, CanvasObject.objectProperties, getClassName(this.constructor), opt_space);
 };
 
 /**

@@ -8,6 +8,7 @@ var CanvasObject = require('./CanvasObject');
 var inherit = require('../../utils/inherit');
 var defineProperties = require('../../utils/defineProperties');
 var jsonHelpers = require('../../utils/json');
+var getClassName = require('../../utils/getClassName');
 
 /**
  * @classdesc This is a class that a canvas object class can inherit from,
@@ -32,8 +33,6 @@ var jsonHelpers = require('../../utils/json');
  */
 function RectangularCanvasObject(opt_properties) {
   CanvasObject.call(this);
-
-  this.constructorName = 'RectangularCanvasObject';
 
   defineProperties(this, {
     width: {
@@ -97,7 +96,7 @@ RectangularCanvasObject.fromJSON = CanvasObject.fromJSON;
  */
 RectangularCanvasObject.prototype.toObject = function() {
   var props = RectangularCanvasObject.objectProperties;
-  return jsonHelpers.toObject(this, props, this.constructorName);
+  return jsonHelpers.toObject(this, props, getClassName(this.constructor));
 };
 
 /**
@@ -113,7 +112,7 @@ RectangularCanvasObject.prototype.toObject = function() {
  */
 RectangularCanvasObject.prototype.toJSON = function(opt_space) {
   var props = RectangularCanvasObject.objectProperties;
-  return jsonHelpers.toJSON(this, props, this.constructorName, opt_space);
+  return jsonHelpers.toJSON(this, props, getClassName(this.constructor), opt_space);
 };
 
 
