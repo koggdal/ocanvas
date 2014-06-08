@@ -91,6 +91,7 @@ ObjectEventEmitter.prototype.emit = function(name, opt_eventObject, opt_canvas) 
 
 function getObjectChain(object, opt_canvas) {
   var chain = [object];
+  var canvas = opt_canvas && object !== opt_canvas ? opt_canvas : null;
 
   object = object.parent;
   while (object) {
@@ -98,7 +99,7 @@ function getObjectChain(object, opt_canvas) {
     object = object.parent;
   }
 
-  if (opt_canvas) chain.push(opt_canvas);
+  if (canvas) chain.push(canvas);
 
   return chain;
 }
