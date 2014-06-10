@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var KeyboardEvent = require('../../../classes/KeyboardEvent');
+var KeyboardEvent = require('../../../keyboard/KeyboardEvent');
 var ObjectEvent = require('../../../classes/ObjectEvent');
 
 describe('KeyboardEvent', function() {

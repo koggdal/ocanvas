@@ -1,10 +1,10 @@
 /**
- * @module ocanvas/classes/KeyboardEvent
+ * @module ocanvas/keyboard/KeyboardEvent
  */
 'use strict';
 
 var inherit = require('../utils/inherit');
-var ObjectEvent = require('./ObjectEvent');
+var ObjectEvent = require('../classes/ObjectEvent');
 
 /**
  * @classdesc Keyboard event object for a canvas.

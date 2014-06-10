@@ -4,7 +4,7 @@
  */
 'use strict';
 
-var KeyboardEvent = require('../classes/KeyboardEvent');
+var KeyboardEvent = require('./KeyboardEvent');
 var keys = require('./keys');
 var raf = require('raf');
 
