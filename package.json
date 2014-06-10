@@ -18,7 +18,8 @@
     "node": ">=0.10"
   },
   "dependencies": {
-    "matrixmath": "^2.1.0"
+    "matrixmath": "^2.1.0",
+    "raf": "~2.0.0"
   },
   "devDependencies": {
     "grunt": "~0.4.2",

@@ -32,6 +32,13 @@ describe('Pointers', function() {
   require('./pointers/index');
 });
 
+describe('Keyboard', function() {
+  require('./classes/KeyboardEvent');
+  require('./keyboard/keys');
+  require('./keyboard/controller');
+  require('./keyboard/index');
+});
+
 describe('Shapes', function() {
   require('./shapes/base/CanvasObject');
   require('./shapes/base/RectangularCanvasObject');
