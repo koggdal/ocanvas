@@ -60,7 +60,7 @@ describe('PointerEvent', function() {
       var types = PointerEvent.TYPES;
       for (var type in types) {
         if (types.hasOwnProperty(type)) {
-          var event = new PointerEvent(type);
+          var event = new PointerEvent({type: type});
           expect(event.bubbles).to.equal(types[type].bubbles);
         }
       }
@@ -71,8 +71,8 @@ describe('PointerEvent', function() {
       expect(event.targetPointerCount).to.equal(0);
     });
 
-    it('should set the `type` property if type is passed', function() {
-      var event = new PointerEvent('some-event');
+    it('should set the `type` property if passed', function() {
+      var event = new PointerEvent({type: 'some-event'});
       expect(event.type).to.equal('some-event');
     });
 
@@ -102,6 +102,11 @@ describe('PointerEvent', function() {
       var keys = {};
       var event = new PointerEvent({keys: keys});
       expect(event.keys).to.equal(keys);
+    });
+
+    it('should set a custom property if passed', function() {
+      var event = new PointerEvent({myProperty: 'value'});
+      expect(event.myProperty).to.equal('value');
     });
 
   });

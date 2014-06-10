@@ -71,7 +71,7 @@ ObjectEventEmitter.prototype.off = function(name, listener, opt_useCapture) {
  * @param {Canvas=} opt_canvas Canvas instance.
  */
 ObjectEventEmitter.prototype.emit = function(name, opt_eventObject, opt_canvas) {
-  var event = opt_eventObject || new ObjectEvent(name);
+  var event = opt_eventObject || new ObjectEvent();
   event.type = name;
   event.target = this;
   event.canvas = opt_canvas || null;

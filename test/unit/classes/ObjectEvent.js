@@ -5,11 +5,6 @@ describe('ObjectEvent', function() {
 
   describe('ObjectEvent constructor', function() {
 
-    it('should set the `type` property if type is passed', function() {
-      var event = new ObjectEvent('some-event');
-      expect(event.type).to.equal('some-event');
-    });
-
     it('should set the default value of property `type` to null', function() {
       var event = new ObjectEvent();
       expect(event.type).to.equal(null);
@@ -43,6 +38,12 @@ describe('ObjectEvent', function() {
     it('should set the default value of property `isImmediatePropagationStopped` to false', function() {
       var event = new ObjectEvent();
       expect(event.isImmediatePropagationStopped).to.equal(false);
+    });
+
+    it('should set properties if passed', function() {
+      var event = new ObjectEvent({type: 'some-event', myProperty: 'value'});
+      expect(event.type).to.equal('some-event');
+      expect(event.myProperty).to.equal('value');
     });
 
   });

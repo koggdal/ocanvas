@@ -19,8 +19,8 @@ describe('KeyboardEvent', function() {
 
   describe('KeyboardEvent constructor', function() {
 
-    it('should set the `type` property if type is passed', function() {
-      var event = new KeyboardEvent('some-event');
+    it('should set the `type` property if passed', function() {
+      var event = new KeyboardEvent({type: 'some-event'});
       expect(event.type).to.equal('some-event');
     });
 
@@ -43,6 +43,11 @@ describe('KeyboardEvent', function() {
       var originalEvent = {};
       var event = new KeyboardEvent({originalEvent: originalEvent});
       expect(event.originalEvent).to.equal(originalEvent);
+    });
+
+    it('should set a custom property if passed', function() {
+      var event = new KeyboardEvent({myProperty: 'value'});
+      expect(event.myProperty).to.equal('value');
     });
 
   });

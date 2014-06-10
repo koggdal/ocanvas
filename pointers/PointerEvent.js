@@ -27,51 +27,52 @@ var ObjectEvent = require('../classes/ObjectEvent');
  *     how many keys are pressed.
  *
  * @constructor
+ * @augments {module:ocanvas/classes/ObjectEvent~ObjectEvent}
  *
- * @param {Object|string} opt_properties Optional properties to set on the
- *     object. If this is a string, it will be used as the event type.
+ * @param {Object=} opt_properties Optional properties to set on the object.
  */
 function PointerEvent(opt_properties) {
-  var properties = opt_properties || {};
-  var type = properties;
-  if (typeof properties === 'string') {
-    properties = {};
-  } else {
-    type = properties.type;
+  ObjectEvent.call(this, opt_properties);
+
+  if (!this.hasOwnProperty('position')) {
+    this.position = {
+      element: {x: 0, y: 0},
+      canvas: {x: 0, y: 0},
+      scene: {x: 0, y: 0},
+      target: {x: 0, y: 0}
+    };
   }
-  ObjectEvent.call(this, type);
 
-  this.position = properties.position || {
-    element: {x: 0, y: 0},
-    canvas: {x: 0, y: 0},
-    scene: {x: 0, y: 0},
-    target: {x: 0, y: 0}
-  };
+  if (!this.hasOwnProperty('buttons')) {
+    this.buttons = {
+      primary: false,
+      secondary: false,
+      auxiliary: false,
+      extra1: false,
+      extra2: false,
+      extra3: false,
+      count: 0
+    };
+  }
 
-  this.buttons = properties.buttons || {
-    primary: false,
-    secondary: false,
-    auxiliary: false,
-    extra1: false,
-    extra2: false,
-    extra3: false,
-    count: 0
-  };
+  if (!this.hasOwnProperty('keys')) {
+    this.keys = {
+      ctrl: false,
+      alt: false,
+      shift: false,
+      meta: false,
+      count: 0
+    };
+  }
 
-  this.keys = properties.keys || {
-    ctrl: false,
-    alt: false,
-    shift: false,
-    meta: false,
-    count: 0
-  };
+  if (!this.hasOwnProperty('targetPointerCount')) {
+    this.targetPointerCount = 0;
+  }
 
-  this.targetPointerCount = properties.targetPointerCount || 0;
-
-  if ('bubbles' in properties) {
-    this.bubbles = properties.bubbles;
-  } else if (this.type && PointerEvent.TYPES[this.type]) {
-    this.bubbles = PointerEvent.TYPES[this.type].bubbles;
+  if (!(opt_properties || {}).hasOwnProperty('bubbles')) {
+    if (this.type && PointerEvent.TYPES[this.type]) {
+      this.bubbles = PointerEvent.TYPES[this.type].bubbles;
+    }
   }
 }
 inherit(PointerEvent, ObjectEvent);

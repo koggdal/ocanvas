@@ -19,26 +19,14 @@ var ObjectEvent = require('../classes/ObjectEvent');
  * @constructor
  * @augments {module:ocanvas/classes/ObjectEvent~ObjectEvent}
  *
- * @param {Object|string} opt_properties Optional properties to set on the
- *     object. If this is a string, it will be used as the event type.
+ * @param {Object=} opt_properties Optional properties to set on the object.
  */
 function KeyboardEvent(opt_properties) {
-  var properties = opt_properties || {};
-  var type = properties;
-  if (typeof properties === 'string') {
-    properties = {};
-  } else {
-    type = properties.type;
-  }
-  ObjectEvent.call(this, type);
+  ObjectEvent.call(this, opt_properties);
 
-  this.keyCode = 0;
-  this.key = '';
-  this.originalEvent = null;
-
-  for (var prop in properties) {
-    this[prop] = properties[prop];
-  }
+  if (!this.hasOwnProperty('keyCode')) this.keyCode = 0;
+  if (!this.hasOwnProperty('key')) this.key = '';
+  if (!this.hasOwnProperty('originalEvent')) this.originalEvent = null;
 }
 inherit(KeyboardEvent, ObjectEvent);
 

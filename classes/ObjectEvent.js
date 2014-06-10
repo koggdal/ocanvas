@@ -23,10 +23,10 @@
  *
  * @constructor
  *
- * @param {string=} opt_type Optional event type.
+ * @param {Object=} opt_properties Optional properties to set on the object.
  */
-function ObjectEvent(opt_type) {
-  this.type = opt_type || null;
+function ObjectEvent(opt_properties) {
+  this.type = null;
   this.bubbles = true;
   this.phase = 'idle';
   this.target = null;
@@ -34,6 +34,12 @@ function ObjectEvent(opt_type) {
   this.canvas = null;
   this.isPropagationStopped = false;
   this.isImmediatePropagationStopped = false;
+
+  if (opt_properties) {
+    for (var prop in opt_properties) {
+      this[prop] = opt_properties[prop];
+    }
+  }
 }
 
 /**
