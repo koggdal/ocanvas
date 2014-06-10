@@ -1,11 +1,11 @@
 var expect = require('expect.js');
-var sceneUtils = require('../../../pointers/scene');
+var sceneUtils = require('../../../../pointers/private/scene');
 
-var Camera = require('../../../classes/Camera');
-var Canvas = require('../../../classes/Canvas');
-var Scene = require('../../../classes/Scene');
-var CanvasObject = require('../../../shapes/base/CanvasObject');
-var Collection = require('../../../classes/Collection');
+var Camera = require('../../../../classes/Camera');
+var Canvas = require('../../../../classes/Canvas');
+var Scene = require('../../../../classes/Scene');
+var CanvasObject = require('../../../../shapes/base/CanvasObject');
+var Collection = require('../../../../classes/Collection');
 
 describe('pointers/scene', function() {
 

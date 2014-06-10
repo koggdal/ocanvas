@@ -1,5 +1,5 @@
 /**
- * @module ocanvas/pointers/normalizer
+ * @module ocanvas/pointers/private/normalizer
  * @private
  */
 'use strict';

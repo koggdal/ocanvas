@@ -3,8 +3,8 @@
  */
 'use strict';
 
-var normalizer = require('./normalizer');
-var controller = require('./controller');
+var normalizer = require('./private/normalizer');
+var controller = require('./private/controller');
 
 /**
  * Enable pointer events for a canvas.

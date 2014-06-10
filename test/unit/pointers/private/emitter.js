@@ -1,12 +1,12 @@
 var expect = require('expect.js');
-var emitter = require('../../../pointers/emitter');
-var state = require('../../../pointers/state');
-var PointerData = require('../../../pointers/PointerData');
-var CanvasObject = require('../../../shapes/base/CanvasObject');
-var Canvas = require('../../../classes/Canvas');
-var Camera = require('../../../classes/Camera');
-var Scene = require('../../../classes/Scene');
-var PointerEvent = require('../../../pointers/PointerEvent');
+var emitter = require('../../../../pointers/private/emitter');
+var state = require('../../../../pointers/private/state');
+var PointerData = require('../../../../pointers/private/PointerData');
+var CanvasObject = require('../../../../shapes/base/CanvasObject');
+var Canvas = require('../../../../classes/Canvas');
+var Camera = require('../../../../classes/Camera');
+var Scene = require('../../../../classes/Scene');
+var PointerEvent = require('../../../../pointers/PointerEvent');
 
 describe('pointers/emitter', function() {
 

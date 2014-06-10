@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var PointerData = require('../../../pointers/PointerData');
+var PointerData = require('../../../../pointers/private/PointerData');
 
 describe('PointerData', function() {
 

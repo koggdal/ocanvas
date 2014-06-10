@@ -1,10 +1,10 @@
 /**
- * @module ocanvas/pointers/state
+ * @module ocanvas/pointers/private/state
  * @private
  */
 'use strict';
 
-var isInstanceOf = require('../utils/isInstanceOf');
+var isInstanceOf = require('../../utils/isInstanceOf');
 var sceneUtils = require('./scene');
 
 var pointersEnteredCanvas = {};

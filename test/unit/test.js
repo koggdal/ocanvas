@@ -22,13 +22,13 @@ describe('Classes', function() {
 
 describe('Pointers', function() {
   require('./pointers/PointerEvent');
-  require('./pointers/PointerData');
-  require('./pointers/scene');
-  require('./pointers/state');
-  require('./pointers/positions');
-  require('./pointers/emitter');
-  require('./pointers/controller');
-  require('./pointers/normalizer');
+  require('./pointers/private/PointerData');
+  require('./pointers/private/scene');
+  require('./pointers/private/state');
+  require('./pointers/private/positions');
+  require('./pointers/private/emitter');
+  require('./pointers/private/controller');
+  require('./pointers/private/normalizer');
   require('./pointers/index');
 });
 

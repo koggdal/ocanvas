@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var normalizer = require('../../../pointers/normalizer');
+var normalizer = require('../../../../pointers/private/normalizer');
 
 describe('pointers/normalizer', function() {
 

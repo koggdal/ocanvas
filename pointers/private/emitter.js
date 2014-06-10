@@ -1,10 +1,10 @@
 /**
- * @module ocanvas/pointers/emitter
+ * @module ocanvas/pointers/private/emitter
  * @private
  */
 'use strict';
 
-var PointerEvent = require('./PointerEvent');
+var PointerEvent = require('../PointerEvent');
 var state = require('./state');
 var sceneUtils = require('./scene');
 var positions = require('./positions');

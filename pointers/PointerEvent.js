@@ -1,5 +1,5 @@
 /**
- * @module ocanvas/classes/PointerEvent
+ * @module ocanvas/pointers/PointerEvent
  */
 'use strict';
 

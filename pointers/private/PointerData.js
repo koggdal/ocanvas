@@ -1,5 +1,5 @@
 /**
- * @module ocanvas/pointers/PointerData
+ * @module ocanvas/pointers/private/PointerData
  * @private
  */
 'use strict';

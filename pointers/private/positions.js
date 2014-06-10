@@ -1,10 +1,10 @@
 /**
- * @module ocanvas/pointers/positions
+ * @module ocanvas/pointers/private/positions
  * @private
  */
 'use strict';
 
-var isInstanceOf = require('../utils/isInstanceOf');
+var isInstanceOf = require('../../utils/isInstanceOf');
 
 /**
  * Get data about the pointer position in different coordinate spaces.

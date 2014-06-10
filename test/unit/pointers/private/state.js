@@ -1,9 +1,9 @@
 var expect = require('expect.js');
-var state = require('../../../pointers/state');
-var PointerData = require('../../../pointers/PointerData');
-var CanvasObject = require('../../../shapes/base/CanvasObject');
-var Canvas = require('../../../classes/Canvas');
-var Scene = require('../../../classes/Scene');
+var state = require('../../../../pointers/private/state');
+var PointerData = require('../../../../pointers/private/PointerData');
+var CanvasObject = require('../../../../shapes/base/CanvasObject');
+var Canvas = require('../../../../classes/Canvas');
+var Scene = require('../../../../classes/Scene');
 
 describe('pointers/state', function() {
 
