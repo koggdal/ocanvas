@@ -4,7 +4,7 @@
  */
 'use strict';
 
-var PointerEvent = require('../classes/PointerEvent');
+var PointerEvent = require('./PointerEvent');
 var state = require('./state');
 var sceneUtils = require('./scene');
 var positions = require('./positions');

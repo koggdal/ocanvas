@@ -6,7 +6,7 @@ var CanvasObject = require('../../../shapes/base/CanvasObject');
 var Canvas = require('../../../classes/Canvas');
 var Camera = require('../../../classes/Camera');
 var Scene = require('../../../classes/Scene');
-var PointerEvent = require('../../../classes/PointerEvent');
+var PointerEvent = require('../../../pointers/PointerEvent');
 
 describe('pointers/emitter', function() {
 

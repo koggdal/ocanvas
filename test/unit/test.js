@@ -16,12 +16,12 @@ describe('Classes', function() {
   require('./classes/ObjectEvent');
   require('./classes/ObjectEventEmitter');
   require('./classes/Collection');
-  require('./classes/PointerEvent');
   require('./classes/Pool');
   require('./classes/Scene');
 });
 
 describe('Pointers', function() {
+  require('./pointers/PointerEvent');
   require('./pointers/PointerData');
   require('./pointers/scene');
   require('./pointers/state');

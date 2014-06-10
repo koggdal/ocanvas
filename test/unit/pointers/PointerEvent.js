@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var PointerEvent = require('../../../classes/PointerEvent');
+var PointerEvent = require('../../../pointers/PointerEvent');
 var ObjectEvent = require('../../../classes/ObjectEvent');
 
 describe('PointerEvent', function() {
