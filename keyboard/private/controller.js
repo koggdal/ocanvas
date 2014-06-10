@@ -1,10 +1,10 @@
 /**
- * @module ocanvas/keyboard/controller
+ * @module ocanvas/keyboard/private/controller
  * @private
  */
 'use strict';
 
-var KeyboardEvent = require('./KeyboardEvent');
+var KeyboardEvent = require('../KeyboardEvent');
 var keys = require('./keys');
 var raf = require('raf');
 

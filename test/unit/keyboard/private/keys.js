@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var keys = require('../../../keyboard/keys');
+var keys = require('../../../../keyboard/private/keys');
 
 describe('keyboard/keys', function() {
 

@@ -1,5 +1,5 @@
 /**
- * @module ocanvas/keyboard/keys
+ * @module ocanvas/keyboard/private/keys
  * @private
  */
 'use strict';

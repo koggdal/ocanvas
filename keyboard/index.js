@@ -3,8 +3,8 @@
  */
 'use strict';
 
-var controller = require('./controller');
-var keys = require('./keys');
+var controller = require('./private/controller');
+var keys = require('./private/keys');
 
 var enabledCanvases = [];
 var handlers = [];

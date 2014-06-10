@@ -34,8 +34,8 @@ describe('Pointers', function() {
 
 describe('Keyboard', function() {
   require('./keyboard/KeyboardEvent');
-  require('./keyboard/keys');
-  require('./keyboard/controller');
+  require('./keyboard/private/keys');
+  require('./keyboard/private/controller');
   require('./keyboard/index');
 });
 

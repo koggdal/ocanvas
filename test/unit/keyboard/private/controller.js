@@ -1,6 +1,6 @@
 var expect = require('expect.js');
-var controller = require('../../../keyboard/controller');
-var Canvas = require('../../../classes/Canvas');
+var controller = require('../../../../keyboard/private/controller');
+var Canvas = require('../../../../classes/Canvas');
 
 describe('keyboard/controller', function() {
 
