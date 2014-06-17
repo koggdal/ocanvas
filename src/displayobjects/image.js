@@ -29,15 +29,8 @@
 				if (this.image === undefined) {
 					return;
 				}
-				
-				// Get source (settings.image can be either an HTML img element or a string with path to the image)
-				source = (this.image.nodeName && this.image.nodeName.toLowerCase() === "img") ? "htmlImg" : "newImg";
-				
-				// Get image object (either create a copy of the current element, or a new image)
-				this.img = (source === "htmlImg") ? this.image.cloneNode(false) : new Image();
-				
-				// Temporarily append it to the canvas to be able to get dimensions
-				this.core.canvasElement.appendChild(this.img);
+
+				this.img = new Image();
 				
 				// Get dimensions when the image is loaded. Also, remove the temp img from DOM
 				this.img.onload = function () {
@@ -60,14 +53,10 @@
 					}
 					_this.tile_width = (_this.tile_width === 0) ? _this.width : _this.tile_width;
 					_this.tile_height = (_this.tile_height === 0) ? _this.height : _this.tile_height;
-					_this.core.canvasElement.removeChild(this);
 					if (_this._.hasBeenDrawn) _this.core.redraw();
 				};
-				
-				// Set the path to the image if a string was passed in
-				if (source === "newImg") {
-					this.img.src = this.image;
-				}
+
+				this.img.src = this.image.src || this.image || '';
 			},
 			
 			// Method that draws the image to the canvas once it's loaded
