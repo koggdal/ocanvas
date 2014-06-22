@@ -657,7 +657,8 @@ CanvasObject.prototype.getTransformationMatrix = function(opt_reference) {
     return transformations.matrix;
   }
 
-  var matrices = [];
+  var matrices = combined._matrices || (combined._matrices = []);
+  matrices.length = 0;
   var reference = opt_reference;
 
   if (this.parent instanceof CanvasObject) {
