@@ -401,9 +401,8 @@ Camera.prototype.getTransformationMatrix = function(opt_reference) {
     translation.matrix, rotation.matrix, scaling.matrix,
     transformations.matrix
   );
-  transformations.matrixInverted = matrixUtils.getTransformationMatrix(
-    translation.matrix, rotation.matrix, scaling.matrix,
-    transformations.matrixInverted
+  transformations.matrixInverted = matrixUtils.clone(
+    transformations.matrix, transformations.matrixInverted
   );
   transformations.matrixInverted.invert();
   cache.update('transformations');
