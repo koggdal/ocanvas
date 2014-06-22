@@ -20,7 +20,13 @@ var getClassName = require('./getClassName');
 module.exports = function(object, className) {
   var type = typeof object;
 
-  var classNames = Array.prototype.slice.call(arguments, 1);
+  var classNames = ' ' + className + ' ';
+
+  if (arguments.length > 2) {
+    for (var i = 2, l = arguments.length; i < l; i++) {
+      classNames += arguments[i] + ' ';
+    }
+  }
 
   // It needs to be an object or a function.
   if (object && type !== 'function' && type !== 'object') {
@@ -30,8 +36,11 @@ module.exports = function(object, className) {
   while (object) {
     var prototype = Object.getPrototypeOf(object);
     var constructor = prototype && prototype.constructor;
-    if (constructor && classNames.indexOf(getClassName(constructor)) > -1) {
-      return true;
+    if (constructor) {
+      var name = getClassName(constructor);
+      if (classNames.indexOf(' ' + name + ' ') > -1) {
+        return true;
+      }
     }
     object = prototype;
   }
