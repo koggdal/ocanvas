@@ -181,4 +181,35 @@ describe('matrix', function() {
 
   });
 
+  describe('.clone()', function() {
+
+    it('should return a new Matrix instance if one is not provided', function() {
+      var matrix1 = new Matrix(3, 3);
+      var matrix2 = matrixUtils.clone(matrix1);
+      expect(matrix2 instanceof Matrix).to.equal(true);
+      expect(matrix2).to.not.equal(matrix1);
+    });
+
+    it('should return the same Matrix instance if one is provided', function() {
+      var matrix1 = new Matrix(3, 3).setData(1, 2, 3, 4, 5, 6, 7, 8, 9);
+      var matrix2 = new Matrix(3, 3);
+      var matrix3 = matrixUtils.clone(matrix1, matrix2);
+      expect(matrix3).to.equal(matrix2);
+    });
+
+    it('should set the cloned data on a new matrix', function() {
+      var matrix1 = new Matrix(3, 3).setData(1, 2, 3, 4, 5, 6, 7, 8, 9);
+      var matrix2 = matrixUtils.clone(matrix1);
+      expect(matrix2.toArray()).to.eql([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    });
+
+    it('should set the cloned data on an existing matrix', function() {
+      var matrix1 = new Matrix(3, 3).setData(1, 2, 3, 4, 5, 6, 7, 8, 9);
+      var matrix2 = new Matrix(3, 3);
+      var matrix3 = matrixUtils.clone(matrix1, matrix2);
+      expect(matrix3.toArray()).to.eql([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    });
+
+  });
+
 });

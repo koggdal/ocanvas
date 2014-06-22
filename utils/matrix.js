@@ -103,3 +103,21 @@ exports.getIdentityMatrix = function(opt_matrix) {
 
   return matrix;
 };
+
+/**
+ * Clone a matrix into another matrix.
+ *
+ * @param {Matrix} matrixToClone Matrix instance to clone data from.
+ * @param {Matrix=} opt_matrix Optional Matrix instance to use for output.
+ *
+ * @return {Matrix} A Matrix instance for the cloned data.
+ */
+exports.clone = function(matrixToClone, opt_matrix) {
+  var matrix = opt_matrix || new Matrix(3, 3, false);
+
+  for (var i = 0, l = matrixToClone.length; i < l; i++) {
+    matrix[i] = matrixToClone[i];
+  }
+
+  return matrix;
+};
