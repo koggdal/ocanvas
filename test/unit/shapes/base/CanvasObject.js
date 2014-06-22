@@ -1482,38 +1482,6 @@ describe('CanvasObject', function() {
       expect(point2).to.equal(point2var);
     });
 
-    it('should return a cached point if nothing has changed', function(done) {
-      var camera = new Camera({rotation: 45});
-      var canvas = new Canvas({camera: camera});
-      var scene = new Scene();
-      var object1 = new CanvasObject({rotation: 45, x: 200});
-      var object2 = new CanvasObject({rotation: -45, y: 100});
-
-      scene.cameras.add(camera);
-      scene.objects.add(object1);
-      object1.children.add(object2);
-
-      var point = object2.getPointIn(canvas, 2, 2);
-      expect(point).to.eql({x: 135.1507575950825, y: 86.61165235168156});
-
-      var pointMatrix = object2.cache.get('getPointIn-output').matrix;
-      var setData = pointMatrix.setData;
-      var setDataCalled = false;
-      pointMatrix.setData = function() {
-        setDataCalled = true;
-        setData.apply(this, arguments);
-      };
-
-      point = object2.getPointIn(canvas, 2, 2);
-      expect(point).to.eql({x: 135.1507575950825, y: 86.61165235168156});
-
-      setTimeout(function() {
-        if (!setDataCalled) done();
-        else done(new Error('The matrix was updated and did not use the cache'));
-      }, 10);
-
-    });
-
     it('should return an updated point if position has changed', function() {
       var camera = new Camera({rotation: 45});
       var canvas = new Canvas({camera: camera});
@@ -3040,25 +3008,6 @@ describe('CanvasObject', function() {
 
     it('should have a cache unit for a bounding rectangle for a subtree of objects, relative to a reference', function() {
       expect(object.cache.get('bounds-tree-reference')).to.not.equal(null);
-    });
-
-    it('should invalidate `getPointIn-output` on children when `getPointIn-output` is invalidated on this object', function() {
-      var camera = new Camera();
-      var canvas = new Canvas({camera: camera});
-      var object1 = new CanvasObject();
-      var object2 = new CanvasObject();
-      object1.children.add(object2);
-
-      object1.getPointIn(canvas, 10, 10);
-      object2.getPointIn(canvas, 10, 10);
-
-      expect(object1.cache.test('getPointIn-output')).to.equal(true);
-      expect(object2.cache.test('getPointIn-output')).to.equal(true);
-
-      object1.cache.invalidate('getPointIn-output');
-
-      expect(object1.cache.test('getPointIn-output')).to.equal(false);
-      expect(object2.cache.test('getPointIn-output')).to.equal(false);
     });
 
     it('should invalidate `bounds-tree-local` on parent when `bounds-tree-local` is invalidated on this object', function() {

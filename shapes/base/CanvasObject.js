@@ -275,9 +275,7 @@ CanvasObject.prototype.initCache = function() {
     dependencies: ['transformations']
   });
   this.cache.define('getPointIn-input');
-  this.cache.define('getPointIn-output', {
-    dependencies: ['getPointIn-input', 'combinedTransformations']
-  });
+  this.cache.define('getPointIn-output');
   this.cache.define('getPointFrom-input');
   this.cache.define('getPointFrom-output', {
     dependencies: ['getPointFrom-input', 'combinedTransformations']
@@ -318,11 +316,6 @@ CanvasObject.prototype.initCache = function() {
     if (unit === 'combinedTransformations') {
       for (i = 0, l = self.children.length; i < l; i++) {
         self.children.get(i).cache.invalidate('combinedTransformations');
-      }
-    }
-    else if (unit === 'getPointIn-output') {
-      for (i = 0, l = self.children.length; i < l; i++) {
-        self.children.get(i).cache.invalidate('getPointIn-output');
       }
     }
 
@@ -706,108 +699,86 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
   var cache = this.cache;
   var inputPoint = cache.get('getPointIn-input');
   var outputPoint = cache.get('getPointIn-output');
-  var outputPointMatrix = outputPoint.matrix;
 
-  if (outputPoint.isValid && outputPoint.reference !== reference) {
-    cache.invalidate('getPointIn-output');
+  inputPoint.matrix = matrixUtils.getTranslationMatrix(x, y, inputPoint.matrix);
+
+  var isCanvasObject = isInstanceOf(reference, 'CanvasObject');
+  var isScene = isInstanceOf(reference, 'Scene');
+  var isCamera = isInstanceOf(reference, 'Camera');
+  var isCanvas = isInstanceOf(reference, 'Canvas');
+
+  // When we get the transformation matrix needed to transform the point,
+  // we need a matrix with the reference being one step closer than the
+  // reference passed to this method. This is because we are looking for a
+  // point within the reference, without applying the transformations of the
+  // reference.
+  var matrixReference;
+
+  // For objects and the scene as reference, we need to find the object that
+  // is one step closer to the source object.
+  if (isCanvasObject || isScene) {
+    var parent = this.parent;
+    while (parent && parent !== reference) {
+      matrixReference = parent;
+      parent = parent.parent;
+    }
+
+  } else if (isCamera) {
+    matrixReference = reference.scene;
+
+  } else if (isCanvas) {
+    matrixReference = reference.camera && reference.camera.scene;
+  } else {
+    var point = opt_point || {x: 0, y: 0};
+    point.x = x;
+    point.y = y;
+    return point;
   }
-  outputPoint.reference = reference;
 
-  if (inputPoint.x !== x || inputPoint.y !== y) {
-    cache.invalidate('getPointIn-input');
+  var transformationMatrix;
+
+  if (matrixReference) {
+    transformationMatrix = this.getTransformationMatrix(matrixReference);
+  } else {
+    transformationMatrix = this.getTransformationMatrix();
   }
 
-  if (!outputPoint.isValid) {
+  // Reset the cached matrix instance for the output point
+  var outputPointMatrix = matrixUtils.getIdentityMatrix(outputPoint.matrix);
+  outputPointMatrix.multiply(transformationMatrix, inputPoint.matrix);
+  outputPoint.matrix = outputPointMatrix;
 
-    if (!inputPoint.isValid) {
-      inputPoint.matrix = matrixUtils.getTranslationMatrix(x, y,
-          inputPoint.matrix);
-      inputPoint.x = x;
-      inputPoint.y = y;
-      cache.update('getPointIn-input');
+  if (isCamera || isCanvas) {
+    var ref = reference;
+    var camera = isCanvas ? ref.camera : ref;
+    camera.getTransformationMatrix();
+    var cameraTransformationCache = camera.cache.get('transformations');
+    var cameraTransformationMatrix = cameraTransformationCache.matrixInverted;
+
+    var refMatrix = cameraTransformationMatrix;
+
+    if (isCanvas) {
+      refMatrix = reference.getTransformationMatrix();
     }
 
-    var isCanvasObject = isInstanceOf(reference, 'CanvasObject');
-    var isScene = isInstanceOf(reference, 'Scene');
-    var isCamera = isInstanceOf(reference, 'Camera');
-    var isCanvas = isInstanceOf(reference, 'Canvas');
+    var i;
 
-    // When we get the transformation matrix needed to transform the point,
-    // we need a matrix with the reference being one step closer than the
-    // reference passed to this method. This is because we are looking for a
-    // point within the reference, without applying the transformations of the
-    // reference.
-    var matrixReference;
-
-    // For objects and the scene as reference, we need to find the object that
-    // is one step closer to the source object.
-    if (isCanvasObject || isScene) {
-      var parent = this.parent;
-      while (parent && parent !== reference) {
-        matrixReference = parent;
-        parent = parent.parent;
-      }
-
-    } else if (isCamera) {
-      matrixReference = reference.scene;
-
-    } else if (isCanvas) {
-      matrixReference = reference.camera && reference.camera.scene;
-    } else {
-      var point = opt_point || {x: 0, y: 0};
-      point.x = x;
-      point.y = y;
-      return point;
+    for (i = 0; i < 9; i++) {
+      cameraTransformationCache[i] = refMatrix[i];
     }
 
-    var transformationMatrix;
-
-    if (matrixReference) {
-      transformationMatrix = this.getTransformationMatrix(matrixReference);
-    } else {
-      transformationMatrix = this.getTransformationMatrix();
+    if (isCanvas) {
+      refMatrix.multiply(cameraTransformationMatrix);
     }
 
-    // Reset the cached matrix instance for the output point
-    outputPoint.matrix = matrixUtils.getIdentityMatrix(outputPoint.matrix);
-    outputPointMatrix = outputPoint.matrix;
-    outputPointMatrix.multiply(transformationMatrix, inputPoint.matrix);
+    refMatrix.multiply(outputPointMatrix);
 
-    if (isCamera || isCanvas) {
-      var ref = reference;
-      var camera = isCanvas ? ref.camera : ref;
-      camera.getTransformationMatrix();
-      var cameraTransformationCache = camera.cache.get('transformations');
-      var cameraTransformationMatrix = cameraTransformationCache.matrixInverted;
-
-      var refMatrix = cameraTransformationMatrix;
-
-      if (isCanvas) {
-        refMatrix = reference.getTransformationMatrix();
-      }
-
-      var i;
-
-      for (i = 0; i < 9; i++) {
-        cameraTransformationCache[i] = refMatrix[i];
-      }
-
-      if (isCanvas) {
-        refMatrix.multiply(cameraTransformationMatrix);
-      }
-
-      refMatrix.multiply(outputPointMatrix);
-
-      for (i = 0; i < 9; i++) {
-        outputPointMatrix[i] = refMatrix[i];
-        refMatrix[i] = cameraTransformationCache[i];
-        delete cameraTransformationCache[i];
-      }
-
+    for (i = 0; i < 9; i++) {
+      outputPointMatrix[i] = refMatrix[i];
+      refMatrix[i] = cameraTransformationCache[i];
+      delete cameraTransformationCache[i];
     }
 
-    // Set cache as updated
-    cache.update('getPointIn-output');
   }
 
   var output = opt_point || {x: 0, y: 0};
