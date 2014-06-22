@@ -312,17 +312,18 @@ CanvasObject.prototype.initCache = function() {
   });
 
   this.cache.onInvalidate = function(unit) {
+    var i, l;
 
     // Matrices
     if (unit === 'combinedTransformations') {
-      self.children.forEach(function(child) {
-        child.cache.invalidate('combinedTransformations');
-      });
+      for (i = 0, l = self.children.length; i < l; i++) {
+        self.children.get(i).cache.invalidate('combinedTransformations');
+      }
     }
     else if (unit === 'getPointIn-output') {
-      self.children.forEach(function(child) {
-        child.cache.invalidate('getPointIn-output');
-      });
+      for (i = 0, l = self.children.length; i < l; i++) {
+        self.children.get(i).cache.invalidate('getPointIn-output');
+      }
     }
 
     // Vertices
@@ -342,9 +343,9 @@ CanvasObject.prototype.initCache = function() {
       });
     }
     else if (unit === 'vertices-local') {
-      self.children.forEach(function(child) {
-        child.cache.invalidate('vertices-reference');
-      });
+      for (i = 0, l = self.children.length; i < l; i++) {
+        self.children.get(i).cache.invalidate('vertices-reference');
+      }
     }
 
     // Bounding Rectangles
