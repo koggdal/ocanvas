@@ -47,8 +47,8 @@ describe('Cache', function() {
       cache.define('rotation', {dependencies: ['translation']});
       expect(cache.units.translation).to.be.ok();
       expect(cache.units.rotation).to.be.ok();
-      expect(cache.dependencies.rotation).to.be.ok();
-      expect(cache.dependencies.rotation.indexOf('translation')).to.equal(0);
+      expect(cache.dependencies.translation).to.be.ok();
+      expect(cache.dependencies.translation.rotation).to.be.ok();
     });
 
     it('should define multiple cache units with dependencies', function() {
@@ -58,10 +58,9 @@ describe('Cache', function() {
       expect(cache.units.translation).to.be.ok();
       expect(cache.units.rotation).to.be.ok();
       expect(cache.units.scaling).to.be.ok();
-      expect(cache.dependencies.rotation).to.be.ok();
-      expect(cache.dependencies.scaling).to.be.ok();
-      expect(cache.dependencies.rotation.indexOf('translation')).to.equal(0);
-      expect(cache.dependencies.scaling.indexOf('translation')).to.equal(0);
+      expect(cache.dependencies.translation).to.be.ok();
+      expect(cache.dependencies.translation.rotation).to.be.ok();
+      expect(cache.dependencies.translation.scaling).to.be.ok();
     });
 
     it('should return the cache instance', function() {

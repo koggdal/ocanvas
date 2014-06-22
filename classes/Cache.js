@@ -12,7 +12,10 @@
  *     invalidated.
  *
  * @property {Object} units The storage of cache units.
- * @property {Object} dependencies The storage of dependencies.
+ * @property {Object} dependencies The storage of dependencies and their
+ *     dependants. For example, all units that depend on the unit 'foo' can be
+ *     found in dependencies.foo (which is an object like {bar: true}, where
+ *     'bar' is a unit that depends on 'foo').
  *
  * @constructor
  *
@@ -77,7 +80,13 @@ Cache.prototype.define = function(name, opt_options) {
 
   var dependencies = opt_options && opt_options.dependencies;
   if (Array.isArray(dependencies)) {
-    this.dependencies[name] = dependencies.slice();
+    for (var n = 0, len = dependencies.length; n < len; n++) {
+      var dependants = this.dependencies[dependencies[n]];
+      if (!dependants) {
+        dependants = this.dependencies[dependencies[n]] = {};
+      }
+      dependants[name] = true;
+    }
   }
 
   return this;
@@ -182,13 +191,10 @@ Cache.prototype.invalidate = function(name) {
 
     // Automatic invalidation of dependencies.
     // A unit that depends on the invalidated unit should also be invalidated.
-    var dependencies = this.dependencies;
-    for (var unitName in dependencies) {
-      var deps = dependencies[unitName];
-      for (var n = 0, len = deps.length; n < len; n++) {
-        if (name === deps[n]) {
-          this.invalidate(unitName);
-        }
+    var dependants = this.dependencies[name];
+    if (dependants) {
+      for (var unit in dependants) {
+        this.invalidate(unit);
       }
     }
   }
