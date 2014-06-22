@@ -369,7 +369,12 @@ CanvasObject.prototype.initCache = function() {
  *
  * Empty function which needs implementation in a subclass.
  *
- * @return {Object.<string, number>} An object with properties x and y.
+ * @param {string=} opt_axis Coordinate axis to to calculate for. Can be either
+ *     'x', 'y' or left out. If not provided, it will default to calculate both.
+ *
+ * @return {number|Object.<string, number>} If an axis was passed in, this will
+ *     return a number. If no axis was passed in, an object with properties `x`
+ *     and `y` will be returned.
  */
 CanvasObject.prototype.calculateOrigin = function() {
   var message = 'CanvasObject does not have an implementation of the ' +

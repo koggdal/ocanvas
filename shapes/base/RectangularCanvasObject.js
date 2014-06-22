@@ -115,37 +115,50 @@ RectangularCanvasObject.prototype.toJSON = function(opt_space) {
   return jsonHelpers.toJSON(this, props, getClassName(this.constructor), opt_space);
 };
 
-
 /**
  * Calculate the origin in pixels from the default origin of an object.
  * The method will use the originX and originY properties, which can
  * contain special strings like 'left' or 'top'. It will then calculate
  * the real values based on that.
  *
- * @return {Object.<string, number>} An object with properties x and y.
+ * @param {string=} opt_axis Coordinate axis to to calculate for. Can be either
+ *     'x', 'y' or left out. If not provided, it will default to calculate both.
+ *
+ * @return {number|Object.<string, number>} If an axis was passed in, this will
+ *     return a number. If no axis was passed in, an object with properties `x`
+ *     and `y` will be returned.
  */
-RectangularCanvasObject.prototype.calculateOrigin = function() {
+RectangularCanvasObject.prototype.calculateOrigin = function(opt_axis) {
   var x = 0;
   var y = 0;
 
-  switch (this.originX) {
-    case 'left': x = 0; break;
-    case 'center': x = this.width / 2; break;
-    case 'right': x = this.width; break;
-    default: x = parseFloat(this.originX, 10) || 0; break;
+  var shouldGetX = !opt_axis || opt_axis === 'x';
+  var shouldGetY = !opt_axis || opt_axis === 'y';
+
+  if (shouldGetX) {
+    switch (this.originX) {
+      case 'left': x = 0; break;
+      case 'center': x = this.width / 2; break;
+      case 'right': x = this.width; break;
+      default: x = parseFloat(this.originX, 10) || 0; break;
+    }
   }
 
-  switch (this.originY) {
-    case 'top': y = 0; break;
-    case 'center': y = this.height / 2; break;
-    case 'bottom': y = this.height; break;
-    default: y = parseFloat(this.originY, 10) || 0; break;
+  if (shouldGetY) {
+    switch (this.originY) {
+      case 'top': y = 0; break;
+      case 'center': y = this.height / 2; break;
+      case 'bottom': y = this.height; break;
+      default: y = parseFloat(this.originY, 10) || 0; break;
+    }
   }
 
-  return {
-    x: x,
-    y: y
-  };
+  if (shouldGetX && shouldGetY) return {x: x, y: y};
+  if (shouldGetX) return x;
+  if (shouldGetY) return y;
+
+  // Return 0 for an invalid axis
+  return 0;
 };
 
 /**
@@ -156,9 +169,8 @@ RectangularCanvasObject.prototype.calculateOrigin = function() {
 RectangularCanvasObject.prototype.renderPath = function(canvas) {
   var context = canvas.context;
 
-  var origin = this.calculateOrigin();
-  var x = -origin.x;
-  var y = -origin.y;
+  var x = -this.calculateOrigin('x');
+  var y = -this.calculateOrigin('y');
 
   context.rect(x, y, this.width, this.height);
 };
@@ -206,17 +218,15 @@ RectangularCanvasObject.prototype.getVertices = function(opt_reference) {
     ];
   }
 
-  var origin = this.calculateOrigin();
-
   var lineWidth = 0;
   if (this.stroke) {
     var parts = this.stroke.split(' ');
     lineWidth = parseFloat(parts[0], 10);
   }
 
-  var left = -origin.x - lineWidth;
+  var left = -this.calculateOrigin('x') - lineWidth;
   var right = left + this.width + lineWidth * 2;
-  var top = -origin.y - lineWidth;
+  var top = -this.calculateOrigin('y') - lineWidth;
   var bottom = top + this.height + lineWidth * 2;
 
   var localVertices = localCache.vertices;

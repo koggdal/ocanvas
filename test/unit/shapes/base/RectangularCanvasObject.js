@@ -242,8 +242,22 @@ describe('RectangularCanvasObject', function() {
 
     it('should return an object with x/y properties', function() {
       var origin = object.calculateOrigin();
-      expect(origin.x).to.not.equal(undefined);
-      expect(origin.y).to.not.equal(undefined);
+      expect(origin.x).to.be.a('number');
+      expect(origin.y).to.be.a('number');
+    });
+
+    it('should return a number if an axis is passed', function() {
+      var originX = object.calculateOrigin('x');
+      var originY = object.calculateOrigin('y');
+      expect(originX).to.be.a('number');
+      expect(originY).to.be.a('number');
+    });
+
+    it('should return 0 if an invalid axis is passed', function() {
+      object.originX = 'right';
+      object.originY = 'bottom';
+      var origin = object.calculateOrigin('foo');
+      expect(origin).to.equal(0);
     });
 
     it('should return x=0 for originX=left', function() {
