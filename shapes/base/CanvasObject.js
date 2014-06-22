@@ -639,11 +639,13 @@ CanvasObject.prototype.getTransformationMatrix = function(opt_reference) {
     cache.update('scaling');
   }
 
-  transformations.matrix = matrixUtils.getTransformationMatrix(
-    translation.matrix, rotation.matrix, scaling.matrix,
-    transformations.matrix
-  );
-  cache.update('transformations');
+  if (!transformations.isValid) {
+    transformations.matrix = matrixUtils.getTransformationMatrix(
+      translation.matrix, rotation.matrix, scaling.matrix,
+      transformations.matrix
+    );
+    cache.update('transformations');
+  }
 
   // If there is no reference, we should not make a combined transformation
   // However, we need to update the cache to let other parts know that it's
