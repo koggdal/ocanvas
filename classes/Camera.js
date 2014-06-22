@@ -359,9 +359,8 @@ Camera.prototype.getTransformationMatrix = function(opt_reference) {
     cache.invalidate('transformations');
   }
 
-  transformations.reference = reference;
-
   if (transformations.isValid) return transformations.matrix;
+  transformations.reference = reference;
 
   var translation = cache.get('translation');
   var rotation = cache.get('rotation');
