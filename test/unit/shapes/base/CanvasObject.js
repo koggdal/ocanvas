@@ -1367,6 +1367,31 @@ describe('CanvasObject', function() {
       expect(matrix.toArray()).to.eql([1, 0, 140, 0, 1, 270, 0, 0, 1]);
     });
 
+    it('should return a cached matrix when the same reference is passed', function(done) {
+      var camera = new Camera({x: 100, y: 200});
+      var object1 = new CanvasObject({x: 10, y: 20});
+      var object2 = new CanvasObject({x: 30, y: 50});
+      object1.children.add(object2);
+
+      var matrix = object2.getTransformationMatrix(object1);
+
+      var setData = matrix.setData;
+      var setDataCalled = false;
+      matrix.setData = function() {
+        setDataCalled = true;
+        setData.apply(this, arguments);
+      };
+
+      var matrix2 = object2.getTransformationMatrix(object1);
+
+      expect(matrix).to.equal(matrix2);
+
+      setTimeout(function() {
+        if (!setDataCalled) done();
+        else done(new Error('The matrix was updated and did not use the cache'));
+      }, 10);
+    });
+
   });
 
   describe('#getPointIn()', function() {

@@ -607,8 +607,12 @@ CanvasObject.prototype.getTransformationMatrix = function(opt_reference) {
   if (!opt_reference) {
     if (transformations.isValid) return transformations.matrix;
   } else {
-    if (combined.isValid && combined.reference !== opt_reference) {
-      cache.invalidate('combinedTransformations');
+    if (combined.isValid) {
+      if (combined.reference === opt_reference) {
+        return combined.matrix;
+      } else {
+        cache.invalidate('combinedTransformations');
+      }
     }
     combined.reference = opt_reference;
   }
