@@ -519,12 +519,15 @@ Canvas.prototype._getViewModeValues = function() {
     }
   }
 
-  return {
-    x: x,
-    y: y,
-    scaleX: scaleX,
-    scaleY: scaleY
-  };
+  var cache = this.cache.get('scaling');
+  var values = cache._viewModeValues || (cache._viewModeValues = {});
+
+  values.x = x;
+  values.y = y;
+  values.scaleX = scaleX;
+  values.scaleY = scaleY;
+
+  return values;
 };
 
 /**
