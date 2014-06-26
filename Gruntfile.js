@@ -5,8 +5,8 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
 
     exec: {
-      'quickstart-dev': 'mkdir -p ./builds && ./node_modules/quickstart/quickstart --main browser.js > ./builds/ocanvas.js',
-      'quickstart-prod': 'mkdir -p ./builds && ./node_modules/quickstart/quickstart --main browser.js --compress > ./builds/ocanvas.min.js',
+      'quickstart-dev': 'mkdir -p ./builds && ./node_modules/.bin/quickstart --main browser.js > ./builds/ocanvas.js',
+      'quickstart-prod': 'mkdir -p ./builds && ./node_modules/.bin/quickstart --main browser.js --compress > ./builds/ocanvas.min.js',
       'coverage': {
         cmd: function() {
           var mochaTests = [

@@ -24,7 +24,7 @@
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-exec": "~0.4.2",
-    "quickstart": "~0.7.2",
+    "quickstart": "^1",
     "mocha": "~1.15.1",
     "expect.js": "~0.2.0",
     "istanbul": "~0.2.10"
