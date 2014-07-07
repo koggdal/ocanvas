@@ -17,7 +17,8 @@ var getClassName = require('./getClassName');
  * @example
  * isInstanceOf(object, 'Object'); // true or false
  */
-module.exports = function(object, className) {
+module.exports = function(obj, className) {
+  var object = obj;
   var type = typeof object;
 
   var classNames = ' ' + className + ' ';
