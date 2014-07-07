@@ -743,9 +743,10 @@ CanvasObject.prototype.getPointIn = function(reference, x, y, opt_point) {
     transformationMatrix = this.getTransformationMatrix();
   }
 
-  // Reset the cached matrix instance for the output point
-  var outputPointMatrix = matrixUtils.getIdentityMatrix(outputPoint.matrix);
-  outputPointMatrix.multiply(transformationMatrix, inputPoint.matrix);
+  // Get an output matrix for the transformed input point
+  var outputPointMatrix = outputPoint.matrix ||
+      matrixUtils.getIdentityMatrix(outputPoint.matrix);
+  outputPointMatrix.copy(transformationMatrix).multiply(inputPoint.matrix);
   outputPoint.matrix = outputPointMatrix;
 
   if (isCamera || isCanvas) {
