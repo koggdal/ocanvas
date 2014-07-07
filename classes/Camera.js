@@ -295,9 +295,16 @@ Camera.prototype.initCache = function() {
         var objects = self.scene.objects;
         for (var i = 0, l = objects.length; i < l; i++) {
           var objectCache = objects.get(i).cache;
+
           var reference = objectCache.get('combinedTransformations').reference;
           if (reference === self || isInstanceOf(reference, 'Canvas')) {
             objectCache.invalidate('combinedTransformations');
+          } else {
+
+            reference = objectCache.get('vertices-reference').reference;
+            if (reference === self || isInstanceOf(reference, 'Canvas')) {
+              objectCache.invalidate('combinedTransformations');
+            }
           }
         }
       }
