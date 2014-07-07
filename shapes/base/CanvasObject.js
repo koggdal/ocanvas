@@ -650,12 +650,11 @@ CanvasObject.prototype.getTransformationMatrix = function(opt_reference) {
     return transformations.matrix;
   }
 
-  var matrices = combined._matrices || (combined._matrices = []);
-  matrices.length = 0;
   var reference = opt_reference;
+  var matrix1;
 
   if (this.parent instanceof CanvasObject) {
-    matrices.push(this.parent.getTransformationMatrix(reference));
+    matrix1 = this.parent.getTransformationMatrix(reference);
 
   } else {
     var isCamera = isInstanceOf(reference, 'Camera');
@@ -663,17 +662,18 @@ CanvasObject.prototype.getTransformationMatrix = function(opt_reference) {
     if (isCamera || isCanvas) {
       var camera = isCamera ? reference : reference.camera;
       var canvas = isCanvas ? reference : undefined;
-      matrices.push(camera.getTransformationMatrix(canvas));
+      matrix1 = camera.getTransformationMatrix(canvas);
     }
   }
-
-  // Also add the local matrix for this object
-  matrices.push(transformations.matrix);
 
   // Multiplying the global matrix for the parent chain with the local matrix
   // for this object will result in a global matrix for this object.
   combined.matrix = matrixUtils.getIdentityMatrix(combined.matrix);
-  combined.matrix.multiply.apply(combined.matrix, matrices);
+  if (matrix1) {
+    combined.matrix.multiply(matrix1, transformations.matrix);
+  } else {
+    combined.matrix.multiply(transformations.matrix);
+  }
   cache.update('combinedTransformations');
 
   return combined.matrix;
