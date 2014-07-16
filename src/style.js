@@ -75,7 +75,7 @@
 						// Set the stroke object with correct values
 						stroke = {
 							pos: stroke[0],
-							width: parseInt(stroke[1]),
+							width: parseFloat(stroke[1]),
 							color: stroke[2]
 						};
 					}
@@ -87,7 +87,7 @@
 					// Set the stroke object
 					stroke = {
 						pos: "center",
-						width: parseInt(stroke[0]),
+						width: parseFloat(stroke[0]),
 						color: stroke[1]
 					};
 				}
