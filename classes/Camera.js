@@ -382,7 +382,7 @@ Camera.prototype.getTransformationMatrix = function(opt_reference) {
   }
 
   if (!rotation.isValid) {
-    if (isInstanceOf(reference, 'Canvas')) {
+    if (reference && isInstanceOf(reference, 'Canvas')) {
       rotation.matrix = matrixUtils.getRotationMatrix(this.rotation * -1,
         rotation.matrix);
     } else {
@@ -393,7 +393,7 @@ Camera.prototype.getTransformationMatrix = function(opt_reference) {
   }
 
   if (!scaling.isValid) {
-    if (isInstanceOf(reference, 'Canvas')) {
+    if (reference && isInstanceOf(reference, 'Canvas')) {
       scaling.matrix = matrixUtils.getScalingMatrix(this.zoom, this.zoom,
         scaling.matrix);
     } else {
