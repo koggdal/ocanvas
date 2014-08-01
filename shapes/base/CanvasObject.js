@@ -303,10 +303,10 @@ CanvasObject.prototype.initCache = function() {
     dependencies: ['vertices-reference']
   });
   this.cache.define('bounds-tree-local', {
-    dependencies: ['vertices-local']
+    dependencies: ['vertices-tree-local']
   });
   this.cache.define('bounds-tree-reference', {
-    dependencies: ['vertices-reference']
+    dependencies: ['vertices-tree-reference']
   });
 
   this.cache.onInvalidate = function(unit) {
