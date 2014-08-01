@@ -356,6 +356,146 @@ describe('Canvas', function() {
       expect(getColor(ctx, 200, 100)).to.equal('rgba(0, 255, 0, 255)');
     });
 
+    it('should render the bounding rectangles if culling is on and object is in view', function() {
+      var scene = new Scene();
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: new Camera({width: 300, height: 300})
+      });
+      scene.cameras.add(canvas.camera);
+
+      var object = new Rectangle({
+        x: 100, y: 100,
+        width: 100, height: 50,
+        originX: 'center',
+        originY: 'center',
+        fill: '#0f0',
+        rotation: 45
+      });
+      scene.objects.add(object);
+
+      canvas.boundingRectangleCulling = true;
+      canvas.boundingRectanglesEnabled = true;
+      canvas.boundingRectanglesColor = '#00f';
+      canvas.boundingRectanglesThickness = 10;
+      canvas.render();
+
+      var ctx = canvas.context;
+
+      expect(getColor(ctx, 37, 37)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 46, 46)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 48, 48)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 151, 151)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 153, 153)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 162, 162)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 100, 100)).to.equal('rgba(0, 255, 0, 255)');
+    });
+
+    it('should not render the bounding rectangles if culling is on and object is not in view', function() {
+      var scene = new Scene();
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: new Camera({width: 300, height: 300})
+      });
+      scene.cameras.add(canvas.camera);
+
+      var object = new Rectangle({
+        x: 1000, y: 100,
+        width: 100, height: 50,
+        originX: 'center',
+        originY: 'center',
+        fill: '#0f0',
+        rotation: 45
+      });
+      scene.objects.add(object);
+
+      var called = false;
+      var method = canvas.renderBoundingRectangleForObject;
+      canvas.renderBoundingRectangleForObject = function() {
+        called = true;
+      };
+
+      canvas.boundingRectangleCulling = true;
+      canvas.boundingRectanglesEnabled = true;
+      canvas.boundingRectanglesColor = '#00f';
+      canvas.boundingRectanglesThickness = 10;
+      canvas.render();
+
+      canvas.renderBoundingRectangleForObject = method;
+
+      expect(called).to.equal(false);
+    });
+
+    it('should render the bounding rectangles if culling is off and object is in view', function() {
+      var scene = new Scene();
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: new Camera({width: 300, height: 300})
+      });
+      scene.cameras.add(canvas.camera);
+
+      var object = new Rectangle({
+        x: 100, y: 100,
+        width: 100, height: 50,
+        originX: 'center',
+        originY: 'center',
+        fill: '#0f0',
+        rotation: 45
+      });
+      scene.objects.add(object);
+
+      canvas.boundingRectangleCulling = false;
+      canvas.boundingRectanglesEnabled = true;
+      canvas.boundingRectanglesColor = '#00f';
+      canvas.boundingRectanglesThickness = 10;
+      canvas.render();
+
+      var ctx = canvas.context;
+
+      expect(getColor(ctx, 37, 37)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 46, 46)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 48, 48)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 151, 151)).to.equal('rgba(0, 0, 0, 0)');
+      expect(getColor(ctx, 153, 153)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 162, 162)).to.equal('rgba(0, 0, 255, 255)');
+      expect(getColor(ctx, 100, 100)).to.equal('rgba(0, 255, 0, 255)');
+    });
+
+    it('should render the bounding rectangles if culling is off and object is not in view', function() {
+      var scene = new Scene();
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300),
+        camera: new Camera({width: 300, height: 300})
+      });
+      scene.cameras.add(canvas.camera);
+
+      var object = new Rectangle({
+        x: 1000, y: 100,
+        width: 100, height: 50,
+        originX: 'center',
+        originY: 'center',
+        fill: '#0f0',
+        rotation: 45
+      });
+      scene.objects.add(object);
+
+      var called = false;
+      var method = canvas.renderBoundingRectangleForObject;
+      canvas.renderBoundingRectangleForObject = function() {
+        called = true;
+      };
+
+      canvas.boundingRectangleCulling = false;
+      canvas.boundingRectanglesEnabled = true;
+      canvas.boundingRectanglesColor = '#00f';
+      canvas.boundingRectanglesThickness = 10;
+      canvas.render();
+
+      canvas.renderBoundingRectangleForObject = method;
+
+      expect(called).to.equal(true);
+    });
+
   });
 
   describe('#transformContextToObject()', function() {

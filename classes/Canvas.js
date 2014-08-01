@@ -320,7 +320,14 @@ Canvas.prototype.render = function() {
 
       var objects = camera.scene.objects;
       for (var i = 0, l = objects.length; i < l; i++) {
-        this.renderBoundingRectangleForObject(objects.get(i));
+        var object = objects.get(i);
+        if (this.boundingRectangleCulling) {
+          if (object.isTreeInView(camera)) {
+            this.renderBoundingRectangleForObject(object);
+          }
+        } else {
+          this.renderBoundingRectangleForObject(object);
+        }
       }
 
       context.restore();
