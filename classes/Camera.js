@@ -577,13 +577,16 @@ Camera.prototype.getBoundingRectangle = function(opt_reference, opt_mode) {
     if (localCache.isValid) return localCache.data;
   } else {
     if (referenceCache.isValid) {
-      if (referenceCache.reference === opt_reference) {
+      var sameReference = referenceCache.reference === opt_reference;
+      var sameMode = referenceCache.mode === mode;
+      if (sameReference && sameMode) {
         return referenceCache.data;
       } else {
         cache.invalidate('bounds-reference');
       }
     }
     referenceCache.reference = opt_reference;
+    referenceCache.mode = mode;
   }
 
   if (!localCache.data && !opt_reference) localCache.data = {};
