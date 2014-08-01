@@ -45,6 +45,13 @@ describe('Shapes', function() {
   require('./shapes/Rectangle');
 });
 
+describe('Tracker', function() {
+  require('./tracker/TrackerAttractor');
+  require('./tracker/TrackerRepeller');
+  require('./tracker/TrackerPusher');
+  require('./tracker/Tracker');
+});
+
 describe('Helpers', function() {
   require('./create');
 });
