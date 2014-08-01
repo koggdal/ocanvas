@@ -1083,6 +1083,46 @@ describe('Camera', function() {
       expect(object.cache.test('combinedTransformations')).to.equal(false);
     });
 
+    it('should invalidate combinedTransformations on objects in the connected scene when camera changes and vertices reference is the camera', function() {
+      var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
+      var scene = new Scene();
+      var object = new CanvasObject();
+
+      scene.cameras.add(camera);
+      scene.objects.add(object);
+
+      // The getPointIn method will run getTransformationMatrix
+      object.getPointIn(canvas, 5, 10);
+      object.cache.get('vertices-reference').reference = camera;
+
+      expect(object.cache.test('combinedTransformations')).to.equal(true);
+
+      camera.rotation = 45;
+
+      expect(object.cache.test('combinedTransformations')).to.equal(false);
+    });
+
+    it('should invalidate combinedTransformations on objects in the connected scene when camera changes and vertices reference is a Canvas', function() {
+      var camera = new Camera();
+      var canvas = new Canvas({camera: camera});
+      var scene = new Scene();
+      var object = new CanvasObject();
+
+      scene.cameras.add(camera);
+      scene.objects.add(object);
+
+      // The getPointIn method will run getTransformationMatrix
+      object.getPointIn(canvas, 5, 10);
+      object.cache.get('vertices-reference').reference = canvas;
+
+      expect(object.cache.test('combinedTransformations')).to.equal(true);
+
+      camera.rotation = 45;
+
+      expect(object.cache.test('combinedTransformations')).to.equal(false);
+    });
+
     it('should not invalidate combinedTransformations on objects in the connected scene when camera changes and the matrix has no reference', function() {
       var camera = new Camera();
       var scene = new Scene();
