@@ -521,22 +521,22 @@ Camera.prototype.getVertices = function(opt_reference, opt_mode) {
     ];
   }
 
-  var zoomFactor = mode === 'zoom' ? 1 / this.zoom : 1;
-  var right = this.width / 2 * zoomFactor;
+  var right = this.width / 2;
   var left = -right;
-  var bottom = this.height / 2 * zoomFactor;
+  var bottom = this.height / 2;
   var top = -bottom;
 
   var localVertices = localCache.vertices;
 
-  localVertices[0].x = left;
-  localVertices[0].y = top;
-  localVertices[1].x = right;
-  localVertices[1].y = top;
-  localVertices[2].x = right;
-  localVertices[2].y = bottom;
-  localVertices[3].x = left;
-  localVertices[3].y = bottom;
+  var zoomFactor = mode === 'zoom' ? 1 / this.zoom : 1;
+  localVertices[0].x = left * zoomFactor;
+  localVertices[0].y = top * zoomFactor;
+  localVertices[1].x = right * zoomFactor;
+  localVertices[1].y = top * zoomFactor;
+  localVertices[2].x = right * zoomFactor;
+  localVertices[2].y = bottom * zoomFactor;
+  localVertices[3].x = left * zoomFactor;
+  localVertices[3].y = bottom * zoomFactor;
 
   cache.update('vertices-local');
 

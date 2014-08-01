@@ -897,12 +897,12 @@ describe('Camera', function() {
 
       var rect = camera.getBoundingRectangle(scene, 'zoom');
 
-      expect(round(rect.top, 3)).to.equal(36.742);
-      expect(round(rect.right, 3)).to.equal(113.258);
-      expect(round(rect.bottom, 3)).to.equal(63.258);
-      expect(round(rect.left, 3)).to.equal(86.742);
-      expect(round(rect.width, 3)).to.equal(26.517);
-      expect(round(rect.height, 3)).to.equal(26.517);
+      expect(round(rect.top, 3)).to.equal(23.483);
+      expect(round(rect.right, 3)).to.equal(126.517);
+      expect(round(rect.bottom, 3)).to.equal(76.517);
+      expect(round(rect.left, 3)).to.equal(73.483);
+      expect(round(rect.width, 3)).to.equal(53.033);
+      expect(round(rect.height, 3)).to.equal(53.033);
     });
 
     it('should respect the `size` mode', function() {

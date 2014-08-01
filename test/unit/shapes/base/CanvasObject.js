@@ -679,7 +679,7 @@ describe('CanvasObject', function() {
       scene.objects.add(object1);
       var object2 = new CanvasObject({
         width: 100, height: 100,
-        x: -290, y: 50
+        x: -270, y: 50
       });
       object1.children.add(object2);
 
