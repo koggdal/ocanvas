@@ -363,7 +363,7 @@ describe('Tracker', function() {
 
             tracker.stop(); // To not keep the timer alive during other tests
             done();
-          }, 50);
+          }, 100);
         }, 50);
       }, 50);
     });
