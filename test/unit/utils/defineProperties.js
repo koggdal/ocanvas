@@ -129,7 +129,7 @@ describe('defineProperties', function() {
     expect(object.foo).to.equal('anything');
   });
 
-  it('should define properties and set the \'configurable\' setting to false by default', function() {
+  it('should define properties and set the \'configurable\' setting to true by default', function() {
     var object = {};
 
     defineProperties(object, {
@@ -139,7 +139,7 @@ describe('defineProperties', function() {
     });
     expect(object.foo).to.equal('foo');
     delete object.foo;
-    expect(object.foo).to.equal('foo');
+    expect(object.foo).to.equal(undefined);
   });
 
   it('should define properties and set the \'configurable\' setting to what was specified', function() {

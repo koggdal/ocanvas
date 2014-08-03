@@ -59,6 +59,8 @@ function defineProperties(object, properties, opt_defaults) {
 
       if ('configurable' in properties[prop]) {
         props[prop].configurable = !!properties[prop].configurable;
+      } else {
+        props[prop].configurable = true;
       }
       if ('enumerable' in properties[prop]) {
         props[prop].enumerable = !!properties[prop].enumerable;
