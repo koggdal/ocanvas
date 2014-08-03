@@ -363,7 +363,7 @@ CanvasObject.prototype.initCache = function() {
  *
  * Empty function which needs implementation in a subclass.
  *
- * @param {string=} opt_axis Coordinate axis to to calculate for. Can be either
+ * @param {string=} opt_axis Coordinate axis to calculate for. Can be either
  *     'x', 'y' or left out. If not provided, it will default to calculate both.
  *
  * @return {number|Object.<string, number>} If an axis was passed in, this will
