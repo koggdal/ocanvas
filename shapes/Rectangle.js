@@ -14,7 +14,7 @@ var isInstanceOf = require('../utils/isInstanceOf');
  *
  * @example
  * var Scene = require('ocanvas/classes/Scene');
- * var Rectangle = require('ocanvas/classes/Rectangle');
+ * var Rectangle = require('ocanvas/shapes/Rectangle');
  *
  * var scene = new Scene();
  * var rectangle = new Rectangle({
