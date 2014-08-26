@@ -40,8 +40,10 @@ describe('Keyboard', function() {
 });
 
 describe('Shapes', function() {
+  require('./shapes/base/index');
   require('./shapes/base/CanvasObject');
   require('./shapes/base/RectangularCanvasObject');
+  require('./shapes/index');
   require('./shapes/Rectangle');
 });
 
