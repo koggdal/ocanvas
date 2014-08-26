@@ -212,4 +212,52 @@ describe('matrix', function() {
 
   });
 
+  describe('.setProduct()', function() {
+
+    it('should multiply a single matrix into the target matrix (basically a clone)', function() {
+      var target = new Matrix(3, 3);
+      var matrix = new Matrix(3, 3, false).setData(1, 2, 3, 4, 5, 6, 7, 8, 9);
+      matrixUtils.setProduct(target, matrix);
+
+      expect(target.toArray()).to.eql([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    });
+
+    it('should return the target matrix', function() {
+      var target = new Matrix(3, 3);
+      var matrix = new Matrix(3, 3, false).setData(1, 2, 3, 4, 5, 6, 7, 8, 9);
+      var result = matrixUtils.setProduct(target, matrix);
+
+      expect(result).to.equal(target);
+    });
+
+    it('should multiply multiple matrices into the target matrix', function() {
+      var target = new Matrix(3, 3);
+      var matrix1 = new Matrix(3, 3, false).setData(1, 2, 3, 4, 5, 6, 7, 8, 9);
+      var matrix2 = new Matrix(3, 3, false).setData(2, 3, 4, 5, 6, 7, 8, 9, 10);
+      var matrix3 = new Matrix(3, 3, false).setData(3, 4, 5, 6, 7, 8, 9, 10, 11);
+      var result = matrixUtils.setProduct(target, matrix1, matrix2, matrix3);
+
+      expect(target.toArray()).to.eql([792, 918, 1044, 1818, 2106, 2394, 2844, 3294, 3744]);
+    });
+
+    it('should not include any initial data in the target matrix', function() {
+      var target = new Matrix(3, 3, false).setData(4, 5, 6, 7, 8, 9, 10, 11, 12);
+      var matrix1 = new Matrix(3, 3, false).setData(1, 2, 3, 4, 5, 6, 7, 8, 9);
+      var matrix2 = new Matrix(3, 3, false).setData(2, 3, 4, 5, 6, 7, 8, 9, 10);
+      var result = matrixUtils.setProduct(target, matrix1, matrix2);
+
+      expect(target.toArray()).to.eql([36, 42, 48, 81, 96, 111, 126, 150, 174]);
+    });
+
+    it('should multiply a saved copy of the target matrix if that is an input matrix', function() {
+      var target = new Matrix(3, 3, false).setData(4, 5, 6, 7, 8, 9, 10, 11, 12);
+      var matrix1 = new Matrix(3, 3, false).setData(1, 2, 3, 4, 5, 6, 7, 8, 9);
+      var matrix2 = new Matrix(3, 3, false).setData(2, 3, 4, 5, 6, 7, 8, 9, 10);
+      var result = matrixUtils.setProduct(target, matrix1, matrix2, target);
+
+      expect(target.toArray()).to.eql([918, 1044, 1170, 2106, 2394, 2682, 3294, 3744, 4194]);
+    });
+
+  });
+
 });

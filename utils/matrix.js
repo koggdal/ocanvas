@@ -5,6 +5,9 @@
 
 var Matrix = require('../classes/Matrix');
 
+var productTempMatrix = new Matrix(3, 3, false);
+var identityMatrix = new Matrix(3, 3);
+
 /**
  * Get a matrix representing a translation.
  *
@@ -122,9 +125,45 @@ function clone(matrixToClone, opt_matrix) {
   return matrix;
 }
 
+/**
+ * Calculate the product of the provided matrices and set the result in the
+ * target matrix.
+ *
+ * @param {Matrix} targetMatrix The matrix that will get the result data.
+ * @param {...Matrix} var_args Each argument is a matrix that will be used for
+ *     calculations. None of these matrices will be modified.
+ *
+ * @return {Matrix} The target matrix.
+ */
+function setProduct(targetMatrix, var_args) {
+
+  // Save the target matrix data in case that matrix is also an input matrix
+  clone(targetMatrix, productTempMatrix);
+
+  // Make the target matrix an identity matrix to start off clean
+  clone(identityMatrix, targetMatrix);
+
+  // Multiply each input matrix into the target matrix
+  for (var i = 1, l = arguments.length; i < l; i++) {
+
+    // If the input matrix is the target matrix, we must use the saved data
+    // for that matrix, since the target matrix has been modified.
+    if (targetMatrix === arguments[i]) {
+      targetMatrix.multiply(productTempMatrix);
+
+    // Other matrices are just multiplied in normally
+    } else {
+      targetMatrix.multiply(arguments[i]);
+    }
+  }
+
+  return targetMatrix;
+}
+
 exports.getTranslationMatrix = getTranslationMatrix;
 exports.getRotationMatrix = getRotationMatrix;
 exports.getScalingMatrix = getScalingMatrix;
 exports.getTransformationMatrix = getTransformationMatrix;
 exports.getIdentityMatrix = getIdentityMatrix;
 exports.clone = clone;
+exports.setProduct = setProduct;
