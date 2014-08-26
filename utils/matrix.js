@@ -14,7 +14,7 @@ var Matrix = require('../classes/Matrix');
  *
  * @return {Matrix} A Matrix instance representing the translation.
  */
-exports.getTranslationMatrix = function(x, y, opt_matrix) {
+function getTranslationMatrix(x, y, opt_matrix) {
   var matrix = opt_matrix || new Matrix(3, 3);
 
   matrix.setData(
@@ -24,7 +24,7 @@ exports.getTranslationMatrix = function(x, y, opt_matrix) {
   );
 
   return matrix;
-};
+}
 
 /**
  * Get a matrix representing a rotation.
@@ -34,7 +34,7 @@ exports.getTranslationMatrix = function(x, y, opt_matrix) {
  *
  * @return {Matrix} A Matrix instance representing the rotation.
  */
-exports.getRotationMatrix = function(rotation, opt_matrix) {
+function getRotationMatrix(rotation, opt_matrix) {
   rotation = rotation * Math.PI / 180;
 
   var matrix = opt_matrix || new Matrix(3, 3);
@@ -46,7 +46,7 @@ exports.getRotationMatrix = function(rotation, opt_matrix) {
   );
 
   return matrix;
-};
+}
 
 /**
  * Get a matrix representing a scaling.
@@ -57,7 +57,7 @@ exports.getRotationMatrix = function(rotation, opt_matrix) {
  *
  * @return {Matrix} A Matrix instance representing the scaling.
  */
-exports.getScalingMatrix = function(x, y, opt_matrix) {
+function getScalingMatrix(x, y, opt_matrix) {
   var matrix = opt_matrix || new Matrix(3, 3);
 
   matrix.setData(
@@ -67,7 +67,7 @@ exports.getScalingMatrix = function(x, y, opt_matrix) {
   );
 
   return matrix;
-};
+}
 
 /**
  * Get a matrix representing all transformations.
@@ -79,14 +79,14 @@ exports.getScalingMatrix = function(x, y, opt_matrix) {
  *
  * @return {Matrix} A Matrix instance representing all the transformations.
  */
-exports.getTransformationMatrix = function(t, r, s, opt_matrix) {
+function getTransformationMatrix(t, r, s, opt_matrix) {
   var matrix = opt_matrix || new Matrix(3, 3, false);
 
   matrix.setIdentityData();
   matrix.multiply(t, r, s);
 
   return matrix;
-};
+}
 
 
 /**
@@ -96,13 +96,13 @@ exports.getTransformationMatrix = function(t, r, s, opt_matrix) {
  *
  * @return {Matrix} A Matrix instance for the identity matrix.
  */
-exports.getIdentityMatrix = function(opt_matrix) {
+function getIdentityMatrix(opt_matrix) {
   var matrix = opt_matrix || new Matrix(3, 3, false);
 
   matrix.setIdentityData();
 
   return matrix;
-};
+}
 
 /**
  * Clone a matrix into another matrix.
@@ -112,7 +112,7 @@ exports.getIdentityMatrix = function(opt_matrix) {
  *
  * @return {Matrix} A Matrix instance for the cloned data.
  */
-exports.clone = function(matrixToClone, opt_matrix) {
+function clone(matrixToClone, opt_matrix) {
   var matrix = opt_matrix || new Matrix(3, 3, false);
 
   for (var i = 0, l = matrixToClone.length; i < l; i++) {
@@ -120,4 +120,11 @@ exports.clone = function(matrixToClone, opt_matrix) {
   }
 
   return matrix;
-};
+}
+
+exports.getTranslationMatrix = getTranslationMatrix;
+exports.getRotationMatrix = getRotationMatrix;
+exports.getScalingMatrix = getScalingMatrix;
+exports.getTransformationMatrix = getTransformationMatrix;
+exports.getIdentityMatrix = getIdentityMatrix;
+exports.clone = clone;
