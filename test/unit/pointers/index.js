@@ -1,5 +1,6 @@
 var expect = require('expect.js');
 var pointers = require('../../../pointers');
+var PointerEvent = require('../../../pointers/PointerEvent');
 
 var CanvasObject = require('../../../shapes/base/CanvasObject');
 var Canvas = require('../../../classes/Canvas');
@@ -81,6 +82,15 @@ describe('pointers', function() {
         expect(removed).to.equal(true);
         done();
       }, 10);
+    });
+
+  });
+
+  describe('.PointerEvent', function() {
+
+    it('should be the PointerEvent class', function() {
+      expect(pointers.PointerEvent).to.equal(PointerEvent);
+      expect(pointers.PointerEvent).to.be.a('function');
     });
 
   });

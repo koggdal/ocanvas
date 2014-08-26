@@ -5,6 +5,7 @@
 
 var normalizer = require('./private/normalizer');
 var controller = require('./private/controller');
+var PointerEvent = require('./PointerEvent');
 
 /**
  * Enable pointer events for a canvas.
@@ -25,3 +26,10 @@ exports.enableForCanvas = function(canvas) {
 exports.disableForCanvas = function(canvas) {
   normalizer.removeListeners(canvas.element);
 };
+
+/**
+ * PointerEvent class.
+ *
+ * @type {Function}
+ */
+exports.PointerEvent = PointerEvent;
