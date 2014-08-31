@@ -47,6 +47,7 @@ describe('Shapes', function() {
   require('./shapes/index');
   require('./shapes/Rectangle');
   require('./shapes/Ellipse');
+  require('./shapes/Circle');
 });
 
 describe('Tracker', function() {
