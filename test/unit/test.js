@@ -46,6 +46,7 @@ describe('Shapes', function() {
   require('./shapes/base/EllipticalCanvasObject');
   require('./shapes/index');
   require('./shapes/Rectangle');
+  require('./shapes/Ellipse');
 });
 
 describe('Tracker', function() {

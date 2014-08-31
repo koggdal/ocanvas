@@ -6,3 +6,4 @@
 'use strict';
 
 exports.Rectangle = require('./Rectangle');
+exports.Ellipse = require('./Ellipse');
