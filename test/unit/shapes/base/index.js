@@ -2,6 +2,7 @@ var expect = require('expect.js');
 var shapesBase = require('../../../../shapes/base');
 var CanvasObject = require('../../../../shapes/base/CanvasObject');
 var RectangularCanvasObject = require('../../../../shapes/base/RectangularCanvasObject');
+var EllipticalCanvasObject = require('../../../../shapes/base/EllipticalCanvasObject');
 
 describe('shapes/base', function() {
 
@@ -19,6 +20,15 @@ describe('shapes/base', function() {
     it('should be the RectangularCanvasObject class', function() {
       expect(shapesBase.RectangularCanvasObject).to.equal(RectangularCanvasObject);
       expect(shapesBase.RectangularCanvasObject).to.be.a('function');
+    });
+
+  });
+
+  describe('.EllipticalCanvasObject', function() {
+
+    it('should be the EllipticalCanvasObject class', function() {
+      expect(shapesBase.EllipticalCanvasObject).to.equal(EllipticalCanvasObject);
+      expect(shapesBase.EllipticalCanvasObject).to.be.a('function');
     });
 
   });

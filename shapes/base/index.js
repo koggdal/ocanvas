@@ -8,3 +8,4 @@
 
 exports.CanvasObject = require('./CanvasObject');
 exports.RectangularCanvasObject = require('./RectangularCanvasObject');
+exports.EllipticalCanvasObject = require('./EllipticalCanvasObject');

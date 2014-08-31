@@ -283,10 +283,14 @@ CanvasObject.prototype.initCache = function() {
 
   // Vertices
   this.cache.define('vertices-local', {
-    dependencies: ['combinedTransformations']
+    dependencies: ['transformations', 'combinedTransformations']
   });
   this.cache.define('vertices-reference', {
-    dependencies: ['vertices-local']
+    dependencies: [
+      'vertices-local',
+      'transformations',
+      'combinedTransformations'
+    ]
   });
   this.cache.define('vertices-tree-local', {
     dependencies: ['vertices-local']
