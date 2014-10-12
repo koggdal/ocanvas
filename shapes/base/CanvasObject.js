@@ -226,17 +226,15 @@ CanvasObject.prototype.propertyDescriptors = {
   // listeners on the collection intact.
   children: {
     value: null,
-    set: function(value, privateVars) {
-      var children = privateVars.children;
-
+    set: function(value, currentValue, privateVars) {
       if (!(value instanceof Collection)) {
-        return children;
+        return currentValue;
       }
 
-      if (children instanceof Collection) {
-        children.length = 0;
+      if (currentValue instanceof Collection) {
+        currentValue.length = 0;
         value.forEach(function(item) {
-          children.add(item);
+          currentValue.add(item);
         });
       } else {
         privateVars.children = value;

@@ -33,7 +33,7 @@ var defineProperties = require('../utils/defineProperties');
 function Circle(opt_properties) {
   EllipticalCanvasObject.call(this);
 
-  var radiusSetter = function(value, privateVars) {
+  var radiusSetter = function(value, currentValue, privateVars) {
     privateVars.radiusX = value;
     privateVars.radiusY = value;
     privateVars.radius = value;

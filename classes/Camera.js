@@ -203,21 +203,21 @@ Camera.prototype.propertyDescriptors = {
   },
   width: {
     value: 0,
-    set: function(value, privateVars) {
+    set: function(value, currentValue, privateVars) {
       this.cache.invalidate('vertices-local');
       privateVars.aspectRatio = privateVars.height ? value / privateVars.height : 1;
     }
   },
   height: {
     value: 0,
-    set: function(value, privateVars) {
+    set: function(value, currentValue, privateVars) {
       this.cache.invalidate('vertices-local');
       privateVars.aspectRatio = value ? privateVars.width / value : 1;
     }
   },
   aspectRatio: {
     value: 1,
-    set: function(value, privateVars) {
+    set: function(value, currentValue, privateVars) {
       this.cache.invalidate('vertices-local');
       privateVars.width = privateVars.height * value;
     }

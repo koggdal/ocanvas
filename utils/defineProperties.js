@@ -75,9 +75,20 @@ function defineProperties(object, properties, opt_defaults) {
 
       if (typeof properties[prop].get === 'function') {
         props[prop].get = properties[prop].get;
+
       } else {
         props[prop].get = function() { return privateVars[prop]; };
       }
+
+      var getter = properties[prop].get;
+
+      props[prop].get = function() {
+        if (typeof getter === 'function') {
+          return getter.call(object, privateVars[prop], privateVars);
+        } else {
+          return privateVars[prop];
+        }
+      };
 
       if (properties[prop].set) {
         var setFunction = properties[prop].set;
@@ -86,7 +97,8 @@ function defineProperties(object, properties, opt_defaults) {
         }
         props[prop].set = function(value) {
           if (setFunction) {
-            var returnValue = setFunction.call(object, value, privateVars);
+            var returnValue = setFunction.call(object, value, privateVars[prop],
+                privateVars);
             if (returnValue !== undefined) {
               value = returnValue;
             }

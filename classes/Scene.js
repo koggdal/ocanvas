@@ -41,31 +41,27 @@ function Scene(opt_properties) {
     // listeners on the collection intact.
     cameras: {
       value: new Collection(),
-      set: function(value, privateVars) {
-        var cameras = privateVars.cameras;
-
+      set: function(value, currentValue, privateVars) {
         if (!(value instanceof Collection)) {
-          return cameras;
+          return currentValue;
         }
 
-        cameras.length = 0;
+        currentValue.length = 0;
         value.forEach(function(item) {
-          cameras.add(item);
+          currentValue.add(item);
         });
       }
     },
     objects: {
       value: new Collection(),
-      set: function(value, privateVars) {
-        var objects = privateVars.objects;
-
+      set: function(value, currentValue, privateVars) {
         if (!(value instanceof Collection)) {
-          return objects;
+          return currentValue;
         }
 
-        objects.length = 0;
+        currentValue.length = 0;
         value.forEach(function(item) {
-          objects.add(item);
+          currentValue.add(item);
         });
       }
     }

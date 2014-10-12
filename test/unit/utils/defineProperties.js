@@ -73,6 +73,41 @@ describe('defineProperties', function() {
     expect(object.foo).to.equal('bar');
   });
 
+  it('should define properties with a custom getter (that doesn\'t return anything)', function() {
+    var object = {};
+    var hasSetterBeenCalled = false;
+
+    defineProperties(object, {
+      foo: {
+        value: 'foo',
+        get: function() {
+          hasGetterBeenCalled = true;
+        }
+      }
+    });
+    expect(object.foo).to.equal(undefined);
+    expect(hasGetterBeenCalled).to.equal(true);
+  });
+
+  it('should define properties with a custom getter (that gets access to private storage)', function() {
+    var object = {};
+    var hasSetterBeenCalled = false;
+
+    defineProperties(object, {
+      foo: {
+        value: 'foo',
+        get: function(privateValue, privateVars) {
+          hasGetterBeenCalled = true;
+          expect(privateValue).to.equal('foo');
+          expect(privateVars.foo).to.equal('foo');
+          return 'bar';
+        }
+      }
+    });
+    expect(object.foo).to.equal('bar');
+    expect(hasGetterBeenCalled).to.equal(true);
+  });
+
   it('should define properties with a custom setter (that doesn\'t return anything)', function() {
     var object = {};
     var hasSetterBeenCalled = false;
@@ -105,6 +140,27 @@ describe('defineProperties', function() {
     expect(object.foo).to.equal('foo');
     object.foo = 'bar';
     expect(object.foo).to.equal('something');
+  });
+
+  it('should define properties with a custom setter (that gets access to private storage)', function() {
+    var object = {};
+    var hasSetterBeenCalled = false;
+
+    defineProperties(object, {
+      foo: {
+        value: 'foo',
+        set: function(value, currentValue, privateVars) {
+          hasSetterBeenCalled = true;
+          expect(value).to.equal('bar');
+          expect(currentValue).to.equal('foo');
+          expect(privateVars.foo).to.equal('foo');
+        }
+      }
+    });
+    expect(object.foo).to.equal('foo');
+    object.foo = 'bar';
+    expect(object.foo).to.equal('bar');
+    expect(hasSetterBeenCalled).to.equal(true);
   });
 
   it('should define properties with a custom getter and setter', function() {
