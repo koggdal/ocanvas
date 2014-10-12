@@ -1,7 +1,14 @@
 var expect = require('expect.js');
 var Texture = require('../../../textures/Texture');
+var EventEmitter = require('../../../classes/EventEmitter');
 
 describe('Texture', function() {
+
+  it('should inherit from EventEmitter', function() {
+    var object = new Texture();
+    expect(Texture.prototype instanceof EventEmitter).to.equal(true);
+    expect(object instanceof EventEmitter).to.equal(true);
+  });
 
   describe('Texture constructor', function() {
 

@@ -3,6 +3,10 @@
  */
 'use strict';
 
+var EventEmitter = require('../classes/EventEmitter');
+
+var inherit = require('../utils/inherit');
+
 /**
  * @classdesc The Texture class needs to be subclassed for different kinds of
  *     textures.
@@ -15,12 +19,15 @@
  * @param {Object=} opt_properties Optional object with properties to set.
  */
 function Texture(opt_properties) {
+  EventEmitter.call(this);
+
   this.style = 'transparent';
 
   if (opt_properties) {
     this.setProperties(opt_properties);
   }
 }
+inherit(Texture, EventEmitter);
 
 /**
  * Set multiple properties at the same time.
