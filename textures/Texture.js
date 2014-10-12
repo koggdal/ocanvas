@@ -15,6 +15,7 @@ var inherit = require('../utils/inherit');
  *     used in fillStyle/strokeStyle of a CanvasRenderingContext2D.
  *
  * @constructor
+ * @augments {EventEmitter}
  *
  * @param {Object=} opt_properties Optional object with properties to set.
  */
