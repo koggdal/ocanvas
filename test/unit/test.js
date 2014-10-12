@@ -50,6 +50,12 @@ describe('Shapes', function() {
   require('./shapes/Circle');
 });
 
+describe('Textures', function() {
+  require('./textures/index');
+  require('./textures/Texture');
+  require('./textures/ColorTexture');
+});
+
 describe('Tracker', function() {
   require('./tracker/TrackerAttractor');
   require('./tracker/TrackerRepeller');
