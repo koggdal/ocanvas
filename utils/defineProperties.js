@@ -73,13 +73,6 @@ function defineProperties(object, properties, opt_defaults) {
         properties[prop].set = true;
       }
 
-      if (typeof properties[prop].get === 'function') {
-        props[prop].get = properties[prop].get;
-
-      } else {
-        props[prop].get = function() { return privateVars[prop]; };
-      }
-
       var getter = properties[prop].get;
 
       props[prop].get = function() {
