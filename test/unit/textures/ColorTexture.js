@@ -44,6 +44,24 @@ describe('ColorTexture', function() {
 
   });
 
+  describe('#color', function() {
+
+    it('should allow setting it to a string', function() {
+      var texture = new ColorTexture({color: 'red'});
+      expect(texture.color).to.equal('red');
+      texture.color = 'blue';
+      expect(texture.color).to.equal('blue');
+    });
+
+    it('should not allow setting it to something else than a string', function() {
+      var texture = new ColorTexture({color: 'red'});
+      expect(texture.color).to.equal('red');
+      texture.color = [];
+      expect(texture.color).to.equal('red');
+    });
+
+  });
+
   describe('#style', function() {
 
     it('should get the value of `color`', function() {
@@ -53,6 +71,29 @@ describe('ColorTexture', function() {
       texture.color = 'blue';
       expect(texture.color).to.equal('blue');
       expect(texture.style).to.equal('blue');
+    });
+
+    it('should allow setting it to a string', function() {
+      var texture = new ColorTexture({style: 'red'});
+      expect(texture.style).to.equal('red');
+      texture.style = 'blue';
+      expect(texture.style).to.equal('blue');
+    });
+
+    it('should set `color` when setting this', function() {
+      var texture = new ColorTexture({style: 'red'});
+      expect(texture.style).to.equal('red');
+      expect(texture.color).to.equal('red');
+      texture.style = 'blue';
+      expect(texture.style).to.equal('blue');
+      expect(texture.color).to.equal('blue');
+    });
+
+    it('should not allow setting it to something else than a string', function() {
+      var texture = new ColorTexture({style: 'red'});
+      expect(texture.style).to.equal('red');
+      texture.style = [];
+      expect(texture.style).to.equal('red');
     });
 
   });

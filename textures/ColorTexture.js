@@ -25,15 +25,21 @@ function ColorTexture(opt_properties) {
   this.color = 'transparent';
 
   defineProperties(this, {
+    color: {
+      value: 'transparent',
+      set: function(value, currentValue) {
+        if (typeof value !== 'string') {
+          return currentValue;
+        }
+      }
+    },
     style: {
       value: null,
       get: function() {
         return this.color;
       },
       set: function(value) {
-        if (typeof value === 'string') {
-          this.color = value;
-        }
+        this.color = value;
       }
     }
   }, {enumerable: true});
