@@ -153,6 +153,80 @@ describe('ImageTexture', function() {
       });
     });
 
+    it('should allow setting it to `x`', function() {
+      var texture = new ImageTexture({repeat: 'both'});
+      expect(texture.repeat).to.equal('both');
+      texture.repeat = 'x';
+      expect(texture.repeat).to.equal('x');
+    });
+
+    it('should allow setting it to `y`', function() {
+      var texture = new ImageTexture({repeat: 'both'});
+      expect(texture.repeat).to.equal('both');
+      texture.repeat = 'y';
+      expect(texture.repeat).to.equal('y');
+    });
+
+    it('should allow setting it to `none`', function() {
+      var texture = new ImageTexture({repeat: 'both'});
+      expect(texture.repeat).to.equal('both');
+      texture.repeat = 'none';
+      expect(texture.repeat).to.equal('none');
+    });
+
+    it('should allow setting it to `both`', function() {
+      var texture = new ImageTexture({repeat: 'x'});
+      expect(texture.repeat).to.equal('x');
+      texture.repeat = 'both';
+      expect(texture.repeat).to.equal('both');
+    });
+
+    it('should not allow setting it to something else', function() {
+      var texture = new ImageTexture({repeat: 'both'});
+      expect(texture.repeat).to.equal('both');
+      texture.repeat = 'foo';
+      expect(texture.repeat).to.equal('both');
+    });
+
+  });
+
+  describe('#size', function() {
+
+    it('should allow setting it to `cover`', function() {
+      var texture = new ImageTexture({size: 'source'});
+      expect(texture.size).to.equal('source');
+      texture.size = 'cover';
+      expect(texture.size).to.equal('cover');
+    });
+
+    it('should allow setting it to `contain`', function() {
+      var texture = new ImageTexture({size: 'source'});
+      expect(texture.size).to.equal('source');
+      texture.size = 'contain';
+      expect(texture.size).to.equal('contain');
+    });
+
+    it('should allow setting it to `stretch`', function() {
+      var texture = new ImageTexture({size: 'source'});
+      expect(texture.size).to.equal('source');
+      texture.size = 'stretch';
+      expect(texture.size).to.equal('stretch');
+    });
+
+    it('should allow setting it to `source`', function() {
+      var texture = new ImageTexture({size: 'cover'});
+      expect(texture.size).to.equal('cover');
+      texture.size = 'source';
+      expect(texture.size).to.equal('source');
+    });
+
+    it('should not allow setting it to something else', function() {
+      var texture = new ImageTexture({size: 'source'});
+      expect(texture.size).to.equal('source');
+      texture.size = 'foo';
+      expect(texture.size).to.equal('source');
+    });
+
   });
 
 });
