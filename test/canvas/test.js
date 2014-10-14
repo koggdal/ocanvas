@@ -11,3 +11,7 @@ describe('Shapes', function() {
   require('./shapes/Ellipse');
   require('./shapes/Circle');
 });
+
+describe('Textures', function() {
+  require('./textures/ImageTexture');
+});
