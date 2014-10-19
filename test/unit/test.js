@@ -55,6 +55,7 @@ describe('Textures', function() {
   require('./textures/Texture');
   require('./textures/ColorTexture');
   require('./textures/ImageTexture');
+  require('./textures/SpriteTexture');
 });
 
 describe('Tracker', function() {

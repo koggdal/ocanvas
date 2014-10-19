@@ -14,4 +14,5 @@ describe('Shapes', function() {
 
 describe('Textures', function() {
   require('./textures/ImageTexture');
+  require('./textures/SpriteTexture');
 });

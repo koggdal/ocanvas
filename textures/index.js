@@ -9,3 +9,4 @@
 exports.Texture = require('./Texture');
 exports.ColorTexture = require('./ColorTexture');
 exports.ImageTexture = require('./ImageTexture');
+exports.SpriteTexture = require('./SpriteTexture');

@@ -3,6 +3,7 @@ var textures = require('../../../textures');
 var Texture = require('../../../textures/Texture');
 var ColorTexture = require('../../../textures/ColorTexture');
 var ImageTexture = require('../../../textures/ImageTexture');
+var SpriteTexture = require('../../../textures/SpriteTexture');
 
 describe('textures', function() {
 
@@ -29,6 +30,15 @@ describe('textures', function() {
     it('should be the ImageTexture class', function() {
       expect(textures.ImageTexture).to.equal(ImageTexture);
       expect(textures.ImageTexture).to.be.a('function');
+    });
+
+  });
+
+  describe('.SpriteTexture', function() {
+
+    it('should be the SpriteTexture class', function() {
+      expect(textures.SpriteTexture).to.equal(SpriteTexture);
+      expect(textures.SpriteTexture).to.be.a('function');
     });
 
   });
