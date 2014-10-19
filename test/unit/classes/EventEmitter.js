@@ -160,6 +160,29 @@ describe('EventEmitter', function() {
       emitter.emit('some-other-event');
     });
 
+    it('should use a snapshot of the handlers added at the time of the emit call', function(done) {
+      var emitter = new EventEmitter();
+
+      var calls = 0;
+      var handler1 = function() {
+        calls++;
+        emitter.off('some-event', handler2);
+      };
+      var handler2 = function() { calls++; };
+      var handler3 = function() { calls++; };
+
+      emitter.on('some-event', handler1);
+      emitter.on('some-event', handler2);
+      emitter.on('some-event', handler3);
+
+      emitter.emit('some-event');
+
+      setTimeout(function() {
+        expect(calls).to.equal(3);
+        done();
+      }, 10);
+    });
+
   });
 
 });

@@ -70,6 +70,7 @@ EventEmitter.prototype.emit = function(name, opt_eventObject) {
 
   var listeners = this.listeners[name];
   if (listeners) {
+    listeners = listeners.slice();
     for (var i = 0, l = listeners.length; i < l; i++) {
       listeners[i].call(this, e);
     }
