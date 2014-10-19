@@ -131,6 +131,28 @@ describe('ImageTexture', function() {
       }, 10);
     });
 
+    it('should set the `width` and `height` of the texture on load', function(done) {
+      var texture = new ImageTexture({
+        image: 'ocanvas-logo.png'
+      });
+      texture.on('load', function() {
+        expect(texture.width).to.equal(128);
+        expect(texture.height).to.equal(43);
+        done();
+      });
+    });
+
+    it('should set the `sourceWidth` and `sourceHeight` of the texture on load', function(done) {
+      var texture = new ImageTexture({
+        image: 'ocanvas-logo.png'
+      });
+      texture.on('load', function() {
+        expect(texture.sourceWidth).to.equal(128);
+        expect(texture.sourceHeight).to.equal(43);
+        done();
+      });
+    });
+
   });
 
   describe('#repeat', function() {

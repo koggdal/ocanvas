@@ -14,8 +14,17 @@ var isInstanceOf = require('../utils/isInstanceOf');
  *
  * @property {boolean} loaded True if image is loaded, false if not. Default is
  *     false.
- * @property {number} width The width of the texture image. Default is 0.
- * @property {number} height The height of the texture image. Default is 0.
+ * @property {number} width The width of the part of the texture to render.
+ *     Default is 0.
+ * @property {number} height The height of the part of the texture to render.
+ *     Default is 0.
+ * @property {number} sourceWidth The width of the texture image. Default is 0.
+ * @property {number} sourceHeight The height of the texture image. Default
+ *     is 0.
+ * @property {number} sourceX The X position of the top left corner of the
+ *     rendered section of the image. Default is 0.
+ * @property {number} sourceY The Y position of the top left corner of the
+ *     rendered section of the image. Default is 0.
  * @property {HTMLImageElement?} imageElement The image DOM element. This is
  *     null from the start and an element when the image is initialized.
  * @property {string} repeat The repeat mode, one of 'both', 'x', 'y' and
@@ -44,16 +53,21 @@ var isInstanceOf = require('../utils/isInstanceOf');
 function ImageTexture(opt_properties) {
   Texture.call(this);
 
+  this.width = 0;
+  this.height = 0;
+  this.sourceX = 0;
+  this.sourceY = 0;
+
   defineProperties(this, {
     loaded: {
       value: false,
       writable: false
     },
-    width: {
+    sourceWidth: {
       value: 0,
       writable: false
     },
-    height: {
+    sourceHeight: {
       value: 0,
       writable: false
     },
@@ -115,8 +129,10 @@ function ImageTexture(opt_properties) {
 
           privateVars.imageElement = image;
           privateVars.loaded = true;
-          privateVars.width = image.width;
-          privateVars.height = image.height;
+          privateVars.sourceWidth = image.width;
+          privateVars.sourceHeight = image.height;
+          texture.width = image.width;
+          texture.height = image.height;
 
           var canvas = global.document.createElement('canvas');
           var context = canvas.getContext('2d');

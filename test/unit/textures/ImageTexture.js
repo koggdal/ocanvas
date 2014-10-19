@@ -34,6 +34,22 @@ describe('ImageTexture', function() {
       expect(texture.height).to.equal(0);
     });
 
+    it('should set the default value of property `sourceWidth` to 0', function() {
+      expect(texture.sourceWidth).to.equal(0);
+    });
+
+    it('should set the default value of property `sourceHeight` to 0', function() {
+      expect(texture.sourceHeight).to.equal(0);
+    });
+
+    it('should set the default value of property `sourceX` to 0', function() {
+      expect(texture.sourceX).to.equal(0);
+    });
+
+    it('should set the default value of property `sourceY` to 0', function() {
+      expect(texture.sourceY).to.equal(0);
+    });
+
     it('should set the default value of property `imageElement` to null', function() {
       expect(texture.imageElement).to.equal(null);
     });
@@ -67,18 +83,18 @@ describe('ImageTexture', function() {
       expect(texture.loaded).to.equal(false);
     });
 
-    it('should not allow setting of `width`', function() {
+    it('should not allow setting of `sourceWidth`', function() {
       var texture = new ImageTexture();
-      expect(texture.width).to.equal(0);
-      texture.width = 100;
-      expect(texture.width).to.equal(0);
+      expect(texture.sourceWidth).to.equal(0);
+      texture.sourceWidth = 100;
+      expect(texture.sourceWidth).to.equal(0);
     });
 
-    it('should not allow setting of `height`', function() {
+    it('should not allow setting of `sourceHeight`', function() {
       var texture = new ImageTexture();
-      expect(texture.height).to.equal(0);
-      texture.height = 100;
-      expect(texture.height).to.equal(0);
+      expect(texture.sourceHeight).to.equal(0);
+      texture.sourceHeight = 100;
+      expect(texture.sourceHeight).to.equal(0);
     });
 
   });
