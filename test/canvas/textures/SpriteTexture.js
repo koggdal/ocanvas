@@ -103,4 +103,62 @@ describe('SpriteTexture', function() {
 
   });
 
+  describe('#style', function() {
+
+    it('should be `transparent` when not initalized', function() {
+      var texture = new SpriteTexture();
+      expect(texture.style).to.equal('transparent');
+    });
+
+    it('should be a CanvasPattern when initalized', function(done) {
+      var texture = new SpriteTexture({image: 'ocanvas-logo.png'});
+      texture.on('load', function() {
+        expect(texture.style).to.be.ok();
+        expect(texture.style.constructor).to.be.ok();
+        expect(texture.style.constructor.name).to.equal('CanvasPattern');
+        done();
+      });
+    });
+
+    it('should be the same CanvasPattern instance when nothing has changed', function(done) {
+      var texture = new SpriteTexture({image: 'ocanvas-logo.png'});
+      texture.on('load', function() {
+        expect(texture.style).to.equal(texture.style);
+        done();
+      });
+    });
+
+    it('should be a new CanvasPattern instance when frame has changed', function(done) {
+      var texture = new SpriteTexture({image: 'ocanvas-logo.png', frame: 0});
+      texture.on('load', function() {
+        texture.generateFrames({
+          rows: 2, columns: 2, amount: 4
+        });
+
+        var style1 = texture.style;
+        texture.frame = 1;
+        var style2 = texture.style;
+
+        expect(style2).to.not.equal(style1);
+        done();
+      });
+    });
+
+    it('should not allow setting it', function(done) {
+      var texture = new SpriteTexture({image: 'ocanvas-logo.png', frame: 0});
+      texture.on('load', function() {
+        texture.generateFrames({
+          rows: 2, columns: 2, amount: 4
+        });
+
+        var style = texture.style;
+        texture.style = {};
+        expect(texture.style).to.equal(style);
+
+        done();
+      });
+    });
+
+  });
+
 });

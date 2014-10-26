@@ -25,6 +25,33 @@ var isInstanceOf = require('../utils/isInstanceOf');
 function SpriteTexture(opt_properties) {
   ImageTexture.call(this);
 
+  var self = this;
+  var isStyleValid = false;
+  var styleCanvas;
+  var repeatModes = {
+    'both': 'repeat', 'none': 'no-repeat',
+    'x': 'repeat-x', 'y': 'repeat-y'
+  };
+  var updateStyle = function(imageElement) {
+    isStyleValid = true;
+
+    if (!styleCanvas) styleCanvas = global.document.createElement('canvas');
+
+    var sx = self.sourceX;
+    var sy = self.sourceY;
+    var sw = self.width;
+    var sh = self.height;
+    var repeatMode = repeatModes[self.repeat];
+
+    styleCanvas.width = self.width;
+    styleCanvas.height = self.height;
+
+    var context = styleCanvas.getContext('2d');
+    context.drawImage(imageElement, sx, sy, sw, sh, 0, 0, sw, sh);
+
+    return context.createPattern(styleCanvas, repeatMode);
+  };
+
   // Since ImageTexture sets the dimensions to the dimensions of the source
   // image when loaded, we need to reset the dimensions to not render the full
   // sprite sheet.
@@ -34,6 +61,7 @@ function SpriteTexture(opt_properties) {
     this.sourceY = frame ? frame.y : 0;
     this.width = frame ? frame.width : 0;
     this.height = frame ? frame.height : 0;
+    isStyleValid = false;
   });
 
   defineProperties(this, {
@@ -47,6 +75,7 @@ function SpriteTexture(opt_properties) {
         this.sourceY = frame ? frame.y : 0;
         this.width = frame ? frame.width : 0;
         this.height = frame ? frame.height : 0;
+        isStyleValid = false;
       }
     },
     frame: {
@@ -59,6 +88,16 @@ function SpriteTexture(opt_properties) {
         this.sourceY = frame ? frame.y : 0;
         this.width = frame ? frame.width : 0;
         this.height = frame ? frame.height : 0;
+        isStyleValid = false;
+      }
+    },
+    style: {
+      value: 'transparent',
+      get: function(value, privateVars) {
+        if (!isStyleValid && this.imageElement) {
+          privateVars.style = updateStyle(this.imageElement);
+        }
+        return privateVars.style;
       }
     }
   }, {enumerable: true});
