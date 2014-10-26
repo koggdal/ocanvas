@@ -16,20 +16,42 @@ describe('CanvasObject', function() {
 
   describe('#render()', function() {
 
-    it('should run with no problems (a subclass will call this function in the overriden method)', function() {
+    it('should call `renderFill`', function(done) {
       var canvas = new Canvas({
         element: new NodeCanvas(300, 300)
       });
       var object = new CanvasObject();
+
+      // mock methods needed by render
+      object.renderFill = function() {
+        done();
+      };
+      object.renderStroke = function() {};
+
+      object.render(canvas);
+    });
+
+    it('should call `renderStroke`', function(done) {
+      var canvas = new Canvas({
+        element: new NodeCanvas(300, 300)
+      });
+      var object = new CanvasObject();
+
+      // mock methods needed by render
+      object.renderStroke = function() {
+        done();
+      };
+      object.renderFill = function() {};
+
       object.render(canvas);
     });
 
     it('should handle clipping to a clipping mask (using a CanvasObject instance)', function() {
-      var render = function(canvas) {
-        CanvasObject.prototype.render.apply(this, arguments);
-        canvas.context.fillStyle = this.fill;
+      var renderColorFill = function(canvas, fill) {
+        canvas.context.fillStyle = fill;
         canvas.context.fillRect(0, 0, this.width, this.height);
       };
+      var renderColorStroke = function() {};
       var renderPath = function(canvas) {
         canvas.context.rect(0, 0, this.width, this.height);
       };
@@ -57,7 +79,8 @@ describe('CanvasObject', function() {
         y: 25,
         width: 50,
         height: 50,
-        render: render,
+        renderColorFill: renderColorFill,
+        renderColorStroke: renderColorStroke,
         renderPath: renderPath,
         getVertices: getVertices,
         rotation: 20
@@ -66,7 +89,8 @@ describe('CanvasObject', function() {
         fill: '#f00',
         width: 100,
         height: 100,
-        render: render,
+        renderColorFill: renderColorFill,
+        renderColorStroke: renderColorStroke,
         getVertices: getVertices,
         clippingMask: mask
       });
@@ -79,11 +103,11 @@ describe('CanvasObject', function() {
     });
 
     it('should handle clipping to a clipping mask (using a function)', function() {
-      var render = function(canvas) {
-        CanvasObject.prototype.render.apply(this, arguments);
-        canvas.context.fillStyle = this.fill;
+      var renderColorFill = function(canvas, fill) {
+        canvas.context.fillStyle = fill;
         canvas.context.fillRect(0, 0, this.width, this.height);
       };
+      var renderColorStroke = function() {};
       var getVertices = function() {
         return [
           {x: this.x, y: this.y},
@@ -106,7 +130,8 @@ describe('CanvasObject', function() {
         fill: '#f00',
         width: 100,
         height: 100,
-        render: render,
+        renderColorFill: renderColorFill,
+        renderColorStroke: renderColorStroke,
         getVertices: getVertices,
         clippingMask: function(canvas, context) {
           expect(canvas.context).to.equal(context);
@@ -158,6 +183,7 @@ describe('CanvasObject', function() {
       var object3 = new CanvasObject({getVertices: getVertices});
 
       var numObjectsRendered = 1;
+      object1.render = function() {};
       object2.renderTree = function(canvas) {
         expect(canvas instanceof Canvas).to.equal(true);
         if (++numObjectsRendered === 3) done();
@@ -183,6 +209,7 @@ describe('CanvasObject', function() {
       object1.children.add(object2);
 
       var hasBeenCalled = false;
+      object1.render = function() {};
       object2.render = function() {
         hasBeenCalled = true;
       };
@@ -231,6 +258,7 @@ describe('CanvasObject', function() {
       object1.children.add(object2);
 
       var hasBeenCalled = false;
+      object1.render = function() {};
       object2.render = function() {
         hasBeenCalled = true;
       };

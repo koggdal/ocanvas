@@ -84,50 +84,124 @@ Ellipse.prototype.renderPath = function(canvas) {
 };
 
 /**
- * Render the object to a canvas.
+ * Render a color fill to a canvas.
  *
  * @param {Canvas} canvas The Canvas instance to render to.
+ * @param {string} fill A valid CSS color.
  */
-Ellipse.prototype.render = function(canvas) {
-  EllipticalCanvasObject.prototype.render.call(this, canvas);
+Ellipse.prototype.renderColorFill = function(canvas, fill) {
+  if (!fill) return;
 
   var context = canvas.context;
+  var x = -this.calculateOrigin('x');
+  var y = -this.calculateOrigin('y');
+
+  context.fillStyle = fill;
+  drawShape(x, y, this.radiusX, this.radiusY, canvas);
+  context.fill();
+};
+
+/**
+ * Render an image texture fill to a canvas.
+ *
+ * @param {Canvas} canvas The Canvas instance to render to.
+ * @param {ImageTexture} fill An ImageTexture instance.
+ */
+Ellipse.prototype.renderImageTextureFill = function(canvas, fill) {
+  var element = fill.imageElement;
+  if (!element) return;
+
+  var context = canvas.context;
+  var x = -this.calculateOrigin('x');
+  var y = -this.calculateOrigin('y');
+
+  context.save();
+
+  // Don't draw anything outside the rectangle
+  context.beginPath();
+  drawShape(x, y, this.radiusX, this.radiusY, canvas);
+  context.closePath();
+  context.clip();
+
+  var dw = this.radiusX * 2;
+  var dh = this.radiusY * 2;
+  var dx = x - this.radiusX;
+  var dy = y - this.radiusY;
+
+  this.renderImageTextureSized(canvas, fill, dw, dh, dx, dy);
+
+  context.restore();
+};
+
+/**
+ * Render a texture fill to a canvas.
+ *
+ * @param {Canvas} canvas The Canvas instance to render to.
+ * @param {Texture} fill A Texture instance.
+ */
+Ellipse.prototype.renderTextureFill = function(canvas, fill) {
+  var x = -this.calculateOrigin('x');
+  var y = -this.calculateOrigin('y');
+
+  // These offsets are to place the texture at the origin of the object
+  var offsetX = fill.width ? fill.width / 2 + x : 0;
+  var offsetY = fill.height ? fill.height / 2 + y : 0;
+
+  // Move the texture up to the top left corner.
+  // Not doing this puts it in the wrong place, but also causes Chrome
+  // to render the edge as being dragged out.
+  var context = canvas.context;
+  context.save();
+  context.translate(x - offsetX, y - offsetY);
+  context.fillStyle = fill.style;
+  drawShape(offsetX, offsetY, this.radiusX, this.radiusY, canvas);
+  context.fill();
+  context.restore();
+};
+
+/**
+ * Render a camera fill to a canvas.
+ *
+ * @param {Canvas} canvas The Canvas instance to render to.
+ * @param {Camera} fill A Camera instance.
+ */
+Ellipse.prototype.renderCameraFill = function(canvas, fill) {
+  var context = canvas.context;
+  var x = -this.calculateOrigin('x');
+  var y = -this.calculateOrigin('y');
+
+  context.save();
+  context.beginPath();
+  drawShape(x, y, this.radiusX, this.radiusY, canvas);
+  context.closePath();
+  context.clip();
+  fill.render(canvas);
+  context.restore();
+};
+
+/**
+ * Render a color stroke to a canvas.
+ *
+ * @param {Canvas} canvas The Canvas instance to render to.
+ * @param {number} strokeWidth The stroke thickness in pixels.
+ * @param {string} color A valid CSS color.
+ */
+Ellipse.prototype.renderColorStroke = function(canvas, strokeWidth, color) {
+  if (!color || !strokeWidth) return;
 
   var x = -this.calculateOrigin('x');
   var y = -this.calculateOrigin('y');
-  var radiusX = this.radiusX;
-  var radiusY = this.radiusY;
 
+  var radiusX = this.radiusX + strokeWidth / 2;
+  var radiusY = this.radiusY + strokeWidth / 2;
+
+  var context = canvas.context;
   context.beginPath();
-
-  if (isInstanceOf(this.fill, 'Camera')) {
-    context.save();
-    context.beginPath();
-    drawShape(x, y, radiusX, radiusY, canvas);
-    context.closePath();
-    context.clip();
-    this.fill.render(canvas);
-    context.restore();
-  } else if (this.fill) {
-    drawShape(x, y, radiusX, radiusY, canvas);
-    context.fillStyle = this.fill;
-    context.fill();
-  }
-
+  drawShape(x, y, radiusX, radiusY, canvas);
+  context.lineWidth = strokeWidth;
+  context.strokeStyle = color;
+  context.stroke();
   context.closePath();
-
-  if (this.stroke) {
-    var parts = this.stroke.split(' ');
-    var lineWidth = parseFloat(parts[0], 10);
-    var color = parts[1];
-
-    context.beginPath();
-    drawShape(x, y, radiusX + lineWidth / 2, radiusY + lineWidth / 2, canvas);
-    context.lineWidth = lineWidth;
-    context.strokeStyle = color;
-    context.stroke();
-    context.closePath();
-  }
 };
 
 /**

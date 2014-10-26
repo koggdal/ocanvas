@@ -400,8 +400,6 @@ CanvasObject.prototype.renderPath = function(canvas) {
 
 /**
  * Render the object to a canvas.
- * This needs implementation in a subclass, where the method in
- * the subclass should call this method as the first thing.
  *
  * @param {Canvas} canvas The Canvas instance to render to.
  */
@@ -427,6 +425,13 @@ CanvasObject.prototype.render = function(canvas) {
     context.closePath();
     context.clip();
   }
+
+  context.beginPath();
+
+  this.renderFill(canvas);
+  this.renderStroke(canvas);
+
+  context.closePath();
 };
 
 /**

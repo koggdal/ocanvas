@@ -23,10 +23,7 @@ describe('Scene', function() {
       var object = new CanvasObject();
       scene.objects.add(object);
 
-      var originalRender = object.render;
       object.render = function() {
-        originalRender.call(object, canvas);
-        object.render = originalRender;
         done();
       };
       object.getVertices = function() {
@@ -93,7 +90,6 @@ describe('Scene', function() {
       });
       scene.objects.add(object);
 
-      var originalRender = object.render;
       var numCalls = 0;
 
       var originalFill = object.fill;
@@ -102,14 +98,11 @@ describe('Scene', function() {
       var timer;
 
       object.render = function() {
-        originalRender.call(object, canvas);
         numCalls++;
 
         clearTimeout(timer);
         timer = setTimeout(function() {
           if (numCalls === canvas.maxRenderDepth) {
-            object.render = originalRender;
-            object.fill = originalFill;
             done();
           } else if (numCalls > canvas.maxRenderDepth) {
             done(new Error('The scene is rendered too many times recursively.'));
