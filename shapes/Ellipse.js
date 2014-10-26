@@ -43,6 +43,15 @@ inherit(Ellipse, EllipticalCanvasObject);
 Ellipse.className = 'Ellipse';
 
 /**
+ * Properties that should be included in the plain object created by toObject.
+ *
+ * @type {Array}
+ */
+Ellipse.objectProperties = EllipticalCanvasObject.objectProperties.concat([
+  'radiusX', 'radiusY'
+]);
+
+/**
  * Create a new Ellipse instance from a plain object. This object
  * must have the structure that the toObject method creates.
  *

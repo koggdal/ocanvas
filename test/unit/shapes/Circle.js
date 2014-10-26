@@ -1,16 +1,16 @@
 var expect = require('expect.js');
-var EllipticalCanvasObject = require('../../../shapes/base/EllipticalCanvasObject');
+var Ellipse = require('../../../shapes/Ellipse');
 var Circle = require('../../../shapes/Circle');
 var Collection = require('../../../classes/Collection');
 var jsonHelpers = require('../../../utils/json');
 
 describe('Circle', function() {
 
-  it('should inherit from EllipticalCanvasObject', function() {
+  it('should inherit from Ellipse', function() {
     var object = new Circle();
-    expect(Circle.prototype instanceof EllipticalCanvasObject).to.equal(true);
-    expect(object instanceof EllipticalCanvasObject).to.equal(true);
-    expect(object.calculateOrigin).to.equal(EllipticalCanvasObject.prototype.calculateOrigin);
+    expect(Circle.prototype instanceof Ellipse).to.equal(true);
+    expect(object instanceof Ellipse).to.equal(true);
+    expect(object.calculateOrigin).to.equal(Ellipse.prototype.calculateOrigin);
   });
 
   describe('Circle constructor', function() {

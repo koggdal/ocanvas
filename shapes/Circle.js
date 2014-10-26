@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var EllipticalCanvasObject = require('./base/EllipticalCanvasObject');
+var Ellipse = require('./Ellipse');
 var inherit = require('../utils/inherit');
 var isInstanceOf = require('../utils/isInstanceOf');
 var defineProperties = require('../utils/defineProperties');
@@ -31,7 +31,7 @@ var defineProperties = require('../utils/defineProperties');
  * scene.objects.add(circle);
  */
 function Circle(opt_properties) {
-  EllipticalCanvasObject.call(this);
+  Ellipse.call(this);
 
   var radiusSetter = function(value, currentValue, privateVars) {
     privateVars.radiusX = value;
@@ -58,7 +58,7 @@ function Circle(opt_properties) {
     this.setProperties(opt_properties);
   }
 }
-inherit(Circle, EllipticalCanvasObject);
+inherit(Circle, Ellipse);
 
 /**
  * The name of the class. Useful after minification processes etc.
@@ -72,7 +72,7 @@ Circle.className = 'Circle';
  *
  * @type {Array}
  */
-Circle.objectProperties = EllipticalCanvasObject.objectProperties.concat([
+Circle.objectProperties = Ellipse.objectProperties.concat([
   'radius'
 ]);
 
@@ -84,7 +84,7 @@ Circle.objectProperties = EllipticalCanvasObject.objectProperties.concat([
  *
  * @return {Circle} A Circle instance.
  */
-Circle.fromObject = EllipticalCanvasObject.fromObject;
+Circle.fromObject = Ellipse.fromObject;
 
 /**
  * Create a new Circle instance from a JSON string. This string
@@ -94,78 +94,6 @@ Circle.fromObject = EllipticalCanvasObject.fromObject;
  *
  * @return {Circle} A Circle instance.
  */
-Circle.fromJSON = EllipticalCanvasObject.fromJSON;
-
-/**
- * Render the path of the object to a canvas.
- *
- * @param {Canvas} canvas The Canvas instance to render to.
- */
-Circle.prototype.renderPath = function(canvas) {
-  var x = -this.calculateOrigin('x');
-  var y = -this.calculateOrigin('y');
-
-  drawCircle(x, y, this.radius, canvas);
-};
-
-/**
- * Render the object to a canvas.
- *
- * @param {Canvas} canvas The Canvas instance to render to.
- */
-Circle.prototype.render = function(canvas) {
-  EllipticalCanvasObject.prototype.render.call(this, canvas);
-
-  var context = canvas.context;
-
-  var x = -this.calculateOrigin('x');
-  var y = -this.calculateOrigin('y');
-  var radius = this.radius;
-
-  context.beginPath();
-
-  if (isInstanceOf(this.fill, 'Camera')) {
-    context.save();
-    context.beginPath();
-    drawCircle(x, y, radius, canvas);
-    context.closePath();
-    context.clip();
-    this.fill.render(canvas);
-    context.restore();
-  } else if (this.fill) {
-    drawCircle(x, y, radius, canvas);
-    context.fillStyle = this.fill;
-    context.fill();
-  }
-
-  context.closePath();
-
-  if (this.stroke) {
-    var parts = this.stroke.split(' ');
-    var lineWidth = parseFloat(parts[0], 10);
-    var color = parts[1];
-
-    context.beginPath();
-    drawCircle(x, y, radius + lineWidth / 2, canvas);
-    context.lineWidth = lineWidth;
-    context.strokeStyle = color;
-    context.stroke();
-    context.closePath();
-  }
-};
-
-/**
- * Draw the circle to a canvas.
- *
- * @param {number} x The X coordinate for the object.
- * @param {number} y The Y coordinate for the object.
- * @param {number} radius The radius for the object.
- * @param {Canvas} canvas The Canvas instance to draw to.
- *
- * @private
- */
-function drawCircle(x, y, radius, canvas) {
-  canvas.context.arc(x, y, radius, 0, Math.PI * 2, false);
-}
+Circle.fromJSON = Ellipse.fromJSON;
 
 module.exports = Circle;

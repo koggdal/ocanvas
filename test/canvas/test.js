@@ -9,7 +9,6 @@ describe('Shapes', function() {
   require('./shapes/base/RectangularCanvasObject');
   require('./shapes/Rectangle');
   require('./shapes/Ellipse');
-  require('./shapes/Circle');
 });
 
 describe('Textures', function() {
