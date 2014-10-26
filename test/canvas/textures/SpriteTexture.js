@@ -1,16 +1,17 @@
-var fs = require('fs');
 var expect = require('expect.js');
 var NodeCanvas = require('canvas');
+var imageMock = require('../mocks/image');
 var SpriteTexture = require('../../../textures/SpriteTexture');
 
 describe('SpriteTexture', function() {
 
   before(function() {
-    addMockForImage();
+    imageMock.on();
+    imageMock.setDirName(__dirname);
   });
 
   after(function() {
-    removeMockForImage();
+    imageMock.off();
   });
 
   describe('SpriteTexture constructor', function() {
@@ -103,55 +104,3 @@ describe('SpriteTexture', function() {
   });
 
 });
-
-function addMockForImage() {
-  global.HTMLCanvasElement = NodeCanvas;
-  global.HTMLImageElement = global.Image = NodeCanvas.Image;
-
-  Image.prototype.addEventListener = function(eventName, handler) {
-    if (!this._handlers) this._handlers = {};
-    if (!this._handlers[eventName]) this._handlers[eventName] = [];
-    this._handlers[eventName].push(handler);
-
-    if (eventName === 'load' && !this._loading) {
-      this._loading = true;
-
-      var src = this.src;
-      var self = this;
-      fs.readFile(__dirname + '/' + src, function(error, imageFile) {
-        if (!error) {
-          self.src = imageFile;
-        }
-
-        setTimeout(function() {
-          var handlerFunctions = self._handlers.load;
-          if (error) {
-            handlerFunctions = self._handlers.error;
-          }
-
-          if (handlerFunctions) {
-            handlerFunctions.forEach(function(handler) {
-              handler.call(self);
-            });
-          }
-        }, 0);
-      });
-    }
-  };
-
-  global.document = {
-    createElement: function(tagName) {
-      switch (tagName) {
-        case 'canvas': return new NodeCanvas(300, 150);
-        case 'img': return new Image();
-      }
-    }
-  };
-}
-
-function removeMockForImage() {
-  delete global.HTMLCanvasElement;
-  delete global.Image;
-  delete global.HTMLImageElement;
-  delete global.document;
-}
