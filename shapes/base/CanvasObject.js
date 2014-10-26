@@ -35,10 +35,11 @@ var getClassName = require('../../utils/getClassName');
  *     relative to the default origin of an object. Can be set to either
  *     numeric value, or one of these keywords: 'top', 'center' or 'bottom'.
  * @property {number} rotation The rotation of the object, in degrees.
- * @property {string|Camera} fill The fill value for the object. Any color
- *     value or a Camera instance. If a Camera instance, it will render what
- *     that camera sees, but it will only render recursively the amount of
- *     times specified by the 'maxRenderDepth' property on the Canvas instance.
+ * @property {string|Camera|Texture} fill The fill value for the object. Any
+ *     CSS color value, texture or a Camera instance. If a Camera instance, it
+ *     will render what that camera sees, but it will only render recursively
+ *     the amount of times specified by the 'maxRenderDepth' property on the
+ *     Canvas instance.
  * @property {string} stroke The stroke value, in the format '5px #ff0000'. The
  *     color can be any normal color format. The only supported width unit is
  *     'px'.
@@ -382,6 +383,22 @@ CanvasObject.prototype.calculateOrigin = function() {
 };
 
 /**
+ * Render the path of the object to a canvas.
+ * This needs implementation in a subclass. You should not call this
+ * super method in the subclass.
+ *
+ * @param {Canvas} canvas The Canvas instance to render to.
+ */
+CanvasObject.prototype.renderPath = function(canvas) {
+  var message = 'CanvasObject does not have an implementation of the ' +
+      'renderPath method. Please use a subclass of ' +
+      'CanvasObject that has an implementation of it.';
+  var error = new Error(message);
+  error.name = 'ocanvas-needs-subclass';
+  throw error;
+};
+
+/**
  * Render the object to a canvas.
  * This needs implementation in a subclass, where the method in
  * the subclass should call this method as the first thing.
@@ -413,19 +430,184 @@ CanvasObject.prototype.render = function(canvas) {
 };
 
 /**
- * Render the path of the object to a canvas.
- * This needs implementation in a subclass. You should not call this
- * super method in the subclass.
+ * Render the object fill to a canvas.
  *
  * @param {Canvas} canvas The Canvas instance to render to.
  */
-CanvasObject.prototype.renderPath = function(canvas) {
+CanvasObject.prototype.renderFill = function(canvas) {
+  var fill = this.fill;
+
+  if (typeof fill === 'string') {
+    this.renderColorFill(canvas, fill);
+
+  } else if (isInstanceOf(fill, 'ImageTexture') && fill.size !== 'source') {
+    this.renderImageTextureFill(canvas, fill);
+
+  } else if (isInstanceOf(fill, 'ColorTexture')) {
+    this.renderColorFill(canvas, fill.color);
+
+  } else if (isInstanceOf(fill, 'Texture')) {
+    this.renderTextureFill(canvas, fill);
+
+  } else if (isInstanceOf(fill, 'Camera')) {
+    this.renderCameraFill(canvas, fill);
+
+  } else {
+    var error = new Error('CanvasObject has an invalid `fill` value');
+    error.name = 'ocanvas-invalid-fill';
+    throw error;
+  }
+};
+
+/**
+ * Render the object stroke to the canvas.
+ *
+ * @param {Canvas} canvas The Canvas instance to render to.
+ */
+CanvasObject.prototype.renderStroke = function(canvas) {
+  var stroke = this.stroke;
+
+  if (typeof stroke !== 'string') {
+    var error = new Error('CanvasObject has an invalid `stroke` value');
+    error.name = 'ocanvas-invalid-stroke';
+    throw error;
+  }
+
+  var parts = stroke.split(' ');
+  var strokeWidth = parseFloat(parts[0], 10);
+  var color = parts[1];
+
+  this.renderColorStroke(canvas, strokeWidth, color);
+};
+
+/**
+ * Render a color fill to a canvas.
+ *
+ * @param {Canvas} canvas The Canvas instance to render to.
+ * @param {string} fill A valid CSS color.
+ */
+CanvasObject.prototype.renderColorFill = function(canvas, fill) {
   var message = 'CanvasObject does not have an implementation of the ' +
-      'renderPath method. Please use a subclass of ' +
+      'renderColorFill method. Please use a subclass of ' +
       'CanvasObject that has an implementation of it.';
   var error = new Error(message);
   error.name = 'ocanvas-needs-subclass';
   throw error;
+};
+
+/**
+ * Render an image texture fill to a canvas.
+ *
+ * @param {Canvas} canvas The Canvas instance to render to.
+ * @param {ImageTexture} fill An ImageTexture instance.
+ */
+CanvasObject.prototype.renderImageTextureFill = function(canvas, fill) {
+  var message = 'CanvasObject does not have an implementation of the ' +
+      'renderImageTextureFill method. Please use a subclass of ' +
+      'CanvasObject that has an implementation of it.';
+  var error = new Error(message);
+  error.name = 'ocanvas-needs-subclass';
+  throw error;
+};
+
+/**
+ * Render a texture fill to a canvas.
+ *
+ * @param {Canvas} canvas The Canvas instance to render to.
+ * @param {Texture} fill A Texture instance.
+ */
+CanvasObject.prototype.renderTextureFill = function(canvas, fill) {
+  var message = 'CanvasObject does not have an implementation of the ' +
+      'renderTextureFill method. Please use a subclass of ' +
+      'CanvasObject that has an implementation of it.';
+  var error = new Error(message);
+  error.name = 'ocanvas-needs-subclass';
+  throw error;
+};
+
+/**
+ * Render a camera fill to a canvas.
+ *
+ * @param {Canvas} canvas The Canvas instance to render to.
+ * @param {Camera} fill A Camera instance.
+ */
+CanvasObject.prototype.renderCameraFill = function(canvas, fill) {
+  var message = 'CanvasObject does not have an implementation of the ' +
+      'renderCameraFill method. Please use a subclass of ' +
+      'CanvasObject that has an implementation of it.';
+  var error = new Error(message);
+  error.name = 'ocanvas-needs-subclass';
+  throw error;
+};
+
+/**
+ * Render a color stroke to a canvas.
+ *
+ * @param {Canvas} canvas The Canvas instance to render to.
+ * @param {number} strokeWidth The stroke thickness in pixels.
+ * @param {string} color A valid CSS color.
+ */
+CanvasObject.prototype.renderColorStroke = function(canvas, fill) {
+  var message = 'CanvasObject does not have an implementation of the ' +
+      'renderColorStroke method. Please use a subclass of ' +
+      'CanvasObject that has an implementation of it.';
+  var error = new Error(message);
+  error.name = 'ocanvas-needs-subclass';
+  throw error;
+};
+
+/**
+ * Render a sized image texture to a canvas.
+ *
+ * @param {Canvas} canvas The Canvas instance to render to.
+ * @param {ImageTexture} fill An ImageTexture instance.
+ * @param {number} width The width of the output image.
+ * @param {number} height The height of the output image.
+ * @param {number=} opt_x Optional relative X coordinate of the output image.
+ *     Default is the calculated (negative) X origin.
+ * @param {number=} opt_y Optional relative Y coordinate of the output image.
+ *     Default is the calculated (negative) Y origin.
+ */
+CanvasObject.prototype.renderImageTextureSized = function(canvas, fill, width, height, opt_x, opt_y) {
+  var element = fill.imageElement;
+  if (!element) return;
+
+  var context = canvas.context;
+  var size = fill.size;
+  var x = opt_x || -this.calculateOrigin('x');
+  var y = opt_y || -this.calculateOrigin('y');
+
+  var sx = fill.sourceX;
+  var sy = fill.sourceY;
+  var sw = fill.width;
+  var sh = fill.height;
+  var dw = width;
+  var dh = height;
+  var dx = x;
+  var dy = y;
+
+  var textureAspectRatio = sw / sh;
+  var outputAspectRatio = dw / dh;
+
+  if (size === 'cover' || size === 'contain') {
+    var isTextureRatioSmaller = textureAspectRatio <= outputAspectRatio;
+    var shouldAdjustHeight = isTextureRatioSmaller;
+    if (size === 'contain') {
+      shouldAdjustHeight = !isTextureRatioSmaller;
+    }
+
+    if (shouldAdjustHeight) {
+      var h = dh;
+      dh = (dw / sw) * sh;
+      dy -= (dh - h) / 2;
+    } else {
+      var w = dw;
+      dw = (dh / sh) * sw;
+      dx -= (dw - w) / 2;
+    }
+  }
+
+  context.drawImage(element, sx, sy, sw, sh, dx, dy, dw, dh);
 };
 
 /**

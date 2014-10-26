@@ -1,12 +1,14 @@
 var expect = require('expect.js');
 var NodeCanvas = require('canvas');
 var getColor = require('../../../utils/getColor');
+var imageMock = require('../../mocks/image');
 
 var create = require('../../../../create');
 var Scene = require('../../../../classes/Scene');
 var Canvas = require('../../../../classes/Canvas');
 var Camera = require('../../../../classes/Camera');
 var CanvasObject = require('../../../../shapes/base/CanvasObject');
+var ImageTexture = require('../../../../textures/ImageTexture');
 
 global.HTMLCanvasElement = NodeCanvas;
 
@@ -290,6 +292,270 @@ describe('CanvasObject', function() {
       expect(getColor(ctx, 50, 100)).to.equal('rgba(255, 0, 0, 255)');
       expect(getColor(ctx, 49, 24)).to.equal('rgba(0, 0, 255, 255)');
       expect(getColor(ctx, 50, 25)).to.equal('rgba(255, 0, 0, 255)');
+    });
+
+  });
+
+  describe('#renderImageTextureSized()', function() {
+
+    before(function() {
+      imageMock.on();
+      imageMock.setDirName(__dirname);
+    });
+
+    after(function() {
+      imageMock.off();
+    });
+
+    it('should handle textures without an `imageElement` property without errors', function() {
+      var canvas = new Canvas({element: new NodeCanvas(300, 300)});
+      var fill = new ImageTexture();
+      var object = new CanvasObject({fill: fill});
+
+      // Mock a method it's using
+      object.calculateOrigin = function(axis) { return axis ? 0 : {x: 0, y: 0}; };
+
+      expect(fill.imageElement).to.equal(null);
+
+      object.renderImageTextureSized(canvas, fill, 30, 30);
+    });
+
+    it('should render the texture correctly when size is set to `stretch`', function(done) {
+      var canvas = new Canvas({element: new NodeCanvas(300, 300)});
+      var texture = new ImageTexture({
+        image: 'ocanvas-logo.png',
+        size: 'stretch'
+      });
+      texture.on('load', function() {
+        expect(texture.imageElement).to.be.ok();
+
+        var object = new CanvasObject({fill: texture});
+
+        // Mock a method it's using
+        object.calculateOrigin = function(axis) { return axis ? 0 : {x: 0, y: 0}; };
+
+        object.renderImageTextureSized(canvas, texture, 60, 90);
+
+        var ctx = canvas.context;
+
+        expect(getColor(ctx, 3, 3)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 57, 3)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 63, 3)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 3, 87)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 57, 87)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 63, 87)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 3, 93)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 57, 93)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 63, 93)).to.equal('rgba(0, 0, 0, 0)');
+
+        done();
+      });
+    });
+
+    it('should render the texture correctly when size is set to `cover` (horizontal image)', function(done) {
+      var canvas = new Canvas({element: new NodeCanvas(300, 300)});
+      var texture = new ImageTexture({
+        image: 'ocanvas-logo.png',
+        size: 'cover'
+      });
+      texture.on('load', function() {
+        expect(texture.imageElement).to.be.ok();
+
+        var object = new CanvasObject({fill: texture});
+
+        // Mock a method it's using
+        object.calculateOrigin = function(axis) { return axis ? 0 : {x: 0, y: 0}; };
+
+        object.renderImageTextureSized(canvas, texture, 60, 90);
+
+        var ctx = canvas.context;
+
+        expect(getColor(ctx, 3, 3)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 162, 3)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 168, 3)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 3, 87)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 162, 87)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 168, 87)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 3, 93)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 162, 93)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 168, 93)).to.equal('rgba(0, 0, 0, 0)');
+
+        done();
+      });
+    });
+
+    it('should render the texture correctly when size is set to `cover` (vertical image)', function(done) {
+      var canvas = new Canvas({element: new NodeCanvas(300, 300)});
+      var texture = new ImageTexture({
+        image: 'ocanvas-logo-vertical.png',
+        size: 'cover'
+      });
+      texture.on('load', function() {
+        expect(texture.imageElement).to.be.ok();
+
+        var object = new CanvasObject({fill: texture});
+
+        // Mock a method it's using
+        object.calculateOrigin = function(axis) { return axis ? 0 : {x: 0, y: 0}; };
+
+        object.renderImageTextureSized(canvas, texture, 60, 90);
+
+        var ctx = canvas.context;
+
+        expect(getColor(ctx, 3, 3)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 57, 3)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 63, 3)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 3, 132)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 57, 132)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 63, 132)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 3, 138)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 57, 138)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 63, 138)).to.equal('rgba(0, 0, 0, 0)');
+
+        done();
+      });
+    });
+
+    it('should render the texture correctly when size is set to `contain` (horizontal image)', function(done) {
+      var canvas = new Canvas({element: new NodeCanvas(300, 300)});
+      var texture = new ImageTexture({
+        image: 'ocanvas-logo.png',
+        size: 'contain'
+      });
+      texture.on('load', function() {
+        expect(texture.imageElement).to.be.ok();
+
+        var object = new CanvasObject({fill: texture});
+
+        // Mock a method it's using
+        object.calculateOrigin = function(axis) { return axis ? 0 : {x: 0, y: 0}; };
+
+        object.renderImageTextureSized(canvas, texture, 60, 90);
+
+        var ctx = canvas.context;
+
+        expect(getColor(ctx, 3, 38)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 57, 38)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 63, 38)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 3, 52)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 57, 52)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 63, 52)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 3, 58)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 57, 58)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 63, 58)).to.equal('rgba(0, 0, 0, 0)');
+
+        done();
+      });
+    });
+
+    it('should render the texture correctly when size is set to `contain` (vertical image)', function(done) {
+      var canvas = new Canvas({element: new NodeCanvas(300, 300)});
+      var texture = new ImageTexture({
+        image: 'ocanvas-logo-vertical.png',
+        size: 'contain'
+      });
+      texture.on('load', function() {
+        expect(texture.imageElement).to.be.ok();
+
+        var object = new CanvasObject({fill: texture});
+
+        // Mock a method it's using
+        object.calculateOrigin = function(axis) { return axis ? 0 : {x: 0, y: 0}; };
+
+        object.renderImageTextureSized(canvas, texture, 60, 90);
+
+        var ctx = canvas.context;
+
+        expect(getColor(ctx, 18, 3)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 41, 3)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 47, 3)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 18, 87)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 41, 87)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 47, 87)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 18, 93)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 41, 93)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 47, 93)).to.equal('rgba(0, 0, 0, 0)');
+
+        done();
+      });
+    });
+
+    it('should use the provided coordinates if provided', function(done) {
+      var canvas = new Canvas({element: new NodeCanvas(300, 300)});
+      var texture = new ImageTexture({
+        image: 'ocanvas-logo.png',
+        size: 'stretch'
+      });
+      texture.on('load', function() {
+        expect(texture.imageElement).to.be.ok();
+
+        var object = new CanvasObject({fill: texture});
+
+        // Mock a method it's using
+        var originCalled = false;
+        object.calculateOrigin = function(axis) {
+          originCalled = true;
+          return axis ? 0 : {x: 0, y: 0};
+        };
+
+        object.renderImageTextureSized(canvas, texture, 60, 90, 50, 70);
+
+        expect(originCalled).to.equal(false);
+
+        var ctx = canvas.context;
+
+        expect(getColor(ctx, 53, 73)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 107, 73)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 113, 73)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 53, 157)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 107, 157)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 113, 157)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 53, 163)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 107, 163)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 113, 163)).to.equal('rgba(0, 0, 0, 0)');
+
+        done();
+      });
+    });
+
+    it('should use the calculated origin as coordinates if not provided', function(done) {
+      var canvas = new Canvas({element: new NodeCanvas(300, 300)});
+      var texture = new ImageTexture({
+        image: 'ocanvas-logo.png',
+        size: 'stretch'
+      });
+      texture.on('load', function() {
+        expect(texture.imageElement).to.be.ok();
+
+        var object = new CanvasObject({fill: texture});
+
+        // Mock a method it's using
+        var originCalled = false;
+        object.calculateOrigin = function(axis) {
+          originCalled = true;
+          if (axis === 'x') return -50;
+          if (axis === 'y') return -70;
+          if (!axis) return {x: -50, y: -70};
+        };
+
+        object.renderImageTextureSized(canvas, texture, 60, 90);
+
+        expect(originCalled).to.equal(true);
+
+        var ctx = canvas.context;
+
+        expect(getColor(ctx, 53, 73)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 107, 73)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 113, 73)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 53, 157)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 107, 157)).to.equal('rgba(34, 34, 34, 255)');
+        expect(getColor(ctx, 113, 157)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 53, 163)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 107, 163)).to.equal('rgba(0, 0, 0, 0)');
+        expect(getColor(ctx, 113, 163)).to.equal('rgba(0, 0, 0, 0)');
+
+        done();
+      });
     });
 
   });

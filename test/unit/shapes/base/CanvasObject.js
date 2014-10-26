@@ -7,6 +7,10 @@ var Collection = require('../../../../classes/Collection');
 var Cache = require('../../../../classes/Cache');
 var Scene = require('../../../../classes/Scene');
 var Matrix = require('../../../../classes/Matrix');
+var Texture = require('../../../../textures/Texture');
+var ColorTexture = require('../../../../textures/ColorTexture');
+var ImageTexture = require('../../../../textures/ImageTexture');
+var SpriteTexture = require('../../../../textures/SpriteTexture');
 var jsonHelpers = require('../../../../utils/json');
 var round = require('../../../utils/round');
 
@@ -477,6 +481,96 @@ describe('CanvasObject', function() {
 
       try {
         object.renderPath();
+      } catch(error) {
+        if (error.name === 'ocanvas-needs-subclass') {
+          done();
+        } else {
+          done(error);
+        }
+      }
+    });
+
+  });
+
+  describe('#renderColorFill()', function() {
+
+    it('should be defined but throw an error (needs subclass implementation)', function(done) {
+      var object = new CanvasObject();
+
+      try {
+        object.renderColorFill();
+      } catch(error) {
+        if (error.name === 'ocanvas-needs-subclass') {
+          done();
+        } else {
+          done(error);
+        }
+      }
+    });
+
+  });
+
+  describe('#renderImageTextureFill()', function() {
+
+    it('should be defined but throw an error (needs subclass implementation)', function(done) {
+      var object = new CanvasObject();
+
+      try {
+        object.renderImageTextureFill();
+      } catch(error) {
+        if (error.name === 'ocanvas-needs-subclass') {
+          done();
+        } else {
+          done(error);
+        }
+      }
+    });
+
+  });
+
+  describe('#renderTextureFill()', function() {
+
+    it('should be defined but throw an error (needs subclass implementation)', function(done) {
+      var object = new CanvasObject();
+
+      try {
+        object.renderTextureFill();
+      } catch(error) {
+        if (error.name === 'ocanvas-needs-subclass') {
+          done();
+        } else {
+          done(error);
+        }
+      }
+    });
+
+  });
+
+  describe('#renderCameraFill()', function() {
+
+    it('should be defined but throw an error (needs subclass implementation)', function(done) {
+      var object = new CanvasObject();
+
+      try {
+        object.renderCameraFill();
+      } catch(error) {
+        if (error.name === 'ocanvas-needs-subclass') {
+          done();
+        } else {
+          done(error);
+        }
+      }
+    });
+
+  });
+
+  describe('#renderColorStroke()', function() {
+
+    it('should be defined but throw an error (needs subclass implementation)', function(done) {
+      var object = new CanvasObject();
+
+      try {
+        object.renderColorStroke();
       } catch(error) {
         if (error.name === 'ocanvas-needs-subclass') {
           done();
@@ -3065,6 +3159,134 @@ describe('CanvasObject', function() {
 
       object.clippingMask = null;
       expect(object.clippingMask).to.equal(null);
+    });
+
+  });
+
+  describe('#renderFill()', function() {
+
+    it('should call `renderColorFill` if `fill` is a string (CSS color value)', function(done) {
+      var canvas = new Canvas();
+      var fill = 'blue';
+      var object = new CanvasObject({fill: fill});
+
+      object.renderColorFill = function(renderCanvas, renderFill) {
+        expect(renderCanvas).to.equal(canvas);
+        expect(renderFill).to.equal(fill);
+        done();
+      };
+
+      object.renderFill(canvas);
+    });
+
+    it('should call `renderColorFill` if `fill` is a ColorTexture', function(done) {
+      var canvas = new Canvas();
+      var fill = new ColorTexture();
+      var object = new CanvasObject({fill: fill});
+
+      object.renderColorFill = function(renderCanvas, renderFill) {
+        expect(renderCanvas).to.equal(canvas);
+        expect(renderFill).to.equal(fill.color);
+        done();
+      };
+
+      object.renderFill(canvas);
+    });
+
+    it('should call `renderImageTextureFill` if `fill` is an ImageTexture and its `size` is not `source`', function(done) {
+      var canvas = new Canvas();
+      var fill = new ImageTexture({size: 'cover'});
+      var object = new CanvasObject({fill: fill});
+
+      object.renderImageTextureFill = function(renderCanvas, renderFill) {
+        expect(renderCanvas).to.equal(canvas);
+        expect(renderFill).to.equal(fill);
+        done();
+      };
+
+      object.renderFill(canvas);
+    });
+
+    it('should call `renderTextureFill` if `fill` is an ImageTexture and its `size` is `source`', function(done) {
+      var canvas = new Canvas();
+      var fill = new ImageTexture({size: 'source'});
+      var object = new CanvasObject({fill: fill});
+
+      object.renderTextureFill = function(renderCanvas, renderFill) {
+        expect(renderCanvas).to.equal(canvas);
+        expect(renderFill).to.equal(fill);
+        done();
+      };
+
+      object.renderFill(canvas);
+    });
+
+    it('should call `renderTextureFill` if `fill` is any other Texture', function(done) {
+      var canvas = new Canvas();
+      var fill = new Texture();
+      var object = new CanvasObject({fill: fill});
+
+      object.renderTextureFill = function(renderCanvas, renderFill) {
+        expect(renderCanvas).to.equal(canvas);
+        expect(renderFill).to.equal(fill);
+        done();
+      };
+
+      object.renderFill(canvas);
+    });
+
+    it('should call `renderCameraFill` if `fill` is a Camera', function(done) {
+      var canvas = new Canvas();
+      var fill = new Camera();
+      var object = new CanvasObject({fill: fill});
+
+      object.renderCameraFill = function(renderCanvas, renderFill) {
+        expect(renderCanvas).to.equal(canvas);
+        expect(renderFill).to.equal(fill);
+        done();
+      };
+
+      object.renderFill(canvas);
+    });
+
+    it('should throw an error for an invalid fill', function(done) {
+      var canvas = new Canvas();
+      var object = new CanvasObject({fill: {}});
+
+      try {
+        object.renderFill(canvas);
+      } catch (error) {
+        done();
+      }
+    });
+
+  });
+
+  describe('#renderStroke()', function() {
+
+    it('should call `renderColorStroke` with stroke width and color based on the `stroke` property', function(done) {
+      var canvas = new Canvas();
+      var object = new CanvasObject({stroke: '5px blue'});
+
+      object.renderColorStroke = function(renderCanvas, renderStrokeWidth, renderColor) {
+        expect(renderCanvas).to.equal(canvas);
+        expect(renderStrokeWidth).to.equal(5);
+        expect(renderColor).to.equal('blue');
+        done();
+      };
+
+      object.renderStroke(canvas);
+    });
+
+    it('should throw an error for an invalid stroke', function(done) {
+      var canvas = new Canvas();
+      var object = new CanvasObject({stroke: {}});
+
+      try {
+        object.renderStroke(canvas);
+      } catch (error) {
+        done();
+      }
     });
 
   });
