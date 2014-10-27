@@ -58,101 +58,16 @@ function ImageTexture(opt_properties) {
   this.sourceX = 0;
   this.sourceY = 0;
 
-  defineProperties(this, {
-    loaded: {
-      value: false,
-      writable: false
-    },
-    sourceWidth: {
-      value: 0,
-      writable: false
-    },
-    sourceHeight: {
-      value: 0,
-      writable: false
-    },
-    imageElement: {
-      value: null,
-      writable: false
-    },
-    repeat: {
-      value: 'both',
-      set: function(value, currentValue, privateVars) {
-        switch (value) {
-          case 'both': privateVars.repeatMode = 'repeat'; break;
-          case 'x': privateVars.repeatMode = 'repeat-x'; break;
-          case 'y': privateVars.repeatMode = 'repeat-y'; break;
-          case 'none': privateVars.repeatMode = 'no-repeat'; break;
-          default: return currentValue;
-        }
-
-        if (privateVars.imageElement) {
-          var canvas = global.document.createElement('canvas');
-          var context = canvas.getContext('2d');
-          var imageElement = privateVars.imageElement;
-          var repeatMode = privateVars.repeatMode;
-          this.style = context.createPattern(imageElement, repeatMode);
-        }
-      }
-    },
-    size: {
-      value: 'source',
-      set: function(value, currentValue) {
-        switch (value) {
-          case 'source': break;
-          case 'cover': break;
-          case 'contain': break;
-          case 'stretch': break;
-          default: return currentValue;
-        }
-      }
-    },
-    image: {
-      value: null,
-      set: function(value, currentValue, privateVars) {
-        var isString = typeof value === 'string';
-        var isImage = value instanceof global.HTMLImageElement;
-
-        if (!isString && !isImage) return currentValue;
-
-        privateVars.loaded = false;
-
-        var image = value;
-        if (isString) {
-          image = global.document.createElement('img');
-          image.src = value;
-        }
-
-        var texture = this;
-        image.addEventListener('load', function() {
-          if (privateVars.image !== value) return;
-
-          privateVars.imageElement = image;
-          privateVars.loaded = true;
-          privateVars.sourceWidth = image.width;
-          privateVars.sourceHeight = image.height;
-          texture.width = image.width;
-          texture.height = image.height;
-
-          var canvas = global.document.createElement('canvas');
-          var context = canvas.getContext('2d');
-          var repeat = privateVars.repeatMode || 'repeat';
-          texture.style = context.createPattern(image, repeat);
-          texture.emit('load');
-        });
-        image.addEventListener('error', function() {
-          if (privateVars.image !== value) return;
-          texture.emit('error');
-        });
-      }
-    },
-    style: {
-      value: 'transparent',
-      set: function(value, currentValue) {
-        if (!isInstanceOf(value, 'CanvasPattern')) return currentValue;
-      }
-    }
-  }, {enumerable: true});
+  define(this, [
+    'loaded',
+    'sourceWidth',
+    'sourceHeight',
+    'imageElement',
+    'repeat',
+    'size',
+    'image',
+    'style'
+  ]);
 
   if (opt_properties) {
     this.setProperties(opt_properties);
@@ -189,5 +104,115 @@ inherit(ImageTexture, Texture);
  * @type {string}
  */
 ImageTexture.className = 'ImageTexture';
+
+/**
+ * Property descriptors compatible with the `defineProperties` utility.
+ *
+ * @type {Object}
+ * @private
+ */
+var propertyDescriptors = {
+  loaded: {
+    value: false,
+    writable: false
+  },
+  sourceWidth: {
+    value: 0,
+    writable: false
+  },
+  sourceHeight: {
+    value: 0,
+    writable: false
+  },
+  imageElement: {
+    value: null,
+    writable: false
+  },
+  repeat: {
+    value: 'both',
+    set: function(value, currentValue, privateVars) {
+      switch (value) {
+        case 'both': privateVars.repeatMode = 'repeat'; break;
+        case 'x': privateVars.repeatMode = 'repeat-x'; break;
+        case 'y': privateVars.repeatMode = 'repeat-y'; break;
+        case 'none': privateVars.repeatMode = 'no-repeat'; break;
+        default: return currentValue;
+      }
+
+      if (privateVars.imageElement) {
+        var canvas = global.document.createElement('canvas');
+        var context = canvas.getContext('2d');
+        var imageElement = privateVars.imageElement;
+        var repeatMode = privateVars.repeatMode;
+        this.style = context.createPattern(imageElement, repeatMode);
+      }
+    }
+  },
+  size: {
+    value: 'source',
+    set: function(value, currentValue) {
+      switch (value) {
+        case 'source': break;
+        case 'cover': break;
+        case 'contain': break;
+        case 'stretch': break;
+        default: return currentValue;
+      }
+    }
+  },
+  image: {
+    value: null,
+    set: function(value, currentValue, privateVars) {
+      var isString = typeof value === 'string';
+      var isImage = value instanceof global.HTMLImageElement;
+
+      if (!isString && !isImage) return currentValue;
+
+      privateVars.loaded = false;
+
+      var image = value;
+      if (isString) {
+        image = global.document.createElement('img');
+        image.src = value;
+      }
+
+      var texture = this;
+      image.addEventListener('load', function() {
+        if (privateVars.image !== value) return;
+
+        privateVars.imageElement = image;
+        privateVars.loaded = true;
+        privateVars.sourceWidth = image.width;
+        privateVars.sourceHeight = image.height;
+        texture.width = image.width;
+        texture.height = image.height;
+
+        var canvas = global.document.createElement('canvas');
+        var context = canvas.getContext('2d');
+        var repeat = privateVars.repeatMode || 'repeat';
+        texture.style = context.createPattern(image, repeat);
+        texture.emit('load');
+      });
+      image.addEventListener('error', function() {
+        if (privateVars.image !== value) return;
+        texture.emit('error');
+      });
+    }
+  },
+  style: {
+    value: 'transparent',
+    set: function(value, currentValue) {
+      if (!isInstanceOf(value, 'CanvasPattern')) return currentValue;
+    }
+  }
+};
+
+function define(object, properties) {
+  var descriptors = {};
+  for (var i = 0, l = properties.length; i < l; i++) {
+    descriptors[properties[i]] = propertyDescriptors[properties[i]];
+  }
+  defineProperties(object, descriptors, {enumerable: true});
+}
 
 module.exports = ImageTexture;

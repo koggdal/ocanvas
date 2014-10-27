@@ -25,43 +25,13 @@ var isInstanceOf = require('../utils/isInstanceOf');
 function SpriteTexture(opt_properties) {
   ImageTexture.call(this);
 
-  var self = this;
-  var isStyleValid = false;
-  var styleCanvas;
-  var repeatModes = {
-    'both': 'repeat', 'none': 'no-repeat',
-    'x': 'repeat-x', 'y': 'repeat-y'
-  };
-  var updateStyle = function(imageElement) {
-    isStyleValid = true;
-
-    if (!styleCanvas) styleCanvas = global.document.createElement('canvas');
-
-    var sx = self.sourceX;
-    var sy = self.sourceY;
-    var sw = self.width;
-    var sh = self.height;
-    var repeatMode = repeatModes[self.repeat];
-
-    styleCanvas.width = self.width;
-    styleCanvas.height = self.height;
-
-    var context = styleCanvas.getContext('2d');
-    context.drawImage(imageElement, sx, sy, sw, sh, 0, 0, sw, sh);
-
-    return context.createPattern(styleCanvas, repeatMode);
-  };
+  var internalVars = {};
 
   // Since ImageTexture sets the dimensions to the dimensions of the source
   // image when loaded, we need to reset the dimensions to not render the full
   // sprite sheet.
   this.on('load', function handler() {
-    var frame = this.frames && this.frames[this.frame];
-    this.sourceX = frame ? frame.x : 0;
-    this.sourceY = frame ? frame.y : 0;
-    this.width = frame ? frame.width : 0;
-    this.height = frame ? frame.height : 0;
-    isStyleValid = false;
+    updateFrameProperties(this, this.frames, this.frame, internalVars);
   });
 
   defineProperties(this, {
@@ -69,33 +39,21 @@ function SpriteTexture(opt_properties) {
       value: null,
       set: function(value, currentValue, privateVars) {
         if (!Array.isArray(value)) return currentValue;
-
-        var frame = value[this.frame];
-        this.sourceX = frame ? frame.x : 0;
-        this.sourceY = frame ? frame.y : 0;
-        this.width = frame ? frame.width : 0;
-        this.height = frame ? frame.height : 0;
-        isStyleValid = false;
+        updateFrameProperties(this, value, this.frame, internalVars);
       }
     },
     frame: {
       value: 0,
       set: function(value, currentValue, privateVars) {
         if (typeof value !== 'number') return currentValue;
-
-        var frame = this.frames && this.frames[value];
-        this.sourceX = frame ? frame.x : 0;
-        this.sourceY = frame ? frame.y : 0;
-        this.width = frame ? frame.width : 0;
-        this.height = frame ? frame.height : 0;
-        isStyleValid = false;
+        updateFrameProperties(this, this.frames, value, internalVars);
       }
     },
     style: {
       value: 'transparent',
       get: function(value, privateVars) {
-        if (!isStyleValid && this.imageElement) {
-          privateVars.style = updateStyle(this.imageElement);
+        if (!internalVars.isStyleValid && this.imageElement) {
+          privateVars.style = updateStyle(this, privateVars, internalVars);
         }
         return privateVars.style;
       }
@@ -147,5 +105,45 @@ SpriteTexture.prototype.generateFrames = function(options) {
  * @type {string}
  */
 SpriteTexture.className = 'SpriteTexture';
+
+var repeatModes = {
+  'both': 'repeat',
+  'none': 'no-repeat',
+  'x': 'repeat-x',
+  'y': 'repeat-y'
+};
+
+function updateStyle(texture, privateVars, internalVars) {
+  internalVars.isStyleValid = true;
+
+  if (!privateVars.styleCanvas) {
+    privateVars.styleCanvas = global.document.createElement('canvas');
+  }
+
+  var imageElement = texture.imageElement;
+  var styleCanvas = privateVars.styleCanvas;
+  var sx = texture.sourceX;
+  var sy = texture.sourceY;
+  var sw = texture.width;
+  var sh = texture.height;
+  var repeatMode = repeatModes[texture.repeat];
+
+  styleCanvas.width = texture.width;
+  styleCanvas.height = texture.height;
+
+  var context = styleCanvas.getContext('2d');
+  context.drawImage(imageElement, sx, sy, sw, sh, 0, 0, sw, sh);
+
+  return context.createPattern(styleCanvas, repeatMode);
+}
+
+function updateFrameProperties(texture, frames, frameIndex, internalVars) {
+  var frame = frames && frames[frameIndex];
+  texture.sourceX = frame ? frame.x : 0;
+  texture.sourceY = frame ? frame.y : 0;
+  texture.width = frame ? frame.width : 0;
+  texture.height = frame ? frame.height : 0;
+  internalVars.isStyleValid = false;
+}
 
 module.exports = SpriteTexture;
