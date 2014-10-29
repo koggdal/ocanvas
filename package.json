@@ -19,7 +19,8 @@
   },
   "dependencies": {
     "matrixmath": "^2.2.0",
-    "raf": "~2.0.0"
+    "raf": "~2.0.0",
+    "prime": "~0.4.2"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
