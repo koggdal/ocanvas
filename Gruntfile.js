@@ -41,8 +41,8 @@ module.exports = function(grunt) {
       'test-simple': {
         cmd: function() {
           var condition = '[ -e node_modules/canvas ]';
-          var all = './node_modules/.bin/mocha test/unit/test.js test/canvas/test.js';
-          var unit = './node_modules/.bin/mocha test/unit/test.js';
+          var all = './node_modules/.bin/mocha test/unit/test.js test/canvas/test.js -R dot';
+          var unit = './node_modules/.bin/mocha test/unit/test.js -R dot';
           var canvasMessage = 'echo "\nNOTE: node-canvas is not installed, so only normal unit tests were run.\n"';
           return condition + ' && (' + all + ' || echo "") || (' + unit + ' && ' + canvasMessage + ')';
         }
