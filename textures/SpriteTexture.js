@@ -18,7 +18,7 @@ var isInstanceOf = require('../utils/isInstanceOf');
  *     frame). Default is 0.
  *
  * @constructor
- * @augments {ImageTexture}
+ * @augments module:ocanvas/textures/ImageTexture~ImageTexture
  *
  * @param {Object=} opt_properties Optional object with properties to set.
  */

@@ -3,10 +3,6 @@
  */
 'use strict';
 
-var EventEmitter = require('../mixins/EventEmitter');
-
-var mixin = require('../utils/mixin');
-
 /**
  * @classdesc The Texture class needs to be subclassed for different kinds of
  *     textures.
@@ -15,7 +11,6 @@ var mixin = require('../utils/mixin');
  *     used in fillStyle/strokeStyle of a CanvasRenderingContext2D.
  *
  * @constructor
- * @mixes module:ocanvas/mixins/EventEmitter~EventEmitter
  *
  * @param {Object=} opt_properties Optional object with properties to set.
  */
@@ -26,7 +21,6 @@ function Texture(opt_properties) {
     this.setProperties(opt_properties);
   }
 }
-mixin(Texture.prototype, EventEmitter);
 
 /**
  * Set multiple properties at the same time.

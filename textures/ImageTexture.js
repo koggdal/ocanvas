@@ -4,8 +4,10 @@
 'use strict';
 
 var Texture = require('./Texture');
+var EventEmitter = require('../mixins/EventEmitter');
 
 var inherit = require('../utils/inherit');
+var mixin = require('../utils/mixin');
 var defineProperties = require('../utils/defineProperties');
 var isInstanceOf = require('../utils/isInstanceOf');
 
@@ -46,7 +48,8 @@ var isInstanceOf = require('../utils/isInstanceOf');
  * @fires module:ocanvas/textures/ImageTexture~ImageTexture#error
  *
  * @constructor
- * @augments {Texture}
+ * @augments module:ocanvas/textures/Texture~Texture
+ * @mixes module:ocanvas/mixins/EventEmitter~EventEmitter
  *
  * @param {Object=} opt_properties Optional object with properties to set.
  */
@@ -74,6 +77,7 @@ function ImageTexture(opt_properties) {
   }
 }
 inherit(ImageTexture, Texture);
+mixin(ImageTexture.prototype, EventEmitter);
 
 /**
  * Event for notifying that the image was loaded and the texture is ready for

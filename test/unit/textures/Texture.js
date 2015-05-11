@@ -1,15 +1,7 @@
 var expect = require('expect.js');
 var Texture = require('../../../textures/Texture');
-var EventEmitter = require('../../../mixins/EventEmitter');
 
 describe('Texture', function() {
-
-  it('should mix in EventEmitter', function() {
-    var texture = new Texture();
-    expect(texture.emit).to.equal(EventEmitter.emit);
-    expect(texture.on).to.equal(EventEmitter.on);
-    expect(texture.off).to.equal(EventEmitter.off);
-  });
 
   describe('Texture constructor', function() {
 
