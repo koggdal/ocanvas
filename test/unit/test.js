@@ -8,11 +8,14 @@ describe('Utilities', function() {
   require('./utils/mixin');
 });
 
+describe('Mixins', function() {
+  require('./mixins/EventEmitter');
+});
+
 describe('Classes', function() {
   require('./classes/Cache');
   require('./classes/Canvas');
   require('./classes/Camera');
-  require('./classes/EventEmitter');
   require('./classes/ObjectEvent');
   require('./classes/ObjectEventEmitter');
   require('./classes/Collection');

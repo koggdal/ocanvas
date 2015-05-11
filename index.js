@@ -4,19 +4,26 @@
 'use strict';
 
 /**
+ * Mixins.
+ * @type {Object}
+ * @property {Object} EventEmitter The EventEmitter mixin.
+ */
+exports.mixins = {
+  EventEmitter: require('./mixins/EventEmitter')
+};
+
+/**
  * Classes that are not shapes.
  * @type {Object}
  * @property {Object} Camera The Camera class.
  * @property {Object} Canvas The Canvas class.
  * @property {Object} Collection The Collection class.
- * @property {Object} EventEmitter The EventEmitter class.
  * @property {Object} Scene The Scene class.
  */
 exports.classes = {
   Camera: require('./classes/Camera'),
   Canvas: require('./classes/Canvas'),
   Collection: require('./classes/Collection'),
-  EventEmitter: require('./classes/EventEmitter'),
   Matrix: require('./classes/Matrix'),
   Pool: require('./classes/Pool'),
   Scene: require('./classes/Scene')

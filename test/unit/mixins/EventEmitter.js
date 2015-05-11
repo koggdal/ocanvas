@@ -1,21 +1,22 @@
 var expect = require('expect.js');
-var EventEmitter = require('../../../classes/EventEmitter');
+var mixin = require('../../../utils/mixin');
+var EventEmitter = require('../../../mixins/EventEmitter');
 
 describe('EventEmitter', function() {
 
-  describe('EventEmitter constructor', function() {
+  describe('.listeners', function() {
 
-    it('should define an object that stores all listeners', function() {
-      var emitter = new EventEmitter();
-      expect(typeof emitter.listeners).to.equal('object');
+    it('should be `null` initially', function() {
+      var emitter = mixin({}, EventEmitter);
+      expect(emitter.listeners).to.equal(null);
     });
 
   });
 
-  describe('#on()', function() {
+  describe('.on()', function() {
 
     it('should add a handler function to the listener storage', function() {
-      var emitter = new EventEmitter();
+      var emitter = mixin({}, EventEmitter);
 
       var handler = function() {};
       emitter.on('some-event', handler);
@@ -26,7 +27,7 @@ describe('EventEmitter', function() {
     });
 
     it('should not add a handler function to the listener storage if it is already added', function() {
-      var emitter = new EventEmitter();
+      var emitter = mixin({}, EventEmitter);
 
       var handler = function() {};
       emitter.on('some-event', handler);
@@ -38,7 +39,7 @@ describe('EventEmitter', function() {
     });
 
     it('should add a handler function for an event', function(done) {
-      var emitter = new EventEmitter();
+      var emitter = mixin({}, EventEmitter);
 
       emitter.on('some-event', function() {
         done();
@@ -49,10 +50,10 @@ describe('EventEmitter', function() {
 
   });
 
-  describe('#off()', function() {
+  describe('.off()', function() {
 
     it('should remove a handler function from the listener storage', function() {
-      var emitter = new EventEmitter();
+      var emitter = mixin({}, EventEmitter);
 
       var handler = function() {};
       emitter.on('some-event', handler);
@@ -63,15 +64,21 @@ describe('EventEmitter', function() {
     });
 
     it('should handle removing a handler for an event type that has not been added', function() {
-      var emitter = new EventEmitter();
+      var emitter = mixin({}, EventEmitter);
+
+      expect(emitter.listeners).to.not.be.ok();
+      emitter.off('some-event', function() {});
+      expect(emitter.listeners).to.not.be.ok();
+
+      emitter.on('some-other-event', function() {});
+      expect(emitter.listeners['some-other-event']).to.be.ok();
 
       emitter.off('some-event', function() {});
-
       expect(emitter.listeners['some-event']).to.not.be.ok();
     });
 
     it('should handle removing a handler that has not been added', function() {
-      var emitter = new EventEmitter();
+      var emitter = mixin({}, EventEmitter);
 
       var handler1 = function() {};
       var handler2 = function() {};
@@ -84,7 +91,7 @@ describe('EventEmitter', function() {
     });
 
     it('should remove a handler function for an event', function(done) {
-      var emitter = new EventEmitter();
+      var emitter = mixin({}, EventEmitter);
       var hasBeenCalled = false;
 
       var handler = function() {
@@ -109,10 +116,10 @@ describe('EventEmitter', function() {
 
   });
 
-  describe('#emit()', function() {
+  describe('.emit()', function() {
 
     it('should call all handler functions for the event', function(done) {
-      var emitter = new EventEmitter();
+      var emitter = mixin({}, EventEmitter);
       var numCalls = 0;
 
       emitter.on('some-event', function() {
@@ -129,7 +136,7 @@ describe('EventEmitter', function() {
     });
 
     it('should call the handler function for the event with the passed event object', function(done) {
-      var emitter = new EventEmitter();
+      var emitter = mixin({}, EventEmitter);
 
       emitter.on('some-event', function(event) {
         expect(event.property).to.equal('value');
@@ -140,7 +147,7 @@ describe('EventEmitter', function() {
     });
 
     it('should call the handler function for the event with an event object with a type property', function(done) {
-      var emitter = new EventEmitter();
+      var emitter = mixin({}, EventEmitter);
 
       var numCalls = 0;
       function checkDone() {
@@ -161,7 +168,7 @@ describe('EventEmitter', function() {
     });
 
     it('should use a snapshot of the handlers added at the time of the emit call', function(done) {
-      var emitter = new EventEmitter();
+      var emitter = mixin({}, EventEmitter);
 
       var calls = 0;
       var handler1 = function() {

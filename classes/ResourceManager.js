@@ -5,9 +5,9 @@
 
 var defer = require('prime/defer');
 
-var inherit = require('../utils/inherit');
+var mixin = require('../utils/mixin');
 
-var EventEmitter = require('./EventEmitter');
+var EventEmitter = require('../mixins/EventEmitter');
 
 /**
  * @classdesc Manager for resources such as images.
@@ -26,13 +26,11 @@ var EventEmitter = require('./EventEmitter');
  *     the paths, values are the resource objects.
  *
  * @constructor
- * @augments {EventEmitter}
+ * @mixes module:ocanvas/mixins/EventEmitter~EventEmitter
  *
  * @param {Object=} opt_properties Optional object with properties to set.
  */
 function ResourceManager(opt_properties) {
-  EventEmitter.call(this);
-
   this.loadingProgress = 1;
   this.resourceCount = 0;
   this.loadedCount = 0;
@@ -46,7 +44,7 @@ function ResourceManager(opt_properties) {
     }
   }
 }
-inherit(ResourceManager, EventEmitter);
+mixin(ResourceManager.prototype, EventEmitter);
 
 /**
  * Load images from the provided paths.

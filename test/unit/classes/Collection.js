@@ -1,15 +1,15 @@
 var expect = require('expect.js');
 var Collection = require('../../../classes/Collection');
-var EventEmitter = require('../../../classes/EventEmitter');
+var EventEmitter = require('../../../mixins/EventEmitter');
 var jsonHelpers = require('../../../utils/json');
 
 describe('Collection', function() {
 
-  it('should inherit from EventEmitter', function() {
+  it('should mix in EventEmitter', function() {
     var collection = new Collection();
-    expect(Collection.prototype instanceof EventEmitter).to.equal(true);
-    expect(collection instanceof EventEmitter).to.equal(true);
-    expect(collection.emit).to.equal(EventEmitter.prototype.emit);
+    expect(collection.emit).to.equal(EventEmitter.emit);
+    expect(collection.on).to.equal(EventEmitter.on);
+    expect(collection.off).to.equal(EventEmitter.off);
   });
 
   describe('.fromArray()', function() {

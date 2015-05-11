@@ -1,13 +1,14 @@
 var expect = require('expect.js');
 var Texture = require('../../../textures/Texture');
-var EventEmitter = require('../../../classes/EventEmitter');
+var EventEmitter = require('../../../mixins/EventEmitter');
 
 describe('Texture', function() {
 
-  it('should inherit from EventEmitter', function() {
-    var object = new Texture();
-    expect(Texture.prototype instanceof EventEmitter).to.equal(true);
-    expect(object instanceof EventEmitter).to.equal(true);
+  it('should mix in EventEmitter', function() {
+    var texture = new Texture();
+    expect(texture.emit).to.equal(EventEmitter.emit);
+    expect(texture.on).to.equal(EventEmitter.on);
+    expect(texture.off).to.equal(EventEmitter.off);
   });
 
   describe('Texture constructor', function() {

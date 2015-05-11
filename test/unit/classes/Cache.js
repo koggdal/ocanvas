@@ -1,6 +1,5 @@
 var expect = require('expect.js');
 var Cache = require('../../../classes/Cache');
-var EventEmitter = require('../../../classes/EventEmitter');
 
 describe('Cache', function() {
 

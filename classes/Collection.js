@@ -3,8 +3,8 @@
  */
 'use strict';
 
-var EventEmitter = require('./EventEmitter');
-var inherit = require('../utils/inherit');
+var EventEmitter = require('../mixins/EventEmitter');
+var mixin = require('../utils/mixin');
 var defineProperties = require('../utils/defineProperties');
 var jsonHelpers = require('../utils/json');
 
@@ -21,7 +21,7 @@ var jsonHelpers = require('../utils/json');
  * @fires module:ocanvas/classes/Collection~Collection#remove
  *
  * @constructor
- * @augments {module:ocanvas/classes/EventEmitter~EventEmitter}
+ * @mixes module:ocanvas/mixins/EventEmitter~EventEmitter
  *
  * @example
  * var collection = new Collection();
@@ -29,8 +29,6 @@ var jsonHelpers = require('../utils/json');
  * collection.length; // 1
  */
 function Collection() {
-  EventEmitter.call(this);
-
   defineProperties(this, {
     length: {
       value: 0,
@@ -61,7 +59,7 @@ function Collection() {
     }
   }, {enumerable: true});
 }
-inherit(Collection, EventEmitter);
+mixin(Collection.prototype, EventEmitter);
 
 /**
  * The name of the class. Useful after minification processes etc.

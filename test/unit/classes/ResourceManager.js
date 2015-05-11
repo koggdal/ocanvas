@@ -1,6 +1,6 @@
 var expect = require('expect.js');
 var ResourceManager = require('../../../classes/ResourceManager');
-var EventEmitter = require('../../../classes/EventEmitter');
+var EventEmitter = require('../../../mixins/EventEmitter');
 var imageMock = require('../mocks/image');
 
 describe('ResourceManager', function() {
@@ -14,10 +14,11 @@ describe('ResourceManager', function() {
     imageMock.off();
   });
 
-  it('should inherit from EventEmitter', function() {
+  it('should mix in EventEmitter', function() {
     var manager = new ResourceManager();
-    expect(ResourceManager.prototype).to.be.an(EventEmitter);
-    expect(manager).to.be.an(EventEmitter);
+    expect(manager.emit).to.equal(EventEmitter.emit);
+    expect(manager.on).to.equal(EventEmitter.on);
+    expect(manager.off).to.equal(EventEmitter.off);
   });
 
   describe('ResourceManager constructor', function() {
