@@ -13,7 +13,7 @@ var isInstanceOf = require('../utils/isInstanceOf');
  * @classdesc A camera is put inside a scene and when it is connected to a
  *     canvas, it will render what the camera sees in the scene to that canvas.
  *
- * @property {Scene?} scene An instance of Scene.
+ * @property {?Scene} scene An instance of Scene.
  * @property {number} x The x coordinate, referencing the center.
  * @property {number} y The y coordinate, referencing the center.
  * @property {number} rotation The rotation, around the center.

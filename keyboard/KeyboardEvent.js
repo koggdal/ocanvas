@@ -13,7 +13,7 @@ var ObjectEvent = require('../classes/ObjectEvent');
  * @property {string} key The string representation of the key. The value is one
  *     of the valid values from the DOM Level 3 Events specification:
  *     https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3Events-key.html
- * @property {Event?} originalEvent A reference to the original DOM event where
+ * @property {?Event} originalEvent A reference to the original DOM event where
  *     the event originated from. This can be null.
  *
  * @constructor

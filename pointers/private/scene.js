@@ -13,7 +13,7 @@
  * @param {number} y The Y coordinate.
  * @param {Collection} objects Collection of canvas objects.
  *
- * @return {CanvasObject?} The canvas object that's in front for the specified
+ * @return {?CanvasObject} The canvas object that's in front for the specified
  *     coordinates, or null if not found.
  */
 function findFrontObject(canvas, x, y, objects) {
@@ -37,7 +37,7 @@ function findFrontObject(canvas, x, y, objects) {
  * @param {number} x The X coordinate.
  * @param {number} y The Y coordinate.
  *
- * @return {CanvasObject?} The canvas object that's in front for the specified
+ * @return {?CanvasObject} The canvas object that's in front for the specified
  *     coordinates, or null if not found.
  */
 function findFrontObjectInCanvas(canvas, x, y) {
@@ -98,7 +98,7 @@ function getParentChain(object, opt_outerParent) {
  * @param {CanvasObject} object1 The first canvas object.
  * @param {CanvasObject} object2 The second canvas object.
  *
- * @return {CanvasObject|Scene?} The object (or Scene instance) that both objects
+ * @return {?CanvasObject|Scene} The object (or Scene instance) that both objects
  *     share. If nothing that matches is found, null is returned.
  */
 function findSharedParent(object1, object2) {

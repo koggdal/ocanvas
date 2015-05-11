@@ -8,7 +8,7 @@
  *     pusher will push the object in the chosen direction when the target is
  *     close.
  *
- * @property {CanvasObject|Camera?} object The object that represents the
+ * @property {?CanvasObject|Camera} object The object that represents the
  *     pusher. This object must be added to the scene, but doesn't have to
  *     be visible. The default value is `null`.
  * @property {number} range A range around the object's position where the

@@ -31,7 +31,7 @@ function setFrontObject(pointer, opt_object) {
  *
  * @param {PointerData} pointer Pointer object.
  *
- * @return {CanvasObject|Scene?} An object or null if not found.
+ * @return {?CanvasObject|Scene} An object or null if not found.
  */
 function getFrontObject(pointer) {
   return frontObjects[pointer.id] || null;
@@ -117,7 +117,8 @@ function releasePointer(pointer) {
  * Get which object the pointer is currently pressed on.
  *
  * @param {PointerData} pointer Pointer object.
- * @return {CanvasObject|Scene?} A canvas object or null if not pressed on any object.
+ *
+ * @return {?CanvasObject|Scene} A canvas object or null if not pressed on any object.
  */
 function getPressedObject(pointer) {
   return pressedObjects[pointer.id] || null;
@@ -168,7 +169,7 @@ function registerClick(pointer, object) {
  *
  * @param {CanvasObject|Scene} object A canvas object.
  *
- * @return {Object?} An object of data, or null if not found.
+ * @return {?Object} An object of data, or null if not found.
  */
 function getClickData(object) {
   for (var i = 0, l = clickedObjects.length; i < l; i++) {

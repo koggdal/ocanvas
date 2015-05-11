@@ -97,7 +97,7 @@ Cache.prototype.define = function(name, opt_options) {
  *
  * @param {string} name The name of the cache unit.
  *
- * @return {Object?} The data object or null if not found.
+ * @return {?Object} The data object or null if not found.
  *
  * @example
  * var cache = new Cache();

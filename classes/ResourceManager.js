@@ -145,7 +145,7 @@ ResourceManager.prototype.unload = function(paths) {
  *
  * @param {string} path Path to the resource.
  *
- * @return {*?} The resource object, or null if not loaded.
+ * @return {?*} The resource object, or null if not loaded.
  */
 ResourceManager.prototype.get = function(path) {
   return this.loadedResources[path] || null;

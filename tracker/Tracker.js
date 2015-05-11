@@ -13,9 +13,9 @@ var TARGET_PRIORITY = 100;
  *     object. This can be a camera tracking another object or camera, or it can
  *     be an object tracking another object or camera.
  *
- * @property {CanvasObject|Camera?} object The object that is tracking the
+ * @property {?CanvasObject|Camera} object The object that is tracking the
  *     target. Default is null.
- * @property {CanvasObject|Camera?} target The primary target for the tracker.
+ * @property {?CanvasObject|Camera} target The primary target for the tracker.
  *     This will be given a priority of 100. Must have the same parent as
  *     the `object` to be positioned correctly. Default is null.
  * @property {string} axis Which axis to track the target on. One of the values
@@ -23,11 +23,11 @@ var TARGET_PRIORITY = 100;
  * @property {number} softness The softness of the tracker movements. A higher
  *     value means slower and softer movements. The value 0 means that it will
  *     track the exact position of the target at all times. Default is 10.
- * @property {CanvasObject?} window An object that represents a window which the
+ * @property {?CanvasObject} window An object that represents a window which the
  *     target can move within without moving the tracker object. This window
  *     object must be added to the scene, but doesn't have to be visible. It
  *     must have the same parent as the target object. Default is null.
- * @property {CanvasObject?} boundaries An object that represents the boundaries
+ * @property {?CanvasObject} boundaries An object that represents the boundaries
  *     for tracking. The tracking object will try its best to not move outside
  *     this area. When checking the boundaries, it will compare the bounding
  *     rectangles of both the tracking object and this object representing the

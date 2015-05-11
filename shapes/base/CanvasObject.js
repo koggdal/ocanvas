@@ -23,7 +23,7 @@ var getClassName = require('../../utils/getClassName');
  *     provides two of these middle classes: RectangularCanvasObject and
  *     RadialCanvasObject.
  *
- * @property {CanvasObject|Scene?} parent The parent object or scene.
+ * @property {?CanvasObject|Scene} parent The parent object or scene.
  * @property {number} x The x coordinate, relative to the origin of the
  *     parent object.
  * @property {number} y The y coordinate, relative to the origin of the

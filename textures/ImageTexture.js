@@ -25,7 +25,7 @@ var isInstanceOf = require('../utils/isInstanceOf');
  *     rendered section of the image. Default is 0.
  * @property {number} sourceY The Y position of the top left corner of the
  *     rendered section of the image. Default is 0.
- * @property {HTMLImageElement?} imageElement The image DOM element. This is
+ * @property {?HTMLImageElement} imageElement The image DOM element. This is
  *     null from the start and an element when the image is initialized.
  * @property {string} repeat The repeat mode, one of 'both', 'x', 'y' and
  *     'none'. Default is 'both'.
@@ -38,7 +38,7 @@ var isInstanceOf = require('../utils/isInstanceOf');
  *     'contain': The texture will be sized so it fits inside the object, but
  *         without distorting the proportions.
  *     Default is 'source'.
- * @property {string|HTMLImageElement?} image A path to an image file, or an
+ * @property {?string|HTMLImageElement} image A path to an image file, or an
  *     instance of HTMLImageElement. If the image is not loaded yet, rendering
  *     an object with this texture will not render the texture. Default is null.
  *

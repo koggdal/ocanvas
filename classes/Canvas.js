@@ -26,7 +26,7 @@ var matrixUtils = require('../utils/matrix');
  *     to that value. The default height for a canvas element is 150 px.
  * @property {string} background Background color. Default value is '', which
  *     means transparent.
- * @property {Camera?} camera A camera instance. Default is null.
+ * @property {?Camera} camera A camera instance. Default is null.
  * @property {HTMLElement} element The canvas DOM element. Will be created if
  *     not provided in the initial properties to the constructor.
  * @property {CanvasRenderingContext2D} context The canvas 2D context object.

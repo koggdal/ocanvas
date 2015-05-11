@@ -6,12 +6,12 @@
 /**
  * @classdesc Generic event object for canvas objects.
  *
- * @property {string?} type The event type.
+ * @property {?string} type The event type.
  * @property {boolean} bubbles Whether the event should bubble.
  * @property {string} phase The event phase. Can be 'idle', 'capture' or
  *     'bubble'.
- * @property {Object?} target The object the event originally happened on.
- * @property {Object?} currentTarget The object the event is currently
+ * @property {?Object} target The object the event originally happened on.
+ * @property {?Object} currentTarget The object the event is currently
  *     processing event listeners for. This changes while the event travels
  *     in the capture and bubble phases.
  * @property {Canvas} The Canvas instance that this event originates from.
