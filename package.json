@@ -27,6 +27,7 @@
     "grunt": "^0.4.5",
     "grunt-exec": "^0.4.6",
     "istanbul": "^0.3.14",
+    "jsdoc": "^3.3.0",
     "mocha": "^2.2.4",
     "quickstart": "^1"
   }
