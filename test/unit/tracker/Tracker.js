@@ -334,38 +334,25 @@ describe('Tracker', function() {
       var target = new CanvasObject({x: 12, y: 12});
       var tracker = new Tracker({object: object, target: target});
 
-      var x1 = object.x;
-      var y1 = object.y;
-
       tracker.start();
 
-      setTimeout(function() {
-        var x2 = object.x;
-        var y2 = object.y;
-        expect(x2 > x1).to.equal(true);
-        expect(x2 < target.x).to.equal(true);
-        expect(y2 > y1).to.equal(true);
-        expect(y2 < target.y).to.equal(true);
+      expect(object.x < target.x).to.equal(true);
 
-        setTimeout(function() {
-          var x3 = object.x;
-          var y3 = object.y;
-          expect(x3 > x2).to.equal(true);
-          expect(x3 < target.x).to.equal(true);
-          expect(y3 > y2).to.equal(true);
-          expect(y3 < target.y).to.equal(true);
+      var checkCount = 0;
 
-          setTimeout(function() {
-            var x4 = object.x;
-            var y4 = object.y;
-            expect(x4).to.equal(target.x);
-            expect(y4).to.equal(target.y);
+      function check() {
+        checkCount++;
+        if (object.x === target.x && object.y === target.y) {
+          tracker.stop(); // To not keep the timer alive during other tests
 
-            tracker.stop(); // To not keep the timer alive during other tests
-            done();
-          }, 100);
-        }, 50);
-      }, 50);
+          expect(checkCount).to.not.be(1);
+          done();
+        } else {
+          setTimeout(check, 10);
+        }
+      }
+
+      setTimeout(check, 10);
     });
 
     it('should move the object directly to the target if softness is set to 0', function(done) {
