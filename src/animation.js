@@ -3,7 +3,7 @@
 
 	// Define the class
 	var animation = function () {
-		
+
 		// Return an object when instantiated
 		var module = {
 
@@ -619,7 +619,7 @@
 
 				"ease-in-out-bounce": function (t, b, c, d) {
 					if (t < d/2) return this["ease-in-bounce"](t*2, 0, c, d) * .5 + b;
-					return this["ease-in-out-bounce"](t*2-d, 0, c, d) * .5 + c*.5 + b;
+					return this["ease-out-bounce"](t*2-d, 0, c, d) * .5 + c*.5 + b;
 				},
 
 				// Deprecated, will be replaced by the new syntax for calling easing functions
