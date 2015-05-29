@@ -1,18 +1,19 @@
 var fs = require("fs"),
+  path = require('path'),
 	uglify = {
 		parser: require("./lib/parse-js.js"),
 		processor: require("./lib/process.js")
 	},
 
 	// Set the config filename
-	configfile = "config",
-	
+	configfile = path.join(__dirname, "config"),
+
 	config, version, source_dir, output_full, output_min, head, filenames, foot, i,
 	ast, minified_source,
-	
+
 	files = [],
 	numFiles = 0,
-	
+
 	source = "";
 
 // Get config file
@@ -21,7 +22,7 @@ config = fs.readFileSync(configfile, "UTF-8");
 
 // Get variables from config file
 version = /^version = (.*)$/m.exec(config)[1],
-source_dir = /^source_dir = (.*)$/m.exec(config)[1],
+source_dir = path.join(__dirname, /^source_dir = (.*)$/m.exec(config)[1]),
 output_full = /^output_full = (.*)$/m.exec(config)[1].replace("{version}", version),
 output_min = /^output_min = (.*)$/m.exec(config)[1].replace("{version}", version),
 head = /head\s-----\s([\s\S]*?)-----\s/g.exec(config)[1].replace("{version}", version).replace("{year}", "2011-" + (new Date()).getFullYear()),
@@ -33,14 +34,14 @@ filenames = filenames.concat(foot);
 // Get all the source files
 for (i = 0; i < filenames.length; i++) {
 	console.log("Reading file: " + filenames[i]);
-	
+
 	// Add current file
 	files.push({
 		name: filenames[i],
 		content: fs.readFileSync(source_dir + filenames[i], "UTF-8")
 	});
 }
-	
+
 // Start the building process
 console.log("Building source file...");
 
@@ -58,10 +59,10 @@ for (i = 0; i < numFiles; i++) {
 		files[i].content = files[i].content.replace(/\(function(\s|)\((\s|)oCanvas,(\s|)window,(\s|)document,(\s|)undefined(\s|)\)(\s|)\{/, "");
 		files[i].content = files[i].content.replace(/\}(\s|)\)(\s|)\((\s|)oCanvas,(\s|)window,(\s|)document(\s|)\);/, "");
 	}
-	
+
 	// Append the file to the full source
 	source += "\n" + files[i].content;
-	
+
 	// Append the end of the core wrapper
 	if (i === numFiles - 1) {
 		source += "\n})(window, document);";
