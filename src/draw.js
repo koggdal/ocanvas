@@ -102,7 +102,7 @@
 				for (i = 0, l = objects.length; i < l; i++) {
 					obj = objects[i];
 					if ((obj !== undefined) && (typeof obj.draw === "function")) {
-
+						
 						// Update the object's properties if an update method is available
 						if (typeof obj.update === "function") {
 							obj.update();
@@ -126,6 +126,9 @@
 
 						// Scale the opacity
 						opacity = obj.opacity;
+
+						// Save the translation so that display objects can access this if they need
+						this.translation = { x: obj.abs_x, y: obj.abs_y };
 
 						// Automatically adjust the abs_x/abs_y for the object
 						// (objects not using these variables in the drawing process use the object created above)
@@ -181,6 +184,7 @@
 
 						// Restore the old transformation
 						canvas.restore();
+						this.translation = { x: 0, y: 0 };
 					}
 				}
 			}
