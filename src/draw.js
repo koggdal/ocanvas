@@ -92,12 +92,17 @@
 
 			drawObjects: function (objects) {
 				var canvas = this.core.canvas,
+					fillRectClipping = function() {
+						this.rect.apply(this, arguments);
+						this.fill();
+					},
+					fillRectOriginal = canvas.fillRect,
 					i, l, obj, object, x, y, objectChain, lastX, lastY, n, len, parent, shadow, opacity;
 
 				for (i = 0, l = objects.length; i < l; i++) {
 					obj = objects[i];
 					if ((obj !== undefined) && (typeof obj.draw === "function")) {
-						
+
 						// Update the object's properties if an update method is available
 						if (typeof obj.update === "function") {
 							obj.update();
@@ -106,46 +111,21 @@
 						// Temporarily move the canvas origin and take children's positions into account, so they will rotate around the parent
 						canvas.save();
 
-						// Create an array of all the parents to this object
-						objectChain = [];
-						objectChain.push(obj);
-						parent = obj.parent;
-						while (parent && parent !== this.core) {
-							objectChain.push(parent);
-							parent = parent.parent;
+						// Translate the canvas matrix to the position of the object
+						canvas.translate(obj.x, obj.y);
+						
+						// If the object has a rotation, rotate the canvas matrix
+						if (obj.rotation !== 0) {
+							canvas.rotate(obj.rotation * Math.PI / 180);
 						}
-						// Reverse the array so the top level parent comes first, and ends with the current object
-						objectChain.reverse();
-
-						// Loop through all objects in the parent chain
-						lastX = 0; lastY = 0;
-						opacity = 1;
-						for (n = 0, len = objectChain.length; n < len; n++) {
-							object = objectChain[n];
-
-							// Translate the canvas matrix to the position of the object
-							canvas.translate(object.abs_x - lastX, object.abs_y - lastY);
-							
-							// If the object has a rotation, rotate the canvas matrix
-							if (object.rotation !== 0) {
-								canvas.rotate(object.rotation * Math.PI / 180);
-							}
-							
-							// Scale the canvas for this object
-							if (object.scalingX !== 1 || object.scalingY !== 1) {
-								canvas.scale(object.scalingX, object.scalingY);
-							}
-
-							// Scale the opacity
-							opacity *= object.opacity;
-							
-							// Save the current translation so that the next iteration can subtract that
-							lastX = object.abs_x;
-							lastY = object.abs_y;
+						
+						// Scale the canvas for this object
+						if (obj.scalingX !== 1 || obj.scalingY !== 1) {
+							canvas.scale(obj.scalingX, obj.scalingY);
 						}
 
-						// Save the translation so that display objects can access this if they need
-						this.translation = { x: lastX, y: lastY };
+						// Scale the opacity
+						opacity = obj.opacity;
 
 						// Automatically adjust the abs_x/abs_y for the object
 						// (objects not using these variables in the drawing process use the object created above)
@@ -175,7 +155,14 @@
 						canvas.miterLimit = obj.miterLimit;
 
 						// Draw the object
-						obj.draw();
+						if(obj.clipChildren) {
+							canvas.fillRect = fillRectClipping;
+							obj.draw();
+							canvas.fillRect = fillRectOriginal;
+							canvas.clip();
+						} else {
+							obj.draw();
+						}
 						obj.drawn = true;
 
 						// Reset the abs_x/abs_y values
@@ -187,14 +174,13 @@
 						canvas.lineJoin = "miter";
 						canvas.miterLimit = 10;
 
-						// Restore the old transformation
-						canvas.restore();
-						this.translation = { x: 0, y: 0 };
-
 						// Loop children recursively to draw everything in the correct order
 						if (obj.children.length > 0) {
 							this.drawObjects(obj.children);
 						}
+
+						// Restore the old transformation
+						canvas.restore();
 					}
 				}
 			}
