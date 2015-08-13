@@ -102,7 +102,7 @@
 				for (i = 0, l = objects.length; i < l; i++) {
 					obj = objects[i];
 					if ((obj !== undefined) && (typeof obj.draw === "function")) {
-						
+
 						// Update the object's properties if an update method is available
 						if (typeof obj.update === "function") {
 							obj.update();
@@ -113,12 +113,12 @@
 
 						// Translate the canvas matrix to the position of the object
 						canvas.translate(obj.x, obj.y);
-						
+
 						// If the object has a rotation, rotate the canvas matrix
 						if (obj.rotation !== 0) {
 							canvas.rotate(obj.rotation * Math.PI / 180);
 						}
-						
+
 						// Scale the canvas for this object
 						if (obj.scalingX !== 1 || obj.scalingY !== 1) {
 							canvas.scale(obj.scalingX, obj.scalingY);
@@ -126,6 +126,11 @@
 
 						// Scale the opacity
 						opacity = obj.opacity;
+						var parent = obj.parent;
+						while(parent && parent !== this.core) {
+							opacity *= parent.opacity;
+							parent = parent.parent;
+						}
 
 						// Save the translation so that display objects can access this if they need
 						this.translation = { x: obj.abs_x, y: obj.abs_y };
