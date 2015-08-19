@@ -85,7 +85,9 @@
 					} else {
 						return this.easing[easing] || this.easing[this.defaults.easing];
 					}
-				} else if (typeof easing !== "function") {
+				} else if (typeof easing == "function") {
+					return easing;
+				} else {
 					return this.easing[this.defaults.easing];
 				}
 			},
