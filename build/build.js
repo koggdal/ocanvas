@@ -8,7 +8,7 @@ var fs = require("fs"),
 	// Set the config filename
 	configfile = path.join(__dirname, "config"),
 
-	config, version, source_dir, output_full, output_min, head, filenames, foot, i,
+	config, version, source_dir, output_dir, output_full, output_min, head, filenames, foot, i,
 	ast, minified_source,
 
 	files = [],
@@ -23,8 +23,9 @@ config = fs.readFileSync(configfile, "UTF-8");
 // Get variables from config file
 version = /^version = (.*)$/m.exec(config)[1];
 source_dir = path.join(__dirname, /^source_dir = (.*)$/m.exec(config)[1]);
-output_full = /^output_full = (.*)$/m.exec(config)[1].replace("{version}", version);
-output_min = /^output_min = (.*)$/m.exec(config)[1].replace("{version}", version);
+output_dir = 'dist';
+output_full = path.join(output_dir, /^output_full = (.*)$/m.exec(config)[1].replace("{version}", version));
+output_min = path.join(output_dir, /^output_min = (.*)$/m.exec(config)[1].replace("{version}", version));
 head = /head\s-----\s([\s\S]*?)-----\s/g.exec(config)[1].replace("{version}", version).replace("{year}", "2011-" + (new Date()).getFullYear());
 filenames = /files\s-----\s([\s\S]*?)\s-----/g.exec(config)[1].split(/\s/);
 foot = /foot\s-----\s([\s\S]*?)\s-----/g.exec(config)[1].split(/\s/);
