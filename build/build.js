@@ -23,7 +23,7 @@ config = fs.readFileSync(configfile, "UTF-8");
 // Get variables from config file
 version = /^version = (.*)$/m.exec(config)[1];
 source_dir = path.join(__dirname, /^source_dir = (.*)$/m.exec(config)[1]);
-output_dir = 'dist';
+output_dir = path.join(__dirname, 'dist');
 output_full = path.join(output_dir, /^output_full = (.*)$/m.exec(config)[1].replace("{version}", version));
 output_min = path.join(output_dir, /^output_min = (.*)$/m.exec(config)[1].replace("{version}", version));
 head = /head\s-----\s([\s\S]*?)-----\s/g.exec(config)[1].replace("{version}", version).replace("{year}", "2011-" + (new Date()).getFullYear());
