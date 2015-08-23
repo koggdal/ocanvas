@@ -78,7 +78,7 @@ for (i = numFiles; i < numFiles + foot.length; i++) {
 }
 
 // Save source to output file
-fs.writeFile(output_full, source, "UTF-8");
+fs.writeFileSync(output_full, source, "UTF-8");
 console.log("Source file saved as: " + output_full);
 
 // Run UglifyJS to minify the source
@@ -90,5 +90,5 @@ ast = uglify.processor.ast_squeeze_more(ast);
 minified_source = uglify.processor.gen_code(ast);
 
 // Save minified source file
-fs.writeFile(output_min, head + minified_source, "UTF-8");
+fs.writeFileSync(output_min, head + minified_source, "UTF-8");
 console.log("Minified source file saved as: " + output_min);
