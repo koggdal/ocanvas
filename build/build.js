@@ -14,6 +14,8 @@ var fs = require("fs"),
 	files = [],
 	numFiles = 0,
 
+	isRelease = process.argv[2] === "release",
+
 	source = "";
 
 // Get config file
@@ -23,7 +25,7 @@ config = fs.readFileSync(configfile, "UTF-8");
 // Get variables from config file
 version = /^version = (.*)$/m.exec(config)[1];
 source_dir = path.join(__dirname, /^source_dir = (.*)$/m.exec(config)[1]);
-output_dir = path.join(__dirname, 'dist');
+output_dir = path.join(__dirname, isRelease ? 'dist' : 'dev');
 output_full = path.join(output_dir, /^output_full = (.*)$/m.exec(config)[1].replace("{version}", version));
 output_min = path.join(output_dir, /^output_min = (.*)$/m.exec(config)[1].replace("{version}", version));
 head = /head\s-----\s([\s\S]*?)-----\s/g.exec(config)[1].replace("{version}", version).replace("{year}", "2011-" + (new Date()).getFullYear());
@@ -76,6 +78,12 @@ for (i = numFiles; i < numFiles + foot.length; i++) {
 	// Append the file to the full source
 	source += "\n" + files[i].content;
 }
+
+// Create the output dir folder
+// (if it already exists it will throw and we'll catch it to hide it)
+try {
+	fs.mkdirSync(output_dir);
+} catch (error) {}
 
 // Save source to output file
 fs.writeFileSync(output_full, source, "UTF-8");
