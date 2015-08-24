@@ -13,18 +13,21 @@
 			end: 0,
 			direction: "clockwise",
 			pieSection: false,
+			clipChildren: false,
 			
 			draw: function () {
 				var canvas = this.core.canvas,
 					origin = this.getOrigin(),
 					x = this.abs_x - origin.x,
 					y = this.abs_y - origin.y;
+
+				// beginPath and closePath must be outside if statement because the clipChildren feature (a radius of 0 must hide all children)
+				canvas.beginPath();
 				
 				// Don't draw if the radius is 0 or less (won't be visible anyway)
 				if (this.radius > 0 && this.start !== this.end) {
 				
 					// Draw the arc
-					canvas.beginPath();
 					if (this.pieSection) {
 						canvas.moveTo(x, y);
 					}
@@ -43,8 +46,13 @@
 						canvas.stroke();
 					}
 					
-					canvas.closePath();
+				}
 					
+				canvas.closePath();
+
+				// Do clip
+				if(this.clipChildren) {
+					canvas.clip();
 				}
 				
 				return this;

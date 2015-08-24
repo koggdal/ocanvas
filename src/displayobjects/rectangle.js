@@ -8,6 +8,7 @@
 			core: thecore,
 			
 			shapeType: "rectangular",
+			clipChildren: false,
 			
 			draw: function () {
 				var canvas = this.core.canvas,
@@ -16,13 +17,15 @@
 					y = this.abs_y - origin.y;
 				
 				canvas.beginPath();
+
+				canvas.rect(x, y, this.width, this.height);
 				
 				// Do fill if a color is specified
 				if (this.fill !== "") {
 					canvas.fillStyle = this.fill;
-					canvas.fillRect(x, y, this.width, this.height);
+					canvas.fill();
 				}
-				
+
 				// Do color if stroke width is specified
 				if (this.strokeWidth > 0) {
 				
@@ -45,9 +48,14 @@
 						canvas.strokeRect(x + this.strokeWidth / 2, y + this.strokeWidth / 2, this.width - this.strokeWidth, this.height - this.strokeWidth);
 					}
 				}
-				
+
 				canvas.closePath();
-				
+
+				// Do clip
+				if(this.clipChildren) {
+					canvas.clip();
+				}
+
 				return this;
 			}
 			

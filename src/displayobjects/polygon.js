@@ -8,8 +8,8 @@
 			core: thecore,
 			
 			shapeType: "radial",
-			
 			sides: 3,
+			clipChildren: false,
 			
 			_: oCanvas.extend({}, thecore.displayObject._, {
 				radius: 0,
@@ -73,6 +73,11 @@
 					canvas.lineWidth = this.strokeWidth;
 					canvas.strokeStyle = this.strokeColor;
 					canvas.stroke();
+				}
+
+				// Do clip
+				if(this.clipChildren) {
+					canvas.clip();
 				}
 				
 				return this;

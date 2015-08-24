@@ -8,6 +8,7 @@
 			core: thecore,
 			
 			shapeType: "radial",
+			clipChildren: false,
 			
 			_: oCanvas.extend({}, thecore.displayObject._, {
 				radius_x: 0,
@@ -81,6 +82,11 @@
 				}
 				
 				canvas.closePath();
+
+				// Do clip
+				if(this.clipChildren) {
+					canvas.clip();
+				}
 				
 				return this;
 			}

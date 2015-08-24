@@ -22,6 +22,7 @@
 			running: false,
 			active: false,
 			loop: true,
+			clipChildren: false,
 			
 			_: oCanvas.extend({}, thecore.displayObject._, {
 				autostart: false
@@ -103,6 +104,9 @@
 					x = this.abs_x - origin.x,
 					y = this.abs_y - origin.y,
 					frame;
+
+				// If the image has not been loaded or the sprite has no frames, the frame size must be 0 (for clipChildren feature).
+				var frame_width=0, frame_height=0;
 				
 				// If the image has finished loading, go on and draw
 				if (this.loaded) {
@@ -112,8 +116,19 @@
 					
 						// Get current frame
 						if (this.frame > this.frames.length) {
+
+							// Do clip with an empty path
+							if(this.clipChildren) {
+								canvas.beginPath();
+								canvas.rect(x, y, 0, 0);
+								canvas.closePath();
+								canvas.clip();
+							}
+
 							return this;
+
 						}
+
 						frame = this.frames[this.frame - 1];
 						frame_width = (frame.w !== undefined) ? frame.w : this.width;
 						frame_height = (frame.h !== undefined) ? frame.h : this.height;
@@ -168,6 +183,18 @@
 					this.loadtimer = setTimeout(function () {
 						_this.draw();
 					}, 100);
+				}
+
+				// Do clip
+				if(this.clipChildren) {
+
+					// draw the clip region (the square area representing the current frame)
+					canvas.beginPath();
+					canvas.rect(x, y, frame_width, frame_height);
+					canvas.closePath();
+
+					canvas.clip();
+
 				}
 				
 				return this;
