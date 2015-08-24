@@ -19,6 +19,7 @@
 			tile_height: 0,
 			tile_spacing_x: 0,
 			tile_spacing_y: 0,
+			clipChildren: false,
 			
 			// Init method for loading the image resource
 			init: function () {
@@ -132,8 +133,20 @@
 					}, 100);
 				}
 
+				// Do clip
+				if(this.clipChildren) {
+
+					// draw the clip region (the square area around the image)
+					canvas.beginPath();
+					canvas.rect(x, y, width, height);
+					canvas.closePath();
+
+					canvas.clip();
+
+				}
+
 				this._.hasBeenDrawn = true;
-				
+
 				return this;
 			}
 			
