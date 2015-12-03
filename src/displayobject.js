@@ -785,7 +785,7 @@
 				var originalParent = this.parent;
 				var newObj = this.core.display[this.type](settings),
 					this_filtered = {},
-					reject = ["core", "events", "children", "parent", "img", "fill", "strokeColor", "added"],
+					reject = ["core", "events", "children", "parent", "img", "image", "fill", "strokeColor", "added"],
 					absoluteX = ['abs_x', 'start_x', 'end_x'],
 					absoluteY = ['abs_y', 'start_y', 'end_y'],
 					loopObject, x, stroke, i, children, child, dX, dY, descriptor;
@@ -833,6 +833,11 @@
 				this_filtered.fill = this._.fill;
 				stroke = this.core.style.getStroke(this.stroke);
 				this_filtered.strokeColor = stroke.color;
+
+				// Fix image source (ignored above since it can be set to a DOM node)
+				if (this.image) {
+					this_filtered.image = this.image;
+				}
 				
 				// Extend the new object with this object's properties and then apply the custom settings
 				newObj = oCanvas.extend(newObj, this_filtered, settings);
