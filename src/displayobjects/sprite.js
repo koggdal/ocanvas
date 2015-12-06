@@ -43,24 +43,18 @@
 				if (this.image === undefined) {
 					return;
 				}
-				var _this = this,
-				
-					// Get source (settings.image can be either an HTML img element or a string with path to the image)
-					source = (this.image.nodeName && this.image.nodeName.toLowerCase() === "img") ? "htmlImg" : "newImg";
-				
-				// Get image object (either create a copy of the current element, or a new image)
-				this.img = (source === "htmlImg") ? this.image.cloneNode(false) : new Image();
-				
-				// Temporarily append it to the canvas to be able to get dimensions
-				this.core.canvasElement.appendChild(this.img);
+				var _this = this;
+
+				var isImageElement = this.image.nodeName && this.image.nodeName.toLowerCase() === "img";
+				this.img = isImageElement ? this.image : new Image();
 				
 				// Get dimensions when the image is loaded. Also, remove the temp img from DOM
-				this.img.onload = function () {
+				var onload = function () {
 				
 					// Set the full source image dimensions
 					_this.full_width = this.width;
 					_this.full_height = this.height;
-					
+
 					// If automatic generation is specified
 					if (_this.generate) {
 						var dir, length_full, length_cropped, num_frames, i;
@@ -87,14 +81,18 @@
 							});
 						}
 					}
-					_this.core.canvasElement.removeChild(this);
 					_this.loaded = true;
 					if (_this._.hasBeenDrawn) _this.core.redraw();
 				};
-				
-				// Set the path to the image if a string was passed in
-				if (source === "newImg") {
-					this.img.src = this.image;
+
+				if (isImageElement && this.img.complete) {
+					onload.call(this.img);
+				} else {
+					this.img.addEventListener("load", onload);
+
+					if (!isImageElement) {
+						this.img.src = this.image;
+					}
 				}
 			},
 			
