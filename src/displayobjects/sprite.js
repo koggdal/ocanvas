@@ -25,7 +25,8 @@
 			clipChildren: false,
 			
 			_: oCanvas.extend({}, thecore.displayObject._, {
-				autostart: false
+				autostart: false,
+				hasBeenDrawn: false
 			}),
 			
 			set autostart (value) {
@@ -88,7 +89,7 @@
 					}
 					_this.core.canvasElement.removeChild(this);
 					_this.loaded = true;
-					_this.core.redraw();
+					if (_this._.hasBeenDrawn) _this.core.redraw();
 				};
 				
 				// Set the path to the image if a string was passed in
@@ -196,6 +197,8 @@
 					canvas.clip();
 
 				}
+
+				this._.hasBeenDrawn = true;
 				
 				return this;
 			},
