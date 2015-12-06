@@ -31,10 +31,11 @@
 					return;
 				}
 
-				this.img = new Image();
+				var isImageElement = this.image.nodeName && this.image.nodeName.toLowerCase() === "img";
+				this.img = isImageElement ? this.image : new Image();
 				
 				// Get dimensions when the image is loaded. Also, remove the temp img from DOM
-				this.img.onload = function () {
+				var onload = function () {
 					_this.loaded = true;
 					
 					// Set dimensions proportionally (if only one is specified, calculate the other)
@@ -57,7 +58,15 @@
 					if (_this._.hasBeenDrawn) _this.core.redraw();
 				};
 
-				this.img.src = this.image.src || this.image || '';
+				if (isImageElement && this.img.complete) {
+					onload.call(this.img);
+				} else {
+					this.img.addEventListener("load", onload);
+
+					if (!isImageElement) {
+						this.img.src = this.image;
+					}
+				}
 			},
 			
 			// Method that draws the image to the canvas once it's loaded
