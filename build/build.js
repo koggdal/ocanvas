@@ -8,6 +8,7 @@ var fs = require("fs"),
 	// Set the config filename
 	configfile = path.join(__dirname, "config"),
 
+	output_full_latest, output_min_latest,
 	config, version, source_dir, output_dir, output_full, output_min, head, filenames, foot, i,
 	ast, minified_source,
 
@@ -28,6 +29,8 @@ source_dir = path.join(__dirname, /^source_dir = (.*)$/m.exec(config)[1]);
 output_dir = path.join(__dirname, isRelease ? 'dist' : 'dev');
 output_full = path.join(output_dir, /^output_full = (.*)$/m.exec(config)[1].replace("{version}", version));
 output_min = path.join(output_dir, /^output_min = (.*)$/m.exec(config)[1].replace("{version}", version));
+output_full_latest = path.join(output_dir, 'latest', 'ocanvas.js');
+output_min_latest = path.join(output_dir, 'latest', 'ocanvas.min.js');
 head = /head\s-----\s([\s\S]*?)-----\s/g.exec(config)[1].replace("{version}", version).replace("{year}", "2011-" + (new Date()).getFullYear());
 filenames = /files\s-----\s([\s\S]*?)\s-----/g.exec(config)[1].split(/\s/);
 foot = /foot\s-----\s([\s\S]*?)\s-----/g.exec(config)[1].split(/\s/);
@@ -100,3 +103,12 @@ minified_source = uglify.processor.gen_code(ast);
 // Save minified source file
 fs.writeFileSync(output_min, head + minified_source, "UTF-8");
 console.log("Minified source file saved as: " + output_min);
+
+// Save latest files for release mode
+if (isRelease) {
+	fs.writeFileSync(output_full_latest, source, "UTF-8");
+	console.log("Source file for latest release saved as: " + output_full_latest);
+
+	fs.writeFileSync(output_min_latest, head + minified_source, "UTF-8");
+	console.log("Minified source file for latest release saved as: " + output_min_latest);
+}

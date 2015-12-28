@@ -1,0 +1,27 @@
+{
+  "name": "ocanvas",
+  "version": "2.8.3",
+  "author": "Johannes Koggdal <johannes@koggdal.com>",
+  "description": "Library for HTML5 Canvas, based on objects instead of pixels.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/koggdal/ocanvas.git"
+  },
+  "keywords": [
+    "canvas",
+    "graphics",
+    "html5"
+  ],
+  "scripts": {
+    "release": "node scripts/release.js",
+    "build": "node build/build.js"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.10"
+  },
+  "devDependencies": {
+    "semver": "^5.1.0"
+  }
+}
