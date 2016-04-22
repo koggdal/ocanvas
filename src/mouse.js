@@ -64,10 +64,19 @@
 						self.docHandler(e);
 					}, false);
 
-					var a = document.createElement('a');
-					a.href = document.referrer;
-					if (a.host === window.location.host && window.parent !== window) {
-						oCanvas.addDOMEventHandler(core, window.parent.document, type, function (e) {
+					// We also want to listen to events on the parent document to detect pointer movements
+					// to and from this document.
+					//
+					// Wrap in try...catch in case the documents are of different origins (since that will
+					// throw an exception). This functionality is not strictly needed, but if we can access
+					// the parent document we can provide better pointer event detection between the
+					// documents.
+					var parentDocument = null;
+					try {
+						parentDocument = window.parent.document;
+					} catch (e) {}
+					if (parentDocument) {
+						oCanvas.addDOMEventHandler(core, parentDocument, type, function (e) {
 							self.docHandler(e);
 						}, false);
 					}
