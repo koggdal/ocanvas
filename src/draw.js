@@ -98,6 +98,26 @@
 					obj = objects[i];
 					if ((obj !== undefined) && (typeof obj.draw === "function")) {
 
+						// Reset canvas properties to their default values
+						canvas.strokeStyle = "#000";
+						canvas.fillStyle = "#000";
+						canvas.globalAlpha = 1;
+						canvas.lineWidth = 1;
+						canvas.lineCap = "butt";
+						canvas.lineJoin = "miter";
+						canvas.miterLimit = 10;
+						canvas.lineDashOffset = 0;
+						canvas.shadowOffsetX = 0;
+						canvas.shadowOffsetY = 0;
+						canvas.shadowBlur = 0;
+						canvas.shadowColor = 'rgba(0, 0, 0, 0)';
+						canvas.globalCompositeOperation = 'source-over';
+						canvas.font = '10px sans-serif';
+						canvas.textAlign = 'start';
+						canvas.textBaseline = 'alphabetic';
+						canvas.direction = 'inherit';
+						canvas.imageSmoothingEnabled = true;
+
 						// Update the object's properties if an update method is available
 						if (typeof obj.update === "function") {
 							obj.update();
@@ -164,11 +184,6 @@
 						// Reset the abs_x/abs_y values
 						obj._.abs_x = x;
 						obj._.abs_y = y;
-
-						// Reset stroke properties
-						canvas.lineCap = "butt";
-						canvas.lineJoin = "miter";
-						canvas.miterLimit = 10;
 
 						// Loop children recursively to draw everything in the correct order
 						if (obj.children.length > 0) {
