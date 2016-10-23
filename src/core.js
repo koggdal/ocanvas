@@ -321,6 +321,10 @@
 
 		// Method for destroying the core instance, to clear up memory etc
 		destroy: function () {
+			if (this.timeline) {
+				this.timeline.stop();
+			}
+
 			this.reset();
 
 			// Remove all DOM event handlers
@@ -331,6 +335,12 @@
 
 			// Remove the core instance from the global list of core instances
 			oCanvas.canvasList[this.id] = null;
+
+			// Cut any connection to the previous canvas element by creating a new
+			// canvas. This avoids leakage in case some part of the library or a
+			// plugin is still calling things on the core instance.
+			this.canvasElement = document.createElement("canvas");
+			this.canvas = this.canvasElement.getContext("2d");
 		}
 	};
 
