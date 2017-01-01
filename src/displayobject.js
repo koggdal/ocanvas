@@ -908,8 +908,8 @@
 			var retObj = oCanvas.extend(Object.create(displayObject()), new obj(settings, core));
 			
 			// Run initialization method if provided
-			if (init !== undefined && typeof display[name][init] === "function") {
-				display[name][init]();
+			if (init !== undefined && typeof retObj[init] === "function") {
+				retObj[init]();
 			}
 			
 			// Return the new object
