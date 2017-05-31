@@ -509,7 +509,7 @@
 				
 				// Set the scaling
 				this.scalingX = size.x / currentWidth;
-				this.scalingX = size.y / currentHeight;
+				this.scalingY = size.y / currentHeight;
 				
 				return this;
 			},
