@@ -575,9 +575,9 @@
 				if (options === false && this.draggable === true) {
 					this.draggable = false;
 					
-					this.unbind("mousedown touchstart", this._.drag_start)
-					this.core.unbind("mouseup touchend", this._.drag_end);
-					this.core.unbind("mousemove touchmove", this._.drag_move);
+					this.unbind("mousedown touchstart MSPointerDown", this._.drag_start)
+					this.core.unbind("mouseup touchend MSPointerUp", this._.drag_end);
+					this.core.unbind("mousemove touchmove MSPointerMove", this._.drag_move);
 				}
 				
 				// Otherwise add event handlers, unless they have been added before
@@ -591,11 +591,25 @@
 						startPos = { x: 0, y: 0 },
 						start = { x: 0, y: 0 };
 					
+					_this.touches = [];
+
 					this._.drag_start = function (e) {
 
 						// Stop bubbling if specified
 						if (options.bubble === false) {
 							e.stopPropagation();
+						}
+
+						if (options.leftButton && e.which > 1) {
+							return;
+						}
+
+						if (options.oneTouch && e.which === 0) {
+							_this.touches = e.originalEvent.touches;
+						}
+
+						if (options.oneTouch && window.navigator.msPointerEnabled){
+							_this.touches.push(e);
 						}
 
 						this.dragging = true;
@@ -632,6 +646,7 @@
 							}
 
 							_this.dragging = false;
+							_this.touches = [];
 							
 							// Run user callback
 							if (typeof options.end === "function") {
@@ -652,6 +667,10 @@
 							if (options.bubble === false) {
 								e.stopPropagation();
 							}
+
+							if (options.oneTouch && _this.touches.length > 1) {
+								return;
+							}
 						
 							var end = _this.core.tools.transformPointerPosition(_this, _this.abs_x, _this.abs_y, _this.rotation);
 
@@ -671,13 +690,14 @@
 					};
 					
 					// Bind event handlers
-					this.bind("mousedown touchstart", this._.drag_start)
-					this.core.bind("mouseup touchend", this._.drag_end);
-					this.core.bind("mousemove touchmove", this._.drag_move);
+					this.bind("mousedown touchstart MSPointerDown", this._.drag_start)
+					this.core.bind("mouseup touchend MSPointerUp", this._.drag_end);
+					this.core.bind("mousemove touchmove MSPointerMove", this._.drag_move);
 				}
 				
 				return this;
 			},
+			
 			
 			// Method for setting the origin coordinates
 			// Accepts pixel values or the following keywords:
