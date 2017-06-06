@@ -598,6 +598,14 @@
 							e.stopPropagation();
 						}
 
+						if (options.leftButton && e.which > 1) {
+							return;
+						}
+
+						if (options.oneTouch && e.which === 0) {
+							this.touches = e.originalEvent.touches.length;
+						}
+
 						this.dragging = true;
 						
 						// Get the difference between pointer position and object position
@@ -632,6 +640,7 @@
 							}
 
 							_this.dragging = false;
+							_this.touches = 0;
 							
 							// Run user callback
 							if (typeof options.end === "function") {
@@ -651,6 +660,10 @@
 							// Stop bubbling if specified
 							if (options.bubble === false) {
 								e.stopPropagation();
+							}
+
+							if (options.oneTouch && _this.touches > 1) {
+								return;
 							}
 						
 							var end = _this.core.tools.transformPointerPosition(_this, _this.abs_x, _this.abs_y, _this.rotation);
@@ -678,6 +691,7 @@
 				
 				return this;
 			},
+			
 			
 			// Method for setting the origin coordinates
 			// Accepts pixel values or the following keywords:
