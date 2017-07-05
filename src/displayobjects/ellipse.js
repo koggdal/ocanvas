@@ -39,6 +39,33 @@
 			get radius_y () {
 				return this._.radius_y;
 			},
+
+			getOrigin: function () {
+				var x = 0;
+				var y = 0;
+				var origin = this.origin;
+
+				if (this.origin.x === "right") {
+					x = this.radius_x;
+				} else if (this.origin.x === "left") {
+					x = -this.radius_x;
+				} else {
+					x = !isNaN(parseFloat(this.origin.x)) ? parseFloat(this.origin.x) : 0;
+				}
+
+				if (this.origin.y === "bottom") {
+					y = this.radius_y;
+				} else if (this.origin.y === "top") {
+					y = -this.radius_y;
+				} else {
+					y = !isNaN(parseFloat(this.origin.y)) ? parseFloat(this.origin.y) : 0;
+				}
+
+				return {
+					x: x,
+					y: y
+				};
+			},
 			
 			draw: function () {
 				var canvas = this.core.canvas,
