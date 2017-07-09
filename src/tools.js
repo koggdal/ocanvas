@@ -184,8 +184,8 @@
 					var pointer = this.transformPointerPosition(obj, obj.abs_x, obj.abs_y, 0, pointerObject),
 						a = obj.radius_x + obj.strokeWidth / 2,
 						b = obj.radius_y + obj.strokeWidth / 2;
-					pointer.x -= obj.abs_x + origin.x;
-					pointer.y -= obj.abs_y + origin.y;
+					pointer.x -= obj.abs_x - origin.x;
+					pointer.y -= obj.abs_y - origin.y;
 					
 					return ((pointer.x * pointer.x) / (a * a) + (pointer.y * pointer.y) / (b * b) < 1);
 				} else
