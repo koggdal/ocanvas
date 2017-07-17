@@ -1,1 +1,11 @@
 /build/dev
+
+.idea/modules.xml
+
+.idea/ocanvas.iml
+
+.idea/php.xml
+
+.idea/vcs.xml
+
+.idea/workspace.xml

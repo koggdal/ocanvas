@@ -169,6 +169,10 @@
 				var x = scaleX * (clientX - Math.round(boundingRect.left));
 				var y = scaleY * (clientY - Math.round(boundingRect.top));
 
+				var zoomLevel = this.core.zoomLevel;
+				var x = x/zoomLevel;
+				var y = y/zoomLevel;
+
 				return { x: x, y: y };
 			},
 
