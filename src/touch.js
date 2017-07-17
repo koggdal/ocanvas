@@ -216,6 +216,9 @@
 					x = this.x;
 					y = this.y;
 				}
+                var zoomLevel = this.core.zoomLevel;
+                var x = x/zoomLevel;
+                var y = y/zoomLevel;
 				
 				return { x: x, y: y };
 			},

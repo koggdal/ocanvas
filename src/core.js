@@ -33,6 +33,11 @@
 
 			// Initialize a list of all DOM event handlers
 			this.domEventHandlers = [];
+
+			// Scale for canvas
+            this.zoomLevel = 1;
+            this.originX = 0;
+            this.originY = 0;
 			
 			// Add the registered modules to the new instance of core
 			for (var m in oCanvas.modules) {
@@ -250,6 +255,28 @@
 			displayobj.add(redraw);
 			
 			return this;
+		},
+
+		scale: function (zoomValue, point) {
+            if (!point) {
+                point = {
+                    x:this.width/2,
+                    y:this.height/2
+                }
+            }
+            var x = point.x;
+            var y = point.y;
+
+            var context = this.canvas;
+            this.clear();
+            context.translate(this.originx, this.originy);
+            this.originx -= x/(this.zoomLevel*zoomValue) - x/this.zoomLevel;
+            this.originy -= y/(this.zoomLevel*zoomValue) - y/this.zoomLevel;
+
+            context.scale(zoomValue, zoomValue);
+            context.translate(-this.originx, -this.originy);
+            this.zoomLevel *= zoomValue;
+            this.redraw();
 		},
 		
 		// Method for removing an object from the canvas
