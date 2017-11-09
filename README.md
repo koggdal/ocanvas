@@ -1,4 +1,6 @@
 # [oCanvas](http://ocanvas.org/) - Object-based canvas drawing
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkoggdal%2Focanvas.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkoggdal%2Focanvas?ref=badge_shield)
+
 oCanvas makes canvas development easier to understand and do, by creating a bridge between the native pixel drawing approach and objects that are created and added to canvas. It is now possible to very easily create objects, change properties of these objects and add events to them — and everything just works because oCanvas handles the background stuff for you.
 
 ## Building your own oCanvas
@@ -27,3 +29,7 @@ Issues should be reported on GitHub, and every good issue should contain a good 
 oCanvas is an open source project created and maintained by me (Johannes Koggdal). It would be great to get some more developers working on it, since I can't possibly make everything on my spare time. If you want to help out—reach out to me, so we can sync up to avoid double work. Then just send a pull request to get it in.
 
 I have two main branches, `master` and `develop`, where `develop` is the branch where everything happens. When a new version is about to be released, it gets merged to `master`, where the version number is updated. So if you want to help out, make sure you're working on top of `develop`.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkoggdal%2Focanvas.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkoggdal%2Focanvas?ref=badge_large)
