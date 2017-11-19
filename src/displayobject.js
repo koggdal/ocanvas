@@ -351,28 +351,43 @@
 			
 			// Method for adding the object to the canvas
 			add: function (redraw) {
+				return this.addAt(this.core.children.length, redraw);
+			},
+
+			// Method for adding the object to the canvas at a specific index
+			// If index < 0, then then child is added to the beginning of children array
+			// If index >= children.length, then the child is added at the end of children array
+			addAt: function (index, redraw) {
 				if (!this.added) {
 
 					// Redraw by default, but leave it to the user to decide
 					redraw = redraw !== undefined ? redraw : true;
-				
+
 					// Add this object
-					this.core.children.push(this);
+					if (index >= this.core.children.length) {
+						this.core.children.push(this);
+					} else if (index < 0) {
+						this.core.children.unshift(this);
+					} else {
+						this.core.children.splice(index, 0, this);
+					}
+
+					// this.core.children.push(this);
 					this.added = true;
 					this.parent = this.core;
 
 					// Add it to a global list of all objects. Deprecated list, will be removed soon.
 					this.core.draw.objects.push(this);
-					
+
 					// Redraw the canvas with the new object
 					if (redraw) {
 						this.core.draw.redraw();
 					}
 				}
-				
+
 				return this;
 			},
-			
+
 			// Method for removing the object from the canvas
 			remove: function (redraw) {
 
@@ -728,13 +743,31 @@
 			// Method for adding a child to the display object
 			// Children will transform accordingly when this display object transforms
 			addChild: function (childObj, returnIndex) {
-			
+				return this.addChildAt(childObj, this.children.length, returnIndex);
+			},
+
+			// Method for adding a child to the display object at a specific index
+			// If index < 0, then then child is added to the beginning of children array
+			// If index >= children.length, then the child is added at the end of children array
+			// Children will transform accordingly when this display object transforms
+			addChildAt: function (childObj, index, returnIndex) {
+
 				// Check if the child object doesn't already have a parent
 				if (childObj.parent === undefined) {
-				
+
+					var realIndex;
+
 					// Add the object as a child
-					var index = this.children.push(childObj) - 1;
-					
+					if (index >= this.children.length) {
+						realIndex = this.children.push(childObj) - 1;
+					} else if (index < 0) {
+						this.children.unshift(childObj);
+						realIndex = 0;
+					} else {
+						this.children.splice(index, 0, childObj);
+						realIndex = index;
+					}
+
 					// Update child
 					childObj.parent = this;
 					childObj.x += 0;
@@ -742,23 +775,23 @@
 
 					// Add it to a global list of all objects. Deprecated list, will be removed soon.
 					this.core.draw.objects.push(childObj);
-					
+
 					// Redraw the canvas if this object is drawn, to show the new child object
 					if (this.drawn) {
 						this.core.draw.redraw();
 					}
-					
+
 					if (returnIndex) {
-						return index;
+						return realIndex;
 					}
 				} else if (returnIndex) {
 					return false;
 				}
-				
+
 				// Return the object itself if user chose to not get the index in return
 				return this;
 			},
-			
+
 			// Method for removing a child
 			removeChild: function (childObj, redraw) {
 				var index = this.children.indexOf(childObj);

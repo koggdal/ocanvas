@@ -251,14 +251,32 @@
 			
 			return this;
 		},
-		
+
+		// Method for adding an object to the canvas at a specific index
+		// If index < 0, then then child is added to the beginning of children array
+		// If index >= children.length, then the child is added at the end of children array
+		addChildAt: function (displayobj, index, redraw) {
+			displayobj.addAt(index, redraw);
+
+			return this;
+		},
+
 		// Method for removing an object from the canvas
 		removeChild: function (displayobj, redraw) {
 			displayobj.remove(redraw);
 			
 			return this;
 		},
-		
+
+		// Method for removing a child at a specific index
+		removeChildAt: function (index, redraw) {
+			if (this.children[index] !== undefined) {
+				this.children[index].remove(redraw);
+			}
+
+			return this;
+		},
+
 		// Shorthand method for clearing the canvas
 		clear: function (keepBackground) {
 			this.draw.clear(keepBackground);
