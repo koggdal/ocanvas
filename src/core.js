@@ -253,7 +253,7 @@
 		},
 
 		// Method for adding an object to the canvas at a specific index
-		// If index < 0, then then child is added to the beginning of children array
+		// If index < 0, then the child is added to the beginning of children array
 		// If index >= children.length, then the child is added at the end of children array
 		addChildAt: function (displayobj, index, redraw) {
 			displayobj.addAt(index, redraw);

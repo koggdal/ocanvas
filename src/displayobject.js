@@ -355,7 +355,7 @@
 			},
 
 			// Method for adding the object to the canvas at a specific index
-			// If index < 0, then then child is added to the beginning of children array
+			// If index < 0, then the child is added to the beginning of children array
 			// If index >= children.length, then the child is added at the end of children array
 			addAt: function (index, redraw) {
 				if (!this.added) {
@@ -372,7 +372,6 @@
 						this.core.children.splice(index, 0, this);
 					}
 
-					// this.core.children.push(this);
 					this.added = true;
 					this.parent = this.core;
 
@@ -747,7 +746,7 @@
 			},
 
 			// Method for adding a child to the display object at a specific index
-			// If index < 0, then then child is added to the beginning of children array
+			// If index < 0, then the child is added to the beginning of children array
 			// If index >= children.length, then the child is added at the end of children array
 			// Children will transform accordingly when this display object transforms
 			addChildAt: function (childObj, index, returnIndex) {
