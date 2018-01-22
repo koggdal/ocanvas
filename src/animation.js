@@ -48,7 +48,7 @@
 			parseArguments: function (args) {
 				args = Array.prototype.slice.call(args);
 				args[1] = args[1] || {};
-				var options;
+				var options, props;
 
 				// Check for new syntax
 				if (typeof args[1] === "object") {
