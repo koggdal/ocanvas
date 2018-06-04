@@ -57,24 +57,44 @@
 				|| borderRadius.bottomRight > 0;
 		}
 
-		function drawBorderRadiusRect(canvas, x, y, width, height, borderRadius) {
+		function drawBorderRadiusRect(canvas, x, y, width, height, borderRadius, counterclockwise) {
 
 			var endX = x + width,
 				endY = y + height;
 
-			canvas.moveTo(x + borderRadius.topLeft, y);
+			if (counterclockwise) {
 
-			// top line and top-right border
-			canvas.arcTo(endX, y, endX, y + borderRadius.topRight, borderRadius.topRight);
+				canvas.moveTo(endX - borderRadius.topRight, y);
 
-			// right line and bottom-right border
-			canvas.arcTo(endX, endY, endX - borderRadius.bottomRight, endY, borderRadius.bottomRight);
+				// top line and top-left border
+				canvas.arcTo(x, y, x, y + borderRadius.topLeft, borderRadius.topLeft);
 
-			// bottom line and bottom-left border
-			canvas.arcTo(x, endY, x, endY - borderRadius.bottomLeft, borderRadius.bottomLeft);
+				// left line and bottom-left border
+				canvas.arcTo(x, endY, x + borderRadius.bottomLeft, endY, borderRadius.bottomLeft);
 
-			// left line and top-left border
-			canvas.arcTo(x, y, x + borderRadius.topLeft, y, borderRadius.topLeft);
+				// bottom line and bottom-right border
+				canvas.arcTo(endX, endY, endX, endY - borderRadius.bottomRight, borderRadius.bottomRight);
+
+				// right line and top-right border
+				canvas.arcTo(endX, y, endX - borderRadius.topRight, y, borderRadius.topRight);
+
+			} else {
+
+				canvas.moveTo(x + borderRadius.topLeft, y);
+
+				// top line and top-right border
+				canvas.arcTo(endX, y, endX, y + borderRadius.topRight, borderRadius.topRight);
+
+				// right line and bottom-right border
+				canvas.arcTo(endX, endY, endX - borderRadius.bottomRight, endY, borderRadius.bottomRight);
+
+				// bottom line and bottom-left border
+				canvas.arcTo(x, endY, x, endY - borderRadius.bottomLeft, borderRadius.bottomLeft);
+
+				// left line and top-left border
+				canvas.arcTo(x, y, x + borderRadius.topLeft, y, borderRadius.topLeft);
+
+			}
 
 		}
 
@@ -173,16 +193,16 @@
 
 							if (this.strokePosition === 'inside') {
 								drawBorderRadiusRect(canvas, x, y, this.width, this.height, borderRadius);
-								drawBorderRadiusRect(canvas, x + this.strokeWidth, y + this.strokeWidth, this.width - this.strokeWidth * 2, this.height - this.strokeWidth * 2, addAmountToBorderRadius(borderRadius, -this.strokeWidth));
+								drawBorderRadiusRect(canvas, x + this.strokeWidth, y + this.strokeWidth, this.width - this.strokeWidth * 2, this.height - this.strokeWidth * 2, addAmountToBorderRadius(borderRadius, -this.strokeWidth), true);
 							} else if (this.strokePosition === 'outside') {
-								drawBorderRadiusRect(canvas, x - this.strokeWidth, y - this.strokeWidth, this.width + this.strokeWidth * 2, this.height + this.strokeWidth * 2, addAmountToBorderRadius(borderRadius, this.strokeWidth));
+								drawBorderRadiusRect(canvas, x - this.strokeWidth, y - this.strokeWidth, this.width + this.strokeWidth * 2, this.height + this.strokeWidth * 2, addAmountToBorderRadius(borderRadius, this.strokeWidth), true);
 								drawBorderRadiusRect(canvas, x, y, this.width, this.height, borderRadius);
 							}
 
 							canvas.closePath();
 
 							canvas.fillStyle = this.strokeColor;
-							canvas.fill('evenodd');
+							canvas.fill();
 
 							strokeSimulatedUsingPath = true;
 
