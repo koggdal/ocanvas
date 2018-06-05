@@ -18,12 +18,14 @@
 		}
 
 		function normalizeBorderRadius(borderRadius, borderTopLeftRadius, borderTopRightRadius, borderBottomLeftRadius, borderBottomRightRadius) {
+
 			return {
 				topLeft: normalizeCornerBorderRadius(borderTopLeftRadius, borderRadius),
 				topRight: normalizeCornerBorderRadius(borderTopRightRadius, borderRadius),
 				bottomLeft: normalizeCornerBorderRadius(borderBottomLeftRadius, borderRadius),
 				bottomRight: normalizeCornerBorderRadius(borderBottomRightRadius, borderRadius)
 			};
+
 		}
 
 		function addAmountToBorderRadius(borderRadius, amount) {
@@ -55,44 +57,24 @@
 				|| borderRadius.bottomRight > 0;
 		}
 
-		function drawBorderRadiusRect(canvas, x, y, width, height, borderRadius, counterclockwise) {
+		function drawBorderRadiusRect(canvas, x, y, width, height, borderRadius) {
 
 			var endX = x + width,
 				endY = y + height;
 
-			if (counterclockwise) {
+			canvas.moveTo(x + borderRadius.topLeft, y);
 
-				canvas.moveTo(endX - borderRadius.topRight, y);
+			// top line and top-right border
+			canvas.arcTo(endX, y, endX, y + borderRadius.topRight, borderRadius.topRight);
 
-				// top line and top-left border
-				canvas.arcTo(x, y, x, y + borderRadius.topLeft, borderRadius.topLeft);
+			// right line and bottom-right border
+			canvas.arcTo(endX, endY, endX - borderRadius.bottomRight, endY, borderRadius.bottomRight);
 
-				// left line and bottom-left border
-				canvas.arcTo(x, endY, x + borderRadius.bottomLeft, endY, borderRadius.bottomLeft);
+			// bottom line and bottom-left border
+			canvas.arcTo(x, endY, x, endY - borderRadius.bottomLeft, borderRadius.bottomLeft);
 
-				// bottom line and bottom-right border
-				canvas.arcTo(endX, endY, endX, endY - borderRadius.bottomRight, borderRadius.bottomRight);
-
-				// right line and top-right border
-				canvas.arcTo(endX, y, endX - borderRadius.topRight, y, borderRadius.topRight);
-
-			} else {
-
-				canvas.moveTo(x + borderRadius.topLeft, y);
-
-				// top line and top-right border
-				canvas.arcTo(endX, y, endX, y + borderRadius.topRight, borderRadius.topRight);
-
-				// right line and bottom-right border
-				canvas.arcTo(endX, endY, endX - borderRadius.bottomRight, endY, borderRadius.bottomRight);
-
-				// bottom line and bottom-left border
-				canvas.arcTo(x, endY, x, endY - borderRadius.bottomLeft, borderRadius.bottomLeft);
-
-				// left line and top-left border
-				canvas.arcTo(x, y, x + borderRadius.topLeft, y, borderRadius.topLeft);
-
-			}
+			// left line and top-left border
+			canvas.arcTo(x, y, x + borderRadius.topLeft, y, borderRadius.topLeft);
 
 		}
 
@@ -191,16 +173,16 @@
 
 							if (this.strokePosition === 'inside') {
 								drawBorderRadiusRect(canvas, x, y, this.width, this.height, borderRadius);
-								drawBorderRadiusRect(canvas, x + this.strokeWidth, y + this.strokeWidth, this.width - this.strokeWidth * 2, this.height - this.strokeWidth * 2, addAmountToBorderRadius(borderRadius, -this.strokeWidth), true);
+								drawBorderRadiusRect(canvas, x + this.strokeWidth, y + this.strokeWidth, this.width - this.strokeWidth * 2, this.height - this.strokeWidth * 2, addAmountToBorderRadius(borderRadius, -this.strokeWidth));
 							} else if (this.strokePosition === 'outside') {
-								drawBorderRadiusRect(canvas, x - this.strokeWidth, y - this.strokeWidth, this.width + this.strokeWidth * 2, this.height + this.strokeWidth * 2, addAmountToBorderRadius(borderRadius, this.strokeWidth), true);
+								drawBorderRadiusRect(canvas, x - this.strokeWidth, y - this.strokeWidth, this.width + this.strokeWidth * 2, this.height + this.strokeWidth * 2, addAmountToBorderRadius(borderRadius, this.strokeWidth));
 								drawBorderRadiusRect(canvas, x, y, this.width, this.height, borderRadius);
 							}
 
 							canvas.closePath();
 
 							canvas.fillStyle = this.strokeColor;
-							canvas.fill();
+							canvas.fill('evenodd');
 
 							strokeSimulatedUsingPath = true;
 
