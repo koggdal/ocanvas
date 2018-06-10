@@ -42,7 +42,7 @@
 				height: 0,
 				drawn: false,
 				stroke: "",
-				strokeColor: "",
+				strokeColor: "black",
 				strokeWidth: 0,
 				strokePosition: "center",
 				cap: "butt",
