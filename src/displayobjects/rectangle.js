@@ -3,27 +3,31 @@
 	// Define the class
 	var rectangle = function (settings, thecore) {
 
-		function normalizeCornerBorderRadius(cornerBorderRadius, generalBorderRadius) {
+		function checkBounds(borderRadiusValue, maxValue) {
+			return Math.max(Math.min(borderRadiusValue, maxValue), 0);
+		}
+
+		function normalizeCornerBorderRadius(cornerBorderRadius, generalBorderRadius, maxValue) {
 
 			if (cornerBorderRadius !== undefined) {
-				return cornerBorderRadius;
+				return checkBounds(cornerBorderRadius, maxValue);
 			}
 
 			if (generalBorderRadius !== undefined) {
-				return generalBorderRadius;
+				return checkBounds(generalBorderRadius, maxValue);
 			}
 
 			return 0;
 
 		}
 
-		function normalizeBorderRadius(borderRadius, borderTopLeftRadius, borderTopRightRadius, borderBottomLeftRadius, borderBottomRightRadius) {
+		function normalizeBorderRadius(borderRadius, borderTopLeftRadius, borderTopRightRadius, borderBottomLeftRadius, borderBottomRightRadius, maxValue) {
 
 			return {
-				topLeft: normalizeCornerBorderRadius(borderTopLeftRadius, borderRadius),
-				topRight: normalizeCornerBorderRadius(borderTopRightRadius, borderRadius),
-				bottomLeft: normalizeCornerBorderRadius(borderBottomLeftRadius, borderRadius),
-				bottomRight: normalizeCornerBorderRadius(borderBottomRightRadius, borderRadius)
+				topLeft: normalizeCornerBorderRadius(borderTopLeftRadius, borderRadius, maxValue),
+				topRight: normalizeCornerBorderRadius(borderTopRightRadius, borderRadius, maxValue),
+				bottomLeft: normalizeCornerBorderRadius(borderBottomLeftRadius, borderRadius, maxValue),
+				bottomRight: normalizeCornerBorderRadius(borderBottomRightRadius, borderRadius, maxValue)
 			};
 
 		}
@@ -116,7 +120,8 @@
 					this.borderTopLeftRadius,
 					this.borderTopRightRadius,
 					this.borderBottomLeftRadius,
-					this.borderBottomRightRadius
+					this.borderBottomRightRadius,
+					Math.min(this.width, this.height) / 2
 				);
 
 				if (!hasBorderRadius(borderRadius)) {
