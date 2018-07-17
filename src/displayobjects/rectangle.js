@@ -109,6 +109,66 @@
 			shapeType: "rectangular",
 			clipChildren: false,
 
+			_: oCanvas.extend({}, thecore.displayObject._, {
+				borderTopLeftRadius: 0,
+				borderTopRightRadius: 0,
+				borderBottomRightRadius: 0,
+				borderBottomLeftRadius: 0,
+				borderRadius: 0,
+			}),
+
+			set borderTopLeftRadius (value) {
+				this._.borderTopLeftRadius = parseFloat(value, 10);
+			},
+
+			get borderTopLeftRadius () {
+				return this._.borderTopLeftRadius;
+			},
+
+			set borderTopRightRadius (value) {
+				this._.borderTopRightRadius = parseFloat(value, 10);
+			},
+
+			get borderTopRightRadius () {
+				return this._.borderTopRightRadius;
+			},
+
+			set borderBottomRightRadius (value) {
+				this._.borderBottomRightRadius = parseFloat(value, 10);
+			},
+
+			get borderBottomRightRadius () {
+				return this._.borderBottomRightRadius;
+			},
+
+			set borderBottomLeftRadius (value) {
+				this._.borderBottomLeftRadius = parseFloat(value, 10);
+			},
+
+			get borderBottomLeftRadius () {
+				return this._.borderBottomLeftRadius;
+			},
+
+			set borderRadius (value) {
+				var floatValue = parseFloat(value, 10);
+				this._.borderRadius = floatValue;
+				this._.borderTopLeftRadius = floatValue;
+				this._.borderTopRightRadius = floatValue;
+				this._.borderBottomRightRadius = floatValue;
+				this._.borderBottomLeftRadius = floatValue;
+			},
+
+			get borderRadius () {
+				var a = this._.borderTopLeftRadius;
+				var b = this._.borderTopRightRadius;
+				var c = this._.borderBottomRightRadius;
+				var d = this._.borderBottomLeftRadius;
+				if (a === b && b === c && c === d) {
+					this._.borderRadius = a;
+				}
+				return this._.borderRadius;
+			},
+
 			draw: function () {
 				var canvas = this.core.canvas,
 					origin = this.getOrigin(),
