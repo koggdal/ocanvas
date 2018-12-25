@@ -84,9 +84,11 @@
 					y = cY + Math.sin(c) * D * (topleft ? -1 : 1);
 				}
 				
+				var transformMatrix = this.core.canvas.getTransform()
+
 				return {
-					x: x,
-					y: y
+					x: x / transformMatrix.a,
+					y: y / transformMatrix.d
 				};
 			},
 			
