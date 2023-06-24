@@ -10,10 +10,20 @@
 			shapeType: "radial",
 			clipChildren: false,
 			
-			_: oCanvas.extend({}, thecore.displayObject._, {
-				radius_x: 0,
-				radius_y: 0
-			}),
+			_: oCanvas.extend(
+				{},
+				thecore.displayObject._,
+				{
+					shadow: oCanvas.extend(
+						{},
+						thecore.displayObject._.shadow
+					)
+				},
+				{
+					radius_x: 0,
+					radius_y: 0
+				}
+			),
 			
 			set radius (value) {
 				this._.radius_x = value;

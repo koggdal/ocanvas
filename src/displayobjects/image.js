@@ -7,9 +7,19 @@
 		return oCanvas.extend({
 			core: thecore,
 
-			_: oCanvas.extend({}, thecore.displayObject._, {
-				hasBeenDrawn: false
-			}),
+			_: oCanvas.extend(
+				{},
+				thecore.displayObject._,
+				{
+					shadow: oCanvas.extend(
+						{},
+						thecore.displayObject._.shadow
+					)
+				},
+				{
+					hasBeenDrawn: false
+				}
+			),
 			
 			shapeType: "rectangular",
 			loaded: false,

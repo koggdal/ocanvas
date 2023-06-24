@@ -24,10 +24,20 @@
 			loop: true,
 			clipChildren: false,
 			
-			_: oCanvas.extend({}, thecore.displayObject._, {
-				autostart: false,
-				hasBeenDrawn: false
-			}),
+			_: oCanvas.extend(
+				{},
+				thecore.displayObject._,
+				{
+					shadow: oCanvas.extend(
+						{},
+						thecore.displayObject._.shadow
+					)
+				},
+				{
+					autostart: false,
+					hasBeenDrawn: false
+				}
+			),
 			
 			set autostart (value) {
 				this.active = value;

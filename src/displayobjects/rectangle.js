@@ -109,13 +109,23 @@
 			shapeType: "rectangular",
 			clipChildren: false,
 
-			_: oCanvas.extend({}, thecore.displayObject._, {
-				borderTopLeftRadius: 0,
-				borderTopRightRadius: 0,
-				borderBottomRightRadius: 0,
-				borderBottomLeftRadius: 0,
-				borderRadius: 0,
-			}),
+			_: oCanvas.extend(
+				{},
+				thecore.displayObject._,
+				{
+					shadow: oCanvas.extend(
+						{},
+						thecore.displayObject._.shadow
+					)
+				},
+				{
+					borderTopLeftRadius: 0,
+					borderTopRightRadius: 0,
+					borderBottomRightRadius: 0,
+					borderBottomLeftRadius: 0,
+					borderRadius: 0,
+				}
+			),
 
 			set borderTopLeftRadius (value) {
 				this._.borderTopLeftRadius = parseFloat(value, 10);

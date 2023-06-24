@@ -11,10 +11,20 @@
 			sides: 3,
 			clipChildren: false,
 			
-			_: oCanvas.extend({}, thecore.displayObject._, {
-				radius: 0,
-				side: 0
-			}),
+			_: oCanvas.extend(
+				{},
+				thecore.displayObject._,
+				{
+					shadow: oCanvas.extend(
+						{},
+						thecore.displayObject._.shadow
+					)
+				},
+				{
+					radius: 0,
+					side: 0
+				}
+			),
 			
 			set radius (value) {
 				this._.radius = value;
