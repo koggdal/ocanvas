@@ -1,8 +1,8 @@
 /**
- * oCanvas v2.10.0
+ * oCanvas v2.10.1
  * http://ocanvas.org/
  *
- * Copyright 2011-2018, Johannes Koggdal
+ * Copyright 2011-2023, Johannes Koggdal
  * Licensed under the MIT license
  * http://ocanvas.org/license
  *

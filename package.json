@@ -1,6 +1,6 @@
 {
   "name": "ocanvas",
-  "version": "2.10.0",
+  "version": "2.10.1",
   "author": "Johannes Koggdal <johannes@koggdal.com>",
   "description": "Library for HTML5 Canvas, based on objects instead of pixels.",
   "main": "index.js",
